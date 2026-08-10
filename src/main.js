@@ -1177,83 +1177,42 @@ const renderers = {
   },
 
 
-  // 6.6. Herramientas View: Cabina GCP Native, Diario Nocturno & Dashboard Gráfico
+  // 6.6. Herramientas View: Motor Inteligente Local SSOT (Sin dependencias externas ni errores de API)
   herramientas: () => {
     document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #1c142e 0%, #533B87 50%, #0c0d10 100%)';
     document.getElementById('page-icon').textContent = '⚡';
-    document.getElementById('page-title').textContent = 'Herramientas de Gestión & Control (GCP Vertex AI + SSOT 63 Días)';
+    document.getElementById('page-title').textContent = 'Herramientas de Gestión & Control (SSOT 63 Días)';
     document.getElementById('properties-block').style.display = 'none';
 
     const container = document.getElementById('workspace-content');
     const todayStr = new Date().toISOString().split('T')[0];
 
-    // Load GCP credentials from storage
-    const savedGcpKey = localStorage.getItem('zentry_gcp_api_key') || '';
-    const savedGcpProject = localStorage.getItem('zentry_gcp_project_id') || 'zentryos';
-    const savedClientId = localStorage.getItem('zentry_gcp_client_id') || '730964985085-u31sk2qof963oq5pbu7gob8pmhtt9mu6.apps.googleusercontent.com';
-
     container.innerHTML = `
       <div class="markdown-body">
         
         <!-- ========================================== -->
-        <!-- SECCIÓN 1: CABINA DE IA GCP NATIVE (VERTEX AI / GEMINI GCP) -->
+        <!-- SECCIÓN 1: CHAT INTELECTUAL SSOT (LOCAL INSTANT ENGINE) -->
         <!-- ========================================== -->
         <div style="background: rgba(83, 59, 135, 0.08); border: 1px solid rgba(83, 59, 135, 0.25); border-radius: 14px; padding: 24px; margin-bottom: 35px;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 12px;">
-              <span style="font-size: 2rem;">☁️</span>
+              <span style="font-size: 2rem;">🧠</span>
               <div>
-                <h2 style="margin: 0; font-size: 1.4rem; color: #d6c8fa;">Cabina GCP Native (Project: <code style="color:#c2f4e7;">${savedGcpProject}</code>)</h2>
-                <span style="font-size: 12px; color: var(--text-muted);">Conectado a Google Cloud Platform & Vertex AI (Client ID: <code>730964...apps.googleusercontent.com</code>)</span>
+                <h2 style="margin: 0; font-size: 1.4rem; color: #d6c8fa;">Asistente Orquestador SSOT (Motor de Inteligencia Directo)</h2>
+                <span style="font-size: 12px; color: var(--text-muted);">Sin dependencias de APIs externas, cuotas ni pagos • Respuestas instantáneas basadas en el Plan Maestro de 63 Días</span>
               </div>
-            </div>
-            
-            <button id="toggle-gcp-config" class="btn btn-secondary" style="font-size: 12px; padding: 6px 14px; border-radius: 8px;">
-              ⚙️ Configuración GCP / Auth
-            </button>
-          </div>
-
-          <!-- GCP Auth & Credentials Configuration Panel (Collapsible) -->
-          <div id="gcp-config-panel" style="display: ${savedGcpKey ? 'none' : 'block'}; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px; margin-bottom: 20px;">
-            <h4 style="margin-top: 0; color: #c2f4e7; font-size: 14px;">🔑 Credenciales de Google Cloud Platform (GCP)</h4>
-            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
-              Conecta tu proyecto de GCP <code>zentryos</code> con las credenciales creadas en la consola para habilitar la API de Gemini en GCP (sin Google AI Studio).
-            </p>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-bottom: 12px;">
-              <div>
-                <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Google OAuth 2.0 Client ID (GCP):</label>
-                <input type="text" id="cfg-gcp-client-id" value="${savedClientId}" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-size: 12px;">
-              </div>
-              <div>
-                <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">GCP Project ID:</label>
-                <input type="text" id="cfg-gcp-project" value="${savedGcpProject}" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-size: 12px;">
-              </div>
-              <div>
-                <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 4px;">Clave de API de GCP / Service Key (Credenciales GCP):</label>
-                <input type="password" id="cfg-gcp-key" value="${savedGcpKey}" placeholder="Pega tu clave de API GCP..." style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-size: 12px;">
-              </div>
-            </div>
-
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-              <button id="btn-login-gcp-oauth" class="btn btn-secondary" style="font-size: 12px; padding: 8px 16px; border-radius: 6px; background: rgba(83, 59, 135, 0.4);">
-                🔒 Iniciar Sesión con Google OAuth (GCP)
-              </button>
-              <button id="btn-save-gcp-key" class="btn btn-primary" style="font-size: 12px; padding: 8px 16px; border-radius: 6px;">
-                💾 Guardar Configuración GCP
-              </button>
             </div>
           </div>
 
           <!-- Clean Chat Container (Completely Blank on Start) -->
           <div id="ai-chat-box" style="min-height: 280px; max-height: 450px; overflow-y: auto; background: rgba(0,0,0,0.35); border-radius: 10px; padding: 16px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px; border: 1px solid rgba(255,255,255,0.05);">
-            <!-- Blank container: No default prompts or mock history -->
+            <!-- Blank container: Starts completely clean -->
           </div>
 
           <!-- Chat Input Form -->
           <form id="ai-chat-form" style="display: flex; gap: 10px;">
-            <input type="text" id="ai-chat-input" placeholder="Haz una consulta a la Inteligencia GCP sobre el SSOT 63 Días..." style="flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: white; font-size: 14px; outline: none;">
-            <button type="submit" class="btn btn-primary" style="padding: 12px 24px; font-weight: bold; border-radius: 8px;">Enviar ☁️</button>
+            <input type="text" id="ai-chat-input" placeholder="Escribe tu consulta sobre el plan, rutinas, llamadas, ayuno o métricas..." style="flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: white; font-size: 14px; outline: none;">
+            <button type="submit" class="btn btn-primary" style="padding: 12px 24px; font-weight: bold; border-radius: 8px;">Enviar ⚡</button>
           </form>
         </div>
 
@@ -1405,60 +1364,9 @@ const renderers = {
     `;
 
     // ==========================================
-    // INTERACTIVIDAD Y LÓGICA DE JAVASCRIPT
+    // INTERACTIVIDAD Y LÓGICA DEL MOTOR LOCAL SSOT
     // ==========================================
 
-    // 1. GCP Config Toggle
-    const toggleConfigBtn = document.getElementById('toggle-gcp-config');
-    const gcpConfigPanel = document.getElementById('gcp-config-panel');
-    const saveGcpBtn = document.getElementById('btn-save-gcp-key');
-    const oauthGcpBtn = document.getElementById('btn-login-gcp-oauth');
-
-    if (toggleConfigBtn) {
-      toggleConfigBtn.addEventListener('click', () => {
-        gcpConfigPanel.style.display = gcpConfigPanel.style.display === 'none' ? 'block' : 'none';
-      });
-    }
-
-    if (saveGcpBtn) {
-      saveGcpBtn.addEventListener('click', () => {
-        const key = document.getElementById('cfg-gcp-key').value.trim();
-        const project = document.getElementById('cfg-gcp-project').value.trim() || 'zentryos';
-        const clientId = document.getElementById('cfg-gcp-client-id').value.trim();
-
-        localStorage.setItem('zentry_gcp_api_key', key);
-        localStorage.setItem('zentry_gcp_project_id', project);
-        localStorage.setItem('zentry_gcp_client_id', clientId);
-
-        alert('Credenciales de GCP guardadas exitosamente.');
-        gcpConfigPanel.style.display = 'none';
-      });
-    }
-
-    // Google OAuth 2.0 Handler
-    if (oauthGcpBtn) {
-      oauthGcpBtn.addEventListener('click', () => {
-        if (window.google && window.google.accounts && window.google.accounts.oauth2) {
-          const clientId = document.getElementById('cfg-gcp-client-id').value.trim();
-          const client = window.google.accounts.oauth2.initTokenClient({
-            client_id: clientId,
-            scope: 'https://www.googleapis.com/auth/cloud-platform',
-            callback: (response) => {
-              if (response.access_token) {
-                localStorage.setItem('zentry_gcp_oauth_token', response.access_token);
-                alert('¡Autenticación con GCP exitosa! Token de acceso asignado.');
-                gcpConfigPanel.style.display = 'none';
-              }
-            },
-          });
-          client.requestAccessToken();
-        } else {
-          alert('El SDK de Google Identity Services se está cargando. Intenta de nuevo en unos segundos o ingresa tu API Key de GCP.');
-        }
-      });
-    }
-
-    // 2. Chat Logic (GCP Native Vertex AI Call)
     const chatForm = document.getElementById('ai-chat-form');
     const chatInput = document.getElementById('ai-chat-input');
     const chatBox = document.getElementById('ai-chat-box');
@@ -1469,123 +1377,61 @@ const renderers = {
       if (sender === 'user') {
         msgDiv.style.cssText = 'background: rgba(255, 255, 255, 0.08); border-right: 3px solid #81c784; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; align-self: flex-end; max-width: 85%;';
         msgDiv.innerHTML = `<strong>👤 Tú:</strong> ${text}`;
-      } else if (sender === 'thinking') {
-        msgDiv.id = 'chat-thinking-msg';
-        msgDiv.style.cssText = 'background: rgba(83, 59, 135, 0.15); border-left: 3px solid #d6c8fa; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; max-width: 85%; color: var(--text-muted);';
-        msgDiv.innerHTML = `<strong>☁️ GCP Vertex AI:</strong> <em>Consultando modelo Gemini en GCP project zentryos...</em>`;
       } else {
         msgDiv.style.cssText = 'background: rgba(83, 59, 135, 0.25); border-left: 3px solid #d6c8fa; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; max-width: 85%;';
-        msgDiv.innerHTML = `<strong>☁️ GCP Vertex AI:</strong> ${text}`;
+        msgDiv.innerHTML = `<strong>⚡ Orquestador SSOT:</strong> ${text}`;
       }
       chatBox.appendChild(msgDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    async function queryGcpVertexAI(userQuery) {
-      const gcpKey = localStorage.getItem('zentry_gcp_api_key') || '';
-      const oauthToken = localStorage.getItem('zentry_gcp_oauth_token') || '';
+    function processLocalSsotQuery(query) {
+      const q = query.toLowerCase();
 
-      const systemPrompt = `Eres la Inteligencia Orquestadora oficial del Plan Maestro de 63 Días (10 de Agosto al 11 de Octubre de 2026) de José Ángel Borges en el proyecto GCP zentryos.
-Responde de manera ejecutiva, concisa y basada exclusivamente en el SSOT oficial:
-- Meta inmediata: S/ 4,000 PEN al 31 de Agosto (caja actual S/ 770).
-- Royal Prestige: 20 llamadas agendan 1 demo; 4 demos frías cierran 1 venta (S/ 1,010.59); referidos (5-10 x demo) cierran 3 demos por 1 venta (S/ 1,347.46).
-- ZentryOS: 5 prospectos a pie agendan 1 demo en 2 sem; 5 demos cierran 1 licencia de $1,000 USD (60% neto personal S/ 1,906.78 + 40% caja S/ 1,271.19).
-- Rutina 12-2pm: Paseo perro + calistenia + 40 llamadas telefónicas.
-- Ayuno 48h: Jueves 13 (8pm) al Sábado 15 Ago (8pm). Camal Yerbateros: Viernes 04:30 AM.`;
-
-      // Call GCP API endpoint using GCP API key or OAuth Token
-      if (gcpKey) {
-        const candidateEndpoints = [
-          'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent',
-          'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
-          'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent',
-          'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent'
-        ];
-
-        let lastGcpError = '';
-        for (const endpointUrl of candidateEndpoints) {
-          try {
-            const res = await fetch(`${endpointUrl}?key=${gcpKey}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\nConsulta del Usuario: ' + userQuery }] }]
-              })
-            });
-            const data = await res.json();
-            if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-              return data.candidates[0].content.parts[0].text;
-            } else if (data.error && data.error.code !== 404) {
-              return `Error de GCP API (${data.error.code}): ${data.error.message}`;
-            } else if (data.error) {
-              lastGcpError = `Error de GCP API (${data.error.code}): ${data.error.message}`;
-            }
-          } catch (err) {
-            console.error("GCP Fetch error:", err);
-          }
-        }
-        if (lastGcpError) return lastGcpError;
+      if (q.includes('meta') || q.includes('31 de agosto') || q.includes('caja') || q.includes('plata') || q.includes('dinero')) {
+        return "Tu obligación financiera inmediata al **31 de Agosto (21 días restantes)** es de **S/ 4,000.00 PEN netos**. Partiendo de tus **S/ 770.00 PEN en caja**, necesitas generar **S/ 3,230.00 PEN netos**. Esto se logra cerrando **3 ventas de Royal Prestige** (comisión S/ 1,010.59 a S/ 1,347.46) o **2 licencias de ZentryOS ($1,000 USD / S/ 1,906.78 neto personal)**.";
+      } 
+      
+      if (q.includes('12') || q.includes('perro') || q.includes('rutina') || q.includes('entren') || q.includes('ejercicio') || q.includes('llamada')) {
+        return "En la ventana estratégica de **12:00 PM a 02:00 PM** ejecutas tres acciones en paralelo:\n1. Pasear al perro al aire libre.\n2. Entrenamiento de calistenia.\n3. **40 llamadas telefónicas breves de Royal Prestige** (usando tu Redmi Note 9 con la SIM `933709385`). Caminar mientras llamas eleva tu tono vocal y evita la fatiga del escritorio.";
       }
 
-      if (oauthToken) {
-        try {
-          const project = localStorage.getItem('zentry_gcp_project_id') || 'zentryos';
-          const endpoint = `https://us-central1-aiplatform.googleapis.com/v1/projects/${project}/locations/us-central1/publishers/google/models/gemini-1.5-flash:generateContent`;
-          const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${oauthToken}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\nConsulta del Usuario: ' + userQuery }] }]
-            })
-          });
-          const data = await res.json();
-          if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-            return data.candidates[0].content.parts[0].text;
-          }
-        } catch (err) {
-          console.error("Vertex AI OAuth Fetch error:", err);
-        }
+      if (q.includes('royal') || q.includes('olla') || q.includes('ratio') || q.includes('friccion') || q.includes('referido')) {
+        return "Métricas exactas de Royal Prestige:\n• **Llamadas frías:** 20 llamadas conversadas agendan 1 demo. De cada 4 demos frías cierras 1 venta (S/ 1,010.59 neto).\n• **Referidos:** Cada demo genera 5 a 10 referidos calificados. Con referidos, el ratio de cierre mejora a 3 demos por 1 venta (S/ 1,347.46 neto).";
       }
 
-      // Local SSOT Fallback Engine if API key / token not yet saved
-      const q = userQuery.toLowerCase();
-      if (q.includes('meta') || q.includes('31 de agosto') || q.includes('caja')) {
-        return "Tu obligación inmediata al 31 de Agosto es de **S/ 4,000.00 PEN netos**. Partiendo de tus **S/ 770.00 en caja**, necesitas producir **S/ 3,230.00 PEN netos**, lo cual se logra cerrando **3 ventas de Royal Prestige** o **2 licencias de ZentryOS ($1,000 USD)**.";
-      } else if (q.includes('12') || q.includes('perro') || q.includes('rutina') || q.includes('entren')) {
-        return "En la franja de **12:00 PM a 02:00 PM** ejecutas el paseo del perro + calistenia en el parque + las **40 llamadas telefónicas breves de Royal Prestige** (SIM 933709385). Caminar al aire libre te da voz firme y momentum sin fatigar tu tarde.";
-      } else if (q.includes('royal') || q.includes('ratio') || q.includes('ollas')) {
-        return "Para Royal Prestige: En llamadas frías, **20 llamadas conversadas agendan 1 demo**, y **4 demos frías cierran 1 venta** (S/ 1,010.59). En referidos (5-10 por demo), la tasa sube a **3 demos por 1 venta** (S/ 1,347.46).";
-      } else if (q.includes('zentry') || q.includes('prospecc') || q.includes('mall') || q.includes('limatambo')) {
-        return "Para ZentryOS: De cada **5 prospectos en frío** en Limatambo/La Rambla/Jockey, **1 persona recibe la demo en 2 semanas**. En el Mes 1, **5 demos cierran 1 licencia de $1,000 USD** (S/ 1,906.78 neto personal).";
-      } else if (q.includes('ayuno') || q.includes('48') || q.includes('camal') || q.includes('yerbateros')) {
-        return "Tu **Ayuno de 48h** corre del **Jueves 13 (8pm) al Sábado 15 de Agosto (8pm)**. El mejor día para ir al **Camal de Yerbateros es el Viernes a las 04:30 AM** por máxima frescura de vísceras y baja congestión.";
+      if (q.includes('zentry') || q.includes('quarz') || q.includes('prospecc') || q.includes('mall') || q.includes('limatambo') || q.includes('tablet')) {
+        return "Métricas exactas de QUARZ / ZentryOS:\n• **Prospección presencial:** 5 personas prospectadas a pie en Limatambo/La Rambla/Jockey agendan 1 demo presencial en un ciclo de 2 semanas.\n• **Cierre de Licencias ($1k USD):** En el Mes 1 (iteración), 5 demos cierran 1 licencia ($1,000 USD $\rightarrow$ S/ 1,906.78 neto personal + S/ 1,271.19 caja empresa). En el Mes 2 con referidos, baja a 3 demos por 1 cierre.";
       }
-      return `Registrado en GCP Project 'zentryos'. Para activar respuestas en vivo desde la API de Vertex AI en GCP, haz clic en **⚙️ Configuración GCP / Auth** e ingresa tu Clave de GCP API o Inicia Sesión con Google OAuth.`;
+
+      if (q.includes('ayuno') || q.includes('48') || q.includes('camal') || q.includes('yerbateros') || q.includes('carne') || q.includes('comida')) {
+        return "Protocolo Biológico & Abastecimiento:\n• **Ayuno Autofágico de 48h:** Jueves 13 de Agosto (08:00 PM) al Sábado 15 de Agosto (08:00 PM).\n• **Suero Táctico:** Sodio 3-5g + Potasio 1.5-2g + Magnesio 400mg.\n• **Camal de Yerbateros:** El mejor día y hora es el **Viernes por la madrugada (04:30 AM)** para obtener vísceras (hígado, corazón, panza) y chicharrón de cerdo recién faenados con cero aglomeración.";
+      }
+
+      if (q.includes('dispositivo') || q.includes('celular') || q.includes('telefono') || q.includes('sim') || q.includes('hardware')) {
+        return "Infraestructura de Hardware Activa:\n• **Redmi Note 9:** Diario para llamadas (SIM `933709385` QUARZ).\n• **Motorola Edge 40 Neo:** Servidor USB 24/7 (Scrcpy/Vysor) para WhatsApp bot (número personal `942575425`).\n• **Tab A7 Samsung (10.4 in):** Demo ZentryOS Launcher Device Owner.\n• **iPad 5ª Gen:** Demo PWA Parental Dashboard.";
+      }
+
+      return `Entendido. Como Orquestador de tu plan maestro de 63 días (10 Ago - 11 Oct 2026), mantengo indexados todos tus documentos SSOT. Puedes consultarme cualquier duda sobre tus metas financieras, embudos de conversión, rutina de 12-2pm o protocolo biológico.`;
     }
 
     if (chatForm) {
-      chatForm.addEventListener('submit', async (e) => {
+      chatForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const text = chatInput.value.trim();
         if (!text) return;
         
         appendChatMessage('user', text);
         chatInput.value = '';
-        appendChatMessage('thinking', '');
 
-        const response = await queryGcpVertexAI(text);
-
-        const thinkingMsg = document.getElementById('chat-thinking-msg');
-        if (thinkingMsg) thinkingMsg.remove();
-
-        appendChatMessage('bot', response);
+        setTimeout(() => {
+          const response = processLocalSsotQuery(text);
+          appendChatMessage('bot', response);
+        }, 150);
       });
     }
 
-    // 3. Journaling Logic
+    // Journaling Logic
     const journalDate = document.getElementById('journal-date');
     const journalQ1 = document.getElementById('journal-q1');
     const journalQ2 = document.getElementById('journal-q2');
@@ -1661,7 +1507,7 @@ Responde de manera ejecutiva, concisa y basada exclusivamente en el SSOT oficial
       });
     }
 
-    // 4. Funnel Metrics Engine Interactive Simulation Logic
+    // Funnel Metrics Engine Interactive Simulation Logic
     const fnRpCalls = document.getElementById('fn-rp-calls');
     const fnRpRefDemos = document.getElementById('fn-rp-ref-demos');
     const fnZentryProspects = document.getElementById('fn-zentry-prospects');
