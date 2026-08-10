@@ -1,3 +1,4 @@
+import { plan63diasMarkdown, circadianoMarkdown, dispositivosData } from './herramientas-data.js';
 import './style.css';
 import db from './ssot-db.json';
  
@@ -1099,7 +1100,173 @@ const renderers = {
     `;
   },
 
-  // 7. Construcciones View (Cards)
+
+  // 6.6. Herramientas & Agentes View
+  herramientas: () => {
+    document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #1c142e 0%, #533B87 50%, #0c0d10 100%)';
+    document.getElementById('page-icon').textContent = '⚡';
+    document.getElementById('page-title').textContent = 'Hub de Herramientas & Agentes';
+    document.getElementById('properties-block').style.display = 'none';
+
+    const container = document.getElementById('workspace-content');
+
+    let devCardsHtml = dispositivosData.map(d => `
+      <div class="ia-card" style="border-left: 4px solid var(--purple-zentry); background: rgba(255,255,255,0.03);">
+        <div class="ia-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.6rem;">${d.icon}</span>
+            <h3 class="ia-card-title" style="margin: 0;">${d.name}</h3>
+          </div>
+          <span class="tag ${d.statusColor}">${d.status}</span>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin: 6px 0 10px 0;"><strong>Tipo:</strong> ${d.type} • <strong>SIM/Línea:</strong> ${d.sim}</p>
+        <p class="ia-card-desc" style="font-size: 13px; line-height: 1.4;">${d.role}</p>
+      </div>
+    `).join('');
+
+    container.innerHTML = `
+      <div class="markdown-body">
+        <h2>📱 Parque de Dispositivos y Red de Números (Hardware Hub)</h2>
+        <p>Asignación técnica de dispositivos móviles, tablets e infraestructura para prospección y demos en vivo:</p>
+        
+        <div class="ia-cards-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); margin-bottom: 40px;">
+          ${devCardsHtml}
+        </div>
+
+        <h2>💰 Calculadora de Comisiones & Sensibilidad Financiera</h2>
+        <p>Ajusta el número de cierres proyectados para simular tus ganancias netas personales y caja de empresa acumulada:</p>
+
+        <div style="background: rgba(83, 59, 135, 0.08); border: 1px solid rgba(83, 59, 135, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 40px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <div>
+              <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px;">Royal Prestige (Ventas):</label>
+              <input type="number" id="calc-rp-sales" value="3" min="0" max="20" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; font-weight: bold;">
+              <span style="font-size: 11px; color: var(--text-muted);">S/ 1,010.59 a S/ 1,347.46 netos / venta</span>
+            </div>
+            <div>
+              <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px;">ZentryOS ($1k USD Licencias):</label>
+              <input type="number" id="calc-zentry-sales" value="2" min="0" max="20" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; font-weight: bold;">
+              <span style="font-size: 11px; color: var(--text-muted);">S/ 1,906.78 neto personal / licencia</span>
+            </div>
+            <div>
+              <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px;">Importadora Visual (Lotes):</label>
+              <input type="number" id="calc-iv-sales" value="1" min="0" max="20" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; font-weight: bold;">
+              <span style="font-size: 11px; color: var(--text-muted);">S/ 1,000.00 neto avg / lote</span>
+            </div>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 10px; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 15px; text-align: center;">
+            <div>
+              <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Caja Actual + Producido</span>
+              <h3 id="calc-total-personal" style="color: #c2f4e7; margin: 4px 0 0 0; font-size: 1.5rem;">S/ 8,433.00</h3>
+            </div>
+            <div>
+              <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Meta 31 de Agosto</span>
+              <h3 style="color: #d6c8fa; margin: 4px 0 0 0; font-size: 1.5rem;">S/ 4,000.00</h3>
+            </div>
+            <div>
+              <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Estado al 31-Ago</span>
+              <h3 id="calc-status-badge" style="color: #4caf50; margin: 4px 0 0 0; font-size: 1.5rem;">✅ CUBIERTO (210%)</h3>
+            </div>
+          </div>
+        </div>
+
+        <h2>🥩 Tracker Nutricional & Camal de Yerbateros</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px;">
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px;">
+            <h3 style="margin-top: 0; color: var(--purple-zentry);">📅 Ayuno Autofágico 48 Horas</h3>
+            <p style="font-size: 13px; line-height: 1.5;"><strong>Fecha:</strong> Jueves 13 (08:00 PM) al Sábado 15 de Agosto (08:00 PM).</p>
+            <p style="font-size: 13px; line-height: 1.5;"><strong>Hidratación:</strong> Suero Táctico Tri-Salino (Sodio 3-5g, Potasio 1.5-2g, Magnesio 400mg).</p>
+          </div>
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px;">
+            <h3 style="margin-top: 0; color: var(--purple-zentry);">🚛 Compras en Camal Yerbateros</h3>
+            <p style="font-size: 13px; line-height: 1.5;"><strong>Día Óptimo:</strong> Viernes por la madrugada (04:30 AM - 06:00 AM).</p>
+            <p style="font-size: 13px; line-height: 1.5;"><strong>Insumos:</strong> Carne magra, hígado, corazón, panza y chicharrón de cerdo (S/ 80.00).</p>
+          </div>
+        </div>
+
+        <h2>📑 Acceso Rápido a Planes & Reportes</h2>
+        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+          <a href="#plan63dias" class="btn btn-primary" style="padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">🗺️ Ver Plan Maestro 63 Días</a>
+          <a href="#circadiano" class="btn btn-secondary" style="padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">🧬 Ver Perfil Circadiano & Hábitos</a>
+        </div>
+      </div>
+    `;
+
+    // Interactive Calculator Script
+    const calcRp = document.getElementById('calc-rp-sales');
+    const calcZentry = document.getElementById('calc-zentry-sales');
+    const calcIv = document.getElementById('calc-iv-sales');
+    const calcTotalEl = document.getElementById('calc-total-personal');
+    const calcStatusEl = document.getElementById('calc-status-badge');
+
+    function updateCalculator() {
+      const rpCount = parseInt(calcRp.value) || 0;
+      const zentryCount = parseInt(calcZentry.value) || 0;
+      const ivCount = parseInt(calcIv.value) || 0;
+
+      // RP calculation: 1st 3 sales @ 15% (S/ 1,010.59), 4th+ @ 20% (S/ 1,347.46)
+      let rpIncome = 0;
+      for (let i = 1; i <= rpCount; i++) {
+        rpIncome += i <= 3 ? 1010.59 : 1347.46;
+      }
+
+      const zentryIncome = zentryCount * 1906.78;
+      const ivIncome = ivCount * 1000.00;
+      const initialCash = 770.00;
+
+      const totalPersonal = initialCash + rpIncome + zentryIncome + ivIncome;
+      calcTotalEl.textContent = `S/ ${totalPersonal.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+      const target = 4000.00;
+      const pct = Math.round((totalPersonal / target) * 100);
+
+      if (totalPersonal >= target) {
+        calcStatusEl.textContent = `✅ CUBIERTO (${pct}%)`;
+        calcStatusEl.style.color = '#4caf50';
+      } else {
+        const diff = target - totalPersonal;
+        calcStatusEl.textContent = `⚠️ FALTAN S/ ${diff.toFixed(2)} (${pct}%)`;
+        calcStatusEl.style.color = '#ff9800';
+      }
+    }
+
+    if (calcRp) calcRp.addEventListener('input', updateCalculator);
+    if (calcZentry) calcZentry.addEventListener('input', updateCalculator);
+    if (calcIv) calcIv.addEventListener('input', updateCalculator);
+  },
+
+  // 6.7. Plan Maestro 63 Días View
+  plan63dias: () => {
+    document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #2b5c8f 0%, #1c142e 50%, #0c0d10 100%)';
+    document.getElementById('page-icon').textContent = '🗺️';
+    document.getElementById('page-title').textContent = 'Plan Maestro 63 Días (10 Ago - 11 Oct 2026)';
+    document.getElementById('properties-block').style.display = 'none';
+
+    const container = document.getElementById('workspace-content');
+    container.innerHTML = `
+      <div class="markdown-body">
+        ${mdToHtml(plan63diasMarkdown)}
+      </div>
+    `;
+  },
+
+  // 6.8. Perfil Circadiano & Hábitos View
+  circadiano: () => {
+    document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #2e7d32 0%, #1c142e 50%, #0c0d10 100%)';
+    document.getElementById('page-icon').textContent = '🧬';
+    document.getElementById('page-title').textContent = 'Perfil Circadiano & Neurobiología';
+    document.getElementById('properties-block').style.display = 'none';
+
+    const container = document.getElementById('workspace-content');
+    container.innerHTML = `
+      <div class="markdown-body">
+        ${mdToHtml(circadianoMarkdown)}
+      </div>
+    `;
+  },
+
+    // 7. Construcciones View (Cards)
   construcciones: () => {
     const workspace = document.querySelector('.workspace');
     if (workspace) workspace.classList.add('minimal-view');
