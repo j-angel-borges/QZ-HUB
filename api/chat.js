@@ -24,8 +24,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Message is required in request body.' });
     }
 
-    // Resolve API Key: customApiKey in request -> header x-api-key -> process.env.GEMINI_API_KEY -> process.env.GCP_API_KEY
-    const apiKey = customApiKey || req.headers['x-api-key'] || process.env.GEMINI_API_KEY || process.env.GCP_API_KEY || process.env.VERTEX_API_KEY;
+    // Resolve API Key: customApiKey in request -> header x-api-key -> process.env.GOOGLE_AI_API_KEY -> process.env.GEMINI_API_KEY -> process.env.GCP_API_KEY
+    const apiKey = customApiKey || req.headers['x-api-key'] || process.env.GOOGLE_AI_API_KEY || process.env.GEMINI_API_KEY || process.env.GCP_API_KEY || process.env.VERTEX_API_KEY;
 
     // Load SSOT Context (or fallback system instruction)
     let ssotContext = "";
