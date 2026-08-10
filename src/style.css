@@ -1,21 +1,37 @@
-/* Design System: ZentryOS Notion Style - Light Glassmorphic Theme */
+/* Design System: QZ-Hub - QUARZ GROUP Holding Cockpit */
 
 :root {
-  --bg-dark: #ebf1f5; /* Blanco Glacial */
-  --bg-sidebar: rgba(255, 255, 255, 0.45);
-  --bg-card: rgba(255, 255, 255, 0.55); /* Frosted Glass Container */
-  --border-color: rgba(74, 81, 96, 0.12); /* Gris Neutro Oscuro at 12% */
-  --text-main: #4a5160; /* Gris Neutro Oscuro */
-  --text-muted: #6b7280;
-  --primary: #d6c8fa; /* Lavanda Zentry */
-  --primary-dark: #533b87; /* Púrpura Zentry */
-  --primary-glow: rgba(83, 59, 135, 0.08);
-  --success: #c2f4e7; /* Verde Menta */
+  /* QUARZ GROUP Brand Identity Tokens */
+  --qz-bg-white: #ffffff;
+  --qz-bg-soft: #f8f9fa;
+  --qz-bg-glass: rgba(255, 255, 255, 0.75);
+  --qz-text-black: #111111;
+  --qz-text-muted: #555555;
+  --qz-gold: #c2be9f;
+  --qz-gold-hover: #a8a380;
+  --qz-gold-glow: rgba(194, 190, 159, 0.18);
+  --qz-lime: #a6ff00;
+  --qz-border: rgba(17, 17, 17, 0.08);
+
+  /* Typography */
+  --font-family-title: 'Space Grotesk', sans-serif;
+  --font-family-body: 'Inter', sans-serif;
+  --font-family-mono: 'Space Mono', monospace;
+
+  /* Zentry Module Color Palette (Preserved for Zentry views) */
+  --bg-dark: #ebf1f5;
+  --bg-sidebar: rgba(255, 255, 255, 0.65);
+  --bg-card: rgba(255, 255, 255, 0.70);
+  --border-color: rgba(17, 17, 17, 0.08);
+  --text-main: #111111;
+  --text-muted: #555555;
+  --primary: #c2be9f; /* QZ Gold default */
+  --primary-dark: #111111;
+  --primary-glow: rgba(194, 190, 159, 0.15);
+  --success: #c2f4e7;
   --success-glow: rgba(194, 244, 231, 0.35);
   --neutral-grey: #4a5160;
-  --purple-zentry: #533b87; /* Aliased for missing variable */
-  --font-family-title: 'Outfit', sans-serif;
-  --font-family-body: 'Inter', sans-serif;
+  --purple-zentry: #533b87;
 }
 
 * {
@@ -25,15 +41,30 @@
 }
 
 body {
-  background-color: var(--bg-dark);
+  background-color: var(--qz-bg-white);
   background-image: 
-    linear-gradient(135deg, #ebf1f5 0%, #c2f4e7 45%, #d6c8fa 90%, #ebf1f5 100%);
-  color: var(--text-main);
+    radial-gradient(circle at 10% 20%, rgba(194, 190, 159, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(166, 255, 0, 0.05) 0%, transparent 40%);
+  color: var(--qz-text-black);
   font-family: var(--font-family-body);
   font-size: 15px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
+  transition: background 0.4s ease;
+}
+
+/* Module Specific Theme Switching */
+body[data-module="zentry"] {
+  background-color: var(--bg-dark);
+  background-image: 
+    linear-gradient(135deg, #ebf1f5 0%, #c2f4e7 45%, #d6c8fa 90%, #ebf1f5 100%);
+}
+
+body[data-module="zentry"] .sidebar-nav .nav-link.active {
+  background-color: rgba(83, 59, 135, 0.12);
+  color: var(--purple-zentry);
+  border-left: 3px solid var(--purple-zentry);
 }
 
 /* Layout Notion */
@@ -50,7 +81,7 @@ body {
   top: 0;
   left: 0;
   width: 260px;
-  background-color: var(--bg-sidebar);
+  background-color: var(--qz-bg-glass);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
   border-right: 1px solid var(--border-color);
@@ -64,8 +95,14 @@ body {
 }
 
 .sidebar-header {
-  padding: 20px 16px;
+  padding: 18px 16px;
   border-bottom: 1px solid var(--border-color);
+}
+
+.workspace-brand-logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
 }
 
 .workspace-selector {
