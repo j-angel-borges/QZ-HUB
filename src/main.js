@@ -1205,196 +1205,172 @@ const renderers = {
     `;
   },
 
-  // 6. Tools View (Herramientas & Control)
-  herramientas: () => {
+  // 6. Tools View (TOOLS)
+  tools: () => {
     document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #ffffff 0%, #f7f6f0 50%, #eae8dc 100%)';
     document.getElementById('page-icon').textContent = '⚡';
-    document.getElementById('page-title').textContent = 'Herramientas de Gestión & Control (SSOT 63 Días)';
+    document.getElementById('page-title').textContent = 'TOOLS';
     document.getElementById('properties-block').style.display = 'none';
 
     const container = document.getElementById('workspace-content');
     const todayStr = new Date().toISOString().split('T')[0];
 
     container.innerHTML = `
-      <div class="markdown-body">
+      <div class="tools-grid-layout">
         
         <!-- ========================================== -->
-        <!-- SECCIÓN 1: CHAT INTELECTUAL SSOT (LOCAL INSTANT ENGINE) -->
+        <!-- COLUMNA 1: CHAT INTELECTUAL SSOT (LOCAL INSTANT ENGINE) -->
         <!-- ========================================== -->
-        <div style="background: rgba(255, 255, 255, 0.95); border: 1px solid #c2be9f; border-radius: 0px; padding: 24px; margin-bottom: 35px; box-shadow: 0 4px 20px rgba(194, 190, 159, 0.15);">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <span style="font-size: 2rem;">🧠</span>
-              <div>
-                <h2 style="margin: 0; font-size: 1.3rem; color: #111111; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase;">Asistente Orquestador SSOT (Motor de Inteligencia Directo)</h2>
-                <span style="font-size: 11px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace;">Sin dependencias de APIs externas, cuotas ni pagos • Respuestas instantáneas basadas en el Plan Maestro de 63 Días</span>
-              </div>
+        <div class="tools-col tools-col-assistant" style="background: rgba(255, 255, 255, 0.95); border: 1px solid #c2be9f; border-radius: 0px; padding: 20px; box-shadow: 0 4px 20px rgba(194, 190, 159, 0.15);">
+          <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px;">
+            <span style="font-size: 1.8rem;">🧠</span>
+            <div>
+              <h2 style="margin: 0; font-size: 1.1rem; color: #111111; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase; line-height: 1.3;">Asistente Orquestador SSOT (Motor de Inteligencia Directo)</h2>
+              <span style="font-size: 11px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace; display: block; margin-top: 4px;">Sin dependencias de APIs externas, cuotas ni pagos • Respuestas instantáneas basadas en el Plan Maestro de 63 Días</span>
             </div>
           </div>
 
           <!-- Clean Chat Container -->
-          <div id="ai-chat-box" style="min-height: 280px; max-height: 450px; overflow-y: auto; background: #ffffff; border-radius: 0px; padding: 16px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px; border: 1px solid #c2be9f;">
+          <div id="ai-chat-box" style="min-height: 320px; max-height: 480px; overflow-y: auto; background: #ffffff; border-radius: 0px; padding: 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 10px; border: 1px solid #c2be9f;">
             <!-- Blank container: Starts completely clean -->
           </div>
 
           <!-- Chat Input Form -->
-          <form id="ai-chat-form" style="display: flex; gap: 10px;">
-            <input type="text" id="ai-chat-input" placeholder="Escribe tu consulta sobre el plan, rutinas, llamadas, ayuno o métricas..." style="flex: 1; padding: 12px 16px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 14px; outline: none;">
-            <button type="submit" class="btn btn-primary" style="padding: 12px 24px; font-family: 'Space Mono', monospace; font-weight: bold; border-radius: 0px; background: #111111; color: #ffffff; border: 1px solid #c2be9f;">Enviar ⚡</button>
+          <form id="ai-chat-form" style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <input type="text" id="ai-chat-input" placeholder="Escribe tu consulta sobre el plan, rutinas, llamadas, ayuno o métricas..." style="flex: 1; min-width: 180px; padding: 10px 14px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 13px; outline: none;">
+            <button type="submit" class="btn btn-primary" style="padding: 10px 18px; font-family: 'Space Mono', monospace; font-weight: bold; border-radius: 0px; background: #111111; color: #ffffff; border: 1px solid #c2be9f; cursor: pointer;">Enviar ⚡</button>
           </form>
         </div>
 
 
         <!-- ========================================== -->
-        <!-- SECCIÓN 2: DIARIO NOCTURNO DE REFLEXIÓN (JOURNALING) -->
+        <!-- COLUMNA 2: DASHBOARD GRÁFICO DE AVANCES Y FUNNEL METRICS ENGINE -->
         <!-- ========================================== -->
-        <div style="background: rgba(255, 255, 255, 0.95); border: 1px solid #c2be9f; border-radius: 0px; padding: 24px; margin-bottom: 35px; box-shadow: 0 4px 20px rgba(194, 190, 159, 0.15);">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <span style="font-size: 2rem;">📝</span>
-              <div>
-                <h2 style="margin: 0; font-size: 1.3rem; color: #111111; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase;">Diario Nocturno de Reflexión (Journaling)</h2>
-                <span style="font-size: 11px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace;">Registra tus reflexiones al cierre del día para alimentarlo en <code>03_JOURNAL_BITACORA</code></span>
-              </div>
-            </div>
-            <input type="date" id="journal-date" value="${todayStr}" style="padding: 8px 12px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 13px; font-family: 'Space Mono', monospace;">
-          </div>
-
-          <div style="margin-bottom: 16px;">
-            <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #111111;">1. ¿Qué avances, demostraciones o llamadas concreté hoy?</label>
-            <textarea id="journal-q1" rows="2" style="width: 100%; padding: 10px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 13px;" placeholder="Ej. Realicé 25 llamadas de Royal Prestige, agendé 2 demos en San Borja..."></textarea>
-          </div>
-
-          <div style="margin-bottom: 16px;">
-            <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #111111;">2. ¿Qué fricciones o flaqueos experimenté y cómo los corregí?</label>
-            <textarea id="journal-q2" rows="2" style="width: 100%; padding: 10px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 13px;" placeholder="Ej. Bajón de energía a las 3pm, apliqué suspiro fisiológico e ingería chicharrón..."></textarea>
-          </div>
-
-          <div style="margin-bottom: 20px;">
-            <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #111111;">3. ¿Cuál es mi prioridad indispensable para mañana?</label>
-            <textarea id="journal-q3" rows="2" style="width: 100%; padding: 10px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 13px;" placeholder="Ej. Finalizar el módulo Compose Device Owner Mode y prospectar en Limatambo..."></textarea>
-          </div>
-
-          <div style="display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;">
-            <button id="journal-download-btn" class="btn btn-secondary" style="padding: 10px 18px; border-radius: 0px; font-family: 'Space Mono', monospace; font-weight: 600; border: 1px solid #c2be9f;">📥 Descargar .md para 03_JOURNAL_BITACORA</button>
-            <button id="journal-save-btn" class="btn btn-primary" style="padding: 10px 24px; border-radius: 0px; font-family: 'Space Mono', monospace; font-weight: 600; background: #111111; color: #ffffff; border: 1px solid #c2be9f;">💾 Guardar Entrada del Día</button>
-          </div>
-
-          <div id="journal-history-list" style="margin-top: 20px; font-size: 12px; color: var(--qz-text-muted);">
-            <!-- Past entries rendered dynamically -->
-          </div>
-        </div>
-
-
-        <!-- ========================================== -->
-        <!-- SECCIÓN 3: DASHBOARD GRÁFICO DE AVANCES Y FUNNEL METRICS ENGINE -->
-        <!-- ========================================== -->
-        <div style="background: rgba(255, 255, 255, 0.95); border: 1px solid #c2be9f; border-radius: 0px; padding: 24px; margin-bottom: 35px; box-shadow: 0 4px 20px rgba(194, 190, 159, 0.15);">
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-            <span style="font-size: 2rem;">📊</span>
+        <div class="tools-col tools-col-funnel" style="background: rgba(255, 255, 255, 0.95); border: 1px solid #c2be9f; border-radius: 0px; padding: 20px; box-shadow: 0 4px 20px rgba(194, 190, 159, 0.15);">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+            <span style="font-size: 1.8rem;">📊</span>
             <div>
-              <h2 style="margin: 0; font-size: 1.3rem; color: #111111; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase;">Funnel Metrics Engine (Avances y Conversiones)</h2>
+              <h2 style="margin: 0; font-size: 1.2rem; color: #111111; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase;">Funnel Metrics Engine (Avances y Conversiones)</h2>
               <span style="font-size: 11px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace;">Simulación gráfica en tiempo real según los ratios de conversión de Royal Prestige y QUARZ</span>
             </div>
           </div>
 
           <!-- Progress Bar Global -->
-          <div style="margin-bottom: 30px; background: #ffffff; padding: 18px; border-radius: 0px; border: 1px solid #c2be9f;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <span style="font-weight: bold; font-size: 13px; font-family: 'Space Grotesk', sans-serif;">🎯 Meta de Caja al 31 de Agosto (21 Días Restantes)</span>
-              <span id="funnel-progress-text" style="font-weight: bold; color: #111111; font-family: 'Space Mono', monospace;">S/ 770.00 / S/ 4,000.00 (19.25%)</span>
+          <div style="margin-bottom: 24px; background: #ffffff; padding: 16px; border-radius: 0px; border: 1px solid #c2be9f;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+              <span style="font-weight: bold; font-size: 12px; font-family: 'Space Grotesk', sans-serif;">🎯 Meta de Caja al 31 de Agosto (21 Días Restantes)</span>
+              <span id="funnel-progress-text" style="font-weight: bold; color: #111111; font-family: 'Space Mono', monospace; font-size: 12px;">S/ 4,529.53 / S/ 4,000.00 (100%)</span>
             </div>
             <div class="progress-bar-container" style="height: 16px; background: #f4f3ed; border-radius: 0px; overflow: hidden; border: 1px solid #c2be9f;">
-              <div id="funnel-progress-bar" class="progress-bar" style="width: 19.25%; background: linear-gradient(90deg, #111111 0%, #c2be9f 100%); height: 100%; border-radius: 0px;"></div>
+              <div id="funnel-progress-bar" class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #111111 0%, #c2be9f 100%); height: 100%; border-radius: 0px;"></div>
             </div>
           </div>
 
-          <!-- Funnel 1: Royal Prestige -->
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 30px;">
-            <div style="background: #ffffff; border: 1px solid #c2be9f; border-radius: 0px; padding: 20px;">
-              <h3 style="margin-top: 0; color: #111111; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; font-family: 'Space Grotesk', sans-serif;">
+          <!-- Funnels Sub-Grid (Side by Side) -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+            <!-- Funnel 1: Royal Prestige -->
+            <div style="background: #ffffff; border: 1px solid #c2be9f; border-radius: 0px; padding: 16px;">
+              <h3 style="margin-top: 0; color: #111111; font-size: 1rem; display: flex; align-items: center; gap: 6px; font-family: 'Space Grotesk', sans-serif;">
                 <span>🍳</span> Royal Prestige (Llamadas & Referidos)
               </h3>
               
-              <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px;">
                 <div>
-                  <label style="font-size: 12px; color: var(--qz-text-muted);">Llamadas Conversadas en Frío (SIM 933709385):</label>
-                  <input type="number" id="fn-rp-calls" value="40" min="0" style="width: 100%; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-weight: bold;">
+                  <label style="font-size: 11px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace;">Llamadas Conversadas en Frío (SIM 933709385):</label>
+                  <input type="number" id="fn-rp-calls" value="40" min="0" style="width: 100%; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-weight: bold; font-size: 13px;">
                 </div>
                 <div>
-                  <label style="font-size: 12px; color: var(--qz-text-muted);">Demos de Referidos Realizadas:</label>
-                  <input type="number" id="fn-rp-ref-demos" value="3" min="0" style="width: 100%; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-weight: bold;">
+                  <label style="font-size: 11px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace;">Demos de Referidos Realizadas:</label>
+                  <input type="number" id="fn-rp-ref-demos" value="3" min="0" style="width: 100%; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-weight: bold; font-size: 13px;">
                 </div>
               </div>
 
-              <div style="background: #fdfdfc; padding: 12px; border-radius: 0px; border: 1px solid #c2be9f; font-size: 12px; line-height: 1.6; font-family: 'Space Mono', monospace;">
-                <div>• Demos Frías Estimadas (Ratio 20:1): <strong id="fn-rp-est-demos" style="color: #111111;">2 demos</strong></div>
+              <div style="background: #fdfdfc; padding: 10px; border-radius: 0px; border: 1px solid #c2be9f; font-size: 11px; line-height: 1.5; font-family: 'Space Mono', monospace;">
+                <div>• Demos Frías Estimadas (Ratio 20:1): <strong id="fn-rp-est-demos" style="color: #111111;">2.0 demos</strong></div>
                 <div>• Ventas Frías (Ratio 4:1): <strong id="fn-rp-cold-sales" style="color: #111111;">0.5 ventas</strong> (S/ 505.30)</div>
-                <div>• Ventas Referidos (Ratio 3:1): <strong id="fn-rp-ref-sales" style="color: #111111;">1 venta</strong> (S/ 1,347.46)</div>
-                <div>• Referidos Generados (5-10 x demo): <strong id="fn-rp-new-refs" style="color: #111111;">37 referidos</strong></div>
-                <hr style="border: 0; border-top: 1px solid #c2be9f; margin: 8px 0;">
-                <div style="font-size: 14px;">Ganancia RP Estimada: <strong id="fn-rp-total-gain" style="color: #111111; font-size: 1.1rem;">S/ 1,852.76</strong></div>
+                <div>• Ventas Referidos (Ratio 3:1): <strong id="fn-rp-ref-sales" style="color: #111111;">1.0 ventas</strong> (S/ 1,347.46)</div>
+                <div>• Referidos Generados (5-10 x demo): <strong id="fn-rp-new-refs" style="color: #111111;">38 referidos</strong></div>
+                <hr style="border: 0; border-top: 1px solid #c2be9f; margin: 6px 0;">
+                <div style="font-size: 12px; font-weight: bold;">Ganancia RP Estimada: S/ <span id="fn-rp-total-gain">1852.76</span></div>
               </div>
             </div>
 
             <!-- Funnel 2: Quarz ZentryOS -->
-            <div style="background: #ffffff; border: 1px solid #c2be9f; border-radius: 0px; padding: 20px;">
-              <h3 style="margin-top: 0; color: #111111; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; font-family: 'Space Grotesk', sans-serif;">
+            <div style="background: #ffffff; border: 1px solid #c2be9f; border-radius: 0px; padding: 16px;">
+              <h3 style="margin-top: 0; color: #111111; font-size: 1rem; display: flex; align-items: center; gap: 6px; font-family: 'Space Grotesk', sans-serif;">
                 <span>☄️</span> QUARZ Group (ZentryOS $1k USD)
               </h3>
               
-              <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px;">
                 <div>
-                  <label style="font-size: 12px; color: var(--qz-text-muted);">Prospectos Presenciales en Frío (Malls/Parques):</label>
-                  <input type="number" id="fn-zentry-prospects" value="15" min="0" style="width: 100%; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-weight: bold;">
+                  <label style="font-size: 11px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace;">Prospectos Presenciales en Frío (Malls/Parques):</label>
+                  <input type="number" id="fn-zentry-prospects" value="15" min="0" style="width: 100%; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-weight: bold; font-size: 13px;">
                 </div>
                 <div>
-                  <label style="font-size: 12px; color: var(--qz-text-muted);">Demos Realizadas (Tab A7 / iPad):</label>
-                  <input type="number" id="fn-zentry-demos" value="5" min="0" style="width: 100%; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-weight: bold;">
+                  <label style="font-size: 11px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace;">Demos Realizadas (Tab A7 / iPad):</label>
+                  <input type="number" id="fn-zentry-demos" value="5" min="0" style="width: 100%; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-weight: bold; font-size: 13px;">
                 </div>
               </div>
 
-              <div style="background: #fdfdfc; padding: 12px; border-radius: 0px; border: 1px solid #c2be9f; font-size: 12px; line-height: 1.6; font-family: 'Space Mono', monospace;">
-                <div>• Demos Concretadas en 2 Semanas (Ratio 5:1): <strong id="fn-zentry-est-demos" style="color: #111111;">3 demos</strong></div>
-                <div>• Licencias Cerradas Mes 1 (Ratio 5:1): <strong id="fn-zentry-sales" style="color: #111111;">1 licencia</strong></div>
-                <div>• Ganancia Neta Personal (60%): <strong id="fn-zentry-personal-gain" style="color: #111111;">S/ 1,906.78</strong></div>
-                <div>• Capital Caja Empresa QUARZ (40%): <strong id="fn-zentry-company-gain" style="color: #111111;">S/ 1,271.19</strong></div>
-                <hr style="border: 0; border-top: 1px solid #c2be9f; margin: 8px 0;">
-                <div style="font-size: 14px;">Ganancia Personal ZentryOS: <strong id="fn-zentry-total-gain" style="color: #111111; font-size: 1.1rem;">S/ 1,906.78</strong></div>
+              <div style="background: #fdfdfc; padding: 10px; border-radius: 0px; border: 1px solid #c2be9f; font-size: 11px; line-height: 1.5; font-family: 'Space Mono', monospace;">
+                <div>• Demos Concretadas en 2 Semanas (Ratio 5:1): <strong id="fn-zentry-est-demos" style="color: #111111;">3.0 demos</strong></div>
+                <div>• Licencias Cerradas Mes 1 (Ratio 5:1): <strong id="fn-zentry-sales" style="color: #111111;">1.0 licencias</strong></div>
+                <div>• Ganancia Neta Personal (60%): S/ <strong id="fn-zentry-personal-gain" style="color: #111111;">1906.78</strong></div>
+                <div>• Capital Caja Empresa QUARZ (40%): S/ <strong id="fn-zentry-company-gain" style="color: #111111;">1271.19</strong></div>
+                <hr style="border: 0; border-top: 1px solid #c2be9f; margin: 6px 0;">
+                <div style="font-size: 12px; font-weight: bold;">Ganancia Personal ZentryOS: S/ <span id="fn-zentry-total-gain">1906.78</span></div>
               </div>
             </div>
           </div>
         </div>
 
+
         <!-- ========================================== -->
-        <!-- SECCIÓN 4: PARQUE DE DISPOSITIVOS Y HARDWARE HUB -->
+        <!-- COLUMNA 3: DIARIO NOCTURNO DE REFLEXIÓN (JOURNALING) -->
         <!-- ========================================== -->
-        <h2 style="font-family: 'Space Grotesk', sans-serif; text-transform: uppercase;">📱 Parque de Dispositivos y Red de Números (Hardware Hub)</h2>
-        <p>Asignación técnica de dispositivos móviles, tablets e infraestructura para prospección y demos en vivo:</p>
-        
-        <div class="ia-cards-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); margin-bottom: 40px;">
-          ${dispositivosData.map(d => `
-            <div class="ia-card" style="border-left: 4px solid #c2be9f; border-top: 1px solid #c2be9f; border-right: 1px solid #c2be9f; border-bottom: 1px solid #c2be9f; border-radius: 0px; background: #ffffff;">
-              <div class="ia-card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="font-size: 1.6rem;">${d.icon}</span>
-                  <h3 class="ia-card-title" style="margin: 0; font-family: 'Space Grotesk', sans-serif;">${d.name}</h3>
-                </div>
-                <span class="tag ${d.statusColor}" style="border-radius: 0px;">${d.status}</span>
+        <div class="tools-col tools-col-journaling" style="background: rgba(255, 255, 255, 0.95); border: 1px solid #c2be9f; border-radius: 0px; padding: 20px; box-shadow: 0 4px 20px rgba(194, 190, 159, 0.15);">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.8rem;">📝</span>
+              <div>
+                <h2 style="margin: 0; font-size: 1.1rem; color: #111111; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase;">Diario Nocturno de Reflexión (Journaling)</h2>
+                <span style="font-size: 10px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace;">Registro bitácora <code>03_JOURNAL_BITACORA</code></span>
               </div>
-              <p style="font-size: 12px; color: var(--qz-text-muted); margin: 6px 0 10px 0; font-family: 'Space Mono', monospace;"><strong>Tipo:</strong> ${d.type} • <strong>SIM/Línea:</strong> ${d.sim}</p>
-              <p class="ia-card-desc" style="font-size: 13px; line-height: 1.4;">${d.role}</p>
             </div>
-          `).join('')}
+            <input type="date" id="journal-date" value="${todayStr}" style="padding: 6px 10px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 12px; font-family: 'Space Mono', monospace;">
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="display: block; font-weight: 600; font-size: 12px; margin-bottom: 4px; color: #111111;">1. ¿Qué avances, demostraciones o llamadas concreté hoy?</label>
+            <textarea id="journal-q1" rows="2" style="width: 100%; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 12px;" placeholder="Ej. Realicé 25 llamadas de Royal Prestige..."></textarea>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="display: block; font-weight: 600; font-size: 12px; margin-bottom: 4px; color: #111111;">2. ¿Qué fricciones o flaqueos experimenté y cómo los corregí?</label>
+            <textarea id="journal-q2" rows="2" style="width: 100%; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 12px;" placeholder="Ej. Bajón de energía a las 3pm..."></textarea>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; font-size: 12px; margin-bottom: 4px; color: #111111;">3. ¿Cuál es mi prioridad indispensable para mañana?</label>
+            <textarea id="journal-q3" rows="2" style="width: 100%; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 12px;" placeholder="Ej. Finalizar el módulo Compose Device Owner Mode..."></textarea>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button id="journal-download-btn" class="btn btn-secondary" style="width: 100%; padding: 8px 12px; border-radius: 0px; font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 600; border: 1px solid #c2be9f;">📥 Descargar .md para 03_JOURNAL_BITACORA</button>
+            <button id="journal-save-btn" class="btn btn-primary" style="width: 100%; padding: 10px 16px; border-radius: 0px; font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; background: #111111; color: #ffffff; border: 1px solid #c2be9f;">💾 Guardar Entrada del Día</button>
+          </div>
+
+          <div id="journal-history-list" style="margin-top: 14px; font-size: 11px; color: var(--qz-text-muted);">
+            <!-- Past entries rendered dynamically -->
+          </div>
         </div>
 
       </div>
     `;
 
     // ==========================================
-    // INTERACTIVIDAD Y LÓGICA DEL MOTOR LOCAL SSOT
+    // INTERACTIVIDAD Y LÓGICA DE TOOLS Y MOTOR LOCAL SSOT
     // ==========================================
-
     const chatForm = document.getElementById('ai-chat-form');
     const chatInput = document.getElementById('ai-chat-input');
     const chatBox = document.getElementById('ai-chat-box');
