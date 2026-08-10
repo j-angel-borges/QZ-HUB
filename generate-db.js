@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 
 const repoRoot = path.resolve('..');
-const outputDir = path.join(repoRoot, 'ZentryHub', 'src');
+const currentDir = path.resolve('.');
+const outputDir = path.join(currentDir, 'src');
 const outputFile = path.join(outputDir, 'ssot-db.json');
 
 const directories = [
@@ -264,8 +265,8 @@ ${filesOrder.map((f, i) => `${i + 1}. [${f}](#-archivo-${f.replace(/[\/\.]/g, '-
     }
   });
 
-  // Ensure ZentryHub public directory exists
-  const publicDir = path.join(repoRoot, 'ZentryHub', 'public');
+  // Ensure QZ-Hub public directory exists
+  const publicDir = path.join(currentDir, 'public');
   if (!fs.existsSync(publicDir)) {
     fs.mkdirSync(publicDir, { recursive: true });
   }
