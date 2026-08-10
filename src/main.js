@@ -2713,25 +2713,92 @@ function handleRouting() {
 // Listen to Hash Changes
 window.addEventListener('hashchange', handleRouting);
 
-// Sidebar Toggle Event Handler
-document.getElementById('sidebar-toggle').addEventListener('click', () => {
-  const app = document.getElementById('app');
-  app.classList.toggle('sidebar-collapsed');
-  const isCollapsed = app.classList.contains('sidebar-collapsed');
-  localStorage.setItem('sidebar_collapsed', isCollapsed ? 'true' : 'false');
+// PWA Service Worker & Install Handler
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then((reg) => {
+      console.log('QZ-Hub ServiceWorker registrado con éxito:', reg);
+    }).catch((err) => {
+      console.warn('QZ-Hub ServiceWorker no registrado:', err);
+    });
+  });
+}
+
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const pwaBtn = document.getElementById('pwa-install-btn');
+  if (pwaBtn) {
+    pwaBtn.style.display = 'inline-flex';
+  }
 });
 
-// Sidebar Backdrop Click Event Handler (close sidebar when clicking outside)
-document.getElementById('sidebar-backdrop').addEventListener('click', () => {
+document.addEventListener('click', (e) => {
+  if (e.target && (e.target.id === 'pwa-install-btn' || e.target.closest('#pwa-install-btn'))) {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('Usuario aceptó instalar QZ-Hub PWA');
+        }
+        deferredPrompt = null;
+        const pwaBtn = document.getElementById('pwa-install-btn');
+        if (pwaBtn) pwaBtn.style.display = 'none';
+      });
+    } else {
+      alert('📱 Cómo instalar QZ-Hub en tu Celular:\n\n• En Android (Chrome / Edge): Toca los 3 puntos (⋮) arriba a la derecha ➔ Toca "Añadir a la pantalla de inicio" o "Instalar aplicación".\n• En iPhone (Safari): Toca el botón Compartir (⎋) abajo al centro ➔ Toca "Añadir a la pantalla de inicio".');
+    }
+  }
+});
+
+// Sidebar Toggle Event Handlers (Desktop & Mobile)
+function toggleSidebarMobile() {
+  const app = document.getElementById('app');
+  app.classList.toggle('sidebar-mobile-open');
+}
+
+function closeSidebarMobile() {
+  const app = document.getElementById('app');
+  app.classList.remove('sidebar-mobile-open');
+}
+
+document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
+  const app = document.getElementById('app');
+  if (window.innerWidth <= 768) {
+    toggleSidebarMobile();
+  } else {
+    app.classList.toggle('sidebar-collapsed');
+    const isCollapsed = app.classList.contains('sidebar-collapsed');
+    localStorage.setItem('sidebar_collapsed', isCollapsed ? 'true' : 'false');
+  }
+});
+
+document.getElementById('sidebar-toggle-mobile')?.addEventListener('click', toggleSidebarMobile);
+
+// Sidebar Backdrop Click Event Handler
+document.getElementById('sidebar-backdrop')?.addEventListener('click', () => {
+  closeSidebarMobile();
   const app = document.getElementById('app');
   app.classList.add('sidebar-collapsed');
   localStorage.setItem('sidebar_collapsed', 'true');
 });
 
-// Load Sidebar Collapsed State Preference
-const sidebarCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
-if (sidebarCollapsed) {
-  document.getElementById('app').classList.add('sidebar-collapsed');
+// Auto-close sidebar on mobile when navigating links
+document.querySelectorAll('.sidebar-nav a').forEach(link => {
+  link.addEventListener('click', () => {
+    if (window.innerWidth <= 768) {
+      closeSidebarMobile();
+    }
+  });
+});
+
+// Load Sidebar Collapsed State Preference for Desktop
+if (window.innerWidth > 768) {
+  const sidebarCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
+  if (sidebarCollapsed) {
+    document.getElementById('app').classList.add('sidebar-collapsed');
+  }
 }
 
 // Drag-and-drop vertical position calculation helper

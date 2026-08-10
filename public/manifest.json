@@ -1,0 +1,46 @@
+{
+  "name": "QZ-Hub — Operational Cockpit & Second Brain",
+  "short_name": "QZ-Hub",
+  "description": "PWA Cockpit Operativo y Segundo Cerebro de QUARZ GROUP",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#111111",
+  "categories": ["productivity", "business", "utilities"],
+  "icons": [
+    {
+      "src": "/assets/quarz/QUARZ_3D_Cuarzo_Vertical_QZ-removebg-preview.png",
+      "sizes": "500x500",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Timeblocking",
+      "short_name": "Timeblocking",
+      "description": "Ver Timeblocking y M.I.T",
+      "url": "/#backlog"
+    },
+    {
+      "name": "Herramientas",
+      "short_name": "Herramientas",
+      "description": "Asistente SSOT y Métricas",
+      "url": "/#herramientas"
+    },
+    {
+      "name": "Construcciones",
+      "short_name": "Construcciones",
+      "description": "Muro de Ladrillos QZ",
+      "url": "/#construcciones"
+    }
+  ]
+}

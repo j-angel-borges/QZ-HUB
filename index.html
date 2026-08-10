@@ -5,7 +5,13 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/assets/quarz/QUARZ_3D_Cuarzo_Vertical_QZ-removebg-preview.png" />
   <link rel="apple-touch-icon" href="/assets/quarz/QUARZ_3D_Cuarzo_Vertical_QZ-removebg-preview.png" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- PWA Manifest & Mobile Meta Tags -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#111111" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="QZ-Hub" />
 
   <!-- Premium Google Fonts: Space Grotesk & Space Mono (QUARZ) + Inter & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -95,7 +101,14 @@
 
     <!-- Main Workspace -->
     <main class="workspace">
-      <!-- Sidebar Toggle Button -->
+      <!-- Mobile Sticky Top Bar -->
+      <div class="mobile-header-bar">
+        <button id="sidebar-toggle-mobile" class="mobile-hamburger-btn" title="Menú QZ-Hub">☰ Menú</button>
+        <span class="mobile-app-title">QZ-Hub</span>
+        <button id="pwa-install-btn" class="pwa-install-btn" title="Instalar App QZ-Hub">📱 Instalar PWA</button>
+      </div>
+
+      <!-- Sidebar Toggle Button (Desktop) -->
       <button id="sidebar-toggle" class="sidebar-toggle-btn" title="Contraer/Desplegar Barra Lateral">☰</button>
 
       <!-- Banner and Icon Area -->
