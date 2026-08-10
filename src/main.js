@@ -1416,7 +1416,7 @@ const renderers = {
     }
 
     if (chatForm) {
-      chatForm.addEventListener('submit', (e) => {
+      chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const text = chatInput.value.trim();
         if (!text) return;
@@ -1424,10 +1424,42 @@ const renderers = {
         appendChatMessage('user', text);
         chatInput.value = '';
 
-        setTimeout(() => {
-          const response = processLocalSsotQuery(text);
-          appendChatMessage('bot', response);
-        }, 150);
+        // Add thinking indicator
+        const thinkingDiv = document.createElement('div');
+        thinkingDiv.id = 'chat-thinking';
+        thinkingDiv.className = 'chat-msg bot';
+        thinkingDiv.style.cssText = 'background: rgba(83, 59, 135, 0.15); border-left: 3px solid #d6c8fa; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; max-width: 85%; color: var(--text-muted);';
+        thinkingDiv.innerHTML = `<strong>⚡ Orquestador Backend API (/api/chat):</strong> <em>Consultando backend en tiempo real...</em>`;
+        chatBox.appendChild(thinkingDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        try {
+          const apiKey = localStorage.getItem('zentry_backend_api_key') || '';
+          const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text, apiKey })
+          });
+
+          const data = await res.json();
+          const thinkingEl = document.getElementById('chat-thinking');
+          if (thinkingEl) thinkingEl.remove();
+
+          if (data && data.reply) {
+            appendChatMessage('bot', mdToHtml ? mdToHtml(data.reply) : data.reply);
+          } else if (data && data.error) {
+            appendChatMessage('bot', `❌ Error de Servidor Backend: ${data.error}`);
+          } else {
+            appendChatMessage('bot', "⚠️ No se recibió respuesta válida del endpoint /api/chat.");
+          }
+        } catch (err) {
+          const thinkingEl = document.getElementById('chat-thinking');
+          if (thinkingEl) thinkingEl.remove();
+
+          // Fallback if backend serverless function is not active locally
+          const fallbackResp = processLocalSsotQuery(text);
+          appendChatMessage('bot', fallbackResp);
+        }
       });
     }
 
