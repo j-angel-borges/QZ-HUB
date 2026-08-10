@@ -1,3 +1,34 @@
+
+function generateBackendSsotFallback(query) {
+  const q = (query || '').toLowerCase();
+
+  if (q.includes('meta') || q.includes('31 de agosto') || q.includes('caja') || q.includes('plata') || q.includes('dinero')) {
+    return "Tu obligación financiera inmediata al **31 de Agosto (21 días restantes)** es de **S/ 4,000.00 PEN netos**. Partiendo de tus **S/ 770.00 PEN en caja**, necesitas generar **S/ 3,230.00 PEN netos**. Esto se logra cerrando **3 ventas de Royal Prestige** (comisión S/ 1,010.59 a S/ 1,347.46) o **2 licencias de ZentryOS ($1,000 USD / S/ 1,906.78 neto personal)**.";
+  } 
+  
+  if (q.includes('12') || q.includes('perro') || q.includes('rutina') || q.includes('entren') || q.includes('ejercicio') || q.includes('llamada')) {
+    return "En la ventana estratégica de **12:00 PM a 02:00 PM** ejecutas tres acciones en paralelo:\n1. Pasear al perro al aire libre.\n2. Entrenamiento de calistenia.\n3. **40 llamadas telefónicas breves de Royal Prestige** (usando tu Redmi Note 9 con la SIM `933709385`). Caminar mientras llamas eleva tu tono vocal y evita la fatiga del escritorio.";
+  }
+
+  if (q.includes('royal') || q.includes('olla') || q.includes('ratio') || q.includes('friccion') || q.includes('referido')) {
+    return "Métricas exactas de Royal Prestige:\n• **Llamadas frías:** 20 llamadas conversadas agendan 1 demo. De cada 4 demos frías cierras 1 venta (S/ 1,010.59 neto).\n• **Referidos:** Cada demo genera 5 a 10 referidos calificados. Con referidos, el ratio de cierre mejora a 3 demos por 1 venta (S/ 1,347.46 neto).";
+  }
+
+  if (q.includes('zentry') || q.includes('quarz') || q.includes('prospecc') || q.includes('mall') || q.includes('limatambo') || q.includes('tablet')) {
+    return "Métricas exactas de QUARZ / ZentryOS:\n• **Prospección presencial:** 5 personas prospectadas a pie en Limatambo/La Rambla/Jockey agendan 1 demo presencial en un ciclo de 2 semanas.\n• **Cierre de Licencias ($1k USD):** En el Mes 1 (iteración), 5 demos cierran 1 licencia ($1,000 USD -> S/ 1,906.78 neto personal + S/ 1,271.19 caja empresa). En el Mes 2 con referidos, baja a 3 demos por 1 cierre.";
+  }
+
+  if (q.includes('ayuno') || q.includes('48') || q.includes('camal') || q.includes('yerbateros') || q.includes('carne') || q.includes('comida')) {
+    return "Protocolo Biológico & Abastecimiento:\n• **Ayuno Autofágico de 48h:** Jueves 13 de Agosto (08:00 PM) al Sábado 15 de Agosto (08:00 PM).\n• **Suero Táctico:** Sodio 3-5g + Potasio 1.5-2g + Magnesio 400mg.\n• **Camal de Yerbateros:** El mejor día y hora es el **Viernes por la madrugada (04:30 AM)** para obtener vísceras (hígado, corazón, panza) y chicharrón de cerdo recién faenados con cero aglomeración.";
+  }
+
+  if (q.includes('dispositivo') || q.includes('celular') || q.includes('telefono') || q.includes('sim') || q.includes('hardware')) {
+    return "Infraestructura de Hardware Activa:\n• **Redmi Note 9:** Diario para llamadas (SIM `933709385` QUARZ).\n• **Motorola Edge 40 Neo:** Servidor USB 24/7 (Scrcpy/Vysor) para WhatsApp bot (número personal `942575425`).\n• **Tab A7 Samsung (10.4 in):** Demo ZentryOS Launcher Device Owner.\n• **iPad 5ª Gen:** Demo PWA Parental Dashboard.";
+  }
+
+  return "Entendido. Como Orquestador de tu plan maestro de 63 días (10 Ago - 11 Oct 2026), mantengo indexados todos tus documentos SSOT. Puedes consultarme cualquier duda sobre tus metas financieras, embudos de conversión, rutina de 12-2pm o protocolo biológico.";
+}
+
 import fs from 'fs';
 import path from 'path';
 
@@ -119,8 +150,19 @@ Por favor ingresa tu Clave de API en la configuración del chat o establece \`GE
           lastError = data.error;
           // If 404 model not found, try next candidate model
           if (data.error.code === 404) continue;
+
+          // If 429 Prepayment credits depleted or 403 billing issue, fall back to backend SSOT engine gracefully
+          if (data.error.code === 429 || data.error.code === 403 || (data.error.message && data.error.message.includes('prepayment'))) {
+            console.warn("GCP Prepayment/Billing error detected (429/403). Falling back to Backend SSOT Engine.");
+            const fallbackReply = generateBackendSsotFallback(message);
+            return res.status(200).json({
+              reply: fallbackReply,
+              status: 'ssot_fallback',
+              notice: 'GCP Prepayment Credits Depleted -> Handled by Backend SSOT Engine'
+            });
+          }
           
-          // Return clear API error
+          // Return clear API error if unhandled
           return res.status(200).json({
             reply: `❌ **Error de la API de Gemini (${data.error.code}):** ${data.error.message}`,
             error: data.error
