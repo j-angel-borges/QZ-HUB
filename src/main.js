@@ -1177,7 +1177,7 @@ const renderers = {
   },
 
 
-  // 6.6. Herramientas View: Cabina Gemini GCP, Diario Nocturno & Dashboard Gráfico
+  // 6.6. Herramientas View: Cabina de Inteligencia con Gemini API Real, Diario Nocturno & Dashboard Gráfico
   herramientas: () => {
     document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #1c142e 0%, #533B87 50%, #0c0d10 100%)';
     document.getElementById('page-icon').textContent = '⚡';
@@ -1186,45 +1186,59 @@ const renderers = {
 
     const container = document.getElementById('workspace-content');
     const todayStr = new Date().toISOString().split('T')[0];
-    const savedApiKey = localStorage.getItem('zentry_gemini_api_key') || '';
+
+    const storedApiKey = localStorage.getItem('zentry_gemini_api_key') || '';
 
     container.innerHTML = `
       <div class="markdown-body">
         
         <!-- ========================================== -->
-        <!-- SECCIÓN 1: CHAT IA CONECTADO A GEMINI API (GCP PROJECT ZENTRYOS) -->
+        <!-- SECCIÓN 1: CHAT REAL CON CONEXIÓN A GEMINI API / GCP -->
         <!-- ========================================== -->
         <div style="background: rgba(83, 59, 135, 0.08); border: 1px solid rgba(83, 59, 135, 0.25); border-radius: 14px; padding: 24px; margin-bottom: 35px;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
             <div style="display: flex; align-items: center; gap: 12px;">
-              <span style="font-size: 2rem;">✨</span>
+              <span style="font-size: 2rem;">🤖</span>
               <div>
-                <h2 style="margin: 0; font-size: 1.4rem; color: #d6c8fa;">Asistente Gemini AI (GCP Proyecto: <code>zentryos</code>)</h2>
-                <span style="font-size: 12px; color: var(--text-muted);">Conectado a la API oficial de Google Gemini alimentada por tu SSOT de 63 Días</span>
+                <h2 style="margin: 0; font-size: 1.4rem; color: #d6c8fa;">Cabina de Inteligencia (Google Gemini API Real)</h2>
+                <span style="font-size: 12px; color: var(--text-muted);">Conectada a GCP (Cliente: <code>${gcpOauthClientId.slice(0, 25)}...</code>) y SSOT de 63 Días</span>
               </div>
             </div>
 
-            <!-- API Key Configuration Modal / Input -->
+            <!-- Configuration Badge for Gemini API Key -->
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 12px; color: var(--text-muted);">🔑 Clave API:</span>
-              <input type="password" id="gemini-api-key-input" value="${savedApiKey}" placeholder="Pega tu Gemini API Key de GCP..." style="padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.4); color: #c2f4e7; font-size: 12px; width: 220px; outline: none;">
-              <button id="save-api-key-btn" class="btn btn-secondary" style="padding: 6px 12px; font-size: 11px; border-radius: 6px;">Guardar Clave</button>
+              <span id="gemini-status-badge" class="tag ${storedApiKey ? 'tag-green' : 'tag-orange'}">
+                ${storedApiKey ? '⚡ API Key Conectada' : '⚠️ Requiere API Key'}
+              </span>
+              <button id="toggle-api-key-config" class="btn btn-secondary" style="font-size: 11px; padding: 6px 12px; border-radius: 6px;">
+                ⚙️ Configurar Key
+              </button>
             </div>
           </div>
 
-          <!-- Chat Messages Container -->
-          <div id="ai-chat-box" style="height: 350px; overflow-y: auto; background: rgba(0,0,0,0.35); border-radius: 10px; padding: 16px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px; border: 1px solid rgba(255,255,255,0.08);">
-            <div class="chat-msg bot" style="background: rgba(83, 59, 135, 0.25); border-left: 3px solid #d6c8fa; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5;">
-              <strong>✨ Gemini Orquestador (GCP):</strong> ¡Hola, José Ángel! Estoy listo y conectado a la base contextual del SSOT (Manifiesto de 63 Días, Embudos de Venta y Perfil Circadiano). Escribe tu consulta para recibir análisis y orientación en tiempo real.
+          <!-- API Key Config Drawer -->
+          <div id="api-key-drawer" style="display: ${storedApiKey ? 'none' : 'block'}; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); padding: 14px; border-radius: 8px; margin-bottom: 16px;">
+            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: #c2f4e7;">
+              🔑 Clave de API de Google Gemini (Vertex AI / Google AI Studio):
+            </label>
+            <div style="display: flex; gap: 8px;">
+              <input type="password" id="gemini-api-key-input" value="${storedApiKey}" placeholder="Pega tu Gemini API Key aquí (AIzaSy...)" style="flex: 1; padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: white; font-size: 13px;">
+              <button id="save-api-key-btn" class="btn btn-primary" style="padding: 8px 16px; font-size: 12px; border-radius: 6px;">Guardar Key</button>
             </div>
+            <p style="font-size: 11px; color: var(--text-muted); margin: 6px 0 0 0;">
+              Tu clave se almacena de forma segura de manera local en tu navegador. Puedes obtener una clave en Google AI Studio o Google Cloud Console en el proyecto <strong>ZentryOS</strong>.
+            </p>
+          </div>
+
+          <!-- Chat Box (Inicia completamente en blanco) -->
+          <div id="ai-chat-box" style="height: 300px; overflow-y: auto; background: rgba(0,0,0,0.35); border-radius: 10px; padding: 16px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px; border: 1px solid rgba(255,255,255,0.05);">
+            <!-- Emptied by default -->
           </div>
 
           <!-- Chat Input Form -->
           <form id="ai-chat-form" style="display: flex; gap: 10px;">
-            <input type="text" id="ai-chat-input" placeholder="Haz una pregunta a Gemini sobre tu plan de 63 días..." style="flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.4); color: white; font-size: 14px; outline: none;">
-            <button type="submit" id="send-chat-btn" class="btn btn-primary" style="padding: 12px 24px; font-weight: bold; border-radius: 8px; display: flex; align-items: center; gap: 6px;">
-              <span>Enviar</span> 🚀
-            </button>
+            <input type="text" id="ai-chat-input" placeholder="Haz una consulta en vivo a Gemini con tu contexto SSOT..." style="flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: white; font-size: 14px; outline: none;">
+            <button type="submit" id="send-chat-btn" class="btn btn-primary" style="padding: 12px 24px; font-weight: bold; border-radius: 8px;">Enviar 🚀</button>
           </form>
         </div>
 
@@ -1376,29 +1390,43 @@ const renderers = {
     `;
 
     // ==========================================
-    // INTERACTIVIDAD Y LÓGICA CONEXIÓN CON GEMINI API
+    // LÓGICA DE INTERACTIVIDAD DE LA API REAL DE GEMINI
     // ==========================================
 
-    const apiKeyInput = document.getElementById('gemini-api-key-input');
-    const saveApiKeyBtn = document.getElementById('save-api-key-btn');
     const chatForm = document.getElementById('ai-chat-form');
     const chatInput = document.getElementById('ai-chat-input');
     const chatBox = document.getElementById('ai-chat-box');
-    const sendChatBtn = document.getElementById('send-chat-btn');
+    const toggleConfigBtn = document.getElementById('toggle-api-key-config');
+    const apiKeyDrawer = document.getElementById('api-key-drawer');
+    const apiKeyInput = document.getElementById('gemini-api-key-input');
+    const saveApiKeyBtn = document.getElementById('save-api-key-btn');
+    const geminiBadge = document.getElementById('gemini-status-badge');
 
-    if (saveApiKeyBtn) {
-      saveApiKeyBtn.addEventListener('click', () => {
-        const val = apiKeyInput.value.trim();
-        localStorage.setItem('zentry_gemini_api_key', val);
-        alert(val ? 'Clave de API Gemini de GCP guardada correctamente.' : 'Clave de API eliminada.');
+    // Toggle Config Drawer
+    if (toggleConfigBtn) {
+      toggleConfigBtn.addEventListener('click', () => {
+        apiKeyDrawer.style.display = apiKeyDrawer.style.display === 'none' ? 'block' : 'none';
       });
     }
 
-    // Load Chat History
-    const savedChat = JSON.parse(localStorage.getItem('zentry_herramientas_chat') || '[]');
-    savedChat.forEach(msg => {
-      appendChatMessage(msg.sender, msg.text);
-    });
+    // Save API Key
+    if (saveApiKeyBtn) {
+      saveApiKeyBtn.addEventListener('click', () => {
+        const val = apiKeyInput.value.trim();
+        if (val) {
+          localStorage.setItem('zentry_gemini_api_key', val);
+          geminiBadge.className = 'tag tag-green';
+          geminiBadge.textContent = '⚡ API Key Conectada';
+          apiKeyDrawer.style.display = 'none';
+          alert('Clave de API de Gemini guardada correctamente.');
+        } else {
+          localStorage.removeItem('zentry_gemini_api_key');
+          geminiBadge.className = 'tag tag-orange';
+          geminiBadge.textContent = '⚠️ Requiere API Key';
+          alert('Clave eliminada.');
+        }
+      });
+    }
 
     function appendChatMessage(sender, text) {
       const msgDiv = document.createElement('div');
@@ -1406,58 +1434,70 @@ const renderers = {
       if (sender === 'user') {
         msgDiv.style.cssText = 'background: rgba(255, 255, 255, 0.08); border-right: 3px solid #81c784; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; align-self: flex-end; max-width: 85%;';
         msgDiv.innerHTML = `<strong>👤 Tú:</strong> ${text}`;
+      } else if (sender === 'loading') {
+        msgDiv.style.cssText = 'background: rgba(83, 59, 135, 0.15); border-left: 3px solid #d6c8fa; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; max-width: 85%; color: var(--text-muted); font-style: italic;';
+        msgDiv.innerHTML = `<strong>⚡ Gemini 1.5/2.0 Real:</strong> Pensando y consultando SSOT... ⏳`;
       } else {
         msgDiv.style.cssText = 'background: rgba(83, 59, 135, 0.25); border-left: 3px solid #d6c8fa; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; max-width: 85%;';
-        msgDiv.innerHTML = `<strong>✨ Gemini GCP:</strong> ${mdToHtml ? mdToHtml(text) : text}`;
+        msgDiv.innerHTML = `<strong>⚡ Gemini Real (GCP ZentryOS):</strong> ${mdToHtml(text)}`;
       }
       chatBox.appendChild(msgDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
+      return msgDiv;
     }
 
-    // Call Real Gemini API (Google Generative Language REST Endpoint)
-    async function callGeminiAPI(userQuery) {
-      const apiKey = apiKeyInput.value.trim() || localStorage.getItem('zentry_gemini_api_key');
-      
-      const systemContext = `Eres el Asistente Orquestador SSOT del proyecto ZentryOS (63 Días).
-Tu usuario es José Ángel.
-Base de Contexto SSOT:
-- Manifiesto Maestro: ${manifestMarkdown.slice(0, 1500)}...
-- Ratios Comerciales: ${metricasMarkdown.slice(0, 1000)}...
-- Protocolo Circadiano: ${circadianoMarkdown.slice(0, 1000)}...
-
-Responde siempre de manera concisa, clara, directa y motivadora basada en el SSOT.`;
-
+    // Call Real Google Gemini REST API
+    async function fetchGeminiAPIResponse(userPrompt) {
+      const apiKey = localStorage.getItem('zentry_gemini_api_key');
       if (!apiKey) {
-        return "⚠️ **Clave de API no configurada**: Pega tu clave de API de Gemini de GCP en el campo superior `🔑 Clave API` para activar la conexión directa con Gemini en tiempo real. Puedes usar la `Clave de API 3` o `Gemini Developer API key` de tu proyecto `zentryos`.";
+        return "⚠️ **No se ha configurado la Gemini API Key.** Por favor presiona el botón `⚙️ Configurar Key` e ingresa tu clave de Google Cloud / AI Studio.";
       }
 
+      const systemInstruction = `Eres el Agente Orquestador SSOT de ZentryOS para José Ángel Borges en su plan maestro de 63 días (10 de Agosto - 11 de Octubre de 2026).
+Base contextual de verdad del sistema:
+--- MANIFIESTO MAESTRO 63 DÍAS ---
+${manifestMarkdown}
+
+--- PROTOCOLO CIRCADIANO Y HÁBITOS ---
+${circadianoMarkdown}
+
+--- MÉTRICAS Y EMBUDOS COMERCIALES ---
+${metricasMarkdown}
+
+Instrucción: Responde de forma clara, directa, analítica y basada estrictamente en los datos del SSOT anterior. Utiliza formato Markdown.`;
+
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+      const payload = {
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { text: `${systemInstruction}
+
+Pregunta del usuario: ${userPrompt}` }
+            ]
+          }
+        ]
+      };
+
       try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-        const response = await fetch(url, {
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: 'user',
-                parts: [{ text: `${systemContext}
-
-Pregunta del Usuario: ${userQuery}` }]
-              }
-            ]
-          })
+          body: JSON.stringify(payload)
         });
 
-        if (!response.ok) {
-          const errData = await response.json();
-          return `⚠️ **Error en Gemini API (${response.status})**: ${errData.error?.message || 'Revisa tu clave de API de GCP.'}`;
+        if (!res.ok) {
+          const errData = await res.json();
+          return `❌ **Error de la API de Gemini (${res.status}):** ${errData.error?.message || 'Revisa tu API Key de GCP.'}`;
         }
 
-        const data = await response.json();
-        const textResp = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        return textResp || "No se recibió respuesta válida de la API de Gemini.";
+        const data = await res.json();
+        const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        return responseText || "Respuesta vacía de la API.";
       } catch (err) {
-        return `⚠️ **Error de conexión con la API de Gemini**: ${err.message}`;
+        return `❌ **Error de conexión a GCP Gemini API:** ${err.message}`;
       }
     }
 
@@ -1466,28 +1506,20 @@ Pregunta del Usuario: ${userQuery}` }]
         e.preventDefault();
         const text = chatInput.value.trim();
         if (!text) return;
-        
+
         appendChatMessage('user', text);
         chatInput.value = '';
 
-        const history = JSON.parse(localStorage.getItem('zentry_herramientas_chat') || '[]');
-        history.push({ sender: 'user', text });
+        const loadingMsg = appendChatMessage('loading', '');
 
-        sendChatBtn.disabled = true;
-        sendChatBtn.innerHTML = '<span>Pensando...</span> ⏳';
+        const aiResponse = await fetchGeminiAPIResponse(text);
 
-        const aiResp = await callGeminiAPI(text);
-
-        sendChatBtn.disabled = false;
-        sendChatBtn.innerHTML = '<span>Enviar</span> 🚀';
-
-        appendChatMessage('bot', aiResp);
-        history.push({ sender: 'bot', text: aiResp });
-        localStorage.setItem('zentry_herramientas_chat', JSON.stringify(history));
+        loadingMsg.remove();
+        appendChatMessage('bot', aiResponse);
       });
     }
 
-    // 2. Journaling Logic
+    // Journaling & Funnel Mechanics
     const journalDate = document.getElementById('journal-date');
     const journalQ1 = document.getElementById('journal-q1');
     const journalQ2 = document.getElementById('journal-q2');
@@ -1563,7 +1595,7 @@ Pregunta del Usuario: ${userQuery}` }]
       });
     }
 
-    // 3. Funnel Metrics Engine Interactive Simulation Logic
+    // Funnel Mechanics
     const fnRpCalls = document.getElementById('fn-rp-calls');
     const fnRpRefDemos = document.getElementById('fn-rp-ref-demos');
     const fnZentryProspects = document.getElementById('fn-zentry-prospects');
@@ -1575,7 +1607,6 @@ Pregunta del Usuario: ${userQuery}` }]
       const zentryProspects = parseInt(fnZentryProspects.value) || 0;
       const zentryDemos = parseInt(fnZentryDemos.value) || 0;
 
-      // RP calculations
       const estColdDemos = (rpCalls / 20).toFixed(1);
       const coldSales = (estColdDemos / 4).toFixed(1);
       const refSales = (rpRefDemos / 3).toFixed(1);
@@ -1589,9 +1620,8 @@ Pregunta del Usuario: ${userQuery}` }]
       document.getElementById('fn-rp-new-refs').textContent = `${newRefs} referidos`;
       document.getElementById('fn-rp-total-gain').textContent = `S/ ${rpGain.toFixed(2)}`;
 
-      // ZentryOS calculations
       const estZentryDemos = (zentryProspects / 5).toFixed(1);
-      const zentrySales = (zentryDemos / 5).toFixed(1); // Month 1 ratio 5:1
+      const zentrySales = (zentryDemos / 5).toFixed(1);
       const zentryPersonalGain = parseFloat(zentrySales) * 1906.78;
       const zentryCompanyGain = parseFloat(zentrySales) * 1271.19;
 
@@ -1601,7 +1631,6 @@ Pregunta del Usuario: ${userQuery}` }]
       document.getElementById('fn-zentry-company-gain').textContent = `S/ ${zentryCompanyGain.toFixed(2)}`;
       document.getElementById('fn-zentry-total-gain').textContent = `S/ ${zentryPersonalGain.toFixed(2)}`;
 
-      // Global Funnel Progress
       const initialCash = 770.00;
       const totalPersonalGain = initialCash + rpGain + zentryPersonalGain;
       const target = 4000.00;
@@ -1621,7 +1650,6 @@ Pregunta del Usuario: ${userQuery}` }]
     if (fnZentryProspects) fnZentryProspects.addEventListener('input', updateFunnelEngine);
     if (fnZentryDemos) fnZentryDemos.addEventListener('input', updateFunnelEngine);
 
-    // Initial calculation
     updateFunnelEngine();
   },
 
