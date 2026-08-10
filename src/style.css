@@ -3117,7 +3117,6 @@ body:not([data-module="zentry"]) .kanban-card {
   border: 1px solid #c2be9f !important;
   box-shadow: 0 2px 10px rgba(194, 190, 159, 0.1) !important;
 }
-
 body:not([data-module="zentry"]) .kanban-card:hover,
 body:not([data-module="zentry"]) .selector-card:hover,
 body:not([data-module="zentry"]) .color-card:hover {
@@ -3139,6 +3138,19 @@ body:not([data-module="zentry"]) .gcal-sign-in-btn {
   color: #ffffff !important;
   border: 1px solid #c2be9f !important;
   letter-spacing: 0.5px !important;
+  animation: btn-entrance 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) 1 normal forwards !important;
+}
+
+/* One-time entrance animation for buttons (animates ONCE on render, never loops) */
+@keyframes btn-entrance {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.97) translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 body:not([data-module="zentry"]) .btn-primary:hover,
