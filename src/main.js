@@ -654,6 +654,82 @@ function setupBrickWallInteraction(baseScale) {
 }
 
 // Views Renderers
+
+// Function to invoke real Google Cloud / AI Studio Gemini API with full SSOT System Instruction
+async function callRealGeminiAPI(userQuery, chatHistory = []) {
+  const apiKey = localStorage.getItem('gemini_api_key');
+  if (!apiKey) throw new Error('MISSING_API_KEY');
+
+  const model = localStorage.getItem('gemini_model') || 'gemini-2.0-flash';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+  const systemInstruction = `Eres el Orquestador SSOT Maestro de José Ángel para el Plan de 63 Días (10 Agosto a 11 Octubre de 2026).
+Tienes conocimiento completo del SSOT:
+1. MANIFIESTO MAESTRO 63 DÍAS:
+${manifestMarkdown.slice(0, 4000)}
+
+2. METRICAS Y EMBUDOS COMERCIALES:
+${metricasMarkdown.slice(0, 3000)}
+
+3. PROTOCOLO CIRCADIANO Y HABITOS:
+${circadianoMarkdown.slice(0, 3000)}
+
+INFORMACIÓN OPERATIVA:
+- Fecha de hoy: Lunes 10 de Agosto de 2026.
+- Obligación financiera al 31 de agosto: S/ 4,000.00 PEN (Caja actual S/ 770.00).
+- Dispositivos: Redmi Note 9 (SIM 933709385 QUARZ para llamadas), Motorola Edge 40 Neo (Servidor USB Scrcpy para WhatsApp), Tab A7 Samsung (Demo ZentryOS Launcher Device Owner), iPad 5ª Gen (Demo PWA Dashboard).
+- Franja 12:00 PM - 02:00 PM: Paseo del perro + Calistenia + 40 llamadas breves Royal Prestige.
+- Ayuno 48h: Jueves 13 (8pm) a Sábado 15 de Agosto (8pm).
+- Camal Yerbateros: Viernes 04:30 AM.
+
+Responde con profesionalismo, concisión, estructura Markdown impecable y máxima alineación al SSOT.`;
+
+  const contents = [];
+  
+  // Format past history into Gemini role objects
+  chatHistory.slice(-6).forEach(msg => {
+    if (msg.sender === 'user') {
+      contents.push({ role: 'user', parts: [{ text: msg.text }] });
+    } else if (msg.sender === 'bot') {
+      contents.push({ role: 'model', parts: [{ text: msg.text }] });
+    }
+  });
+
+  // Ensure current userQuery is at the end
+  if (contents.length === 0 || contents[contents.length - 1].role !== 'user' || contents[contents.length - 1].parts[0].text !== userQuery) {
+    contents.push({ role: 'user', parts: [{ text: userQuery }] });
+  }
+
+  const payload = {
+    system_instruction: {
+      parts: [{ text: systemInstruction }]
+    },
+    contents: contents,
+    generationConfig: {
+      temperature: 0.7,
+      maxOutputTokens: 1024
+    }
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || `Error HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Respuesta vacía recibida de Gemini API.');
+  
+  return text;
+}
+
+
 const renderers = {
   // 1. Kanban Backlog View
   backlog: () => {
