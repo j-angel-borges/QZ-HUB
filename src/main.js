@@ -945,65 +945,38 @@ const renderers = {
   },
 
   // 4. Branding and Colors (Mesa de Trabajo)
+  // 4. Branding View (ZentryOS Brand Guide)
   branding: () => {
-    document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #111111 0%, #1c1917 50%, #292524 100%)';
+    document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #1c142e 0%, #533B87 50%, #0c0d10 100%)';
     document.getElementById('page-icon').textContent = '🎨';
-    document.getElementById('page-title').textContent = 'Brand Guide — QUARZ GROUP & ZentryOS';
+    document.getElementById('page-title').textContent = 'Brand Guide — ZentryOS';
     document.getElementById('properties-block').style.display = 'none';
 
     const container = document.getElementById('workspace-content');
     
-    // QUARZ GROUP Holding Colors
-    const qzColors = [
-      { name: 'Negro Absoluto (QZ Dark)', hex: '#111111', desc: 'Color institucional dominante. Utilizado en tipografía principal y superficies de alto contraste.' },
-      { name: 'Blanco Puro (QZ Light)', hex: '#FFFFFF', desc: 'Fondo limpio corporativo para máxima legibilidad y estética de lujo minimalista.' },
-      { name: 'Dorado Circuito (QZ Gold)', hex: '#C2BE9F', desc: 'Color de acento primario. Utilizado en nodos de circuito, badges y bordes destacados.' },
-      { name: 'Dorado Hover', hex: '#A8A380', desc: 'Variante de interacción para elementos dorados interactivos.' },
-      { name: 'Verde Lima Tech', hex: '#A6FF00', desc: 'Color de acento secundario high-tech para indicadores dinámicos.' }
-    ];
-
-    // Zentry Product Colors
+    // ZentryOS Product Colors
     const zentryColors = [
-      { name: 'Púrpura Zentry', hex: '#533B87', desc: 'Color dominante del producto ZentryOS. Utilizado en botones activos e interruptores de selección.' },
-      { name: 'Lavanda Zentry', hex: '#D6C8FA', desc: 'Color de acento interactivo. Usado en tarjetas de producto e iconos.' },
-      { name: 'Verde Menta', hex: '#C2F4E7', desc: 'Color de progreso y estados positivos.' },
-      { name: 'Blanco Glacial', hex: '#EBF1F5', desc: 'Superficie glacial Zentry.' }
+      { name: 'Púrpura Zentry Dominante', hex: '#533B87', desc: 'Color institucional dominante de ZentryOS. Utilizado en botones activos, superficies primarias e identidad visual.' },
+      { name: 'Lavanda Zentry Interactive', hex: '#D6C8FA', desc: 'Color de acento interactivo y tipografía destacada sobre superficies oscuras.' },
+      { name: 'Verde Menta Neón', hex: '#C2F4E7', desc: 'Color de progreso, estados positivos, indicadores de éxito y métricas de caja.' },
+      { name: 'Blanco Glacial', hex: '#EBF1F5', desc: 'Superficie glacial clara para fondos de tarjetas y bloques de información.' },
+      { name: 'Negro Abisal', hex: '#0C0D10', desc: 'Color de fondo oscuro abisal para paneles de control y launchers.' }
     ];
 
     let html = `
       <div class="markdown-body">
-        <h2>🏛️ Sistema de Marca: QUARZ GROUP (Holding)</h2>
-        <p>Colorimetría oficial de la casa matriz. Haz clic en cualquier tarjeta para copiar su código HEX.</p>
-        <div class="color-swatch-grid">
-    `;
-
-    qzColors.forEach(c => {
-      html += `
-        <div class="color-card" data-hex="${c.hex}">
-          <div class="color-preview" style="background-color: ${c.hex}; border: 1px solid rgba(0,0,0,0.1);"></div>
-          <div class="color-info">
-            <span class="color-name">${c.name}</span>
-            <span class="color-code">${c.hex}</span>
-            <span style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${c.desc}</span>
-          </div>
-        </div>
-      `;
-    });
-
-    html += `
-        </div>
-        <h2 style="margin-top: 36px;">☄️ Sistema de Marca: ZentryOS (Producto Flagship)</h2>
-        <p>Paleta gráfica del ecosistema de gobernanza activa y launcher Android ZentryOS.</p>
+        <h2>☄️ Sistema de Marca: ZentryOS (Producto Flagship)</h2>
+        <p>Paleta gráfica oficial del ecosistema de gobernanza activa, launcher Android y PWA ZentryOS. Haz clic en cualquier tarjeta para copiar su código HEX.</p>
         <div class="color-swatch-grid">
     `;
 
     zentryColors.forEach(c => {
       html += `
-        <div class="color-card" data-hex="${c.hex}">
-          <div class="color-preview" style="background-color: ${c.hex}; border: 1px solid rgba(0,0,0,0.1);"></div>
+        <div class="color-card" data-hex="${c.hex}" style="border: 1px solid rgba(83, 59, 135, 0.2); border-left: 4px solid ${c.hex}; border-radius: 10px;">
+          <div class="color-preview" style="background-color: ${c.hex}; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;"></div>
           <div class="color-info">
-            <span class="color-name">${c.name}</span>
-            <span class="color-code">${c.hex}</span>
+            <span class="color-name" style="color: #533b87; font-weight: 700;">${c.name}</span>
+            <span class="color-code" style="font-family: monospace;">${c.hex}</span>
             <span style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${c.desc}</span>
           </div>
         </div>
@@ -1012,12 +985,11 @@ const renderers = {
 
     html += `
         </div>
-        <h2 style="margin-top: 40px;">✏️ Sistema Tipográfico</h2>
-        <p>QZ-Hub implementa la jerarquía tipográfica unificada:</p>
+        <h2 style="margin-top: 40px;">✏️ Sistema Tipográfico ZentryOS</h2>
+        <p>ZentryOS implementa su propio sistema tipográfico adaptado a móviles y dashboards:</p>
         <ul>
-          <li><strong>Space Grotesk</strong>: Tipografía corporativa para titulares, logotipos y cabeceras de QUARZ GROUP.</li>
-          <li><strong>Space Mono</strong>: Tipografía monoespaciada para métricas, badges, versiones y terminales agénticas.</li>
-          <li><strong>Outfit & Inter</strong>: Tipografía para interfaces de producto y bloques de lectura fluida.</li>
+          <li><strong>Outfit</strong>: Tipografía principal moderna para cabeceras, títulos de módulos y tarjetas de producto ZentryOS.</li>
+          <li><strong>Inter</strong>: Tipografía limpia para cuerpos de texto, tablas de prospectos, llamadas y descripciones.</li>
         </ul>
       </div>
       <div class="copy-toast" id="copy-toast">Código HEX copiado!</div>
