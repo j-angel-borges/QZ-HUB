@@ -116,6 +116,86 @@ body {
   padding: 0 16px 8px 16px;
 }
 
+/* Zentry Product Module Section in Sidebar */
+.nav-section-zentry {
+  margin: 16px 10px 24px 10px;
+  padding: 12px 6px;
+  background: rgba(83, 59, 135, 0.04);
+  border: 1px solid rgba(83, 59, 135, 0.14);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.nav-section-zentry:hover {
+  background: rgba(83, 59, 135, 0.07);
+  border-color: rgba(83, 59, 135, 0.22);
+  box-shadow: 0 4px 14px rgba(83, 59, 135, 0.05);
+}
+
+.nav-section-header-zentry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px 10px 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(83, 59, 135, 0.12);
+}
+
+.zentry-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.zentry-header-icon {
+  font-size: 16px;
+}
+
+.zentry-header-title {
+  font-family: var(--font-family-title);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  color: var(--primary-dark);
+  text-transform: uppercase;
+}
+
+.zentry-header-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background-color: var(--primary);
+  color: var(--primary-dark);
+  letter-spacing: 0.3px;
+}
+
+.nav-subsection {
+  margin-top: 10px;
+}
+
+.nav-subsection-title {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--purple-zentry);
+  opacity: 0.8;
+  letter-spacing: 0.7px;
+  padding: 6px 10px 4px 10px;
+}
+
+.nav-section-zentry .nav-link {
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+.nav-section-zentry .nav-link.active {
+  background-color: rgba(83, 59, 135, 0.12);
+  color: var(--purple-zentry);
+  border-left: 3px solid var(--purple-zentry);
+  padding-left: 7px;
+}
+
 .nav-link {
   display: flex;
   align-items: center;

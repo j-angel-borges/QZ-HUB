@@ -12,8 +12,6 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
-  <!-- Google Identity Services SDK for GCP OAuth 2.0 -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <title>Zentry Hub - SSOT Dashboard</title>
 </head>
 
@@ -35,18 +33,7 @@
       </div>
 
       <nav class="sidebar-nav">
-        <div class="nav-section">
-          <div class="nav-section-title">Recurso de Ventas</div>
-          <a href="#demobook" class="nav-link" data-view="demobook">
-            <span class="link-icon">📖</span>
-            <span class="link-text">Demobook</span>
-          </a>
-          <a href="#prospeccion" class="nav-link" data-view="prospeccion">
-            <span class="link-icon">🎯</span>
-            <span class="link-text">Prospección</span>
-          </a>
-        </div>
-
+        <!-- 1. GESTIÓN DE TIEMPO SECTION -->
         <div class="nav-section">
           <div class="nav-section-title">Gestión de Tiempo</div>
           <a href="#backlog" class="nav-link active" data-view="backlog">
@@ -63,16 +50,39 @@
           </a>
         </div>
 
-        <div class="nav-section">
-          <div class="nav-section-title">Mesa De Trabajo</div>
-          <a href="#branding" class="nav-link" data-view="branding">
-            <span class="link-icon">🎨</span>
-            <span class="link-text">Brand Guide</span>
-          </a>
-          <a href="#iacontext" class="nav-link" data-view="iacontext">
-            <span class="link-icon">🤖</span>
-            <span class="link-text">Contextos de IA</span>
-          </a>
+        <!-- 2. ZENTRY PRODUCT MODULE SECTION -->
+        <div class="nav-section nav-section-zentry" id="zentry-sidebar-section">
+          <div class="nav-section-header-zentry">
+            <div class="zentry-header-left">
+              <span class="zentry-header-icon">☄️</span>
+              <span class="zentry-header-title">Zentry</span>
+            </div>
+            <span class="zentry-header-badge">Producto</span>
+          </div>
+
+          <div class="nav-subsection">
+            <div class="nav-subsection-title">Recursos de Ventas</div>
+            <a href="#demobook" class="nav-link" data-view="demobook" data-module="zentry">
+              <span class="link-icon">📖</span>
+              <span class="link-text">Demobook</span>
+            </a>
+            <a href="#prospeccion" class="nav-link" data-view="prospeccion" data-module="zentry">
+              <span class="link-icon">🎯</span>
+              <span class="link-text">Prospección</span>
+            </a>
+          </div>
+
+          <div class="nav-subsection">
+            <div class="nav-subsection-title">Mesa De Trabajo</div>
+            <a href="#branding" class="nav-link" data-view="branding" data-module="zentry">
+              <span class="link-icon">🎨</span>
+              <span class="link-text">Brand Guide</span>
+            </a>
+            <a href="#iacontext" class="nav-link" data-view="iacontext" data-module="zentry">
+              <span class="link-icon">🤖</span>
+              <span class="link-text">Contextos de IA</span>
+            </a>
+          </div>
         </div>
       </nav>
 

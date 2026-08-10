@@ -2621,6 +2621,14 @@ function renderKanbanCards() {
 function handleRouting() {
   const hash = window.location.hash || '#backlog';
   
+  // Set data-module on body to preserve Zentry colorimetry when accessing Zentry views
+  const isZentryView = hash.includes('demobook') || hash.includes('prospeccion') || hash.includes('branding') || hash.includes('iacontext') || hash === '#backlog/zentry';
+  if (isZentryView) {
+    document.body.setAttribute('data-module', 'zentry');
+  } else {
+    document.body.setAttribute('data-module', 'hub');
+  }
+
   // Reset minimal-view by default
   const workspace = document.querySelector('.workspace');
   if (workspace) {
