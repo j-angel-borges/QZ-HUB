@@ -637,23 +637,24 @@ body[data-module="zentry"] .workspace-banner {
 }
 
 .kanban-column {
-  background-color: rgba(255, 255, 255, 0.3);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(194, 190, 159, 0.45);
+  border-radius: 2px;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   min-height: 400px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  box-shadow: 0 4px 20px rgba(194, 190, 159, 0.12);
 }
 
 .column-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: 2px solid #c2be9f;
   padding-bottom: 10px;
 }
 
@@ -661,6 +662,8 @@ body[data-module="zentry"] .workspace-banner {
   font-family: var(--font-family-title);
   font-size: 14px;
   font-weight: 700;
+  text-transform: uppercase;
+  color: var(--qz-text-black);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -668,10 +671,11 @@ body[data-module="zentry"] .workspace-banner {
 
 .column-count {
   font-size: 11px;
-  background-color: rgba(74, 81, 96, 0.08);
-  padding: 2px 6px;
-  border-radius: 10px;
-  color: var(--text-muted);
+  font-family: var(--font-family-mono);
+  background-color: #111111;
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 2px;
 }
 
 .kanban-cards {
@@ -687,19 +691,19 @@ body[data-module="zentry"] .workspace-banner {
 }
 
 .kanban-card {
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid rgba(194, 190, 159, 0.4);
+  border-radius: 2px;
   padding: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(74, 81, 96, 0.05);
+  box-shadow: 0 2px 8px rgba(194, 190, 159, 0.1);
 }
 
 .kanban-card:hover {
-  border-color: var(--primary-dark);
+  border-color: #c2be9f;
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px var(--primary-glow);
+  box-shadow: 0 6px 20px rgba(194, 190, 159, 0.3);
 }
 
 .card-header {
@@ -711,15 +715,17 @@ body[data-module="zentry"] .workspace-banner {
 
 .card-id {
   font-size: 11px;
+  font-family: var(--font-family-mono);
   font-weight: 700;
-  color: var(--primary);
+  color: var(--qz-text-black);
 }
 
 .card-priority {
   font-size: 10px;
+  font-family: var(--font-family-mono);
   font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 4px;
+  padding: 2px 6px;
+  border-radius: 2px;
   text-transform: uppercase;
 }
 
@@ -1512,15 +1518,15 @@ body[data-module="zentry"] .workspace-banner {
 }
 
 .glass-modal {
-  background-color: rgba(255, 255, 255, 0.92); /* Higher opacity to prevent text overlap ghosting */
+  background-color: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(83, 59, 135, 0.15);
-  border-radius: 18px;
+  border: 1px solid #c2be9f;
+  border-radius: 2px;
   width: 90%;
   max-width: 540px;
   padding: 28px;
-  box-shadow: 0 16px 40px rgba(74, 81, 96, 0.15);
+  box-shadow: 0 16px 40px rgba(17, 17, 17, 0.2);
   transform: scale(0.95);
   transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -1534,7 +1540,7 @@ body[data-module="zentry"] .workspace-banner {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid #c2be9f;
   padding-bottom: 12px;
 }
 
@@ -1542,21 +1548,22 @@ body[data-module="zentry"] .workspace-banner {
   font-family: var(--font-family-title);
   font-size: 18px;
   font-weight: 700;
-  color: var(--primary-dark);
+  text-transform: uppercase;
+  color: var(--qz-text-black);
 }
 
 .modal-close-btn {
   background: none;
   border: none;
   font-size: 24px;
-  color: var(--text-muted);
+  color: var(--qz-text-muted);
   cursor: pointer;
   transition: color 0.2s;
   line-height: 1;
 }
 
 .modal-close-btn:hover {
-  color: var(--primary-dark);
+  color: var(--qz-text-black);
 }
 
 /* Modal Form Styles */
@@ -1575,7 +1582,9 @@ body[data-module="zentry"] .workspace-banner {
 .form-group label {
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-muted);
+  font-family: var(--font-family-title);
+  text-transform: uppercase;
+  color: var(--qz-text-muted);
 }
 
 .form-row {
@@ -1587,11 +1596,11 @@ body[data-module="zentry"] .workspace-banner {
 #task-form input[type="text"],
 #task-form select,
 #task-form textarea {
-  background-color: rgba(255, 255, 255, 0.5);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #c2be9f;
+  border-radius: 2px;
   padding: 10px 12px;
-  color: var(--text-main);
+  color: var(--qz-text-black);
   font-family: var(--font-family-body);
   font-size: 14px;
   outline: none;
@@ -1602,8 +1611,8 @@ body[data-module="zentry"] .workspace-banner {
 #task-form input[type="text"]:focus,
 #task-form select:focus,
 #task-form textarea:focus {
-  border-color: var(--primary-dark);
-  box-shadow: 0 0 0 3px var(--primary-glow);
+  border-color: #111111;
+  box-shadow: 0 0 0 2px rgba(194, 190, 159, 0.4);
 }
 
 #task-form textarea {
@@ -1615,7 +1624,7 @@ body[data-module="zentry"] .workspace-banner {
   justify-content: space-between;
   align-items: center;
   margin-top: 24px;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid #c2be9f;
   padding-top: 16px;
   gap: 12px;
 }
@@ -1627,11 +1636,12 @@ body[data-module="zentry"] .workspace-banner {
 
 /* Premium Buttons inside Modal */
 .btn {
-  font-family: var(--font-family-body);
-  font-size: 13.5px;
-  font-weight: 600;
-  padding: 8px 18px;
-  border-radius: 8px;
+  font-family: var(--font-family-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 9px 20px;
+  border-radius: 2px;
   cursor: pointer;
   transition: all 0.2s;
   outline: none;
@@ -1641,31 +1651,33 @@ body[data-module="zentry"] .workspace-banner {
 }
 
 .btn-primary {
-  background-color: var(--primary-dark);
+  background-color: #111111;
   color: #ffffff;
-  border: none;
-  box-shadow: 0 2px 8px rgba(83, 59, 135, 0.25);
+  border: 1px solid #c2be9f;
+  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.15);
 }
 
 .btn-primary:hover {
-  background-color: #422d70;
+  background-color: #c2be9f;
+  color: #111111;
   transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background-color: rgba(83, 59, 135, 0.08);
-  color: var(--primary-dark);
-  border: 1px solid rgba(83, 59, 135, 0.18);
+  background-color: #ffffff;
+  color: #111111;
+  border: 1px solid rgba(194, 190, 159, 0.5);
 }
 
 .btn-secondary:hover {
-  background-color: rgba(83, 59, 135, 0.15);
+  background-color: rgba(194, 190, 159, 0.15);
+  border-color: #c2be9f;
 }
 
 .btn-danger {
   background-color: rgba(239, 68, 68, 0.08);
   color: #b91c1c;
-  border: 1px solid rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .btn-danger:hover {
@@ -1701,13 +1713,13 @@ body[data-module="zentry"] .workspace-banner {
 
 /* Glass panel container */
 .glass-panel {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(194, 190, 159, 0.45);
+  border-radius: 2px;
   padding: 20px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 8px 32px rgba(74, 81, 96, 0.05);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  box-shadow: 0 4px 20px rgba(194, 190, 159, 0.12);
   margin-bottom: 20px;
 }
 
