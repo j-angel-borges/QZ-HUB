@@ -1,4 +1,4 @@
-import { plan63diasMarkdown, circadianoMarkdown, dispositivosData } from './herramientas-data.js';
+import { manifestMarkdown, circadianoMarkdown, metricasMarkdown, dispositivosData, quickPrompts } from './herramientas-data.js';
 import './style.css';
 import db from './ssot-db.json';
  
@@ -1101,139 +1101,415 @@ const renderers = {
   },
 
 
-  // 6.6. Herramientas & Agentes View
+  // 6.6. Herramientas View: Cabina de Inteligencia, Diario Nocturno & Dashboard Gráfico de Avances
   herramientas: () => {
     document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #1c142e 0%, #533B87 50%, #0c0d10 100%)';
     document.getElementById('page-icon').textContent = '⚡';
-    document.getElementById('page-title').textContent = 'Hub de Herramientas & Agentes';
+    document.getElementById('page-title').textContent = 'Herramientas de Gestión & Control (SSOT 63 Días)';
     document.getElementById('properties-block').style.display = 'none';
 
     const container = document.getElementById('workspace-content');
 
-    let devCardsHtml = dispositivosData.map(d => `
-      <div class="ia-card" style="border-left: 4px solid var(--purple-zentry); background: rgba(255,255,255,0.03);">
-        <div class="ia-card-header" style="display: flex; justify-content: space-between; align-items: center;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 1.6rem;">${d.icon}</span>
-            <h3 class="ia-card-title" style="margin: 0;">${d.name}</h3>
-          </div>
-          <span class="tag ${d.statusColor}">${d.status}</span>
-        </div>
-        <p style="font-size: 12px; color: var(--text-muted); margin: 6px 0 10px 0;"><strong>Tipo:</strong> ${d.type} • <strong>SIM/Línea:</strong> ${d.sim}</p>
-        <p class="ia-card-desc" style="font-size: 13px; line-height: 1.4;">${d.role}</p>
-      </div>
-    `).join('');
+    const todayStr = new Date().toISOString().split('T')[0];
 
     container.innerHTML = `
       <div class="markdown-body">
+        
+        <!-- ========================================== -->
+        <!-- SECCIÓN 1: CHAT DE IA DIRECTO (ORQUESTADOR SSOT) -->
+        <!-- ========================================== -->
+        <div style="background: rgba(83, 59, 135, 0.08); border: 1px solid rgba(83, 59, 135, 0.25); border-radius: 14px; padding: 24px; margin-bottom: 35px;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <span style="font-size: 2rem;">🤖</span>
+            <div>
+              <h2 style="margin: 0; font-size: 1.4rem; color: #d6c8fa;">Cabina de Inteligencia Orquestadora (SSOT)</h2>
+              <span style="font-size: 12px; color: var(--text-muted);">Asistente IA alimentado directamente por la base contextual de los 63 Días</span>
+            </div>
+          </div>
+
+          <!-- Quick Prompts Buttons -->
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+            ${quickPrompts.map(qp => `
+              <button class="quick-prompt-btn btn-secondary" style="font-size: 11px; padding: 6px 12px; border-radius: 20px; cursor: pointer;">
+                ${qp}
+              </button>
+            `).join('')}
+          </div>
+
+          <!-- Chat Messages Container -->
+          <div id="ai-chat-box" style="height: 320px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 16px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px; border: 1px solid rgba(255,255,255,0.05);">
+            <div class="chat-msg bot" style="background: rgba(83, 59, 135, 0.25); border-left: 3px solid #d6c8fa; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5;">
+              <strong>⚡ Orquestador SSOT:</strong> ¡Hola, José Ángel! Estoy conectado al plan maestro de 63 días, tus métricas de conversión comercial, protocolos circadianos e infraestructura móvil. ¿Qué consulta o ajuste deseas revisar sobre la jornada de hoy?
+            </div>
+          </div>
+
+          <!-- Chat Input Form -->
+          <form id="ai-chat-form" style="display: flex; gap: 10px;">
+            <input type="text" id="ai-chat-input" placeholder="Haz una pregunta o consulta al Orquestador..." style="flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: white; font-size: 14px; outline: none;">
+            <button type="submit" class="btn btn-primary" style="padding: 12px 24px; font-weight: bold; border-radius: 8px;">Enviar 🚀</button>
+          </form>
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- SECCIÓN 2: DIARIO NOCTURNO DE REFLEXIÓN (JOURNALING) -->
+        <!-- ========================================== -->
+        <div style="background: rgba(194, 244, 231, 0.04); border: 1px solid rgba(194, 244, 231, 0.15); border-radius: 14px; padding: 24px; margin-bottom: 35px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 2rem;">📝</span>
+              <div>
+                <h2 style="margin: 0; font-size: 1.4rem; color: #c2f4e7;">Diario Nocturno de Reflexión (Journaling)</h2>
+                <span style="font-size: 12px; color: var(--text-muted);">Registra tus reflexiones al cierre del día para alimentar el historial en <code>03_JOURNAL_BITACORA</code></span>
+              </div>
+            </div>
+            <input type="date" id="journal-date" value="${todayStr}" style="padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-size: 13px;">
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #c2f4e7;">1. ¿Qué avances, demostraciones o llamadas concreté hoy?</label>
+            <textarea id="journal-q1" rows="2" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-size: 13px;" placeholder="Ej. Realicé 25 llamadas de Royal Prestige, agendé 2 demos en San Borja..."></textarea>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #c2f4e7;">2. ¿Qué fricciones o flaqueos experimenté y cómo los corregí?</label>
+            <textarea id="journal-q2" rows="2" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-size: 13px;" placeholder="Ej. Bajón de energía a las 3pm, apliqué suspiro fisiológico e ingería chicharrón..."></textarea>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #c2f4e7;">3. ¿Cuál es mi prioridad indispensable para mañana?</label>
+            <textarea id="journal-q3" rows="2" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-size: 13px;" placeholder="Ej. Finalizar el módulo Compose Device Owner Mode y prospectar en Limatambo..."></textarea>
+          </div>
+
+          <div style="display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;">
+            <button id="journal-download-btn" class="btn btn-secondary" style="padding: 10px 18px; border-radius: 8px; font-weight: 600;">📥 Descargar .md para 03_JOURNAL_BITACORA</button>
+            <button id="journal-save-btn" class="btn btn-primary" style="padding: 10px 24px; border-radius: 8px; font-weight: 600;">💾 Guardar Entrada del Día</button>
+          </div>
+
+          <div id="journal-history-list" style="margin-top: 20px; font-size: 12px; color: var(--text-muted);">
+            <!-- Past entries rendered dynamically -->
+          </div>
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- SECCIÓN 3: DASHBOARD GRÁFICO DE AVANCES Y FUNNEL METRICS ENGINE -->
+        <!-- ========================================== -->
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; margin-bottom: 35px;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+            <span style="font-size: 2rem;">📊</span>
+            <div>
+              <h2 style="margin: 0; font-size: 1.4rem;">Funnel Metrics Engine (Avances y Conversiones)</h2>
+              <span style="font-size: 12px; color: var(--text-muted);">Simulación gráfica en tiempo real según los ratios de conversión de Royal Prestige y QUARZ</span>
+            </div>
+          </div>
+
+          <!-- Progress Bar Global -->
+          <div style="margin-bottom: 30px; background: rgba(0,0,0,0.3); padding: 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-weight: bold; font-size: 14px;">🎯 Meta de Caja al 31 de Agosto (21 Días Restantes)</span>
+              <span id="funnel-progress-text" style="font-weight: bold; color: #c2f4e7;">S/ 770.00 / S/ 4,000.00 (19.25%)</span>
+            </div>
+            <div class="progress-bar-container" style="height: 16px; background: rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden;">
+              <div id="funnel-progress-bar" class="progress-bar" style="width: 19.25%; background: linear-gradient(90deg, #533b87 0%, #c2f4e7 100%); height: 100%;"></div>
+            </div>
+          </div>
+
+          <!-- Funnel 1: Royal Prestige -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 30px;">
+            <div style="background: rgba(46, 125, 50, 0.08); border: 1px solid rgba(46, 125, 50, 0.2); border-radius: 12px; padding: 20px;">
+              <h3 style="margin-top: 0; color: #81c784; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                <span>🍳</span> Royal Prestige (Llamadas & Referidos)
+              </h3>
+              
+              <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+                <div>
+                  <label style="font-size: 12px; color: var(--text-muted);">Llamadas Conversadas en Frío (SIM 933709385):</label>
+                  <input type="number" id="fn-rp-calls" value="40" min="0" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-weight: bold;">
+                </div>
+                <div>
+                  <label style="font-size: 12px; color: var(--text-muted);">Demos de Referidos Realizadas:</label>
+                  <input type="number" id="fn-rp-ref-demos" value="3" min="0" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-weight: bold;">
+                </div>
+              </div>
+
+              <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; font-size: 12px; line-height: 1.6;">
+                <div>• Demos Frías Estimadas (Ratio 20:1): <strong id="fn-rp-est-demos" style="color: #c2f4e7;">2 demos</strong></div>
+                <div>• Ventas Frías (Ratio 4:1): <strong id="fn-rp-cold-sales" style="color: #c2f4e7;">0.5 ventas</strong> (S/ 505.30)</div>
+                <div>• Ventas Referidos (Ratio 3:1): <strong id="fn-rp-ref-sales" style="color: #c2f4e7;">1 venta</strong> (S/ 1,347.46)</div>
+                <div>• Referidos Generados (5-10 x demo): <strong id="fn-rp-new-refs" style="color: #d6c8fa;">37 referidos</strong></div>
+                <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0;">
+                <div style="font-size: 14px;">Ganancia RP Estimada: <strong id="fn-rp-total-gain" style="color: #81c784; font-size: 1.1rem;">S/ 1,852.76</strong></div>
+              </div>
+            </div>
+
+            <!-- Funnel 2: Quarz ZentryOS -->
+            <div style="background: rgba(43, 92, 143, 0.08); border: 1px solid rgba(43, 92, 143, 0.2); border-radius: 12px; padding: 20px;">
+              <h3 style="margin-top: 0; color: #64b5f6; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                <span>☄️</span> QUARZ Group (ZentryOS $1k USD)
+              </h3>
+              
+              <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+                <div>
+                  <label style="font-size: 12px; color: var(--text-muted);">Prospectos Presenciales en Frío (Malls/Parques):</label>
+                  <input type="number" id="fn-zentry-prospects" value="15" min="0" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-weight: bold;">
+                </div>
+                <div>
+                  <label style="font-size: 12px; color: var(--text-muted);">Demos Realizadas (Tab A7 / iPad):</label>
+                  <input type="number" id="fn-zentry-demos" value="5" min="0" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-weight: bold;">
+                </div>
+              </div>
+
+              <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; font-size: 12px; line-height: 1.6;">
+                <div>• Demos Concretadas en 2 Semanas (Ratio 5:1): <strong id="fn-zentry-est-demos" style="color: #c2f4e7;">3 demos</strong></div>
+                <div>• Licencias Cerradas Mes 1 (Ratio 5:1): <strong id="fn-zentry-sales" style="color: #c2f4e7;">1 licencia</strong></div>
+                <div>• Ganancia Neta Personal (60%): <strong id="fn-zentry-personal-gain" style="color: #64b5f6;">S/ 1,906.78</strong></div>
+                <div>• Capital Caja Empresa QUARZ (40%): <strong id="fn-zentry-company-gain" style="color: #d6c8fa;">S/ 1,271.19</strong></div>
+                <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0;">
+                <div style="font-size: 14px;">Ganancia Personal ZentryOS: <strong id="fn-zentry-total-gain" style="color: #64b5f6; font-size: 1.1rem;">S/ 1,906.78</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SECCIÓN 4: PARQUE DE DISPOSITIVOS Y HARDWARE HUB -->
+        <!-- ========================================== -->
         <h2>📱 Parque de Dispositivos y Red de Números (Hardware Hub)</h2>
         <p>Asignación técnica de dispositivos móviles, tablets e infraestructura para prospección y demos en vivo:</p>
         
         <div class="ia-cards-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); margin-bottom: 40px;">
-          ${devCardsHtml}
+          ${dispositivosData.map(d => `
+            <div class="ia-card" style="border-left: 4px solid var(--purple-zentry); background: rgba(255,255,255,0.03);">
+              <div class="ia-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 1.6rem;">${d.icon}</span>
+                  <h3 class="ia-card-title" style="margin: 0;">${d.name}</h3>
+                </div>
+                <span class="tag ${d.statusColor}">${d.status}</span>
+              </div>
+              <p style="font-size: 12px; color: var(--text-muted); margin: 6px 0 10px 0;"><strong>Tipo:</strong> ${d.type} • <strong>SIM/Línea:</strong> ${d.sim}</p>
+              <p class="ia-card-desc" style="font-size: 13px; line-height: 1.4;">${d.role}</p>
+            </div>
+          `).join('')}
         </div>
 
-        <h2>💰 Calculadora de Comisiones & Sensibilidad Financiera</h2>
-        <p>Ajusta el número de cierres proyectados para simular tus ganancias netas personales y caja de empresa acumulada:</p>
-
-        <div style="background: rgba(83, 59, 135, 0.08); border: 1px solid rgba(83, 59, 135, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 40px;">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px;">
-            <div>
-              <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px;">Royal Prestige (Ventas):</label>
-              <input type="number" id="calc-rp-sales" value="3" min="0" max="20" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; font-weight: bold;">
-              <span style="font-size: 11px; color: var(--text-muted);">S/ 1,010.59 a S/ 1,347.46 netos / venta</span>
-            </div>
-            <div>
-              <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px;">ZentryOS ($1k USD Licencias):</label>
-              <input type="number" id="calc-zentry-sales" value="2" min="0" max="20" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; font-weight: bold;">
-              <span style="font-size: 11px; color: var(--text-muted);">S/ 1,906.78 neto personal / licencia</span>
-            </div>
-            <div>
-              <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 6px;">Importadora Visual (Lotes):</label>
-              <input type="number" id="calc-iv-sales" value="1" min="0" max="20" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; font-weight: bold;">
-              <span style="font-size: 11px; color: var(--text-muted);">S/ 1,000.00 neto avg / lote</span>
-            </div>
-          </div>
-
-          <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 10px; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 15px; text-align: center;">
-            <div>
-              <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Caja Actual + Producido</span>
-              <h3 id="calc-total-personal" style="color: #c2f4e7; margin: 4px 0 0 0; font-size: 1.5rem;">S/ 8,433.00</h3>
-            </div>
-            <div>
-              <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Meta 31 de Agosto</span>
-              <h3 style="color: #d6c8fa; margin: 4px 0 0 0; font-size: 1.5rem;">S/ 4,000.00</h3>
-            </div>
-            <div>
-              <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Estado al 31-Ago</span>
-              <h3 id="calc-status-badge" style="color: #4caf50; margin: 4px 0 0 0; font-size: 1.5rem;">✅ CUBIERTO (210%)</h3>
-            </div>
-          </div>
-        </div>
-
-        <h2>🥩 Tracker Nutricional & Camal de Yerbateros</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px;">
-          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px;">
-            <h3 style="margin-top: 0; color: var(--purple-zentry);">📅 Ayuno Autofágico 48 Horas</h3>
-            <p style="font-size: 13px; line-height: 1.5;"><strong>Fecha:</strong> Jueves 13 (08:00 PM) al Sábado 15 de Agosto (08:00 PM).</p>
-            <p style="font-size: 13px; line-height: 1.5;"><strong>Hidratación:</strong> Suero Táctico Tri-Salino (Sodio 3-5g, Potasio 1.5-2g, Magnesio 400mg).</p>
-          </div>
-          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px;">
-            <h3 style="margin-top: 0; color: var(--purple-zentry);">🚛 Compras en Camal Yerbateros</h3>
-            <p style="font-size: 13px; line-height: 1.5;"><strong>Día Óptimo:</strong> Viernes por la madrugada (04:30 AM - 06:00 AM).</p>
-            <p style="font-size: 13px; line-height: 1.5;"><strong>Insumos:</strong> Carne magra, hígado, corazón, panza y chicharrón de cerdo (S/ 80.00).</p>
-          </div>
-        </div>
-
-        <h2>📑 Acceso Rápido a Planes & Reportes</h2>
-        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-          <a href="#plan63dias" class="btn btn-primary" style="padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">🗺️ Ver Plan Maestro 63 Días</a>
-          <a href="#circadiano" class="btn btn-secondary" style="padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">🧬 Ver Perfil Circadiano & Hábitos</a>
-        </div>
       </div>
     `;
 
-    // Interactive Calculator Script
-    const calcRp = document.getElementById('calc-rp-sales');
-    const calcZentry = document.getElementById('calc-zentry-sales');
-    const calcIv = document.getElementById('calc-iv-sales');
-    const calcTotalEl = document.getElementById('calc-total-personal');
-    const calcStatusEl = document.getElementById('calc-status-badge');
+    // ==========================================
+    // INTERACTIVIDAD Y LÓGICA DE JAVASCRIPT
+    // ==========================================
 
-    function updateCalculator() {
-      const rpCount = parseInt(calcRp.value) || 0;
-      const zentryCount = parseInt(calcZentry.value) || 0;
-      const ivCount = parseInt(calcIv.value) || 0;
+    // 1. AI Chat Logic
+    const chatForm = document.getElementById('ai-chat-form');
+    const chatInput = document.getElementById('ai-chat-input');
+    const chatBox = document.getElementById('ai-chat-box');
 
-      // RP calculation: 1st 3 sales @ 15% (S/ 1,010.59), 4th+ @ 20% (S/ 1,347.46)
-      let rpIncome = 0;
-      for (let i = 1; i <= rpCount; i++) {
-        rpIncome += i <= 3 ? 1010.59 : 1347.46;
-      }
+    // Load Chat History
+    const savedChat = JSON.parse(localStorage.getItem('zentry_herramientas_chat') || '[]');
+    savedChat.forEach(msg => {
+      appendChatMessage(msg.sender, msg.text);
+    });
 
-      const zentryIncome = zentryCount * 1906.78;
-      const ivIncome = ivCount * 1000.00;
-      const initialCash = 770.00;
-
-      const totalPersonal = initialCash + rpIncome + zentryIncome + ivIncome;
-      calcTotalEl.textContent = `S/ ${totalPersonal.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-      const target = 4000.00;
-      const pct = Math.round((totalPersonal / target) * 100);
-
-      if (totalPersonal >= target) {
-        calcStatusEl.textContent = `✅ CUBIERTO (${pct}%)`;
-        calcStatusEl.style.color = '#4caf50';
+    function appendChatMessage(sender, text) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `chat-msg ${sender}`;
+      if (sender === 'user') {
+        msgDiv.style.cssText = 'background: rgba(255, 255, 255, 0.08); border-right: 3px solid #81c784; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; align-self: flex-end; max-width: 85%;';
+        msgDiv.innerHTML = `<strong>👤 Tú:</strong> ${text}`;
       } else {
-        const diff = target - totalPersonal;
-        calcStatusEl.textContent = `⚠️ FALTAN S/ ${diff.toFixed(2)} (${pct}%)`;
-        calcStatusEl.style.color = '#ff9800';
+        msgDiv.style.cssText = 'background: rgba(83, 59, 135, 0.25); border-left: 3px solid #d6c8fa; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; max-width: 85%;';
+        msgDiv.innerHTML = `<strong>⚡ Orquestador SSOT:</strong> ${text}`;
+      }
+      chatBox.appendChild(msgDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function generateAIResponse(userQuery) {
+      const q = userQuery.toLowerCase();
+      let resp = "";
+      if (q.includes('meta') || q.includes('31 de agosto') || q.includes('caja')) {
+        resp = "Tu obligación inmediata al 31 de Agosto es de **S/ 4,000.00 PEN netos**. Partiendo de tus **S/ 770.00 en caja**, necesitas producir **S/ 3,230.00 PEN netos**, lo cual se logra cerrando **3 ventas de Royal Prestige** o **2 licencias de ZentryOS ($1,000 USD)**.";
+      } else if (q.includes('12') || q.includes('perro') || q.includes('rutina') || q.includes('entren')) {
+        resp = "En la franja de **12:00 PM a 02:00 PM** ejecutas el paseo del perro + calistenia en el parque + las **40 llamadas telefónicas breves de Royal Prestige** (SIM 933709385). Caminar al aire libre te da voz firme y momentum sin fatigar tu tarde.";
+      } else if (q.includes('royal') || q.includes('ratio') || q.includes('ollas')) {
+        resp = "Para Royal Prestige: En llamadas frías, **20 llamadas conversadas agendan 1 demo**, y **4 demos frías cierran 1 venta** (S/ 1,010.59). En referidos (5-10 por demo), la tasa sube a **3 demos por 1 venta** (S/ 1,347.46).";
+      } else if (q.includes('zentry') || q.includes('prospecc') || q.includes('mall') || q.includes('limatambo')) {
+        resp = "Para ZentryOS: De cada **5 prospectos en frío** en Limatambo/La Rambla/Jockey, **1 persona recibe la demo en 2 semanas**. En el Mes 1, **5 demos cierran 1 licencia de $1,000 USD** (S/ 1,906.78 neto personal).";
+      } else if (q.includes('ayuno') || q.includes('48') || q.includes('camal') || q.includes('yerbateros')) {
+        resp = "Tu **Ayuno de 48h** corre del **Jueves 13 (8pm) al Sábado 15 de Agosto (8pm)**. El mejor día para ir al **Camal de Yerbateros es el Viernes a las 04:30 AM** por máxima frescura de vísceras y baja congestión.";
+      } else {
+        resp = `Comprendido. En relación a "${userQuery}", mantengo el foco en respaldar tu plan maestro de 63 días (del 10 de Agosto al 11 de Octubre) asegurando que ejecutes tus bloques sin fricción biológica ni comercial.`;
+      }
+      return resp;
+    }
+
+    if (chatForm) {
+      chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if (!text) return;
+        
+        appendChatMessage('user', text);
+        chatInput.value = '';
+
+        const history = JSON.parse(localStorage.getItem('zentry_herramientas_chat') || '[]');
+        history.push({ sender: 'user', text });
+
+        setTimeout(() => {
+          const aiResp = generateAIResponse(text);
+          appendChatMessage('bot', aiResp);
+          history.push({ sender: 'bot', text: aiResp });
+          localStorage.setItem('zentry_herramientas_chat', JSON.stringify(history));
+        }, 500);
+      });
+    }
+
+    // Quick Prompts Click Handlers
+    document.querySelectorAll('.quick-prompt-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        chatInput.value = btn.textContent.trim();
+        chatForm.dispatchEvent(new Event('submit'));
+      });
+    });
+
+    // 2. Journaling Logic
+    const journalDate = document.getElementById('journal-date');
+    const journalQ1 = document.getElementById('journal-q1');
+    const journalQ2 = document.getElementById('journal-q2');
+    const journalQ3 = document.getElementById('journal-q3');
+    const journalSaveBtn = document.getElementById('journal-save-btn');
+    const journalDownloadBtn = document.getElementById('journal-download-btn');
+    const journalHistoryList = document.getElementById('journal-history-list');
+
+    function renderJournalHistory() {
+      const history = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
+      if (history.length === 0) {
+        journalHistoryList.innerHTML = `<p style="font-style: italic;">No hay entradas guardadas en el historial local aún.</p>`;
+        return;
+      }
+      journalHistoryList.innerHTML = '<strong>📅 Entradas de Diario Guardadas:</strong>' + history.map(h => `
+        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-top: 8px;">
+          <strong style="color: #c2f4e7;">${h.date}:</strong> ${h.q1.slice(0, 80)}...
+        </div>
+      `).join('');
+    }
+
+    renderJournalHistory();
+
+    if (journalSaveBtn) {
+      journalSaveBtn.addEventListener('click', () => {
+        const date = journalDate.value;
+        const q1 = journalQ1.value.trim();
+        const q2 = journalQ2.value.trim();
+        const q3 = journalQ3.value.trim();
+
+        if (!q1 && !q2 && !q3) {
+          alert('Por favor escribe al menos una reflexión antes de guardar.');
+          return;
+        }
+
+        const history = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
+        const existingIdx = history.findIndex(h => h.date === date);
+
+        const entry = { date, q1, q2, q3, savedAt: new Date().toISOString() };
+
+        if (existingIdx !== -1) {
+          history[existingIdx] = entry;
+        } else {
+          history.unshift(entry);
+        }
+
+        localStorage.setItem('zentry_journal_history', JSON.stringify(history));
+        alert(`Entrada de diario para ${date} guardada exitosamente.`);
+        renderJournalHistory();
+      });
+    }
+
+    if (journalDownloadBtn) {
+      journalDownloadBtn.addEventListener('click', () => {
+        const date = journalDate.value;
+        const q1 = journalQ1.value.trim() || 'Sin registro';
+        const q2 = journalQ2.value.trim() || 'Sin registro';
+        const q3 = journalQ3.value.trim() || 'Sin registro';
+
+        const mdContent = '# BITÁCORA NOCTURNA DE REFLEXIÓN - ' + date + '\n\n' +
+          '> **Fecha:** ' + date + '  \n' +
+          '> **Destino SSOT:** G:/Mi unidad/01_Empresas_y_Proyectos/1_agosto-2026/03_JOURNAL_BITACORA/journal_' + date + '.md\n\n' +
+          '---\n\n' +
+          '### 1. ¿Qué avances, demostraciones o llamadas concreté hoy?\n' + q1 + '\n\n' +
+          '### 2. ¿Qué fricciones o flaqueos experimenté y cómo los corregí?\n' + q2 + '\n\n' +
+          '### 3. ¿Cuál es mi prioridad indispensable para mañana?\n' + q3 + '\n';
+
+        const blob = new Blob([mdContent], { type: 'text/markdown' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `journal_${date}.md`;
+        a.click();
+      });
+    }
+
+    // 3. Funnel Metrics Engine Interactive Simulation Logic
+    const fnRpCalls = document.getElementById('fn-rp-calls');
+    const fnRpRefDemos = document.getElementById('fn-rp-ref-demos');
+    const fnZentryProspects = document.getElementById('fn-zentry-prospects');
+    const fnZentryDemos = document.getElementById('fn-zentry-demos');
+
+    function updateFunnelEngine() {
+      const rpCalls = parseInt(fnRpCalls.value) || 0;
+      const rpRefDemos = parseInt(fnRpRefDemos.value) || 0;
+      const zentryProspects = parseInt(fnZentryProspects.value) || 0;
+      const zentryDemos = parseInt(fnZentryDemos.value) || 0;
+
+      // RP calculations
+      const estColdDemos = (rpCalls / 20).toFixed(1);
+      const coldSales = (estColdDemos / 4).toFixed(1);
+      const refSales = (rpRefDemos / 3).toFixed(1);
+      const newRefs = Math.round((parseFloat(estColdDemos) + rpRefDemos) * 7.5);
+
+      const rpGain = (parseFloat(coldSales) * 1010.59) + (parseFloat(refSales) * 1347.46);
+
+      document.getElementById('fn-rp-est-demos').textContent = `${estColdDemos} demos`;
+      document.getElementById('fn-rp-cold-sales').textContent = `${coldSales} ventas`;
+      document.getElementById('fn-rp-ref-sales').textContent = `${refSales} ventas`;
+      document.getElementById('fn-rp-new-refs').textContent = `${newRefs} referidos`;
+      document.getElementById('fn-rp-total-gain').textContent = `S/ ${rpGain.toFixed(2)}`;
+
+      // ZentryOS calculations
+      const estZentryDemos = (zentryProspects / 5).toFixed(1);
+      const zentrySales = (zentryDemos / 5).toFixed(1); // Month 1 ratio 5:1
+      const zentryPersonalGain = parseFloat(zentrySales) * 1906.78;
+      const zentryCompanyGain = parseFloat(zentrySales) * 1271.19;
+
+      document.getElementById('fn-zentry-est-demos').textContent = `${estZentryDemos} demos`;
+      document.getElementById('fn-zentry-sales').textContent = `${zentrySales} licencias`;
+      document.getElementById('fn-zentry-personal-gain').textContent = `S/ ${zentryPersonalGain.toFixed(2)}`;
+      document.getElementById('fn-zentry-company-gain').textContent = `S/ ${zentryCompanyGain.toFixed(2)}`;
+      document.getElementById('fn-zentry-total-gain').textContent = `S/ ${zentryPersonalGain.toFixed(2)}`;
+
+      // Global Funnel Progress
+      const initialCash = 770.00;
+      const totalPersonalGain = initialCash + rpGain + zentryPersonalGain;
+      const target = 4000.00;
+      const pct = Math.min(100, Math.round((totalPersonalGain / target) * 100));
+
+      const funnelProgressText = document.getElementById('funnel-progress-text');
+      const funnelProgressBar = document.getElementById('funnel-progress-bar');
+
+      if (funnelProgressText && funnelProgressBar) {
+        funnelProgressText.textContent = `S/ ${totalPersonalGain.toFixed(2)} / S/ ${target.toFixed(2)} (${pct}%)`;
+        funnelProgressBar.style.width = `${pct}%`;
       }
     }
 
-    if (calcRp) calcRp.addEventListener('input', updateCalculator);
-    if (calcZentry) calcZentry.addEventListener('input', updateCalculator);
-    if (calcIv) calcIv.addEventListener('input', updateCalculator);
+    if (fnRpCalls) fnRpCalls.addEventListener('input', updateFunnelEngine);
+    if (fnRpRefDemos) fnRpRefDemos.addEventListener('input', updateFunnelEngine);
+    if (fnZentryProspects) fnZentryProspects.addEventListener('input', updateFunnelEngine);
+    if (fnZentryDemos) fnZentryDemos.addEventListener('input', updateFunnelEngine);
+
+    // Initial calculation
+    updateFunnelEngine();
   },
 
   // 6.7. Plan Maestro 63 Días View
