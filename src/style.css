@@ -159,7 +159,7 @@ body[data-module="zentry"] .sidebar-nav .nav-link.active {
   padding: 12px 6px;
   background: rgba(83, 59, 135, 0.04);
   border: 1px solid rgba(83, 59, 135, 0.14);
-  border-radius: 12px;
+  border-radius: 0px;
   transition: all 0.3s ease;
 }
 
@@ -201,7 +201,7 @@ body[data-module="zentry"] .sidebar-nav .nav-link.active {
   font-size: 10px;
   font-weight: 600;
   padding: 2px 8px;
-  border-radius: 20px;
+  border-radius: 0px;
   background-color: var(--primary);
   color: var(--primary-dark);
   letter-spacing: 0.3px;
@@ -222,7 +222,7 @@ body[data-module="zentry"] .sidebar-nav .nav-link.active {
 }
 
 .nav-section-zentry .nav-link {
-  border-radius: 6px;
+  border-radius: 0px;
   padding: 6px 10px;
 }
 

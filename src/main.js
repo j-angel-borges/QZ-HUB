@@ -2464,44 +2464,44 @@ function renderHistoryView(container) {
           }
           
           const boxHtml = b.completed 
-            ? `<div style="width: 36px; height: 36px; border-radius: 8px; border: 2px solid #2d8a6e; display: flex; align-items: center; justify-content: center; background: rgba(45, 138, 110, 0.1);"><span style="color:#2d8a6e; font-size: 20px; font-weight:bold;">✓</span></div>`
-            : `<div style="width: 36px; height: 36px; border-radius: 8px; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.5);"></div>`;
+            ? `<div style="width: 36px; height: 36px; border-radius: 0px; border: 2px solid #111111; display: flex; align-items: center; justify-content: center; background: #c2be9f;"><span style="color:#111111; font-size: 18px; font-weight:bold;">✓</span></div>`
+            : `<div style="width: 36px; height: 36px; border-radius: 0px; border: 1px solid #c2be9f; display: flex; align-items: center; justify-content: center; background: #ffffff;"></div>`;
 
           return `
-            <div style="display: flex; gap: 12px; margin-bottom: 8px; padding: 12px; background: white; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.05);">
+            <div style="display: flex; gap: 12px; margin-bottom: 8px; padding: 12px; background: #ffffff; border-radius: 0px; box-shadow: 0 2px 6px rgba(194,190,159,0.1); border: 1px solid #c2be9f;">
               <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 4px;">
                 ${boxHtml}
               </div>
               <div style="flex: 1;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <div style="font-size: 13px; font-weight: 600; color: var(--text-main);">${time}</div>
-                  ${typeLabel ? `<div style="font-size: 11px; font-weight: bold; color: ${typeColor}; border: 1.5px solid ${typeColor}; padding: 2px 8px; border-radius: 6px; letter-spacing: 0.5px;">${typeLabel}</div>` : ''}
+                  <div style="font-size: 13px; font-weight: 700; color: #111111; font-family: 'Space Mono', monospace;">${time}</div>
+                  ${typeLabel ? `<div style="font-size: 11px; font-weight: bold; color: ${typeColor}; border: 1px solid ${typeColor}; padding: 2px 8px; border-radius: 0px; letter-spacing: 0.5px; font-family: 'Space Mono', monospace;">${typeLabel}</div>` : ''}
                 </div>
-                <div style="font-size: 14px; margin-top: 4px; color: #444;">${b.text || 'Sin título'}</div>
-                ${b.details ? `<div style="font-size: 13px; color: var(--text-muted); margin-top: 6px; white-space: pre-wrap; background: #f8f9fa; padding: 8px; border-radius: 6px; border: 1px solid #eee;">${b.details}</div>` : ''}
+                <div style="font-size: 14px; margin-top: 4px; color: #111111;">${b.text || 'Sin título'}</div>
+                ${b.details ? `<div style="font-size: 13px; color: var(--qz-text-muted); margin-top: 6px; white-space: pre-wrap; background: #fdfdfc; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; font-family: 'Space Mono', monospace;">${b.details}</div>` : ''}
               </div>
             </div>
           `;
         }).join('');
       } else {
-        detailsHtml = '<div style="font-size: 13px; color: var(--text-muted);">Día sin bloques registrados.</div>';
+        detailsHtml = '<div style="font-size: 13px; color: var(--qz-text-muted);">Día sin bloques registrados.</div>';
       }
 
       return `
-        <div class="history-card" style="background: rgba(255,255,255,0.7); padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(74,81,96,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+        <div class="history-card" style="background: rgba(255,255,255,0.95); padding: 20px; border-radius: 0px; margin-bottom: 15px; border: 1px solid #c2be9f; box-shadow: 0 4px 15px rgba(194,190,159,0.12);">
           <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="document.getElementById('history-details-${i}').style.display = document.getElementById('history-details-${i}').style.display === 'none' ? 'block' : 'none'">
             <div>
-              <div style="font-weight: 600; font-size: 16px; margin-bottom: 5px;">📅 ${h.date}</div>
-              <div style="font-size: 13px; color: var(--text-muted);">Backup guardado el: ${ts}</div>
+              <div style="font-weight: 700; font-size: 16px; margin-bottom: 5px; font-family: 'Space Grotesk', sans-serif;">📅 ${h.date}</div>
+              <div style="font-size: 12px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace;">Backup guardado el: ${ts}</div>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="background: rgba(144, 112, 230, 0.1); color: var(--purple-zentry); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500;">${numBlocks} bloques registrados</span>
-              <button style="background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-muted);">⌄</button>
+              <span style="background: #111111; color: #ffffff; padding: 6px 12px; border-radius: 0px; font-size: 12px; font-weight: 700; font-family: 'Space Mono', monospace; border: 1px solid #c2be9f;">${numBlocks} bloques registrados</span>
+              <button style="background: none; border: none; font-size: 18px; cursor: pointer; color: #111111;">⌄</button>
             </div>
           </div>
-          <div id="history-details-${i}" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(74,81,96,0.1);">
+          <div id="history-details-${i}" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #c2be9f;">
             <div style="margin-bottom: 15px; text-align: right;">
-              <button class="btn-edit-history" data-date="${h.date}" style="background: var(--purple-zentry); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif;">✏️ Editar este día</button>
+              <button class="btn-edit-history" data-date="${h.date}" style="background: #111111; color: #ffffff; border: 1px solid #c2be9f; padding: 6px 14px; border-radius: 0px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Space Mono', monospace;">✏️ Editar este día</button>
             </div>
             ${detailsHtml}
           </div>
