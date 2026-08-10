@@ -637,24 +637,23 @@ body[data-module="zentry"] .workspace-banner {
 }
 
 .kanban-column {
-  background-color: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(194, 190, 159, 0.45);
-  border-radius: 2px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   min-height: 400px;
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  box-shadow: 0 4px 20px rgba(194, 190, 159, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .column-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #c2be9f;
+  border-bottom: 2px solid var(--border-color);
   padding-bottom: 10px;
 }
 
@@ -662,8 +661,6 @@ body[data-module="zentry"] .workspace-banner {
   font-family: var(--font-family-title);
   font-size: 14px;
   font-weight: 700;
-  text-transform: uppercase;
-  color: var(--qz-text-black);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -671,11 +668,10 @@ body[data-module="zentry"] .workspace-banner {
 
 .column-count {
   font-size: 11px;
-  font-family: var(--font-family-mono);
-  background-color: #111111;
-  color: #ffffff;
-  padding: 2px 8px;
-  border-radius: 2px;
+  background-color: rgba(74, 81, 96, 0.08);
+  padding: 2px 6px;
+  border-radius: 10px;
+  color: var(--text-muted);
 }
 
 .kanban-cards {
@@ -691,19 +687,19 @@ body[data-module="zentry"] .workspace-banner {
 }
 
 .kanban-card {
-  background: #ffffff;
-  border: 1px solid rgba(194, 190, 159, 0.4);
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
   padding: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(194, 190, 159, 0.1);
+  box-shadow: 0 4px 12px rgba(74, 81, 96, 0.05);
 }
 
 .kanban-card:hover {
-  border-color: #c2be9f;
+  border-color: var(--primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(194, 190, 159, 0.3);
+  box-shadow: 0 6px 18px var(--primary-glow);
 }
 
 .card-header {
@@ -715,17 +711,15 @@ body[data-module="zentry"] .workspace-banner {
 
 .card-id {
   font-size: 11px;
-  font-family: var(--font-family-mono);
   font-weight: 700;
-  color: var(--qz-text-black);
+  color: var(--primary);
 }
 
 .card-priority {
   font-size: 10px;
-  font-family: var(--font-family-mono);
   font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 2px;
+  padding: 1px 6px;
+  border-radius: 4px;
   text-transform: uppercase;
 }
 
@@ -1518,15 +1512,15 @@ body[data-module="zentry"] .workspace-banner {
 }
 
 .glass-modal {
-  background-color: rgba(255, 255, 255, 0.96);
+  background-color: rgba(255, 255, 255, 0.92); /* Higher opacity to prevent text overlap ghosting */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid #c2be9f;
-  border-radius: 2px;
+  border: 1px solid rgba(83, 59, 135, 0.15);
+  border-radius: 18px;
   width: 90%;
   max-width: 540px;
   padding: 28px;
-  box-shadow: 0 16px 40px rgba(17, 17, 17, 0.2);
+  box-shadow: 0 16px 40px rgba(74, 81, 96, 0.15);
   transform: scale(0.95);
   transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -1540,7 +1534,7 @@ body[data-module="zentry"] .workspace-banner {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  border-bottom: 1px solid #c2be9f;
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 12px;
 }
 
@@ -1548,22 +1542,21 @@ body[data-module="zentry"] .workspace-banner {
   font-family: var(--font-family-title);
   font-size: 18px;
   font-weight: 700;
-  text-transform: uppercase;
-  color: var(--qz-text-black);
+  color: var(--primary-dark);
 }
 
 .modal-close-btn {
   background: none;
   border: none;
   font-size: 24px;
-  color: var(--qz-text-muted);
+  color: var(--text-muted);
   cursor: pointer;
   transition: color 0.2s;
   line-height: 1;
 }
 
 .modal-close-btn:hover {
-  color: var(--qz-text-black);
+  color: var(--primary-dark);
 }
 
 /* Modal Form Styles */
@@ -1582,9 +1575,7 @@ body[data-module="zentry"] .workspace-banner {
 .form-group label {
   font-size: 12px;
   font-weight: 600;
-  font-family: var(--font-family-title);
-  text-transform: uppercase;
-  color: var(--qz-text-muted);
+  color: var(--text-muted);
 }
 
 .form-row {
@@ -1596,11 +1587,11 @@ body[data-module="zentry"] .workspace-banner {
 #task-form input[type="text"],
 #task-form select,
 #task-form textarea {
-  background-color: #ffffff;
-  border: 1px solid #c2be9f;
-  border-radius: 2px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
   padding: 10px 12px;
-  color: var(--qz-text-black);
+  color: var(--text-main);
   font-family: var(--font-family-body);
   font-size: 14px;
   outline: none;
@@ -1611,8 +1602,8 @@ body[data-module="zentry"] .workspace-banner {
 #task-form input[type="text"]:focus,
 #task-form select:focus,
 #task-form textarea:focus {
-  border-color: #111111;
-  box-shadow: 0 0 0 2px rgba(194, 190, 159, 0.4);
+  border-color: var(--primary-dark);
+  box-shadow: 0 0 0 3px var(--primary-glow);
 }
 
 #task-form textarea {
@@ -1624,7 +1615,7 @@ body[data-module="zentry"] .workspace-banner {
   justify-content: space-between;
   align-items: center;
   margin-top: 24px;
-  border-top: 1px solid #c2be9f;
+  border-top: 1px solid var(--border-color);
   padding-top: 16px;
   gap: 12px;
 }
@@ -1636,12 +1627,11 @@ body[data-module="zentry"] .workspace-banner {
 
 /* Premium Buttons inside Modal */
 .btn {
-  font-family: var(--font-family-mono);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  padding: 9px 20px;
-  border-radius: 2px;
+  font-family: var(--font-family-body);
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
   outline: none;
@@ -1651,33 +1641,31 @@ body[data-module="zentry"] .workspace-banner {
 }
 
 .btn-primary {
-  background-color: #111111;
+  background-color: var(--primary-dark);
   color: #ffffff;
-  border: 1px solid #c2be9f;
-  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.15);
+  border: none;
+  box-shadow: 0 2px 8px rgba(83, 59, 135, 0.25);
 }
 
 .btn-primary:hover {
-  background-color: #c2be9f;
-  color: #111111;
+  background-color: #422d70;
   transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background-color: #ffffff;
-  color: #111111;
-  border: 1px solid rgba(194, 190, 159, 0.5);
+  background-color: rgba(83, 59, 135, 0.08);
+  color: var(--primary-dark);
+  border: 1px solid rgba(83, 59, 135, 0.18);
 }
 
 .btn-secondary:hover {
-  background-color: rgba(194, 190, 159, 0.15);
-  border-color: #c2be9f;
+  background-color: rgba(83, 59, 135, 0.15);
 }
 
 .btn-danger {
   background-color: rgba(239, 68, 68, 0.08);
   color: #b91c1c;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid rgba(239, 68, 68, 0.18);
 }
 
 .btn-danger:hover {
@@ -1713,13 +1701,13 @@ body[data-module="zentry"] .workspace-banner {
 
 /* Glass panel container */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(194, 190, 159, 0.45);
-  border-radius: 2px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
   padding: 20px;
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  box-shadow: 0 4px 20px rgba(194, 190, 159, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(74, 81, 96, 0.05);
   margin-bottom: 20px;
 }
 
@@ -2830,4 +2818,138 @@ body[data-module="zentry"] .workspace-banner {
   .brick-wall-stats {
     justify-content: space-between;
   }
+}
+
+/* ==========================================================================
+   QUARZ GROUP - MASTER DESIGN CRITERIA OVERRIDES
+   Formas geométricas nítidas (Bordes rectos/0px), paleta blanca/dorado circuito,
+   tipografía Space Grotesk/Mono y glassmorphic rectangular de alto rendimiento.
+   ========================================================================== */
+
+/* Strict 0px sharp geometric borders for all QUARZ elements */
+body:not([data-module="zentry"]) .sidebar,
+body:not([data-module="zentry"]) .sidebar-header,
+body:not([data-module="zentry"]) .nav-section-zentry,
+body:not([data-module="zentry"]) .nav-link,
+body:not([data-module="zentry"]) .workspace-banner,
+body:not([data-module="zentry"]) .page-icon-wrapper,
+body:not([data-module="zentry"]) .properties-container,
+body:not([data-module="zentry"]) .progress-bar,
+body:not([data-module="zentry"]) .progress-bar-container,
+body:not([data-module="zentry"]) .kanban-column,
+body:not([data-module="zentry"]) .kanban-card,
+body:not([data-module="zentry"]) .mit-card,
+body:not([data-module="zentry"]) .corkboard-widget,
+body:not([data-module="zentry"]) .selector-card,
+body:not([data-module="zentry"]) .selector-card-icon,
+body:not([data-module="zentry"]) .btn-selector-enter,
+body:not([data-module="zentry"]) .filter-select,
+body:not([data-module="zentry"]) .filter-group,
+body:not([data-module="zentry"]) .btn-add-task,
+body:not([data-module="zentry"]) .btn-reset-tasks,
+body:not([data-module="zentry"]) .btn-back-to-selector,
+body:not([data-module="zentry"]) .btn-back-personal,
+body:not([data-module="zentry"]) .modal-content,
+body:not([data-module="zentry"]) .form-group input,
+body:not([data-module="zentry"]) .form-group select,
+body:not([data-module="zentry"]) .form-group textarea,
+body:not([data-module="zentry"]) .btn,
+body:not([data-module="zentry"]) .btn-primary,
+body:not([data-module="zentry"]) .btn-secondary,
+body:not([data-module="zentry"]) .btn-danger,
+body:not([data-module="zentry"]) .tag,
+body:not([data-module="zentry"]) .color-card,
+body:not([data-module="zentry"]) .color-preview,
+body:not([data-module="zentry"]) .keep-card,
+body:not([data-module="zentry"]) .keep-body,
+body:not([data-module="zentry"]) .keep-category,
+body:not([data-module="zentry"]) .timeblock-slot,
+body:not([data-module="zentry"]) .timeblock-text,
+body:not([data-module="zentry"]) .timeblock-details,
+body:not([data-module="zentry"]) .timeblock-details-text,
+body:not([data-module="zentry"]) .date-nav-btn,
+body:not([data-module="zentry"]) .gcal-sign-in-btn,
+body:not([data-module="zentry"]) .timeblock-type-btn,
+body:not([data-module="zentry"]) .timeblock-brick-btn,
+body:not([data-module="zentry"]) .brick-count,
+body:not([data-module="zentry"]) .zoom-btn,
+body:not([data-module="zentry"]) .column-count {
+  border-radius: 0px !important;
+}
+
+/* QUARZ Clean White & Gold Glassmorphism */
+body:not([data-module="zentry"]) {
+  background-color: #ffffff !important;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(194, 190, 159, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(194, 190, 159, 0.06) 0%, transparent 40%) !important;
+}
+
+body:not([data-module="zentry"]) .workspace-banner {
+  background: linear-gradient(135deg, #ffffff 0%, #f7f6f0 50%, #eae8dc 100%) !important;
+  border-bottom: 1px solid rgba(194, 190, 159, 0.4) !important;
+}
+
+body:not([data-module="zentry"]) .page-icon-wrapper {
+  background: #ffffff !important;
+  border: 1px solid #c2be9f !important;
+  box-shadow: 0 4px 20px rgba(194, 190, 159, 0.2) !important;
+}
+
+body:not([data-module="zentry"]) .page-title {
+  font-family: 'Space Grotesk', sans-serif !important;
+  text-transform: uppercase !important;
+  color: #111111 !important;
+  letter-spacing: 0.5px !important;
+}
+
+body:not([data-module="zentry"]) .kanban-column,
+body:not([data-module="zentry"]) .mit-card,
+body:not([data-module="zentry"]) .corkboard-widget,
+body:not([data-module="zentry"]) .selector-card,
+body:not([data-module="zentry"]) .color-card,
+body:not([data-module="zentry"]) .keep-card,
+body:not([data-module="zentry"]) .glass-modal {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid #c2be9f !important;
+  box-shadow: 0 4px 20px rgba(194, 190, 159, 0.15) !important;
+}
+
+body:not([data-module="zentry"]) .kanban-card {
+  background: #ffffff !important;
+  border: 1px solid #c2be9f !important;
+  box-shadow: 0 2px 10px rgba(194, 190, 159, 0.1) !important;
+}
+
+body:not([data-module="zentry"]) .kanban-card:hover,
+body:not([data-module="zentry"]) .selector-card:hover,
+body:not([data-module="zentry"]) .color-card:hover {
+  border-color: #111111 !important;
+  box-shadow: 0 8px 30px rgba(194, 190, 159, 0.3) !important;
+}
+
+body:not([data-module="zentry"]) .btn-primary,
+body:not([data-module="zentry"]) .btn-selector-enter,
+body:not([data-module="zentry"]) .btn-add-task,
+body:not([data-module="zentry"]) .btn-reset-tasks,
+body:not([data-module="zentry"]) .btn-back-to-selector,
+body:not([data-module="zentry"]) .btn-back-personal,
+body:not([data-module="zentry"]) .date-nav-btn,
+body:not([data-module="zentry"]) .gcal-sign-in-btn {
+  font-family: 'Space Mono', monospace !important;
+  font-weight: 700 !important;
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #c2be9f !important;
+  letter-spacing: 0.5px !important;
+}
+
+body:not([data-module="zentry"]) .btn-primary:hover,
+body:not([data-module="zentry"]) .btn-selector-enter:hover,
+body:not([data-module="zentry"]) .btn-add-task:hover {
+  background: #c2be9f !important;
+  color: #111111 !important;
+  box-shadow: 0 0 15px rgba(194, 190, 159, 0.4) !important;
 }
