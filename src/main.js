@@ -1119,12 +1119,17 @@ const renderers = {
         <!-- SECCIÓN 1: CHAT DE IA DIRECTO (ORQUESTADOR SSOT) -->
         <!-- ========================================== -->
         <div style="background: rgba(83, 59, 135, 0.08); border: 1px solid rgba(83, 59, 135, 0.25); border-radius: 14px; padding: 24px; margin-bottom: 35px;">
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-            <span style="font-size: 2rem;">🤖</span>
-            <div>
-              <h2 style="margin: 0; font-size: 1.4rem; color: #d6c8fa;">Cabina de Inteligencia Orquestadora (SSOT)</h2>
-              <span style="font-size: 12px; color: var(--text-muted);">Asistente IA alimentado directamente por la base contextual de los 63 Días</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 2rem;">🤖</span>
+              <div>
+                <h2 style="margin: 0; font-size: 1.4rem; color: #d6c8fa;">Cabina de Inteligencia Orquestadora (Gemini API)</h2>
+                <span style="font-size: 12px; color: var(--text-muted);">Conectado en tiempo real al modelo Gemini 1.5 Flash con el SSOT completo</span>
+              </div>
             </div>
+            <button id="configure-gemini-key-btn" class="btn btn-secondary" style="font-size: 12px; padding: 6px 14px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+              🔑 Configurar Gemini API Key
+            </button>
           </div>
 
           <!-- Quick Prompts Buttons -->
@@ -1345,24 +1350,97 @@ const renderers = {
       return resp;
     }
 
+    // Config key button click listener
+    const configKeyBtn = document.getElementById('configure-gemini-key-btn');
+    function updateKeyBtnBadge() {
+      const savedKey = localStorage.getItem('gemini_api_key');
+      if (configKeyBtn) {
+        if (savedKey) {
+          configKeyBtn.innerHTML = '🟢 Gemini API Conectada';
+          configKeyBtn.style.borderColor = '#4caf50';
+          configKeyBtn.style.color = '#81c784';
+        } else {
+          configKeyBtn.innerHTML = '🔑 Configurar Gemini API Key';
+          configKeyBtn.style.borderColor = '#ff9800';
+          configKeyBtn.style.color = '#ffb74d';
+        }
+      }
+    }
+    updateKeyBtnBadge();
+
+    if (configKeyBtn) {
+      configKeyBtn.addEventListener('click', () => {
+        const currentKey = localStorage.getItem('gemini_api_key') || '';
+        const inputKey = prompt('Ingresa tu Gemini API Key (obtén una en https://aistudio.google.com/app/apikey):', currentKey);
+        if (inputKey !== null) {
+          if (inputKey.trim()) {
+            localStorage.setItem('gemini_api_key', inputKey.trim());
+            alert('¡Gemini API Key guardada exitosamente!');
+          } else {
+            localStorage.removeItem('gemini_api_key');
+            alert('API Key eliminada.');
+          }
+          updateKeyBtnBadge();
+        }
+      });
+    }
+
     if (chatForm) {
-      chatForm.addEventListener('submit', (e) => {
+      chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const text = chatInput.value.trim();
         if (!text) return;
-        
+
+        // Check if API Key exists
+        let apiKey = localStorage.getItem('gemini_api_key');
+        if (!apiKey) {
+          const inputKey = prompt('Para conectar el chat a tu cuenta de Google Gemini en tiempo real, ingresa tu API Key de Gemini:\n(Puedes obtenerla gratis en https://aistudio.google.com/app/apikey):');
+          if (inputKey && inputKey.trim()) {
+            localStorage.setItem('gemini_api_key', inputKey.trim());
+            apiKey = inputKey.trim();
+            updateKeyBtnBadge();
+          } else {
+            alert('Se requiere una Gemini API Key para consultar la inteligencia en vivo.');
+            return;
+          }
+        }
+
         appendChatMessage('user', text);
         chatInput.value = '';
 
         const history = JSON.parse(localStorage.getItem('zentry_herramientas_chat') || '[]');
         history.push({ sender: 'user', text });
 
-        setTimeout(() => {
-          const aiResp = generateAIResponse(text);
-          appendChatMessage('bot', aiResp);
-          history.push({ sender: 'bot', text: aiResp });
+        // Typing indicator
+        const typingId = 'typing-' + Date.now();
+        const typingDiv = document.createElement('div');
+        typingDiv.id = typingId;
+        typingDiv.className = 'chat-msg bot';
+        typingDiv.style.cssText = 'background: rgba(83, 59, 135, 0.25); border-left: 3px solid #d6c8fa; padding: 12px; border-radius: 8px; font-size: 13px; font-style: italic; color: #d6c8fa;';
+        typingDiv.innerHTML = '⚡ <em>El Orquestador SSOT está procesando con Gemini API...</em>';
+        chatBox.appendChild(typingDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        try {
+          const aiRespText = await callRealGeminiAPI(text, history);
+          const typingEl = document.getElementById(typingId);
+          if (typingEl) typingEl.remove();
+
+          appendChatMessage('bot', mdToHtml(aiRespText));
+          history.push({ sender: 'bot', text: aiRespText });
           localStorage.setItem('zentry_herramientas_chat', JSON.stringify(history));
-        }, 500);
+        } catch (err) {
+          const typingEl = document.getElementById(typingId);
+          if (typingEl) typingEl.remove();
+
+          let errMsg = err.message;
+          if (errMsg === 'MISSING_API_KEY') {
+            errMsg = 'No se encontró la Gemini API Key. Haz clic en "🔑 Configurar Gemini API Key" para ingresarla.';
+          } else {
+            errMsg = `Error de conexión con Gemini API: ${errMsg}`;
+          }
+          appendChatMessage('bot', `<span style="color: #ff5252;">⚠️ ${errMsg}</span>`);
+        }
       });
     }
 
