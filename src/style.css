@@ -2951,6 +2951,25 @@ body:not([data-module="zentry"]) .gcal-sign-in-btn {
 }
 
 /* ========================================
+   TOOLS PAGE GRID (Full-Width PC & 1-Col Mobile)
+   ======================================== */
+.tools-page-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: 100%;
+  align-items: stretch;
+}
+
+@media (max-width: 1100px) {
+  .tools-page-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+}
+
+/* ========================================
    RESPONSIVE: Espacio Personal
    ======================================== */
 
@@ -3560,46 +3579,5 @@ body:not([data-module="zentry"]) .btn-add-task:hover {
 
   .modal-content {
     max-height: 85vh !important;
-  }
-}
-
-/* ==========================================================================
-   TOOLS 3-COLUMN GRID LAYOUT (QUARZ holding shot 183654)
-   ========================================================================== */
-.tools-grid-layout {
-  display: grid;
-  grid-template-columns: 320px 1fr 340px;
-  gap: 24px;
-  align-items: start;
-  width: 100%;
-}
-
-.tools-col {
-  box-sizing: border-box;
-}
-
-@media (max-width: 1280px) {
-  .tools-grid-layout {
-    grid-template-columns: 280px 1fr 300px;
-    gap: 16px;
-  }
-}
-
-@media (max-width: 1050px) {
-  .tools-grid-layout {
-    grid-template-columns: 1fr 1fr;
-  }
-  .tools-col-assistant {
-    grid-column: span 2;
-  }
-}
-
-@media (max-width: 768px) {
-  .tools-grid-layout {
-    grid-template-columns: 1fr !important;
-    gap: 16px !important;
-  }
-  .tools-col-assistant {
-    grid-column: span 1 !important;
   }
 }

@@ -31,10 +31,10 @@
       "url": "/#backlog"
     },
     {
-      "name": "TOOLS",
-      "short_name": "TOOLS",
+      "name": "Herramientas",
+      "short_name": "Herramientas",
       "description": "Asistente SSOT y Métricas",
-      "url": "/#tools"
+      "url": "/#herramientas"
     },
     {
       "name": "Construcciones",
