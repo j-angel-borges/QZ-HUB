@@ -1495,24 +1495,36 @@ Responde de manera ejecutiva, concisa y basada exclusivamente en el SSOT oficial
 
       // Call GCP API endpoint using GCP API key or OAuth Token
       if (gcpKey) {
-        try {
-          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${gcpKey}`;
-          const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\nConsulta del Usuario: ' + userQuery }] }]
-            })
-          });
-          const data = await res.json();
-          if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-            return data.candidates[0].content.parts[0].text;
-          } else if (data.error) {
-            return `Error de GCP API (${data.error.code}): ${data.error.message}`;
+        const candidateEndpoints = [
+          'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent',
+          'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+          'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent',
+          'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent'
+        ];
+
+        let lastGcpError = '';
+        for (const endpointUrl of candidateEndpoints) {
+          try {
+            const res = await fetch(`${endpointUrl}?key=${gcpKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\nConsulta del Usuario: ' + userQuery }] }]
+              })
+            });
+            const data = await res.json();
+            if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+              return data.candidates[0].content.parts[0].text;
+            } else if (data.error && data.error.code !== 404) {
+              return `Error de GCP API (${data.error.code}): ${data.error.message}`;
+            } else if (data.error) {
+              lastGcpError = `Error de GCP API (${data.error.code}): ${data.error.message}`;
+            }
+          } catch (err) {
+            console.error("GCP Fetch error:", err);
           }
-        } catch (err) {
-          console.error("GCP Fetch error:", err);
         }
+        if (lastGcpError) return lastGcpError;
       }
 
       if (oauthToken) {
