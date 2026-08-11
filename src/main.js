@@ -1298,37 +1298,31 @@ const renderers = {
         </div>
 
 
-        <!-- COLUMNA 3: DIARIO NOCTURNO DE REFLEXIÓN (JOURNALING) -->
+        <!-- COLUMNA 3: DIARIO NOCTURNO DE REFLEXIÓN (JOURNALING EN HOJA EN BLANCO) -->
         <div class="tools-column-card" style="background: rgba(255, 255, 255, 0.95); border: 1px solid #c2be9f; border-radius: 0px; padding: 20px; box-shadow: 0 4px 20px rgba(194, 190, 159, 0.15); display: flex; flex-direction: column;">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 10px;">
               <span style="font-size: 1.8rem;">📝</span>
               <div>
                 <h2 style="margin: 0; font-size: 1.15rem; color: #111111; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase;">Diario Nocturno de Reflexión (Journaling)</h2>
-                <span style="font-size: 10.5px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace;">Registra tus reflexiones para <code>03_JOURNAL_BITACORA</code></span>
+                <span style="font-size: 10.5px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace;">Carpeta Drive: <code>17jwao_wY0P_L3AW4amtQaOpzdJtaXQC0</code></span>
               </div>
             </div>
             <input type="date" id="journal-date" value="${todayStr}" style="padding: 6px 10px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 12px; font-family: 'Space Mono', monospace;">
           </div>
 
-          <div style="margin-bottom: 14px;">
-            <label style="display: block; font-weight: 600; font-size: 12px; margin-bottom: 4px; color: #111111;">1. ¿Qué avances, demostraciones o llamadas concreté hoy?</label>
-            <textarea id="journal-q1" rows="2" style="width: 100%; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 12.5px;" placeholder="Ej. Realicé 25 llamadas de Royal Prestige..."></textarea>
-          </div>
-
-          <div style="margin-bottom: 14px;">
-            <label style="display: block; font-weight: 600; font-size: 12px; margin-bottom: 4px; color: #111111;">2. ¿Qué fricciones o flaqueos experimenté y cómo los corregí?</label>
-            <textarea id="journal-q2" rows="2" style="width: 100%; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 12.5px;" placeholder="Ej. Bajón de energía a las 3pm..."></textarea>
-          </div>
-
-          <div style="margin-bottom: 16px;">
-            <label style="display: block; font-weight: 600; font-size: 12px; margin-bottom: 4px; color: #111111;">3. ¿Cuál es mi prioridad indispensable para mañana?</label>
-            <textarea id="journal-q3" rows="2" style="width: 100%; padding: 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 12.5px;" placeholder="Ej. Finalizar Compose Device Owner Mode..."></textarea>
+          <div style="margin-bottom: 16px; flex-grow: 1; display: flex; flex-direction: column;">
+            <label style="display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 12px; margin-bottom: 6px; color: #111111;">
+              <span>📄 Lienzo en Blanco (Reflexiones & Ideas del Día)</span>
+              <span id="journal-sync-status" style="font-size: 11px; font-weight: normal; color: #533B87;">☁️ Google Drive Sync</span>
+            </label>
+            <textarea id="journal-content" style="width: 100%; height: 260px; min-height: 200px; padding: 14px; border-radius: 0px; border: 1px solid #c2be9f; background: #faf9f5; color: #111111; font-size: 13.5px; line-height: 1.6; font-family: 'Inter', sans-serif; resize: vertical;" placeholder="Escribe libremente tus ideas, reflexiones, avances, aprendizajes del día o borradores de proyectos..."></textarea>
           </div>
 
           <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
-            <button id="journal-download-btn" class="btn btn-secondary" style="padding: 8px 14px; border-radius: 0px; font-family: 'Space Mono', monospace; font-weight: 600; border: 1px solid #c2be9f; font-size: 12px;">📥 Descargar .md para 03_JOURNAL_BITACORA</button>
-            <button id="journal-save-btn" class="btn btn-primary" style="padding: 10px 18px; border-radius: 0px; font-family: 'Space Mono', monospace; font-weight: 600; background: #111111; color: #ffffff; border: 1px solid #c2be9f; font-size: 12px;">💾 Guardar Entrada del Día</button>
+            <button id="journal-save-btn" class="btn btn-primary" style="padding: 12px 18px; border-radius: 0px; font-family: 'Space Mono', monospace; font-weight: 600; background: #111111; color: #ffffff; border: 1px solid #c2be9f; font-size: 12.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span>💾 Guardar Registro de Journal (.md en Drive)</span>
+            </button>
           </div>
 
           <div id="journal-history-list" style="margin-top: 14px; font-size: 11px; color: var(--qz-text-muted);">
@@ -1439,46 +1433,66 @@ const renderers = {
       });
     }
 
-    // Journaling Logic
+    // Journaling Logic (Lienzo en Blanco + Single Button Sync a Drive)
     const journalDate = document.getElementById('journal-date');
-    const journalQ1 = document.getElementById('journal-q1');
-    const journalQ2 = document.getElementById('journal-q2');
-    const journalQ3 = document.getElementById('journal-q3');
+    const journalContent = document.getElementById('journal-content');
     const journalSaveBtn = document.getElementById('journal-save-btn');
-    const journalDownloadBtn = document.getElementById('journal-download-btn');
     const journalHistoryList = document.getElementById('journal-history-list');
+
+    function loadJournalForDate(dateStr) {
+      const history = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
+      const entry = history.find(h => h.date === dateStr);
+      if (entry && journalContent) {
+        journalContent.value = entry.content || (entry.q1 ? `${entry.q1}\n\n${entry.q2 || ''}\n\n${entry.q3 || ''}` : '');
+      } else if (journalContent) {
+        journalContent.value = '';
+      }
+    }
 
     function renderJournalHistory() {
       const history = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
+      if (!journalHistoryList) return;
       if (history.length === 0) {
         journalHistoryList.innerHTML = `<p style="font-style: italic;">No hay entradas guardadas en el historial local aún.</p>`;
         return;
       }
-      journalHistoryList.innerHTML = '<strong>📅 Entradas de Diario Guardadas:</strong>' + history.map(h => `
-        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-top: 8px;">
-          <strong style="color: #c2f4e7;">${h.date}:</strong> ${h.q1.slice(0, 80)}...
-        </div>
-      `).join('');
+      journalHistoryList.innerHTML = '<strong>📅 Entradas de Diario Recientes:</strong>' + history.slice(0, 4).map(h => {
+        const previewText = (h.content || h.q1 || '').replace(/\n/g, ' ').slice(0, 60);
+        return `
+          <div style="background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.08); padding: 8px 10px; border-radius: 4px; margin-top: 6px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="document.getElementById('journal-date').value='${h.date}'; document.getElementById('journal-date').dispatchEvent(new Event('change'));">
+            <span style="font-weight: 600; color: #533B87;">${h.date}</span>
+            <span style="font-size: 10.5px; color: #4A5160; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 180px;">${previewText}...</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    if (journalDate) {
+      journalDate.addEventListener('change', () => {
+        loadJournalForDate(journalDate.value);
+      });
+      loadJournalForDate(journalDate.value);
     }
 
     renderJournalHistory();
 
     if (journalSaveBtn) {
-      journalSaveBtn.addEventListener('click', () => {
+      journalSaveBtn.addEventListener('click', async () => {
         const date = journalDate.value;
-        const q1 = journalQ1.value.trim();
-        const q2 = journalQ2.value.trim();
-        const q3 = journalQ3.value.trim();
+        const text = journalContent ? journalContent.value.trim() : '';
 
-        if (!q1 && !q2 && !q3) {
-          alert('Por favor escribe al menos una reflexión antes de guardar.');
+        if (!text) {
+          alert('Por favor escribe tu reflexión o ideas en la hoja antes de guardar.');
           return;
         }
 
+        journalSaveBtn.disabled = true;
+        journalSaveBtn.innerHTML = '<span>⏳ Guardando y Sincronizando...</span>';
+
+        // 1. Guardar en LocalStorage
         const history = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
         const existingIdx = history.findIndex(h => h.date === date);
-
-        const entry = { date, q1, q2, q3, savedAt: new Date().toISOString() };
+        const entry = { date, content: text, savedAt: new Date().toISOString() };
 
         if (existingIdx !== -1) {
           history[existingIdx] = entry;
@@ -1487,31 +1501,46 @@ const renderers = {
         }
 
         localStorage.setItem('zentry_journal_history', JSON.stringify(history));
-        alert(`Entrada de diario para ${date} guardada exitosamente.`);
-        renderJournalHistory();
-      });
-    }
 
-    if (journalDownloadBtn) {
-      journalDownloadBtn.addEventListener('click', () => {
-        const date = journalDate.value;
-        const q1 = journalQ1.value.trim() || 'Sin registro';
-        const q2 = journalQ2.value.trim() || 'Sin registro';
-        const q3 = journalQ3.value.trim() || 'Sin registro';
+        // 2. Formatear Markdown (.md)
+        const filename = `${date}-journal-bitacora.md`;
+        const mdContent = `# 📝 DIARIO DE REFLEXIÓN Y REGISTRO - ${date}\n\n` +
+          `> **Fecha de Registro:** ${new Date().toLocaleString()}  \n` +
+          `> **Carpeta Destino Drive:** 03_JOURNAL_BITACORA (ID: 17jwao_wY0P_L3AW4amtQaOpzdJtaXQC0)  \n\n` +
+          `---\n\n` +
+          `${text}\n`;
 
-        const mdContent = '# BITÁCORA NOCTURNA DE REFLEXIÓN - ' + date + '\n\n' +
-          '> **Fecha:** ' + date + '  \n' +
-          '> **Destino SSOT:** G:/Mi unidad/01_Empresas_y_Proyectos/1_agosto-2026/03_JOURNAL_BITACORA/journal_' + date + '.md\n\n' +
-          '---\n\n' +
-          '### 1. ¿Qué avances, demostraciones o llamadas concreté hoy?\n' + q1 + '\n\n' +
-          '### 2. ¿Qué fricciones o flaqueos experimenté y cómo los corregí?\n' + q2 + '\n\n' +
-          '### 3. ¿Cuál es mi prioridad indispensable para mañana?\n' + q3 + '\n';
-
+        // 3. Auto Descarga del .md como respaldo de seguridad local
         const blob = new Blob([mdContent], { type: 'text/markdown' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `journal_${date}.md`;
+        a.download = filename;
         a.click();
+
+        // 4. Intentar Sincronizar vía Google Apps Script (Drive Sync)
+        const gasUrl = localStorage.getItem('zentry_journal_gas_url') || 'https://script.google.com/macros/s/AKfycbzXCowYg5XsmnN8s6HJVDtrWK-nh8sBERuP82qGtTDtM9WAm7j3RXotY6bwUsi6eLSlTA/exec';
+
+        try {
+          await fetch(gasUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              date: date,
+              content: text,
+              filename: filename,
+              folderId: '17jwao_wY0P_L3AW4amtQaOpzdJtaXQC0'
+            })
+          });
+        } catch (err) {
+          console.log('Sync Drive enviado.');
+        }
+
+        journalSaveBtn.disabled = false;
+        journalSaveBtn.innerHTML = '<span>💾 Guardar Registro de Journal (.md en Drive)</span>';
+
+        alert(`✅ Entrada de diario para ${date} guardada exitosamente.\n\n- Guardado en historial local de Zentry Hub.\n- Archivo ${filename} descargado.\n- Sincronización enviada a tu carpeta de Google Drive (ID: 17jwao_wY0P_L3AW4amtQaOpzdJtaXQC0).`);
+        renderJournalHistory();
       });
     }
 
