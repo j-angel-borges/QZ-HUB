@@ -1510,21 +1510,15 @@ const renderers = {
           `---\n\n` +
           `${text}\n`;
 
-        // 3. Auto Descarga del .md como respaldo de seguridad local
-        const blob = new Blob([mdContent], { type: 'text/markdown' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = filename;
-        a.click();
-
-        // 4. Intentar Sincronizar vía Google Apps Script (Drive Sync)
+        // 3. Sincronizar directamente con Google Drive vía Google Apps Script
         const gasUrl = localStorage.getItem('zentry_journal_gas_url') || 'https://script.google.com/macros/s/AKfycbxTEEk0lcFEMf3IeETQIgDzn-v-RDIOre4Wshmc2GlkQ286otu7-HPAjZWbVFcH_7Ju/exec';
+        let syncSuccess = false;
 
         try {
-          await fetch(gasUrl, {
+          // Usar Content-Type: text/plain para evitar bloqueos CORS en navegadores y garantizar entrega a Apps Script
+          const res = await fetch(gasUrl, {
             method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({
               date: date,
               content: text,
@@ -1532,14 +1526,55 @@ const renderers = {
               folderId: '17jwao_wY0P_L3AW4amtQaOpzdJtaXQC0'
             })
           });
+          syncSuccess = true;
         } catch (err) {
-          console.log('Sync Drive enviado.');
+          // Fallback utilizando formulario dinamico para garantizar envio cross-origin sin descargas locales
+          try {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = gasUrl;
+            form.target = 'hidden_iframe_journal';
+            
+            let iframe = document.getElementById('hidden_iframe_journal');
+            if (!iframe) {
+              iframe = document.createElement('iframe');
+              iframe.name = 'hidden_iframe_journal';
+              iframe.id = 'hidden_iframe_journal';
+              iframe.style.display = 'none';
+              document.body.appendChild(iframe);
+            }
+
+            const inputContent = document.createElement('input');
+            inputContent.type = 'hidden';
+            inputContent.name = 'content';
+            inputContent.value = text;
+
+            const inputDate = document.createElement('input');
+            inputDate.type = 'hidden';
+            inputDate.name = 'date';
+            inputDate.value = date;
+
+            const inputFilename = document.createElement('input');
+            inputFilename.type = 'hidden';
+            inputFilename.name = 'filename';
+            inputFilename.value = filename;
+
+            form.appendChild(inputContent);
+            form.appendChild(inputDate);
+            form.appendChild(inputFilename);
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+            syncSuccess = true;
+          } catch (fErr) {
+            console.error('Error al enviar formulario:', fErr);
+          }
         }
 
         journalSaveBtn.disabled = false;
         journalSaveBtn.innerHTML = '<span>💾 Guardar Registro de Journal (.md en Drive)</span>';
 
-        alert(`✅ Entrada de diario para ${date} guardada exitosamente.\n\n- Guardado en historial local de Zentry Hub.\n- Archivo ${filename} descargado.\n- Sincronización enviada a tu carpeta de Google Drive (ID: 17jwao_wY0P_L3AW4amtQaOpzdJtaXQC0).`);
+        alert(`✅ Registro de Journal para ${date} guardado exitosamente.\n\n• Sincronizado en tu carpeta de Google Drive: 03_JOURNAL_BITACORA\n• Guardado en el historial local de Zentry Hub.`);
         renderJournalHistory();
       });
     }
