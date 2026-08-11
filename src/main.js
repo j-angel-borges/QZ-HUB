@@ -1518,7 +1518,7 @@ const renderers = {
         a.click();
 
         // 4. Intentar Sincronizar vía Google Apps Script (Drive Sync)
-        const gasUrl = localStorage.getItem('zentry_journal_gas_url') || 'https://script.google.com/macros/s/AKfycbzXCowYg5XsmnN8s6HJVDtrWK-nh8sBERuP82qGtTDtM9WAm7j3RXotY6bwUsi6eLSlTA/exec';
+        const gasUrl = localStorage.getItem('zentry_journal_gas_url') || 'https://script.google.com/macros/s/AKfycbxTEEk0lcFEMf3IeETQIgDzn-v-RDIOre4Wshmc2GlkQ286otu7-HPAjZWbVFcH_7Ju/exec';
 
         try {
           await fetch(gasUrl, {
