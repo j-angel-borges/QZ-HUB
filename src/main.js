@@ -80,20 +80,42 @@ bootstrapFirestoreSync(state.tasks, (cloudData) => {
 
 
 
+function getMITStorageKey() {
+  const mode = state.backlogMode || 'quarz';
+  return `zentry_mit_${mode}`;
+}
+
 function getMITData() {
-  const defaultMIT = [
-    { text: 'Diseñar barra de tiempo superpuesta (Timer UI Overlay) en Jetpack Compose', checked: false },
-    { text: 'Implementar lógica de límites de tiempo dinámicos basados en ciclo circadiano', checked: false },
-    { text: 'Finalizar Demo Venta Directa con factor WOW', checked: false }
-  ];
-  const stored = localStorage.getItem('zentry_mit');
+  const mode = state.backlogMode || 'quarz';
+  const defaultMITMap = {
+    quarz: [
+      { text: 'Revisar gobernanza y estructura de Holding QUARZ Group', checked: false },
+      { text: 'Aprobar flujo de caja y proyección financiera de Agosto', checked: false },
+      { text: 'Validar arquitectura técnica en Google Cloud Firestore', checked: false }
+    ],
+    zentry: [
+      { text: 'Diseñar barra de tiempo superpuesta (Timer UI Overlay) en Jetpack Compose', checked: false },
+      { text: 'Implementar lógica de límites de tiempo dinámicos basados en ciclo circadiano', checked: false },
+      { text: 'Finalizar Demo Venta Directa ZentryOS con factor WOW', checked: false }
+    ],
+    personal: [
+      { text: 'Cumplir bloque de ayuno y protocolo circadiano de energía', checked: false },
+      { text: 'Realizar caminata activa de 45 min + calistenia', checked: false },
+      { text: 'Completar 40 llamadas breves Royal Prestige', checked: false }
+    ]
+  };
+  
+  const key = getMITStorageKey();
+  const stored = localStorage.getItem(key) || localStorage.getItem('zentry_mit');
   if (stored) {
-    try { return JSON.parse(stored); } catch(e) { return defaultMIT; }
+    try { return JSON.parse(stored); } catch(e) { return defaultMITMap[mode] || defaultMITMap.quarz; }
   }
-  return defaultMIT;
+  return defaultMITMap[mode] || defaultMITMap.quarz;
 }
 
 function saveMITData(mit) {
+  const key = getMITStorageKey();
+  localStorage.setItem(key, JSON.stringify(mit));
   localStorage.setItem('zentry_mit', JSON.stringify(mit));
   syncMIT(mit);
 }
@@ -784,25 +806,50 @@ const renderers = {
     if (state.backlogMode === 'selection') {
       document.getElementById('properties-block').style.display = 'none';
       container.innerHTML = `
-        <div class="backlog-selector-container">
-          <a href="#backlog/quarz" class="selector-card selector-card-quarz">
-            <div class="selector-card-icon">🏢</div>
-            <span class="selector-card-title">Tablero Quarz</span>
-            <span class="selector-card-desc">Gobernanza estratégica, decisiones de holding y prioridades corporativas de QUARZ Group.</span>
-            <button class="btn-selector-enter btn-quarz-enter">Entrar a Quarz</button>
-          </a>
-          <a href="#backlog/zentry" class="selector-card selector-card-zentry">
-            <div class="selector-card-icon">☄️</div>
-            <span class="selector-card-title">Tablero Zentry</span>
-            <span class="selector-card-desc">Roadmap comercial, arquitectura técnica MVP, prospectos y ecosistema ZentryOS.</span>
-            <button class="btn-selector-enter btn-zentry-enter">Entrar a Zentry</button>
-          </a>
-          <a href="#backlog/personal" class="selector-card selector-card-personal">
-            <div class="selector-card-icon">🧘</div>
-            <span class="selector-card-title">Espacio Personal</span>
-            <span class="selector-card-desc">Timeblocking diario, 3 indispensables M.I.T. y rutina circadiana.</span>
-            <button class="btn-selector-enter btn-personal-enter">Entrar a Espacio</button>
-          </a>
+        <div class="backlog-selector-wrapper">
+          <div class="backlog-selector-container">
+            <!-- Card 1: AGENDA (Personal / Timeblocking) -->
+            <a href="#backlog/personal" class="selector-card selector-card-personal">
+              <div class="selector-card-icon">📅</div>
+              <span class="selector-card-title">AGENDA</span>
+              <span class="selector-card-desc">Timeblocking diario, 3 indispensables M.I.T. y rutina circadiana.</span>
+              <button class="btn-selector-enter btn-personal-enter">Entrar a Agenda</button>
+            </a>
+
+            <!-- Card 2: TABLERO QUARZ (Visual: Logo 3D Quarz) -->
+            <a href="#backlog/quarz" class="selector-card selector-card-quarz">
+              <div class="selector-card-icon">
+                <img src="/assets/quarz/QUARZ_3D_Cuarzo_Vertical_QZ-removebg-preview.png" alt="QUARZ 3D" style="width: 52px; height: 52px; object-fit: contain;" />
+              </div>
+              <span class="selector-card-title">TABLERO QUARZ</span>
+              <span class="selector-card-desc">Gobernanza estratégica, decisiones de holding y prioridades corporativas de QUARZ Group.</span>
+              <button class="btn-selector-enter btn-quarz-enter">Entrar a Quarz</button>
+            </a>
+
+            <!-- Card 3: TABLERO ZENTRY (Visual: Z Icon) -->
+            <a href="#backlog/zentry" class="selector-card selector-card-zentry">
+              <div class="selector-card-icon">
+                <span style="font-size: 42px; font-weight: 800; color: #533B87; font-family: 'Space Grotesk', sans-serif;">Z</span>
+              </div>
+              <span class="selector-card-title">TABLERO ZENTRY</span>
+              <span class="selector-card-desc">Roadmap comercial, arquitectura técnica MVP, prospectos y ecosistema ZentryOS.</span>
+              <button class="btn-selector-enter btn-zentry-enter">Entrar a Zentry</button>
+            </a>
+          </div>
+
+          <!-- Bottom Button: TABLERO GLOBAL (Combinado) -->
+          <div class="global-board-banner-container" style="margin-top: 32px; text-align: center;">
+            <a href="#backlog/global" class="global-board-card" style="display: inline-flex; align-items: center; justify-content: space-between; width: 100%; max-width: 960px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 18px 28px; border-radius: 16px; text-decoration: none; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 8px 32px rgba(15,23,42,0.15); transition: transform 0.2s;">
+              <div style="display: flex; align-items: center; gap: 16px; text-align: left;">
+                <span style="font-size: 32px;">🌐</span>
+                <div>
+                  <h3 style="color: #ffffff; margin: 0; font-size: 1.15rem; font-family: 'Space Grotesk', sans-serif; font-weight: 700;">TABLERO GLOBAL (Todas las Unidades)</h3>
+                  <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 0.85rem;">Vista consolidada con todas las tareas y eventos combinados de Quarz, Zentry y Personal.</p>
+                </div>
+              </div>
+              <button style="background: #b89c50; color: #0f172a; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; cursor: pointer;">Abrir Tablero Global ➔</button>
+            </a>
+          </div>
         </div>
       `;
       return;
@@ -844,7 +891,7 @@ const renderers = {
         <div class="backlog-center-col">
           <div class="backlog-header-controls">
             <a href="#backlog" class="btn-back-to-selector">⬅️ Volver a Selección</a>
-            <span class="backlog-mode-badge">${state.backlogMode === 'personal' ? 'Personal' : 'Zentry'}</span>
+            <span class="backlog-mode-badge">${state.backlogMode === 'zentry' ? 'Zentry' : (state.backlogMode === 'quarz' ? 'Quarz' : (state.backlogMode === 'global' ? 'Global' : 'Personal'))}</span>
           </div>
 
           <div class="filter-bar">
@@ -2023,8 +2070,8 @@ function renderEspacioPersonal(container) {
   container.innerHTML = `
     <div class="espacio-personal-header">
       <a href="#backlog" class="btn-back-personal">⬅️ Volver a Selección</a>
-      <h2>🧘 Espacio Personal</h2>
-      <div style="width: 140px;"></div>
+      <h2 style="font-family: 'Space Grotesk', sans-serif; color: #0f172a;">📅 Agenda</h2>
+      <a href="#backlog/personal-board" class="btn-open-personal-board" style="background: #0f172a; color: #ffffff; text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">📋 Abrir Tablero Personal</a>
     </div>
 
     <div class="date-navigator">
@@ -2573,12 +2620,16 @@ function renderKanbanCards() {
 
   // Filter Tasks
   state.tasks.forEach(task => {
-    // 0. Backlog mode filter
-    if (state.backlogMode === 'personal') {
-      if (task.origin !== 'Personal') return;
+    // 0. Backlog mode unit filter (Quarz | Zentry | Personal | Global)
+    const taskUnit = (task.origin || 'Quarz').toLowerCase();
+    if (state.backlogMode === 'quarz') {
+      if (taskUnit !== 'quarz') return;
     } else if (state.backlogMode === 'zentry') {
-      if (task.origin === 'Personal') return;
+      if (taskUnit !== 'zentry') return;
+    } else if (state.backlogMode === 'personal' || state.backlogMode === 'personal-board') {
+      if (taskUnit !== 'personal') return;
     }
+    // 'global' mode shows ALL tasks from all units
 
     // 1. Vertical filter
     if (state.filters.vertical !== 'all') {
@@ -2698,8 +2749,14 @@ function handleRouting() {
     } else if (hash === '#backlog/quarz') {
       state.backlogMode = 'quarz';
       document.body.setAttribute('data-module', 'quarz');
+    } else if (hash === '#backlog/personal-board') {
+      state.backlogMode = 'personal-board';
+      document.body.setAttribute('data-module', 'quarz');
     } else if (hash === '#backlog/personal') {
       state.backlogMode = 'personal';
+      document.body.setAttribute('data-module', 'quarz');
+    } else if (hash === '#backlog/global') {
+      state.backlogMode = 'global';
       document.body.setAttribute('data-module', 'quarz');
     } else {
       state.backlogMode = 'selection';
@@ -2947,19 +3004,15 @@ function openTaskModalForEdit(task) {
   
   taskAssignee.value = task.assignedTo === 'Agente' ? 'Agente' : 'Jose Angel';
   
-  if (task.origin === 'Zentry' || !task.origin) {
+  const currentUnit = (task.origin || 'Quarz').trim();
+  if (currentUnit.toLowerCase() === 'zentry') {
     taskActionType.value = 'Zentry';
-    taskActionCustom.style.display = 'none';
-    taskActionCustom.value = '';
-  } else if (task.origin === 'Personal') {
+  } else if (currentUnit.toLowerCase() === 'personal') {
     taskActionType.value = 'Personal';
-    taskActionCustom.style.display = 'none';
-    taskActionCustom.value = '';
   } else {
-    taskActionType.value = 'Otro';
-    taskActionCustom.style.display = 'block';
-    taskActionCustom.value = task.origin;
+    taskActionType.value = 'Quarz';
   }
+  taskActionCustom.style.display = 'none';
   
   // Show Delete and Ref buttons
   taskDeleteBtn.style.display = 'block';
