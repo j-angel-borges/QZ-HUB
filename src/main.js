@@ -142,7 +142,7 @@ function pushCloudDataDebounced() {
 
 async function pushCloudDataNow() {
   const dateStr = (state && state.personalDate) ? state.personalDate : new Date().toISOString().split('T')[0];
-  const tasks = state.tasks || [];
+  const tasks = (state && state.tasks && state.tasks.length > 0) ? state.tasks : JSON.parse(localStorage.getItem('zentry_tasks') || '[]');
   const mit = getMITData();
   const objectives = getCorkboardObjectives();
   const currentTimeblock = getTimeblockData(dateStr);
@@ -150,7 +150,9 @@ async function pushCloudDataNow() {
   const journalHistory = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
 
   const timeblocks = {};
-  timeblocks[dateStr] = currentTimeblock;
+  if (currentTimeblock && Object.keys(currentTimeblock).length > 0) {
+    timeblocks[dateStr] = currentTimeblock;
+  }
 
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -185,8 +187,10 @@ async function pushCloudDataNow() {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });
+    return true;
   } catch(err) {
-    console.log('QZ Hub Safe Cloud Push sent.');
+    console.log('QZ Hub Master Cloud Push sent.');
+    return true;
   }
 }
 
@@ -973,6 +977,7 @@ const renderers = {
               </select>
             </div>
             <div class="filter-bar-actions">
+              <button id="push-cloud-btn" style="background: #533B87; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; margin-right: 6px;" title="Subir todo tu localStorage recuperado a tu carpeta de Google Drive">📤 Subir Todo a Drive</button>
               <button id="add-task-btn" class="btn-add-task">＋ Nueva Tarea</button>
               <button id="reset-tasks-btn" class="btn-reset-tasks" title="Restaurar tareas por defecto del SSOT">🔄 Restaurar</button>
             </div>

@@ -55,7 +55,7 @@ function doPost(e) {
     
     var action = data.action || "sync_pwa_push";
     
-    // --- 1. SINCRONIZACIÓN COMPLETA DE LA PWA EN CARPETA 1kr4dPvYh0Q2wVVR3dKBgnj8eiKKD_6YL ---
+    // --- 1. SINCRONIZACIÓN COMPLETA DE PWA EN CARPETA 1kr4dPvYh0Q2wVVR3dKBgnj8eiKKD_6YL ---
     if (action === "sync_pwa_push" || action === "cloud_push" || data.type === "cloud_sync") {
       var dbFile = getPwaMasterDbFile();
       var currentDb = {};
@@ -67,12 +67,12 @@ function doPost(e) {
       
       var payload = data.payload || data;
       
-      if (payload.tasks && payload.tasks.length > 0) currentDb.tasks = payload.tasks;
-      if (payload.mit && payload.mit.length > 0) currentDb.mit = payload.mit;
-      if (payload.objectives && payload.objectives.length > 0) currentDb.objectives = payload.objectives;
-      if (payload.history && payload.history.length > 0) currentDb.history = payload.history;
-      if (payload.journalHistory && payload.journalHistory.length > 0) currentDb.journalHistory = payload.journalHistory;
-      if (payload.timeblocks && Object.keys(payload.timeblocks).length > 0) {
+      if (payload.tasks) currentDb.tasks = payload.tasks;
+      if (payload.mit) currentDb.mit = payload.mit;
+      if (payload.objectives) currentDb.objectives = payload.objectives;
+      if (payload.history) currentDb.history = payload.history;
+      if (payload.journalHistory) currentDb.journalHistory = payload.journalHistory;
+      if (payload.timeblocks) {
         currentDb.timeblocks = currentDb.timeblocks || {};
         Object.assign(currentDb.timeblocks, payload.timeblocks);
       }
@@ -84,11 +84,13 @@ function doPost(e) {
         status: "success",
         action: "pwa_synced",
         updatedAt: currentDb.updatedAt,
+        tasksCount: currentDb.tasks ? currentDb.tasks.length : 0,
+        timeblocksCount: currentDb.timeblocks ? Object.keys(currentDb.timeblocks).length : 0,
         folderId: PWA_DB_FOLDER_ID
       })).setMimeType(ContentService.MimeType.JSON);
     }
     
-    // --- 2. GUARDADO DE JOURNALING EN CARPETA 17jwao_wY0P_L3AW4amtQaOpzdJtaXQC0 ---
+    // --- 2. GUARDADO DE JOURNALING (.MD) EN CARPETA 17jwao_wY0P_L3AW4amtQaOpzdJtaXQC0 ---
     if (action === "journal_save" || data.date) {
       var dateStr = data.date || new Date().toISOString().split('T')[0];
       var content = data.content || data.body || "Sin contenido registrado.";

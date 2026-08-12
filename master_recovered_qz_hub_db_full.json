@@ -1,0 +1,157 @@
+{
+  "zentry_timeblock_2026-08-12": {
+    "token": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..paeeQvF0heQwouEe.JGoQB-n8LLqDrXlGwctztoO8aecMGfL9wq1-MHpJ5N74VZiREgzgGYmxPccCnq-QAJ2w56N1hB9Ux4kjEfRuJZ_YYNItBVfWSvSL42REh19z-3vPMANztyH6l8PBGsXUEC3Z-incHbvY8dFSYp8xWDUdomQAOVXHAUa2DYD3OMOwiW1plJEzJE7EEWP1e76gWuY6jkyv2vYBtF4ZylNHNFdBjkk8wKQsdTJUM2Kv3wASmRhyp6okxWCUCqY3GnPGKNN8gwk-Mw56BgHE3AQNoJgsmztKAzUGXj5iPDKaeckfWzrOaYS-x8ARa9iiY7Bokrs1SjAJTtq2bXqyB-FoN0FRnLYhPK__Pld8KVnDhOx0n2N66iy9Azwm9kW6DEeCu0EW1DfMKEbHRODegzCqNV4Wkdg8WBrQxV84Zrlei99Q0aPMU3iVQT027lGzls6Sa5tdxzEMZW0K11DYL2kvr_mq_Uhg-BjBxn6S09F_AUi2rL_-wQMJ3ZwmxKVN3NdJ07h4btihWMTe9TE3pUVULDY2ICh47ZsvYUEUs8w62HV_ADMTZ93aVe8aOvz1enCn2bR9YeO6iakHSEMc65GXDZgOzF4QupmR6bxqEkvhicXWb4YJG3yVpWwD18kYkKS-pQEEwewtjzSyFPaR4R8MPiwY4B5qcGg-zWKDsQ.-b9O_yx541Xa9O4VfuOydg",
+    "session": {
+      "userId": "AYy42Izks6UJConSv3WCRvdn",
+      "roomId": "live_mode_1@prj_rg25MFsgTtXAeECjdxEDdhzCUyJq@main",
+      "roomKey": "main",
+      "teamId": "team_TtfGEfqKKKRSpOCHQVHuj2Em",
+      "deploymentId": "dpl_2gYsSG7MVxQqcpME5j26cdVZnmu3",
+      "deploymentUrl": "qz-4lwn7w297-mipropiadinastia-7613s-projects.vercel.app",
+      "projectId": "prj_rg25MFsgTtXAeECjdxEDdhzCUyJq",
+      "projectName": "qz-hub",
+      "ownerId": "team_TtfGEfqKKKRSpOCHQVHuj2Em",
+      "ownerSlug": "mipropiadinastia-7613s-projects",
+      "ownerName": "mipropiadinastia-7613's projects",
+      "ownerPlan": "hobby",
+      "author": "mipropiadinastia-7613",
+      "rootDirectory": null,
+      "deploymentTs": 1786533456375,
+      "deploymentTarget": "production",
+      "gitSource": {
+        "type": "github",
+        "branch": "main",
+        "sha": "a9ace1f85cbfb6bb011f8a1bd0bd4b96dc59e560",
+        "commitMessage": "feat: Motor de sincronizacin maestra multidispositivo para toda la PWA QZ HUB (Tableros, Timeblocking, M.I.T. y Tareas) con base de datos aislada en 3_QZ-HUB",
+        "repoId": "1297060288",
+        "productionBranch": "main"
+      },
+      "isExternal": false,
+      "isMicrofrontend": false,
+      "isAdmin": true,
+      "flags": {
+        "branchSwitcher": true,
+        "accessibilityAuditAutoRun": true,
+        "distributedTracing": true,
+        "v0App": true,
+        "v0Tip": true,
+        "openInV0": true,
+        "toolbarDebugMode": true
+      },
+      "experiments": {},
+      "gitAlias": "qz-hub-git-main-mipropiadinastia-7613s-projects.vercel.app",
+      "isLocalhost": false,
+      "hasFlagsSecret": false,
+      "branch": "main",
+      "gitInfo": {
+        "branchUrl": "https://github.com/j-angel-borges/QZ-HUB/tree/main",
+        "commitUrl": "https://github.com/j-angel-borges/QZ-HUB/commit/a9ace1f85cbfb6bb011f8a1bd0bd4b96dc59e560"
+      },
+      "appUsers": [
+        {
+          "id": "internal/app/v0/v0",
+          "name": "v0",
+          "avatar": "https://vercel.live/images/v0.png",
+          "color": "#3291ff",
+          "username": "v0"
+        }
+      ],
+      "canTagV0": true
+    }
+  },
+  "zentry_tasks": {
+    "data-api-key": "7b31d896-0a67-4b71-a243-5ad6f0dd94c1",
+    "config-ft-persistence-id": "83580003"
+  },
+  "zentry_chat_history": {
+    "text": "Avance XOMA / BASE Y UPDATES EN SH Y ANTIGRAVITY / VECTOR 1: Puente al dashboard",
+    "source": "manual",
+    "details": "- CORRECCIONES DE RESPONSIVE IOS y Mobile (hacer pruebas)\n- CAMBIO EN RANKING DE ANUAL 2026 A 12 FECHAS\n  - REPORTE PARA 12 FECHAS / REPORTE PARA TORNEO ACTUAL\n- CORRECCION DE MATEMATICAS EN INSCRIPCIONES Y BALANCE\n- UPDATE CADA 12 FECHAS (ordenar ranking y estandarizar todo el flujo desde los torneos hasta la seccion de inscripciones para que al terminar ranking se guarde el historico y se empiece de 0)",
+    "type": "importante",
+    "completed": true
+  },
+  "zentry_timeblock_2026-07-15": [
+    [
+      3,
+      1
+    ],
+    "115986503148251035165"
+  ],
+  "zentry_timeblock_2026-07-16": [
+    [
+      3,
+      1
+    ],
+    "115986503148251035165"
+  ],
+  "zentry_timeblock_2026-07-17": [
+    [
+      3,
+      1
+    ],
+    "115986503148251035165"
+  ],
+  "zentry_timeblock_history": [
+    [
+      3,
+      1
+    ],
+    "115986503148251035165"
+  ],
+  "zentry_timeblock_2026-07-18": [
+    [
+      3,
+      1
+    ],
+    "115986503148251035165"
+  ],
+  "zentry_timeblock_2026-07-19": [
+    [
+      3,
+      1
+    ],
+    "115986503148251035165"
+  ],
+  "zentry_timeblock_2026-07-20": [
+    [
+      3,
+      1
+    ],
+    "115986503148251035165"
+  ],
+  "zentry_timeblock_2026-07-21": [
+    [
+      3,
+      1
+    ],
+    "115986503148251035165"
+  ],
+  "zentry_timeblock_2026-07-22": [
+    [
+      3,
+      1
+    ],
+    "115986503148251035165"
+  ],
+  "zentry_timeblock_2026-07-23": [
+    [
+      3,
+      1
+    ],
+    "115986503148251035165"
+  ],
+  "zentry_timeblock_2026-07-25": [
+    [
+      3,
+      1
+    ],
+    "115986503148251035165"
+  ],
+  "zentry_timeblock_2026-07-27": [
+    [
+      3,
+      1
+    ],
+    "115986503148251035165"
+  ]
+}
