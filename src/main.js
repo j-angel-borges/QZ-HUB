@@ -3056,10 +3056,12 @@ function openTaskModalForCreate() {
   taskStatus.value = 'Pendiente';
   taskAssignee.value = 'Jose Angel';
   
-  if (state.backlogMode === 'personal') {
+  if (state.backlogMode === 'personal' || state.backlogMode === 'personal-board') {
     taskActionType.value = 'Personal';
-  } else {
+  } else if (state.backlogMode === 'zentry') {
     taskActionType.value = 'Zentry';
+  } else {
+    taskActionType.value = 'Quarz';
   }
   taskActionCustom.style.display = 'none';
   taskActionCustom.value = '';
@@ -3121,10 +3123,8 @@ taskForm.addEventListener('submit', (e) => {
   const status = taskStatus.value; // 'Pendiente', 'En curso', 'Completado'
   const assignee = taskAssignee.value;
   
-  let origin = 'Zentry';
-  if (taskActionType.value === 'Personal') {
-    origin = 'Personal';
-  } else if (taskActionType.value === 'Otro') {
+  let origin = taskActionType.value || 'Quarz';
+  if (taskActionType.value === 'Otro') {
     origin = taskActionCustom.value.trim() || 'Otro';
   }
   
