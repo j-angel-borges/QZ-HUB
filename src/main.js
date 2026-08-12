@@ -808,12 +808,12 @@ const renderers = {
       container.innerHTML = `
         <div class="backlog-selector-wrapper">
           <div class="backlog-selector-container">
-            <!-- Card 1: AGENDA (Personal / Timeblocking) -->
+            <!-- Card 1: TIMEBLOCKING (Personal / Timeblocking) -->
             <a href="#backlog/personal" class="selector-card selector-card-personal">
-              <div class="selector-card-icon">📅</div>
-              <span class="selector-card-title">AGENDA</span>
+              <div class="selector-card-icon">⏱️</div>
+              <span class="selector-card-title">TIMEBLOCKING</span>
               <span class="selector-card-desc">Timeblocking diario, 3 indispensables M.I.T. y rutina circadiana.</span>
-              <button class="btn-selector-enter btn-personal-enter">Entrar a Agenda</button>
+              <button class="btn-selector-enter btn-personal-enter">Entrar a Timeblocking</button>
             </a>
 
             <!-- Card 2: TABLERO QUARZ (Visual: Logo 3D Quarz) -->
@@ -2070,7 +2070,7 @@ function renderEspacioPersonal(container) {
   container.innerHTML = `
     <div class="espacio-personal-header">
       <a href="#backlog" class="btn-back-personal">⬅️ Volver a Selección</a>
-      <h2 style="font-family: 'Space Grotesk', sans-serif; color: #0f172a;">📅 Agenda</h2>
+      <h2 style="font-family: 'Space Grotesk', sans-serif; color: #0f172a;">⏱️ Timeblocking</h2>
       <a href="#backlog/personal-board" class="btn-open-personal-board" style="background: #0f172a; color: #ffffff; text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">📋 Abrir Tablero Personal</a>
     </div>
 
