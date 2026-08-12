@@ -785,17 +785,23 @@ const renderers = {
       document.getElementById('properties-block').style.display = 'none';
       container.innerHTML = `
         <div class="backlog-selector-container">
-          <a href="#backlog/personal" class="selector-card">
-            <div class="selector-card-icon">🧘</div>
-            <span class="selector-card-title">Espacio Personal</span>
-            <span class="selector-card-desc">Tu cabina de productividad: timeblocking, asistente IA y conexión con Google Calendar.</span>
-            <button class="btn-selector-enter">Entrar al Espacio</button>
+          <a href="#backlog/quarz" class="selector-card selector-card-quarz">
+            <div class="selector-card-icon">🏢</div>
+            <span class="selector-card-title">Tablero Quarz</span>
+            <span class="selector-card-desc">Gobernanza estratégica, decisiones de holding y prioridades corporativas de QUARZ Group.</span>
+            <button class="btn-selector-enter btn-quarz-enter">Entrar a Quarz</button>
           </a>
-          <a href="#backlog/zentry" class="selector-card">
+          <a href="#backlog/zentry" class="selector-card selector-card-zentry">
             <div class="selector-card-icon">☄️</div>
             <span class="selector-card-title">Tablero Zentry</span>
-            <span class="selector-card-desc">Coordinación del roadmap comercial, arquitectura técnica MVP y ecosistema ZentryOS.</span>
-            <button class="btn-selector-enter">Entrar al Tablero</button>
+            <span class="selector-card-desc">Roadmap comercial, arquitectura técnica MVP, prospectos y ecosistema ZentryOS.</span>
+            <button class="btn-selector-enter btn-zentry-enter">Entrar a Zentry</button>
+          </a>
+          <a href="#backlog/personal" class="selector-card selector-card-personal">
+            <div class="selector-card-icon">🧘</div>
+            <span class="selector-card-title">Espacio Personal</span>
+            <span class="selector-card-desc">Timeblocking diario, 3 indispensables M.I.T. y rutina circadiana.</span>
+            <button class="btn-selector-enter btn-personal-enter">Entrar a Espacio</button>
           </a>
         </div>
       `;
@@ -1967,7 +1973,9 @@ function renderEspacioPersonal(container) {
     if (data.completed) extraClass += ' is-completed';
 
     const timeLabel = slot.isHour ? formatTime12h(slot.time) : slot.time.split(':')[1];
-    const badgeHtml = hasCalEvent ? '<span class="timeblock-cal-badge">📅 Calendar</span>' : '';
+    let badgeHtml = '';
+    if (hasCalEvent || data.hasGCalEvent) badgeHtml += '<span class="timeblock-cal-badge">📅 Evento GCal</span>';
+    if (data.hasReminder) badgeHtml += '<span class="timeblock-reminder-badge">🔔 Recordatorio</span>';
     const isChecked = data.completed ? 'checked' : '';
     const detailsVal = data.details || '';
     const activeType = data.type || '';
@@ -1995,6 +2003,8 @@ function renderEspacioPersonal(container) {
             <input type="text" class="timeblock-text" value="${data.text || ''}" placeholder="${slot.isHour ? 'Bloque disponible...' : ''}" data-time="${slot.time}" ${hasCalEvent ? 'readonly' : ''}>
             ${badgeHtml}
             ${typeSelectorHtml}
+            <button class="timeblock-action-btn timeblock-reminder-btn" data-time="${slot.time}" title="🔔 Crear Recordatorio y Alarma Móvil">🔔</button>
+            <button class="timeblock-action-btn timeblock-gcal-btn" data-time="${slot.time}" title="📅 Crear Evento en Google Calendar">📅</button>
             <button class="timeblock-action-btn timeblock-copy-btn" data-time="${slot.time}" title="Copiar bloque">📋</button>
             <button class="timeblock-action-btn timeblock-delete-btn" data-time="${slot.time}" title="Limpiar bloque">🗑️</button>
             <button class="timeblock-expand-btn" data-time="${slot.time}" title="Añadir detalles">⌄</button>
@@ -2684,10 +2694,16 @@ function handleRouting() {
     state.activeView = 'backlog';
     if (hash === '#backlog/zentry') {
       state.backlogMode = 'zentry';
+      document.body.setAttribute('data-module', 'zentry');
+    } else if (hash === '#backlog/quarz') {
+      state.backlogMode = 'quarz';
+      document.body.setAttribute('data-module', 'quarz');
     } else if (hash === '#backlog/personal') {
       state.backlogMode = 'personal';
+      document.body.setAttribute('data-module', 'quarz');
     } else {
       state.backlogMode = 'selection';
+      document.body.setAttribute('data-module', 'quarz');
     }
     const navLink = document.querySelector(`.nav-link[data-view="backlog"]`);
     if (navLink) navLink.classList.add('active');

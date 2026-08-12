@@ -3656,3 +3656,117 @@ body[data-module="zentry"] .btn-add-task:hover {
   background: #6b4cb3 !important;
   box-shadow: 0 4px 15px rgba(83, 59, 135, 0.3) !important;
 }
+
+
+/* ==============================================================================
+   QUARZ GROUP BRAND IDENTITY OVERRIDES (CLEAN OBSIDIAN, SLATE & GOLD — NO PURPLE)
+   ============================================================================== */
+
+body[data-module="quarz"], body:not([data-module="zentry"]) {
+  --qz-brand-slate: #0f172a;
+  --qz-brand-onyx: #1e293b;
+  --qz-brand-gold: #b89c50;
+  --qz-brand-amber: #d97706;
+}
+
+body[data-module="quarz"] .espacio-personal-header h2,
+body:not([data-module="zentry"]) .espacio-personal-header h2 {
+  font-family: 'Space Grotesk', sans-serif !important;
+  color: #0f172a !important;
+}
+
+body[data-module="quarz"] .btn-back-personal,
+body:not([data-module="zentry"]) .btn-back-personal {
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.15) !important;
+  background: rgba(15, 23, 42, 0.04) !important;
+}
+
+body[data-module="quarz"] .date-navigator,
+body:not([data-module="zentry"]) .date-navigator {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+}
+
+body[data-module="quarz"] .date-nav-btn,
+body:not([data-module="zentry"]) .date-nav-btn {
+  background: rgba(15, 23, 42, 0.06) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  color: #0f172a !important;
+}
+
+body[data-module="quarz"] .date-nav-today,
+body:not([data-module="zentry"]) .date-nav-today {
+  font-family: 'Space Grotesk', sans-serif !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+body[data-module="quarz"] .date-nav-today-btn,
+body:not([data-module="zentry"]) .date-nav-today-btn {
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+body[data-module="quarz"] .timeblock-slot.is-hour .timeblock-time-label,
+body:not([data-module="zentry"]) .timeblock-slot.is-hour .timeblock-time-label {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+body[data-module="quarz"] .timeblock-checkbox:checked,
+body:not([data-module="zentry"]) .timeblock-checkbox:checked {
+  background-color: #0f172a !important;
+  border-color: #0f172a !important;
+}
+
+body[data-module="quarz"] .timeblock-current-time,
+body:not([data-module="zentry"]) .timeblock-current-time {
+  background-color: #0f172a !important;
+}
+
+body[data-module="quarz"] .timeblock-current-time::before,
+body:not([data-module="zentry"]) .timeblock-current-time::before {
+  background: #d97706 !important;
+  box-shadow: 0 0 8px rgba(217, 119, 6, 0.7) !important;
+}
+
+.timeblock-reminder-badge {
+  background: rgba(217, 119, 6, 0.12);
+  color: #b45309;
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.selector-card-quarz {
+  border-top: 4px solid #0f172a !important;
+}
+
+.btn-quarz-enter {
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.selector-card-zentry {
+  border-top: 4px solid #533B87 !important;
+}
+
+.btn-zentry-enter {
+  background: #533B87 !important;
+  color: #ffffff !important;
+}
+
+.selector-card-personal {
+  border-top: 4px solid #b89c50 !important;
+}
+
+.btn-personal-enter {
+  background: #b89c50 !important;
+  color: #ffffff !important;
+}
