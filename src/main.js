@@ -39,7 +39,7 @@ function initTasks() {
     }
   } else {
     state.tasks = JSON.parse(JSON.stringify(db.tasks));
-    localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks));
+    localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks)); if (typeof pushCloudDataDebounced === 'function') pushCloudDataDebounced();
   }
 }
 
@@ -64,25 +64,38 @@ async function pullCloudData() {
     if (data && typeof data === 'object') {
       let updatedLocal = false;
 
-      // 1. Sync M.I.T. Data
+      // 1. Sync Tasks (Backlog & Tableros)
+      if (Array.isArray(data.tasks) && data.tasks.length > 0) {
+        state.tasks = data.tasks;
+        localStorage.setItem('zentry_tasks', JSON.stringify(data.tasks));
+        updatedLocal = true;
+      }
+
+      // 2. Sync M.I.T. Data
       if (Array.isArray(data.mit) && data.mit.length > 0) {
         localStorage.setItem('zentry_mit', JSON.stringify(data.mit));
         updatedLocal = true;
       }
 
-      // 2. Sync Corkboard Objectives
+      // 3. Sync Corkboard Objectives
       if (Array.isArray(data.objectives) && data.objectives.length > 0) {
         localStorage.setItem('zentry_objectives', JSON.stringify(data.objectives));
         updatedLocal = true;
       }
 
-      // 3. Sync Timeblock History
+      // 4. Sync Timeblock History
       if (Array.isArray(data.history) && data.history.length > 0) {
         localStorage.setItem('zentry_timeblock_history', JSON.stringify(data.history));
         updatedLocal = true;
       }
 
-      // 4. Sync Timeblocks for all dates
+      // 5. Sync Journal History
+      if (Array.isArray(data.journalHistory) && data.journalHistory.length > 0) {
+        localStorage.setItem('zentry_journal_history', JSON.stringify(data.journalHistory));
+        updatedLocal = true;
+      }
+
+      // 6. Sync Timeblocks for all dates
       if (data.timeblocks && typeof data.timeblocks === 'object') {
         for (const [dStr, blocks] of Object.entries(data.timeblocks)) {
           if (blocks && Object.keys(blocks).length > 0) {
@@ -100,7 +113,7 @@ async function pullCloudData() {
       }
     }
   } catch (err) {
-    console.log('QZ Hub Cloud Pull completed with local fallback:', err);
+    console.log('QZ Hub Master PWA Cloud Pull completed with local fallback:', err);
   } finally {
     isSyncingCloud = false;
   }
@@ -115,10 +128,12 @@ function pushCloudDataDebounced() {
 
 async function pushCloudDataNow() {
   const dateStr = (state && state.personalDate) ? state.personalDate : new Date().toISOString().split('T')[0];
+  const tasks = state.tasks || [];
   const mit = getMITData();
   const objectives = getCorkboardObjectives();
   const currentTimeblock = getTimeblockData(dateStr);
   const history = JSON.parse(localStorage.getItem('zentry_timeblock_history') || '[]');
+  const journalHistory = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
 
   const timeblocks = {};
   timeblocks[dateStr] = currentTimeblock;
@@ -134,13 +149,15 @@ async function pushCloudDataNow() {
   }
 
   const payload = {
-    action: 'cloud_push',
+    action: 'sync_pwa_push',
     type: 'cloud_sync',
     payload: {
+      tasks,
       mit,
       objectives,
       timeblocks,
-      history
+      history,
+      journalHistory
     }
   };
 
@@ -151,7 +168,7 @@ async function pushCloudDataNow() {
       body: JSON.stringify(payload)
     });
   } catch(err) {
-    console.log('QZ Hub Cloud Push sent.');
+    console.log('QZ Hub Master PWA Cloud Push sent.');
   }
 }
 
@@ -3007,7 +3024,7 @@ function setupDragAndDrop() {
         state.tasks.splice(nextTaskIndex, 0, task);
       }
       
-      localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks));
+      localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks)); if (typeof pushCloudDataDebounced === 'function') pushCloudDataDebounced();
       renderKanbanCards();
     });
   });
@@ -3145,7 +3162,7 @@ modal.addEventListener('click', (e) => {
 taskDeleteBtn.addEventListener('click', () => {
   if (state.currentEditingTask && confirm('¿Estás seguro de que deseas eliminar esta tarea?')) {
     state.tasks = state.tasks.filter(t => t.id !== state.currentEditingTask.id);
-    localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks));
+    localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks)); if (typeof pushCloudDataDebounced === 'function') pushCloudDataDebounced();
     closeModal();
     renderKanbanCards();
   }
@@ -3228,7 +3245,7 @@ taskForm.addEventListener('submit', (e) => {
     });
   }
   
-  localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks));
+  localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks)); if (typeof pushCloudDataDebounced === 'function') pushCloudDataDebounced();
   closeModal();
   renderKanbanCards();
 });
