@@ -1,6 +1,17 @@
 import { manifestMarkdown, circadianoMarkdown, metricasMarkdown, dispositivosData } from './herramientas-data.js';
 import './style.css';
 import db from './ssot-db.json';
+import {
+  bootstrapFirestoreSync,
+  pushToFirestoreDebounced,
+  pushAllToFirestore,
+  syncTasks,
+  syncMIT,
+  syncObjectives,
+  syncTimeblock,
+  syncTimeblockHistory,
+  syncJournalHistory
+} from './firestore-sync.js';
  
 // App State
 const state = {
@@ -39,7 +50,7 @@ function initTasks() {
     }
   } else {
     state.tasks = JSON.parse(JSON.stringify(db.tasks));
-    localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks)); if (typeof pushCloudDataDebounced === 'function') pushCloudDataDebounced();
+    localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks)); syncTasks(state.tasks);
   }
 }
 
@@ -47,155 +58,27 @@ initTasks();
 
 // --- Storage & Data Helpers for Backlog widgets ---
 // ==============================================================================
-// QZ HUB MULTI-DEVICE CLOUD SYNC ENGINE (GOOGLE DRIVE / APPS SCRIPT BACKED)
+// QZ HUB MULTI-DEVICE REALTIME SYNC ENGINE (GOOGLE CLOUD FIRESTORE)
 // ==============================================================================
-const QZ_CLOUD_GAS_URL = 'https://script.google.com/macros/s/AKfycbxTEEk0lcFEMf3IeETQIgDzn-v-RDIOre4Wshmc2GlkQ286otu7-HPAjZWbVFcH_7Ju/exec';
-let isSyncingCloud = false;
-let cloudSyncDebounceTimer = null;
 
-async function pullCloudData() {
-  if (isSyncingCloud) return;
-  isSyncingCloud = true;
-  
-  try {
-    const res = await fetch(`${QZ_CLOUD_GAS_URL}?action=cloud_pull`);
-    const data = await res.json();
-    
-    if (data && typeof data === 'object') {
-      let updatedLocal = false;
-
-      // 1. Sync Tasks (Solo sobreescribir si la nube tiene tareas válidas y no vacías)
-      if (Array.isArray(data.tasks) && data.tasks.length > 0) {
-        state.tasks = data.tasks;
-        localStorage.setItem('zentry_tasks', JSON.stringify(data.tasks));
-        updatedLocal = true;
-      } else {
-        // Si la nube está vacía pero localmente hay tareas, subir las locales a la nube
-        const localTasks = localStorage.getItem('zentry_tasks');
-        if (localTasks && JSON.parse(localTasks).length > 0) {
-          pushCloudDataDebounced();
-        }
-      }
-
-      // 2. Sync M.I.T. Data (Protección anti-sobrescritura vacía)
-      if (Array.isArray(data.mit) && data.mit.length > 0) {
-        localStorage.setItem('zentry_mit', JSON.stringify(data.mit));
-        updatedLocal = true;
-      }
-
-      // 3. Sync Corkboard Objectives (Protección anti-sobrescritura vacía)
-      if (Array.isArray(data.objectives) && data.objectives.length > 0) {
-        localStorage.setItem('zentry_objectives', JSON.stringify(data.objectives));
-        updatedLocal = true;
-      }
-
-      // 4. Sync Timeblock History
-      if (Array.isArray(data.history) && data.history.length > 0) {
-        const localHist = JSON.parse(localStorage.getItem('zentry_timeblock_history') || '[]');
-        if (data.history.length >= localHist.length) {
-          localStorage.setItem('zentry_timeblock_history', JSON.stringify(data.history));
-          updatedLocal = true;
-        }
-      }
-
-      // 5. Sync Journal History
-      if (Array.isArray(data.journalHistory) && data.journalHistory.length > 0) {
-        const localJHist = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
-        if (data.journalHistory.length >= localJHist.length) {
-          localStorage.setItem('zentry_journal_history', JSON.stringify(data.journalHistory));
-          updatedLocal = true;
-        }
-      }
-
-      // 6. Merge Timeblocks por fechas (Preservando bloques locales no vacíos)
-      if (data.timeblocks && typeof data.timeblocks === 'object') {
-        for (const [dStr, blocks] of Object.entries(data.timeblocks)) {
-          if (blocks && Object.keys(blocks).length > 0) {
-            const localBlocks = JSON.parse(localStorage.getItem(`zentry_timeblock_${dStr}`) || '{}');
-            const mergedBlocks = Object.assign({}, blocks, localBlocks);
-            localStorage.setItem(`zentry_timeblock_${dStr}`, JSON.stringify(mergedBlocks));
-            updatedLocal = true;
-          }
-        }
-      }
-
-      // Re-renderizar vista activa si hubo actualizaciones relevantes
-      if (updatedLocal && state && state.activeView === 'backlog') {
-        if (typeof renderMITWidget === 'function') renderMITWidget();
-        if (typeof renderCorkboardObjectives === 'function') renderCorkboardObjectives();
-        if (typeof renderers !== 'undefined' && renderers.backlog) renderers.backlog();
-      }
-    }
-  } catch (err) {
-    console.log('QZ Hub Safe Cloud Pull completed with local preservation:', err);
-  } finally {
-    isSyncingCloud = false;
-  }
-}
-
+// Wrapper: replaces old pushCloudDataDebounced
 function pushCloudDataDebounced() {
-  if (cloudSyncDebounceTimer) clearTimeout(cloudSyncDebounceTimer);
-  cloudSyncDebounceTimer = setTimeout(() => {
-    pushCloudDataNow();
-  }, 1000);
+  pushToFirestoreDebounced(state.tasks);
 }
 
-async function pushCloudDataNow() {
-  const dateStr = (state && state.personalDate) ? state.personalDate : new Date().toISOString().split('T')[0];
-  const tasks = (state && state.tasks && state.tasks.length > 0) ? state.tasks : JSON.parse(localStorage.getItem('zentry_tasks') || '[]');
-  const mit = getMITData();
-  const objectives = getCorkboardObjectives();
-  const currentTimeblock = getTimeblockData(dateStr);
-  const history = JSON.parse(localStorage.getItem('zentry_timeblock_history') || '[]');
-  const journalHistory = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
-
-  const timeblocks = {};
-  if (currentTimeblock && Object.keys(currentTimeblock).length > 0) {
-    timeblocks[dateStr] = currentTimeblock;
+// Bootstrap Firestore on load (pull -> merge -> push -> listen)
+bootstrapFirestoreSync(state.tasks, (cloudData) => {
+  // Re-hydrate state from cloud updates received from other devices
+  if (cloudData && Array.isArray(cloudData.tasks) && cloudData.tasks.length > 0) {
+    state.tasks = cloudData.tasks;
   }
-
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key && key.startsWith('zentry_timeblock_') && key !== 'zentry_timeblock_history') {
-      const dStr = key.replace('zentry_timeblock_', '');
-      try {
-        const b = JSON.parse(localStorage.getItem(key));
-        if (b && Object.keys(b).length > 0) {
-          timeblocks[dStr] = b;
-        }
-      } catch(e) {}
-    }
+  // Trigger re-render if on backlog view
+  if (state.activeView === 'backlog') {
+    if (typeof renderers !== 'undefined' && renderers.backlog) renderers.backlog();
   }
+});
 
-  const payload = {
-    action: 'sync_pwa_push',
-    type: 'cloud_sync',
-    folderId: '1kr4dPvYh0Q2wVVR3dKBgnj8eiKKD_6YL',
-    payload: {
-      tasks,
-      mit,
-      objectives,
-      timeblocks,
-      history,
-      journalHistory
-    }
-  };
 
-  try {
-    await fetch(QZ_CLOUD_GAS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
-    });
-    return true;
-  } catch(err) {
-    console.log('QZ Hub Master Cloud Push sent.');
-    return true;
-  }
-}
-
-// Auto Pull on load
-pullCloudData();
 
 function getMITData() {
   const defaultMIT = [
@@ -212,7 +95,7 @@ function getMITData() {
 
 function saveMITData(mit) {
   localStorage.setItem('zentry_mit', JSON.stringify(mit));
-  pushCloudDataDebounced();
+  syncMIT(mit);
 }
 
 function getCorkboardObjectives() {
@@ -230,7 +113,7 @@ function getCorkboardObjectives() {
 
 function saveCorkboardObjectives(objs) {
   localStorage.setItem('zentry_objectives', JSON.stringify(objs));
-  pushCloudDataDebounced();
+  syncObjectives(objs);
 }
 
 // --- Timeblock Data Helpers ---
@@ -245,7 +128,7 @@ function getTimeblockData(dateStr) {
 
 function saveTimeblockData(dateStr, data) {
   localStorage.setItem(`zentry_timeblock_${dateStr}`, JSON.stringify(data));
-  pushCloudDataDebounced();
+  syncTimeblock(dateStr, data);
 }
 
 function updateBrickInStorage(dateStr, timeStr, updates) {
@@ -260,6 +143,7 @@ function updateBrickInStorage(dateStr, timeStr, updates) {
       if (history[hIndex].data && history[hIndex].data[timeStr]) {
         Object.assign(history[hIndex].data[timeStr], updates);
         localStorage.setItem('zentry_timeblock_history', JSON.stringify(history));
+        syncTimeblockHistory(history);
       }
     }
   }
@@ -977,7 +861,6 @@ const renderers = {
               </select>
             </div>
             <div class="filter-bar-actions">
-              <button id="push-cloud-btn" style="background: #533B87; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; margin-right: 6px;" title="Subir todo tu localStorage recuperado a tu carpeta de Google Drive">📤 Subir Todo a Drive</button>
               <button id="add-task-btn" class="btn-add-task">＋ Nueva Tarea</button>
               <button id="reset-tasks-btn" class="btn-reset-tasks" title="Restaurar tareas por defecto del SSOT">🔄 Restaurar</button>
             </div>
@@ -1048,6 +931,7 @@ const renderers = {
       if (confirm('¿Estás seguro de que deseas restaurar las tareas por defecto del SSOT? Esto borrará tus cambios locales.')) {
         localStorage.removeItem('zentry_tasks');
         initTasks();
+        syncTasks(state.tasks);
         renderKanbanCards();
       }
     });
@@ -1665,71 +1549,18 @@ const renderers = {
           `---\n\n` +
           `${text}\n`;
 
-        // 3. Sincronizar directamente con Google Drive vía Google Apps Script
-        const gasUrl = localStorage.getItem('zentry_journal_gas_url') || 'https://script.google.com/macros/s/AKfycbxTEEk0lcFEMf3IeETQIgDzn-v-RDIOre4Wshmc2GlkQ286otu7-HPAjZWbVFcH_7Ju/exec';
-        let syncSuccess = false;
-
+        // 3. Sincronizar con Firestore (Realtime Cloud Database)
         try {
-          // Usar Content-Type: text/plain para evitar bloqueos CORS en navegadores y garantizar entrega a Apps Script
-          const res = await fetch(gasUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-              date: date,
-              content: text,
-              filename: filename,
-              folderId: '17jwao_wY0P_L3AW4amtQaOpzdJtaXQC0'
-            })
-          });
-          syncSuccess = true;
+          await syncJournalHistory(history);
+          console.log('\xf0\x9f\x94\xa5 Journal synced to Firestore');
         } catch (err) {
-          // Fallback utilizando formulario dinamico para garantizar envio cross-origin sin descargas locales
-          try {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = gasUrl;
-            form.target = 'hidden_iframe_journal';
-            
-            let iframe = document.getElementById('hidden_iframe_journal');
-            if (!iframe) {
-              iframe = document.createElement('iframe');
-              iframe.name = 'hidden_iframe_journal';
-              iframe.id = 'hidden_iframe_journal';
-              iframe.style.display = 'none';
-              document.body.appendChild(iframe);
-            }
-
-            const inputContent = document.createElement('input');
-            inputContent.type = 'hidden';
-            inputContent.name = 'content';
-            inputContent.value = text;
-
-            const inputDate = document.createElement('input');
-            inputDate.type = 'hidden';
-            inputDate.name = 'date';
-            inputDate.value = date;
-
-            const inputFilename = document.createElement('input');
-            inputFilename.type = 'hidden';
-            inputFilename.name = 'filename';
-            inputFilename.value = filename;
-
-            form.appendChild(inputContent);
-            form.appendChild(inputDate);
-            form.appendChild(inputFilename);
-            document.body.appendChild(form);
-            form.submit();
-            document.body.removeChild(form);
-            syncSuccess = true;
-          } catch (fErr) {
-            console.error('Error al enviar formulario:', fErr);
-          }
+          console.error('Journal Firestore sync error:', err);
         }
 
         journalSaveBtn.disabled = false;
-        journalSaveBtn.innerHTML = '<span>💾 Guardar Registro de Journal (.md en Drive)</span>';
+        journalSaveBtn.innerHTML = '<span>\xf0\x9f\x92\xbe Guardar Registro de Journal</span>';
 
-        alert(`✅ Registro de Journal para ${date} guardado exitosamente.\n\n• Sincronizado en tu carpeta de Google Drive: 03_JOURNAL_BITACORA\n• Guardado en el historial local de Zentry Hub.`);
+        alert(`\u2705 Registro de Journal para ${date} guardado exitosamente.\n\n\u2022 Sincronizado en Cloud Firestore (Tiempo Real)\n\u2022 Disponible en todos tus dispositivos.`);
         renderJournalHistory();
       });
     }
@@ -2247,6 +2078,7 @@ function renderEspacioPersonal(container) {
       });
     }
     localStorage.setItem('zentry_timeblock_history', JSON.stringify(history));
+    syncTimeblockHistory(history);
     
     // Show visual feedback
     const btn = document.getElementById('btn-backup');
@@ -3047,7 +2879,7 @@ function setupDragAndDrop() {
         state.tasks.splice(nextTaskIndex, 0, task);
       }
       
-      localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks)); if (typeof pushCloudDataDebounced === 'function') pushCloudDataDebounced();
+      localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks)); syncTasks(state.tasks);
       renderKanbanCards();
     });
   });
@@ -3185,7 +3017,7 @@ modal.addEventListener('click', (e) => {
 taskDeleteBtn.addEventListener('click', () => {
   if (state.currentEditingTask && confirm('¿Estás seguro de que deseas eliminar esta tarea?')) {
     state.tasks = state.tasks.filter(t => t.id !== state.currentEditingTask.id);
-    localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks)); if (typeof pushCloudDataDebounced === 'function') pushCloudDataDebounced();
+    localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks)); syncTasks(state.tasks);
     closeModal();
     renderKanbanCards();
   }
@@ -3268,7 +3100,7 @@ taskForm.addEventListener('submit', (e) => {
     });
   }
   
-  localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks)); if (typeof pushCloudDataDebounced === 'function') pushCloudDataDebounced();
+  localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks)); syncTasks(state.tasks);
   closeModal();
   renderKanbanCards();
 });
