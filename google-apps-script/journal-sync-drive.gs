@@ -1,27 +1,41 @@
 /**
  * ==============================================================================
- * GOOGLE APPS SCRIPT: SINCRONIZACIÓN AUTOMÁTICA DE JOURNAL ZENTRY HUB A DRIVE
+ * GOOGLE APPS SCRIPT: QZ HUB MULTI-DEVICE CLOUD SYNC & JOURNAL STORAGE ENGINE
  * ==============================================================================
  * 
  * ID Carpeta Google Drive: 17jwao_wY0P_L3AW4amtQaOpzdJtaXQC0
  * URL Carpeta: https://drive.google.com/drive/folders/17jwao_wY0P_L3AW4amtQaOpzdJtaXQC0
  * 
- * INSTRUCCIONES DE DESPLIEGUE (3 PASOS):
- * 1. Ingresa a https://script.google.com y crea un "Nuevo proyecto".
- * 2. Pega todo este código en el editor de Apps Script.
- * 3. Haz clic en "Desplegar" -> "Nuevo despliegue":
- *    - Tipo: Aplicación Web
- *    - Ejecutar como: Yo (tu cuenta de Google)
- *    - Quién tiene acceso: Cualquier persona (Anyone)
- * 4. Copia la "URL de la aplicación web" generada y pégala en Zentry Hub.
+ * INSTRUCCIONES DE ACTUALIZACIÓN EN SCRIPT.GOOGLE.COM:
+ * 1. Entra a tu proyecto en https://script.google.com
+ * 2. Reemplaza todo el código existente por este script.
+ * 3. Haz clic en "Guardar" y luego en "Desplegar" -> "Gestionar despliegues" -> "Editar" -> "Nueva versión" -> "Desplegar".
  */
 
 var DRIVE_FOLDER_ID = "17jwao_wY0P_L3AW4amtQaOpzdJtaXQC0";
+var DB_FILENAME = "qz_hub_cloud_db.json";
+
+function getFolder() {
+  return DriveApp.getFolderById(DRIVE_FOLDER_ID);
+}
+
+function getCloudDbFile() {
+  var folder = getFolder();
+  var files = folder.getFilesByName(DB_FILENAME);
+  if (files.hasNext()) {
+    return files.next();
+  }
+  return folder.createFile(DB_FILENAME, JSON.stringify({
+    mit: [],
+    objectives: [],
+    timeblocks: {},
+    history: [],
+    updatedAt: new Date().toISOString()
+  }), MimeType.PLAIN_TEXT);
+}
 
 function doPost(e) {
   try {
-    var folder = DriveApp.getFolderById(DRIVE_FOLDER_ID);
-    
     var data = {};
     if (e && e.postData && e.postData.contents) {
       try {
@@ -33,17 +47,51 @@ function doPost(e) {
       data = e.parameter;
     }
     
+    var action = data.action || "journal";
+    
+    // --- ACCIÓN A: MULTI-DEVICE CLOUD PUSH (TIMEBLOCKING, MIT, OBJETIVOS, TAREAS) ---
+    if (action === "cloud_push" || data.type === "cloud_sync") {
+      var dbFile = getCloudDbFile();
+      var currentDb = {};
+      try {
+        currentDb = JSON.parse(dbFile.getContent());
+      } catch(err) {
+        currentDb = {};
+      }
+      
+      if (data.payload) {
+        if (data.payload.timeblocks) {
+          currentDb.timeblocks = currentDb.timeblocks || {};
+          Object.assign(currentDb.timeblocks, data.payload.timeblocks);
+        }
+        if (data.payload.mit) currentDb.mit = data.payload.mit;
+        if (data.payload.objectives) currentDb.objectives = data.payload.objectives;
+        if (data.payload.history) currentDb.history = data.payload.history;
+        if (data.payload.tasks) currentDb.tasks = data.payload.tasks;
+      }
+      
+      currentDb.updatedAt = new Date().toISOString();
+      dbFile.setContent(JSON.stringify(currentDb, null, 2));
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        action: "cloud_pushed",
+        updatedAt: currentDb.updatedAt
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // --- ACCIÓN B: GUARDADO DE JOURNALING EN .MD ---
     var dateStr = data.date || new Date().toISOString().split('T')[0];
     var content = data.content || data.body || "Sin contenido registrado.";
     var filename = data.filename || (dateStr + "-journal-bitacora.md");
     
     var markdownContent = "# 📝 DIARIO DE REFLEXIÓN Y REGISTRO - " + dateStr + "\n\n";
     markdownContent += "> **Fecha de Registro:** " + new Date().toLocaleString() + "  \n";
-    markdownContent += "> **Origen:** Zentry Hub - SSOT Dashboard  \n\n";
+    markdownContent += "> **Origen:** QZ HUB - Operational Cockpit  \n\n";
     markdownContent += "---\n\n";
     markdownContent += content + "\n";
     
-    // Buscar si ya existe una entrada para esta fecha en la carpeta
+    var folder = getFolder();
     var existingFiles = folder.getFilesByName(filename);
     var file;
     var isUpdate = false;
@@ -56,37 +104,40 @@ function doPost(e) {
       file = folder.createFile(filename, markdownContent, MimeType.PLAIN_TEXT);
     }
     
-    var responseOutput = {
+    return ContentService.createTextOutput(JSON.stringify({
       status: "success",
       action: isUpdate ? "updated" : "created",
-      message: "Entrada guardada exitosamente en Google Drive: " + filename,
       filename: filename,
-      fileUrl: file.getUrl(),
-      fileId: file.getId(),
-      folderId: DRIVE_FOLDER_ID
-    };
-    
-    return ContentService
-      .createTextOutput(JSON.stringify(responseOutput))
-      .setMimeType(ContentService.MimeType.JSON);
+      fileUrl: file.getUrl()
+    })).setMimeType(ContentService.MimeType.JSON);
       
   } catch (error) {
-    var errorOutput = {
+    return ContentService.createTextOutput(JSON.stringify({
       status: "error",
-      message: "Error al procesar la solicitud: " + error.toString()
-    };
-    
-    return ContentService
-      .createTextOutput(JSON.stringify(errorOutput))
-      .setMimeType(ContentService.MimeType.JSON);
+      message: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({
-    status: "active",
-    service: "Zentry Hub Journal Sync Service",
-    folderId: DRIVE_FOLDER_ID,
-    folderUrl: "https://drive.google.com/drive/folders/" + DRIVE_FOLDER_ID
-  })).setMimeType(ContentService.MimeType.JSON);
+  try {
+    var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : "cloud_pull";
+    
+    if (action === "cloud_pull") {
+      var dbFile = getCloudDbFile();
+      var dbContent = dbFile.getContent();
+      return ContentService.createTextOutput(dbContent).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "active",
+      service: "QZ HUB Multi-Device Cloud Sync Service",
+      folderId: DRIVE_FOLDER_ID
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: err.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
 }

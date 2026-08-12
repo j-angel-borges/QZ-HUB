@@ -46,6 +46,118 @@ function initTasks() {
 initTasks();
 
 // --- Storage & Data Helpers for Backlog widgets ---
+// ==============================================================================
+// QZ HUB MULTI-DEVICE CLOUD SYNC ENGINE (GOOGLE DRIVE / APPS SCRIPT BACKED)
+// ==============================================================================
+const QZ_CLOUD_GAS_URL = 'https://script.google.com/macros/s/AKfycbxTEEk0lcFEMf3IeETQIgDzn-v-RDIOre4Wshmc2GlkQ286otu7-HPAjZWbVFcH_7Ju/exec';
+let isSyncingCloud = false;
+let cloudSyncDebounceTimer = null;
+
+async function pullCloudData() {
+  if (isSyncingCloud) return;
+  isSyncingCloud = true;
+  
+  try {
+    const res = await fetch(`${QZ_CLOUD_GAS_URL}?action=cloud_pull`);
+    const data = await res.json();
+    
+    if (data && typeof data === 'object') {
+      let updatedLocal = false;
+
+      // 1. Sync M.I.T. Data
+      if (Array.isArray(data.mit) && data.mit.length > 0) {
+        localStorage.setItem('zentry_mit', JSON.stringify(data.mit));
+        updatedLocal = true;
+      }
+
+      // 2. Sync Corkboard Objectives
+      if (Array.isArray(data.objectives) && data.objectives.length > 0) {
+        localStorage.setItem('zentry_objectives', JSON.stringify(data.objectives));
+        updatedLocal = true;
+      }
+
+      // 3. Sync Timeblock History
+      if (Array.isArray(data.history) && data.history.length > 0) {
+        localStorage.setItem('zentry_timeblock_history', JSON.stringify(data.history));
+        updatedLocal = true;
+      }
+
+      // 4. Sync Timeblocks for all dates
+      if (data.timeblocks && typeof data.timeblocks === 'object') {
+        for (const [dStr, blocks] of Object.entries(data.timeblocks)) {
+          if (blocks && Object.keys(blocks).length > 0) {
+            localStorage.setItem(`zentry_timeblock_${dStr}`, JSON.stringify(blocks));
+            updatedLocal = true;
+          }
+        }
+      }
+
+      // Re-render active view if on backlog
+      if (updatedLocal && state && state.activeView === 'backlog') {
+        if (typeof renderMITWidget === 'function') renderMITWidget();
+        if (typeof renderCorkboardObjectives === 'function') renderCorkboardObjectives();
+        if (typeof renderers !== 'undefined' && renderers.backlog) renderers.backlog();
+      }
+    }
+  } catch (err) {
+    console.log('QZ Hub Cloud Pull completed with local fallback:', err);
+  } finally {
+    isSyncingCloud = false;
+  }
+}
+
+function pushCloudDataDebounced() {
+  if (cloudSyncDebounceTimer) clearTimeout(cloudSyncDebounceTimer);
+  cloudSyncDebounceTimer = setTimeout(() => {
+    pushCloudDataNow();
+  }, 1000);
+}
+
+async function pushCloudDataNow() {
+  const dateStr = (state && state.personalDate) ? state.personalDate : new Date().toISOString().split('T')[0];
+  const mit = getMITData();
+  const objectives = getCorkboardObjectives();
+  const currentTimeblock = getTimeblockData(dateStr);
+  const history = JSON.parse(localStorage.getItem('zentry_timeblock_history') || '[]');
+
+  const timeblocks = {};
+  timeblocks[dateStr] = currentTimeblock;
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('zentry_timeblock_') && key !== 'zentry_timeblock_history') {
+      const dStr = key.replace('zentry_timeblock_', '');
+      try {
+        timeblocks[dStr] = JSON.parse(localStorage.getItem(key));
+      } catch(e) {}
+    }
+  }
+
+  const payload = {
+    action: 'cloud_push',
+    type: 'cloud_sync',
+    payload: {
+      mit,
+      objectives,
+      timeblocks,
+      history
+    }
+  };
+
+  try {
+    await fetch(QZ_CLOUD_GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+  } catch(err) {
+    console.log('QZ Hub Cloud Push sent.');
+  }
+}
+
+// Auto Pull on load
+pullCloudData();
+
 function getMITData() {
   const defaultMIT = [
     { text: 'Diseñar barra de tiempo superpuesta (Timer UI Overlay) en Jetpack Compose', checked: false },
@@ -61,6 +173,7 @@ function getMITData() {
 
 function saveMITData(mit) {
   localStorage.setItem('zentry_mit', JSON.stringify(mit));
+  pushCloudDataDebounced();
 }
 
 function getCorkboardObjectives() {
@@ -78,6 +191,7 @@ function getCorkboardObjectives() {
 
 function saveCorkboardObjectives(objs) {
   localStorage.setItem('zentry_objectives', JSON.stringify(objs));
+  pushCloudDataDebounced();
 }
 
 // --- Timeblock Data Helpers ---
@@ -92,6 +206,7 @@ function getTimeblockData(dateStr) {
 
 function saveTimeblockData(dateStr, data) {
   localStorage.setItem(`zentry_timeblock_${dateStr}`, JSON.stringify(data));
+  pushCloudDataDebounced();
 }
 
 function updateBrickInStorage(dateStr, timeStr, updates) {
