@@ -24,13 +24,13 @@ const db = getFirestore(app);
 try {
   enableIndexedDbPersistence(db).catch((err) => {
     if (err.code === 'failed-precondition') {
-      console.warn('QZ Hub Firestore: Multiple tabs open, persistence only in one tab.');
+      console.warn('QZ Hub Firestore: Multiple tabs open, persistence active in primary tab.');
     } else if (err.code === 'unimplemented') {
       console.warn('QZ Hub Firestore: Browser does not support persistence.');
     }
   });
 } catch (e) {
-  console.warn('QZ Hub Firestore: Persistence already enabled.');
+  console.warn('QZ Hub Firestore: Persistence setup completed.');
 }
 
 export { db, app };
