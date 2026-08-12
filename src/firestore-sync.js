@@ -12,13 +12,10 @@ import {
   getDoc,
   setDoc,
   onSnapshot,
-  updateDoc,
-  serverTimestamp
+  updateDoc
 } from 'firebase/firestore';
 
 // ─── CONFIGURATION ───────────────────────────────────────────────────────────
-// Single master document holding ALL PWA state for this user.
-// Using a simple single-doc approach since there's only one user.
 const COLLECTION = 'qz_hub_users';
 const USER_DOC_ID = 'master';
 
@@ -79,7 +76,7 @@ export function gatherAllLocalData(stateTasks) {
   }
   result.timeblocks = timeblocks;
 
-  // 7. Settings / preferences (non-critical, but preserved)
+  // 7. Settings / preferences
   result.settings = {
     sidebar_collapsed: localStorage.getItem('sidebar_collapsed') || 'false',
     gcal_gas_url: localStorage.getItem('gcal_gas_url') || '',
@@ -106,10 +103,10 @@ export async function pushAllToFirestore(stateTasks) {
       timeblockDates: Object.keys(allData.timeblocks).length,
       journalEntries: allData.journalHistory.length
     });
-    return true;
+    return allData;
   } catch (err) {
     console.error('🔥 QZ Hub → Firestore push error:', err);
-    return false;
+    throw err;
   } finally {
     _isSyncing = false;
   }
@@ -119,7 +116,7 @@ export async function pushAllToFirestore(stateTasks) {
 export function pushToFirestoreDebounced(stateTasks) {
   if (_debounceTimer) clearTimeout(_debounceTimer);
   _debounceTimer = setTimeout(() => {
-    pushAllToFirestore(stateTasks);
+    pushAllToFirestore(stateTasks).catch(e => console.warn('Debounced push caught error:', e));
   }, 800);
 }
 
@@ -128,7 +125,7 @@ export async function pullFromFirestore() {
   try {
     const snap = await getDoc(masterDocRef());
     if (!snap.exists()) {
-      console.log('🔥 QZ Hub ← Firestore: No cloud data yet. Will push local data.');
+      console.log('🔥 QZ Hub ← Firestore: No cloud data yet.');
       return null;
     }
 
@@ -137,12 +134,12 @@ export async function pullFromFirestore() {
     return data;
   } catch (err) {
     console.error('🔥 QZ Hub ← Firestore pull error:', err);
-    return null;
+    throw err;
   }
 }
 
 // ─── HYDRATE LOCALSTORAGE FROM FIRESTORE DATA ────────────────────────────────
-function hydrateLocalStorage(data) {
+export function hydrateLocalStorage(data) {
   if (!data) return;
 
   // Tasks
@@ -176,12 +173,11 @@ function hydrateLocalStorage(data) {
     }
   }
 
-  // Individual Timeblocks per date (merge, preserving local)
+  // Individual Timeblocks per date
   if (data.timeblocks && typeof data.timeblocks === 'object') {
     for (const [dateStr, blocks] of Object.entries(data.timeblocks)) {
       if (blocks && Object.keys(blocks).length > 0) {
         const localBlocks = JSON.parse(localStorage.getItem(`zentry_timeblock_${dateStr}`) || '{}');
-        // Cloud fills gaps, local overwrites conflicts
         const merged = Object.assign({}, blocks, localBlocks);
         localStorage.setItem(`zentry_timeblock_${dateStr}`, JSON.stringify(merged));
       }
@@ -203,25 +199,27 @@ export function startRealtimeSync(onDataUpdate) {
   _isListening = true;
   _onDataUpdateCallback = onDataUpdate;
 
-  _unsubscribe = onSnapshot(masterDocRef(), (snap) => {
-    if (!snap.exists()) return;
+  try {
+    _unsubscribe = onSnapshot(masterDocRef(), (snap) => {
+      if (!snap.exists()) return;
 
-    // Only hydrate if this update came from another device
-    // (Firestore metadata.hasPendingWrites tells us if it's a local write)
-    if (snap.metadata.hasPendingWrites) {
-      // This is our own write echoing back — skip hydration
-      return;
-    }
+      if (snap.metadata.hasPendingWrites) {
+        return;
+      }
 
-    const data = snap.data();
-    console.log('🔥 QZ Hub ← Firestore Realtime: Synced from another device');
-    hydrateLocalStorage(data);
+      const data = snap.data();
+      console.log('🔥 QZ Hub ← Firestore Realtime: Synced from another device');
+      hydrateLocalStorage(data);
 
-    // Trigger re-render callback
-    if (_onDataUpdateCallback) {
-      _onDataUpdateCallback(data);
-    }
-  });
+      if (_onDataUpdateCallback) {
+        _onDataUpdateCallback(data);
+      }
+    }, (error) => {
+      console.error('🔥 Firestore Realtime Listener Error:', error);
+    });
+  } catch (e) {
+    console.error('Failed to start Firestore Realtime listener:', e);
+  }
 }
 
 // ─── STOP LISTENER ───────────────────────────────────────────────────────────
@@ -234,38 +232,29 @@ export function stopRealtimeSync() {
 }
 
 // ─── INITIAL BOOTSTRAP: PULL → MERGE → PUSH ─────────────────────────────────
-// Called once on app load. Ensures:
-// 1. Cloud data fills any gaps in localStorage.
-// 2. If local has data cloud doesn't, it pushes to cloud.
-// 3. Starts realtime listener for ongoing sync.
 export async function bootstrapFirestoreSync(stateTasks, onDataUpdate) {
-  // Step 1: Try to pull existing cloud data
-  const cloudData = await pullFromFirestore();
+  try {
+    const cloudData = await pullFromFirestore();
 
-  // Step 2: If cloud is empty, push all local data to Firestore immediately
-  if (!cloudData) {
-    console.log('🔥 QZ Hub: First-time sync — pushing all local data to Firestore...');
-    await pushAllToFirestore(stateTasks);
-  } else {
-    // Cloud had data, and we already hydrated localStorage.
-    // Now check if local has extra data that cloud is missing, and push it.
-    const localTasks = JSON.parse(localStorage.getItem('zentry_tasks') || '[]');
-    const cloudTasks = cloudData.tasks || [];
-    if (localTasks.length > cloudTasks.length) {
-      // Local has more — push merge
+    if (!cloudData) {
+      console.log('🔥 QZ Hub: First-time sync — pushing all local data to Firestore...');
       await pushAllToFirestore(stateTasks);
+    } else {
+      const localTasks = JSON.parse(localStorage.getItem('zentry_tasks') || '[]');
+      const cloudTasks = cloudData.tasks || [];
+      if (localTasks.length > cloudTasks.length) {
+        await pushAllToFirestore(stateTasks);
+      }
     }
+
+    startRealtimeSync(onDataUpdate);
+    console.log('🔥 QZ Hub Firestore: Bootstrap complete — realtime sync active.');
+  } catch(e) {
+    console.warn('Bootstrap Firestore sync completed with warning:', e);
   }
-
-  // Step 3: Start realtime listener for ongoing multi-device sync
-  startRealtimeSync(onDataUpdate);
-
-  console.log('🔥 QZ Hub Firestore: Bootstrap complete — realtime sync active.');
 }
 
 // ─── SPECIFIC UPDATE HELPERS ─────────────────────────────────────────────────
-// These update Firestore directly for specific sections without full re-push.
-
 export async function syncTasks(tasks) {
   try {
     await updateDoc(masterDocRef(), {
@@ -273,7 +262,6 @@ export async function syncTasks(tasks) {
       updatedAt: new Date().toISOString()
     });
   } catch (err) {
-    // If doc doesn't exist yet, use setDoc with merge
     await setDoc(masterDocRef(), { tasks, updatedAt: new Date().toISOString() }, { merge: true });
   }
 }
