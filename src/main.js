@@ -64,20 +64,26 @@ async function pullCloudData() {
     if (data && typeof data === 'object') {
       let updatedLocal = false;
 
-      // 1. Sync Tasks (Backlog & Tableros)
+      // 1. Sync Tasks (Solo sobreescribir si la nube tiene tareas válidas y no vacías)
       if (Array.isArray(data.tasks) && data.tasks.length > 0) {
         state.tasks = data.tasks;
         localStorage.setItem('zentry_tasks', JSON.stringify(data.tasks));
         updatedLocal = true;
+      } else {
+        // Si la nube está vacía pero localmente hay tareas, subir las locales a la nube
+        const localTasks = localStorage.getItem('zentry_tasks');
+        if (localTasks && JSON.parse(localTasks).length > 0) {
+          pushCloudDataDebounced();
+        }
       }
 
-      // 2. Sync M.I.T. Data
+      // 2. Sync M.I.T. Data (Protección anti-sobrescritura vacía)
       if (Array.isArray(data.mit) && data.mit.length > 0) {
         localStorage.setItem('zentry_mit', JSON.stringify(data.mit));
         updatedLocal = true;
       }
 
-      // 3. Sync Corkboard Objectives
+      // 3. Sync Corkboard Objectives (Protección anti-sobrescritura vacía)
       if (Array.isArray(data.objectives) && data.objectives.length > 0) {
         localStorage.setItem('zentry_objectives', JSON.stringify(data.objectives));
         updatedLocal = true;
@@ -85,27 +91,35 @@ async function pullCloudData() {
 
       // 4. Sync Timeblock History
       if (Array.isArray(data.history) && data.history.length > 0) {
-        localStorage.setItem('zentry_timeblock_history', JSON.stringify(data.history));
-        updatedLocal = true;
+        const localHist = JSON.parse(localStorage.getItem('zentry_timeblock_history') || '[]');
+        if (data.history.length >= localHist.length) {
+          localStorage.setItem('zentry_timeblock_history', JSON.stringify(data.history));
+          updatedLocal = true;
+        }
       }
 
       // 5. Sync Journal History
       if (Array.isArray(data.journalHistory) && data.journalHistory.length > 0) {
-        localStorage.setItem('zentry_journal_history', JSON.stringify(data.journalHistory));
-        updatedLocal = true;
+        const localJHist = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
+        if (data.journalHistory.length >= localJHist.length) {
+          localStorage.setItem('zentry_journal_history', JSON.stringify(data.journalHistory));
+          updatedLocal = true;
+        }
       }
 
-      // 6. Sync Timeblocks for all dates
+      // 6. Merge Timeblocks por fechas (Preservando bloques locales no vacíos)
       if (data.timeblocks && typeof data.timeblocks === 'object') {
         for (const [dStr, blocks] of Object.entries(data.timeblocks)) {
           if (blocks && Object.keys(blocks).length > 0) {
-            localStorage.setItem(`zentry_timeblock_${dStr}`, JSON.stringify(blocks));
+            const localBlocks = JSON.parse(localStorage.getItem(`zentry_timeblock_${dStr}`) || '{}');
+            const mergedBlocks = Object.assign({}, blocks, localBlocks);
+            localStorage.setItem(`zentry_timeblock_${dStr}`, JSON.stringify(mergedBlocks));
             updatedLocal = true;
           }
         }
       }
 
-      // Re-render active view if on backlog
+      // Re-renderizar vista activa si hubo actualizaciones relevantes
       if (updatedLocal && state && state.activeView === 'backlog') {
         if (typeof renderMITWidget === 'function') renderMITWidget();
         if (typeof renderCorkboardObjectives === 'function') renderCorkboardObjectives();
@@ -113,7 +127,7 @@ async function pullCloudData() {
       }
     }
   } catch (err) {
-    console.log('QZ Hub Master PWA Cloud Pull completed with local fallback:', err);
+    console.log('QZ Hub Safe Cloud Pull completed with local preservation:', err);
   } finally {
     isSyncingCloud = false;
   }
@@ -143,7 +157,10 @@ async function pushCloudDataNow() {
     if (key && key.startsWith('zentry_timeblock_') && key !== 'zentry_timeblock_history') {
       const dStr = key.replace('zentry_timeblock_', '');
       try {
-        timeblocks[dStr] = JSON.parse(localStorage.getItem(key));
+        const b = JSON.parse(localStorage.getItem(key));
+        if (b && Object.keys(b).length > 0) {
+          timeblocks[dStr] = b;
+        }
       } catch(e) {}
     }
   }
@@ -151,6 +168,7 @@ async function pushCloudDataNow() {
   const payload = {
     action: 'sync_pwa_push',
     type: 'cloud_sync',
+    folderId: '1kr4dPvYh0Q2wVVR3dKBgnj8eiKKD_6YL',
     payload: {
       tasks,
       mit,
@@ -168,7 +186,7 @@ async function pushCloudDataNow() {
       body: JSON.stringify(payload)
     });
   } catch(err) {
-    console.log('QZ Hub Master PWA Cloud Push sent.');
+    console.log('QZ Hub Safe Cloud Push sent.');
   }
 }
 
