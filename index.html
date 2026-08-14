@@ -221,6 +221,60 @@
             </div>
           </div>
 
+          <!-- Deadline & Schedule Section -->
+          <div class="form-group task-deadline-container">
+            <div class="deadline-section-header">
+              <label class="deadline-section-title">📅 Fecha Límite / Programación</label>
+              <button type="button" id="btn-clear-deadline" class="btn-clear-deadline" title="Quitar fecha límite">Quitar Fecha</button>
+            </div>
+
+            <!-- Mode Selector Tabs -->
+            <div class="deadline-mode-selector">
+              <button type="button" class="deadline-mode-btn active" data-mode="none">Sin Fecha</button>
+              <button type="button" class="deadline-mode-btn" data-mode="single">📌 Fecha Única</button>
+              <button type="button" class="deadline-mode-btn" data-mode="range">📆 Período</button>
+              <button type="button" class="deadline-mode-btn" data-mode="multiple">⏱️ Múltiples Días</button>
+            </div>
+
+            <!-- Panel 1: Single Date (con o sin hora) -->
+            <div id="deadline-panel-single" class="deadline-panel" style="display: none;">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="task-single-date">Fecha Límite</label>
+                  <input type="date" id="task-single-date" class="form-input-date" />
+                </div>
+                <div class="form-group">
+                  <label for="task-single-time">Hora Específica (Opcional)</label>
+                  <input type="time" id="task-single-time" class="form-input-time" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Panel 2: Period / Range (de fecha a fecha) -->
+            <div id="deadline-panel-range" class="deadline-panel" style="display: none;">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="task-range-start-date">Fecha Inicio</label>
+                  <input type="date" id="task-range-start-date" class="form-input-date" />
+                  <input type="time" id="task-range-start-time" class="form-input-time" style="margin-top: 6px;" title="Hora inicio (opcional)" />
+                </div>
+                <div class="form-group">
+                  <label for="task-range-end-date">Fecha Límite / Fin</label>
+                  <input type="date" id="task-range-end-date" class="form-input-date" />
+                  <input type="time" id="task-range-end-time" class="form-input-time" style="margin-top: 6px;" title="Hora fin (opcional)" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Panel 3: Multiple Days & Time Blocks -->
+            <div id="deadline-panel-multiple" class="deadline-panel" style="display: none;">
+              <div id="multiple-slots-list" class="multiple-slots-list">
+                <!-- Dynamic slot items -->
+              </div>
+              <button type="button" id="btn-add-multiple-slot" class="btn-add-slot">＋ Agregar Día / Horario</button>
+            </div>
+          </div>
+
           <div class="modal-actions">
             <button type="button" id="task-delete-btn" class="btn btn-danger">Eliminar Tarea</button>
             <div class="modal-actions-right">

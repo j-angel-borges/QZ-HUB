@@ -2604,6 +2604,100 @@ function updateCurrentTimeLine() {
 
 
 
+
+// ─── TASK DEADLINE / SCHEDULE HELPER FUNCTIONS ──────────────────────────────
+const MONTH_NAMES_ES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+function formatDateShort(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length < 3) return dateStr;
+  const day = parseInt(parts[2], 10);
+  const monthIdx = parseInt(parts[1], 10) - 1;
+  const monthName = MONTH_NAMES_ES[monthIdx] || parts[1];
+  return `${day} ${monthName}`;
+}
+
+function formatTaskDeadlineText(deadline) {
+  if (!deadline) return null;
+  
+  if (typeof deadline === 'string') {
+    return `📅 ${formatDateShort(deadline)}`;
+  }
+  
+  if (deadline.type === 'single') {
+    if (!deadline.singleDate) return null;
+    const formattedDate = formatDateShort(deadline.singleDate);
+    if (deadline.singleTime) {
+      return `⏰ ${formattedDate} · ${deadline.singleTime}`;
+    }
+    return `📅 ${formattedDate}`;
+  }
+  
+  if (deadline.type === 'range') {
+    const start = formatDateShort(deadline.startDate);
+    const end = formatDateShort(deadline.endDate);
+    if (start && end) {
+      const timeStart = deadline.startTime ? ` ${deadline.startTime}` : '';
+      const timeEnd = deadline.endTime ? ` ${deadline.endTime}` : '';
+      return `📆 ${start}${timeStart} ➔ ${end}${timeEnd}`;
+    } else if (end) {
+      return `📅 Hasta ${end}`;
+    } else if (start) {
+      return `📅 Desde ${start}`;
+    }
+    return null;
+  }
+  
+  if (deadline.type === 'multiple') {
+    const slots = Array.isArray(deadline.slots) ? deadline.slots.filter(s => s && s.date) : [];
+    if (slots.length === 0) return null;
+    if (slots.length === 1) {
+      const s = slots[0];
+      const timeInfo = (s.startTime && s.endTime) ? ` ${s.startTime}-${s.endTime}` : (s.startTime ? ` ${s.startTime}` : '');
+      return `⏱️ ${formatDateShort(s.date)}${timeInfo}`;
+    }
+    const datesSummary = slots.map(s => formatDateShort(s.date).split(' ')[0]).join(', ');
+    return `⏱️ ${slots.length} bloques (${datesSummary})`;
+  }
+  
+  return null;
+}
+
+function getDeadlineBadgeInfo(deadline) {
+  if (!deadline) return null;
+  const text = formatTaskDeadlineText(deadline);
+  if (!text) return null;
+  
+  const todayStr = new Date().toISOString().split('T')[0];
+  let targetDate = null;
+  
+  if (typeof deadline === 'string') {
+    targetDate = deadline;
+  } else if (deadline.type === 'single') {
+    targetDate = deadline.singleDate;
+  } else if (deadline.type === 'range') {
+    targetDate = deadline.endDate || deadline.startDate;
+  } else if (deadline.type === 'multiple' && Array.isArray(deadline.slots) && deadline.slots.length > 0) {
+    targetDate = deadline.slots[deadline.slots.length - 1].date;
+  }
+  
+  let statusClass = 'is-future';
+  if (targetDate) {
+    if (targetDate < todayStr) {
+      statusClass = 'is-overdue';
+    } else if (targetDate === todayStr) {
+      statusClass = 'is-today';
+    }
+  }
+  
+  return {
+    text,
+    statusClass,
+    fullTitle: text
+  };
+}
+
 // Render Kanban board lists based on active filters
 function renderKanbanCards() {
   const cardsPendiente = document.getElementById('cards-pendiente');
@@ -2667,14 +2761,23 @@ function renderKanbanCards() {
       initials = task.assignedTo.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     }
 
+    let deadlineBadgeHtml = '';
+    if (task.deadline) {
+      const badgeInfo = getDeadlineBadgeInfo(task.deadline);
+      if (badgeInfo && badgeInfo.text) {
+        deadlineBadgeHtml = `<div class="card-deadline-badge ${badgeInfo.statusClass}" title="${badgeInfo.fullTitle}">${badgeInfo.text}</div>`;
+      }
+    }
+
     card.innerHTML = `
       <div class="card-header">
         <span class="card-id">${task.id}</span>
         <span class="card-priority ${pClass}">${task.priority}</span>
       </div>
       <div class="card-body">${task.description}</div>
+      ${deadlineBadgeHtml}
       <div class="card-footer">
-        <span class="card-origin">Acción: ${task.origin || 'N/A'}</span>
+        <span class="card-origin">Unidad: ${task.origin || 'Quarz'}</span>
         <span class="card-assignee">
           <div class="assignee-avatar">${initials}</div>
           <span>${task.assignedTo || 'Unassigned'}</span>
@@ -2984,6 +3087,99 @@ taskActionType.addEventListener('change', (e) => {
   }
 });
 
+
+// Modal Deadline State
+let currentDeadlineMode = 'none';
+let multipleSlotsState = [];
+
+function setDeadlineMode(mode) {
+  currentDeadlineMode = mode;
+  document.querySelectorAll('.deadline-mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+  
+  const pSingle = document.getElementById('deadline-panel-single');
+  const pRange = document.getElementById('deadline-panel-range');
+  const pMultiple = document.getElementById('deadline-panel-multiple');
+  
+  if (pSingle) pSingle.style.display = mode === 'single' ? 'block' : 'none';
+  if (pRange) pRange.style.display = mode === 'range' ? 'block' : 'none';
+  if (pMultiple) pMultiple.style.display = mode === 'multiple' ? 'block' : 'none';
+}
+
+function renderMultipleSlotsList() {
+  const container = document.getElementById('multiple-slots-list');
+  if (!container) return;
+  container.innerHTML = '';
+  
+  if (multipleSlotsState.length === 0) {
+    container.innerHTML = '<div style="font-size: 11.5px; color: var(--text-muted); font-style: italic; padding: 4px;">No hay bloques asignados. Haz clic en "Agregar Día / Horario".</div>';
+    return;
+  }
+  
+  multipleSlotsState.forEach((slot, idx) => {
+    const row = document.createElement('div');
+    row.className = 'slot-item-row';
+    row.innerHTML = `
+      <input type="date" class="form-input-date slot-date" value="${slot.date || ''}" title="Fecha del bloque" />
+      <input type="time" class="form-input-time slot-start-time" value="${slot.startTime || ''}" placeholder="Inicio" title="Hora inicio" />
+      <input type="time" class="form-input-time slot-end-time" value="${slot.endTime || ''}" placeholder="Fin" title="Hora fin" />
+      <button type="button" class="btn-remove-slot" data-index="${idx}" title="Eliminar este bloque">🗑️</button>
+    `;
+    
+    row.querySelector('.slot-date').addEventListener('change', (e) => {
+      multipleSlotsState[idx].date = e.target.value;
+    });
+    row.querySelector('.slot-start-time').addEventListener('change', (e) => {
+      multipleSlotsState[idx].startTime = e.target.value;
+    });
+    row.querySelector('.slot-end-time').addEventListener('change', (e) => {
+      multipleSlotsState[idx].endTime = e.target.value;
+    });
+    row.querySelector('.btn-remove-slot').addEventListener('click', () => {
+      multipleSlotsState.splice(idx, 1);
+      renderMultipleSlotsList();
+    });
+    
+    container.appendChild(row);
+  });
+}
+
+// Bind Deadline Mode Switchers
+document.querySelectorAll('.deadline-mode-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const mode = e.currentTarget.dataset.mode;
+    setDeadlineMode(mode);
+    if (mode === 'multiple' && multipleSlotsState.length === 0) {
+      multipleSlotsState.push({ date: state.personalDate || new Date().toISOString().split('T')[0], startTime: '09:00', endTime: '10:00' });
+      renderMultipleSlotsList();
+    }
+  });
+});
+
+document.getElementById('btn-clear-deadline')?.addEventListener('click', () => {
+  setDeadlineMode('none');
+  const sDate = document.getElementById('task-single-date');
+  const sTime = document.getElementById('task-single-time');
+  const rStartDate = document.getElementById('task-range-start-date');
+  const rStartTime = document.getElementById('task-range-start-time');
+  const rEndDate = document.getElementById('task-range-end-date');
+  const rEndTime = document.getElementById('task-range-end-time');
+  if (sDate) sDate.value = '';
+  if (sTime) sTime.value = '';
+  if (rStartDate) rStartDate.value = '';
+  if (rStartTime) rStartTime.value = '';
+  if (rEndDate) rEndDate.value = '';
+  if (rEndTime) rEndTime.value = '';
+  multipleSlotsState = [];
+  renderMultipleSlotsList();
+});
+
+document.getElementById('btn-add-multiple-slot')?.addEventListener('click', () => {
+  multipleSlotsState.push({ date: state.personalDate || new Date().toISOString().split('T')[0], startTime: '09:00', endTime: '10:00' });
+  renderMultipleSlotsList();
+});
+
 // Open Modal for Editing
 function openTaskModalForEdit(task) {
   state.currentEditingTask = task;
@@ -3014,6 +3210,47 @@ function openTaskModalForEdit(task) {
   }
   taskActionCustom.style.display = 'none';
   
+  // Populate deadline
+  const sDate = document.getElementById('task-single-date');
+  const sTime = document.getElementById('task-single-time');
+  const rStartDate = document.getElementById('task-range-start-date');
+  const rStartTime = document.getElementById('task-range-start-time');
+  const rEndDate = document.getElementById('task-range-end-date');
+  const rEndTime = document.getElementById('task-range-end-time');
+  
+  if (sDate) sDate.value = '';
+  if (sTime) sTime.value = '';
+  if (rStartDate) rStartDate.value = '';
+  if (rStartTime) rStartTime.value = '';
+  if (rEndDate) rEndDate.value = '';
+  if (rEndTime) rEndTime.value = '';
+  multipleSlotsState = [];
+  
+  if (task.deadline) {
+    if (typeof task.deadline === 'string') {
+      setDeadlineMode('single');
+      if (sDate) sDate.value = task.deadline;
+    } else if (task.deadline.type === 'single') {
+      setDeadlineMode('single');
+      if (sDate) sDate.value = task.deadline.singleDate || '';
+      if (sTime) sTime.value = task.deadline.singleTime || '';
+    } else if (task.deadline.type === 'range') {
+      setDeadlineMode('range');
+      if (rStartDate) rStartDate.value = task.deadline.startDate || '';
+      if (rStartTime) rStartTime.value = task.deadline.startTime || '';
+      if (rEndDate) rEndDate.value = task.deadline.endDate || '';
+      if (rEndTime) rEndTime.value = task.deadline.endTime || '';
+    } else if (task.deadline.type === 'multiple') {
+      setDeadlineMode('multiple');
+      multipleSlotsState = Array.isArray(task.deadline.slots) ? JSON.parse(JSON.stringify(task.deadline.slots)) : [];
+      renderMultipleSlotsList();
+    } else {
+      setDeadlineMode('none');
+    }
+  } else {
+    setDeadlineMode('none');
+  }
+
   // Show Delete and Ref buttons
   taskDeleteBtn.style.display = 'block';
   if (task.origin || task.id) {
@@ -3065,6 +3302,23 @@ function openTaskModalForCreate() {
   }
   taskActionCustom.style.display = 'none';
   taskActionCustom.value = '';
+
+  // Reset deadline inputs
+  setDeadlineMode('none');
+  const sDate = document.getElementById('task-single-date');
+  const sTime = document.getElementById('task-single-time');
+  const rStartDate = document.getElementById('task-range-start-date');
+  const rStartTime = document.getElementById('task-range-start-time');
+  const rEndDate = document.getElementById('task-range-end-date');
+  const rEndTime = document.getElementById('task-range-end-time');
+  if (sDate) sDate.value = '';
+  if (sTime) sTime.value = '';
+  if (rStartDate) rStartDate.value = '';
+  if (rStartTime) rStartTime.value = '';
+  if (rEndDate) rEndDate.value = '';
+  if (rEndTime) rEndTime.value = '';
+  multipleSlotsState = [];
+  renderMultipleSlotsList();
   
   // Hide Delete and Ref buttons for new task
   taskDeleteBtn.style.display = 'none';
@@ -3128,6 +3382,29 @@ taskForm.addEventListener('submit', (e) => {
     origin = taskActionCustom.value.trim() || 'Otro';
   }
   
+  // Serialize deadline based on selected mode
+  let deadline = null;
+  if (currentDeadlineMode === 'single') {
+    const singleDate = document.getElementById('task-single-date')?.value || '';
+    const singleTime = document.getElementById('task-single-time')?.value || '';
+    if (singleDate) {
+      deadline = { type: 'single', singleDate, singleTime };
+    }
+  } else if (currentDeadlineMode === 'range') {
+    const startDate = document.getElementById('task-range-start-date')?.value || '';
+    const startTime = document.getElementById('task-range-start-time')?.value || '';
+    const endDate = document.getElementById('task-range-end-date')?.value || '';
+    const endTime = document.getElementById('task-range-end-time')?.value || '';
+    if (startDate || endDate) {
+      deadline = { type: 'range', startDate, startTime, endDate, endTime };
+    }
+  } else if (currentDeadlineMode === 'multiple') {
+    const validSlots = multipleSlotsState.filter(s => s && s.date);
+    if (validSlots.length > 0) {
+      deadline = { type: 'multiple', slots: validSlots };
+    }
+  }
+
   if (state.currentEditingTask) {
     // Edit Mode
     const task = state.tasks.find(t => t.id === state.currentEditingTask.id);
@@ -3137,6 +3414,7 @@ taskForm.addEventListener('submit', (e) => {
       task.status = status;
       task.assignedTo = assignee;
       task.origin = origin;
+      task.deadline = deadline;
     }
   } else {
     // Create Mode
@@ -3165,7 +3443,8 @@ taskForm.addEventListener('submit', (e) => {
       priority: priority,
       status: status,
       assignedTo: assignee,
-      origin: origin
+      origin: origin,
+      deadline: deadline
     });
   }
   
