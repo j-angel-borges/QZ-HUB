@@ -790,6 +790,230 @@ Responde con profesionalismo, concisión, estructura Markdown impecable y máxim
 }
 
 
+
+// ─── INTERACTIVE BACKLOG CALENDAR LOGIC ───────────────────────────────────────
+let calCurrentDate = new Date();
+let calSelectedDateStr = new Date().toISOString().split('T')[0];
+
+function checkTaskMatchesDate(task, dateStr) {
+  if (!task || !task.deadline) return false;
+  
+  if (typeof task.deadline === 'string') {
+    return task.deadline === dateStr;
+  }
+  
+  if (task.deadline.type === 'single') {
+    return task.deadline.singleDate === dateStr;
+  }
+  
+  if (task.deadline.type === 'range') {
+    const start = task.deadline.startDate;
+    const end = task.deadline.endDate;
+    if (start && end) {
+      return dateStr >= start && dateStr <= end;
+    }
+    if (end) return end === dateStr;
+    if (start) return start === dateStr;
+    return false;
+  }
+  
+  if (task.deadline.type === 'multiple' && Array.isArray(task.deadline.slots)) {
+    return task.deadline.slots.some(s => s && s.date === dateStr);
+  }
+  
+  return false;
+}
+
+function getTasksForDate(dateStr) {
+  const mode = state.backlogMode || 'quarz';
+  return state.tasks.filter(task => {
+    // 1. Unit filtering
+    const taskUnit = (task.origin || 'Quarz').toLowerCase();
+    if (mode === 'quarz' && taskUnit !== 'quarz') return false;
+    if (mode === 'zentry' && taskUnit !== 'zentry') return false;
+    if ((mode === 'personal' || mode === 'personal-board') && taskUnit !== 'personal') return false;
+    // 'global' includes all units
+    
+    // 2. Date matching
+    return checkTaskMatchesDate(task, dateStr);
+  });
+}
+
+function renderBacklogCalendar() {
+  const monthLabel = document.getElementById('cal-month-label');
+  const daysGrid = document.getElementById('cal-days-grid');
+  const selectedDayTitle = document.getElementById('cal-selected-day-title');
+  const dayTasksList = document.getElementById('cal-day-tasks-list');
+  
+  if (!daysGrid || !monthLabel) return;
+  
+  const year = calCurrentDate.getFullYear();
+  const month = calCurrentDate.getMonth();
+  
+  const monthNames = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+  
+  monthLabel.textContent = `${monthNames[month]} ${year}`;
+  
+  // Calculate days
+  const firstDayIndex = new Date(year, month, 1).getDay(); // 0 = Sunday
+  const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+  const prevMonthTotalDays = new Date(year, month, 0).getDate();
+  
+  const todayStr = new Date().toISOString().split('T')[0];
+  
+  daysGrid.innerHTML = '';
+  
+  // Previous month padding days
+  for (let i = firstDayIndex - 1; i >= 0; i--) {
+    const dayNum = prevMonthTotalDays - i;
+    const pMonth = month === 0 ? 11 : month - 1;
+    const pYear = month === 0 ? year - 1 : year;
+    const dateStr = `${pYear}-${String(pMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+    
+    const cell = document.createElement('div');
+    cell.className = 'cal-day-cell other-month';
+    cell.textContent = dayNum;
+    cell.dataset.date = dateStr;
+    cell.addEventListener('click', () => {
+      calSelectedDateStr = dateStr;
+      calCurrentDate = new Date(pYear, pMonth, 1);
+      renderBacklogCalendar();
+    });
+    daysGrid.appendChild(cell);
+  }
+  
+  // Current month days
+  for (let d = 1; d <= totalDaysInMonth; d++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const dayTasks = getTasksForDate(dateStr);
+    const hasTasks = dayTasks.length > 0;
+    const isToday = dateStr === todayStr;
+    const isSelected = dateStr === calSelectedDateStr;
+    
+    const cell = document.createElement('div');
+    cell.className = `cal-day-cell${isToday ? ' is-today' : ''}${isSelected ? ' is-selected' : ''}${hasTasks ? ' has-tasks' : ''}`;
+    cell.dataset.date = dateStr;
+    
+    cell.innerHTML = `
+      <span>${d}</span>
+      ${hasTasks ? '<div class="cal-day-dots"><span class="cal-day-dot"></span></div>' : ''}
+    `;
+    
+    cell.addEventListener('click', () => {
+      calSelectedDateStr = dateStr;
+      renderBacklogCalendar();
+    });
+    
+    daysGrid.appendChild(cell);
+  }
+  
+  // Next month padding days to complete grid
+  const totalCells = firstDayIndex + totalDaysInMonth;
+  const remainingCells = (7 - (totalCells % 7)) % 7;
+  for (let d = 1; d <= remainingCells; d++) {
+    const nMonth = month === 11 ? 0 : month + 1;
+    const nYear = month === 11 ? year + 1 : year;
+    const dateStr = `${nYear}-${String(nMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    
+    const cell = document.createElement('div');
+    cell.className = 'cal-day-cell other-month';
+    cell.textContent = d;
+    cell.dataset.date = dateStr;
+    cell.addEventListener('click', () => {
+      calSelectedDateStr = dateStr;
+      calCurrentDate = new Date(nYear, nMonth, 1);
+      renderBacklogCalendar();
+    });
+    daysGrid.appendChild(cell);
+  }
+  
+  // Render Selected Day Tasks List
+  if (selectedDayTitle) {
+    selectedDayTitle.textContent = `Actividades: ${formatDateShort(calSelectedDateStr)}`;
+  }
+  
+  if (dayTasksList) {
+    dayTasksList.innerHTML = '';
+    const selectedTasks = getTasksForDate(calSelectedDateStr);
+    
+    if (selectedTasks.length === 0) {
+      dayTasksList.innerHTML = `
+        <div style="font-size: 11.5px; color: var(--text-muted); padding: 10px 4px; font-style: italic; text-align: center;">
+          Sin actividades programadas para este día.
+        </div>
+      `;
+    } else {
+      selectedTasks.forEach(task => {
+        const item = document.createElement('div');
+        item.className = 'cal-task-item';
+        
+        let timeInfo = '';
+        if (task.deadline && task.deadline.type === 'single' && task.deadline.singleTime) {
+          timeInfo = `⏰ ${task.deadline.singleTime}`;
+        } else if (task.deadline && task.deadline.type === 'range') {
+          timeInfo = `📆 Período`;
+        } else if (task.deadline && task.deadline.type === 'multiple') {
+          const matchingSlot = task.deadline.slots.find(s => s && s.date === calSelectedDateStr);
+          if (matchingSlot && matchingSlot.startTime) {
+            timeInfo = `⏱️ ${matchingSlot.startTime}${matchingSlot.endTime ? ' - ' + matchingSlot.endTime : ''}`;
+          } else {
+            timeInfo = `⏱️ Bloque`;
+          }
+        }
+        
+        item.innerHTML = `
+          <div class="cal-task-item-header">
+            <span class="cal-task-id">${task.id}</span>
+            <div style="display: flex; gap: 4px; align-items: center;">
+              <span class="cal-task-unit-tag">${task.origin || 'Quarz'}</span>
+              ${timeInfo ? `<span class="cal-task-time">${timeInfo}</span>` : ''}
+            </div>
+          </div>
+          <div class="cal-task-desc">${task.description}</div>
+        `;
+        
+        item.addEventListener('click', () => {
+          openTaskModalForEdit(task);
+        });
+        
+        dayTasksList.appendChild(item);
+      });
+    }
+  }
+  
+  // Bind calendar events
+  document.getElementById('cal-prev-month')?.replaceWith(document.getElementById('cal-prev-month').cloneNode(true));
+  document.getElementById('cal-next-month')?.replaceWith(document.getElementById('cal-next-month').cloneNode(true));
+  document.getElementById('cal-today-btn')?.replaceWith(document.getElementById('cal-today-btn').cloneNode(true));
+  document.getElementById('btn-cal-add-task')?.replaceWith(document.getElementById('btn-cal-add-task').cloneNode(true));
+  
+  document.getElementById('cal-prev-month')?.addEventListener('click', () => {
+    calCurrentDate.setMonth(calCurrentDate.getMonth() - 1);
+    renderBacklogCalendar();
+  });
+  
+  document.getElementById('cal-next-month')?.addEventListener('click', () => {
+    calCurrentDate.setMonth(calCurrentDate.getMonth() + 1);
+    renderBacklogCalendar();
+  });
+  
+  document.getElementById('cal-today-btn')?.addEventListener('click', () => {
+    calCurrentDate = new Date();
+    calSelectedDateStr = new Date().toISOString().split('T')[0];
+    renderBacklogCalendar();
+  });
+  
+  document.getElementById('btn-cal-add-task')?.addEventListener('click', () => {
+    openTaskModalForCreate();
+    setDeadlineMode('single');
+    const sDate = document.getElementById('task-single-date');
+    if (sDate) sDate.value = calSelectedDateStr;
+  });
+}
+
 const renderers = {
   // 1. Kanban Backlog View
   backlog: () => {
@@ -874,7 +1098,7 @@ const renderers = {
     document.getElementById('properties-block').style.display = 'flex';
     container.innerHTML = `
       <div class="backlog-layout-grid">
-        <!-- Left panel: 3 M.I.T. -->
+        <!-- Left panel: 3 M.I.T. + Objetivos de la Semana (Stacked) -->
         <div class="backlog-left-col">
           <div class="mit-card glass-panel">
             <div class="mit-header">
@@ -882,6 +1106,16 @@ const renderers = {
               <h3 class="mit-title">3 Indispensables de Hoy</h3>
             </div>
             <div class="mit-list" id="mit-list-container">
+              <!-- Loaded dynamically -->
+            </div>
+          </div>
+
+          <div class="corkboard-widget glass-panel">
+            <div class="corkboard-header">
+              <span class="corkboard-icon">📌</span>
+              <h3 class="corkboard-title">Objetivos de la Semana</h3>
+            </div>
+            <div class="corkboard-board" id="corkboard-objectives">
               <!-- Loaded dynamically -->
             </div>
           </div>
@@ -943,15 +1177,46 @@ const renderers = {
           </div>
         </div>
 
-        <!-- Right panel: Corkboard objectives -->
+        <!-- Right panel: Interactive Calendar View -->
         <div class="backlog-right-col">
-          <div class="corkboard-widget glass-panel">
-            <div class="corkboard-header">
-              <span class="corkboard-icon">📌</span>
-              <h3 class="corkboard-title">Objetivos de la Semana</h3>
+          <div class="backlog-calendar-widget glass-panel">
+            <div class="cal-widget-header">
+              <div class="cal-header-left">
+                <span class="cal-icon">📅</span>
+                <h3 class="cal-widget-title">Calendario</h3>
+              </div>
+              <div class="cal-header-right">
+                <span class="cal-unit-badge">${state.backlogMode === 'zentry' ? '⚡ Zentry' : (state.backlogMode === 'quarz' ? '🏢 Quarz' : (state.backlogMode === 'global' ? '🌐 Global' : '🧘 Personal'))}</span>
+              </div>
             </div>
-            <div class="corkboard-board" id="corkboard-objectives">
-              <!-- Loaded dynamically -->
+
+            <!-- Month Navigator -->
+            <div class="cal-nav-bar">
+              <button type="button" class="cal-nav-btn" id="cal-prev-month" title="Mes anterior">◀</button>
+              <span class="cal-month-label" id="cal-month-label">Agosto 2026</span>
+              <button type="button" class="cal-nav-btn" id="cal-next-month" title="Mes siguiente">▶</button>
+              <button type="button" class="cal-today-btn" id="cal-today-btn" title="Ir a hoy">Hoy</button>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="cal-grid-container">
+              <div class="cal-weekdays">
+                <span>D</span><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span>
+              </div>
+              <div class="cal-days-grid" id="cal-days-grid">
+                <!-- Generated dynamically -->
+              </div>
+            </div>
+
+            <!-- Selected Day Scheduled Tasks -->
+            <div class="cal-day-tasks-section">
+              <div class="cal-day-tasks-header">
+                <span class="cal-day-title" id="cal-selected-day-title">Actividades del Día</span>
+                <button type="button" class="btn-cal-add-task" id="btn-cal-add-task" title="Programar tarea en este día">＋ Tarea</button>
+              </div>
+              <div class="cal-day-tasks-list" id="cal-day-tasks-list">
+                <!-- Generated dynamically -->
+              </div>
             </div>
           </div>
         </div>
@@ -994,6 +1259,9 @@ const renderers = {
 
     // Render Corkboard Objectives
     renderCorkboardObjectives();
+
+    // Render Interactive Calendar View
+    renderBacklogCalendar();
 
     // Setup Drag and Drop dropzones
     setupDragAndDrop();
@@ -2806,6 +3074,7 @@ function renderKanbanCards() {
   document.getElementById('count-pendiente').textContent = cPendiente;
   document.getElementById('count-progreso').textContent = cProgreso;
   document.getElementById('count-completado').textContent = cCompletado;
+  renderBacklogCalendar();
 }
 
 // Router Logic
