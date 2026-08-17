@@ -4286,3 +4286,422 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+
+/* ==============================================================================
+   QZ CLOUD REMOTE COCKPIT & AGENT TERMINAL STYLING
+   ============================================================================== */
+
+.cockpit-layout-grid {
+  display: grid;
+  grid-template-columns: 68% 30%;
+  gap: 20px;
+  width: 100%;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .cockpit-layout-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.cockpit-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cockpit-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cockpit-logo-icon {
+  font-size: 24px;
+}
+
+.cockpit-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cockpit-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.cockpit-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cockpit-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.badge-online {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.badge-online .status-dot {
+  background: #16a34a;
+  box-shadow: 0 0 6px #16a34a;
+}
+
+.badge-standby {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-standby .status-dot {
+  background: #d97706;
+}
+
+.badge-offline {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.badge-offline .status-dot {
+  background: #dc2626;
+}
+
+.cockpit-model-badge {
+  background: rgba(15, 23, 42, 0.06);
+  border: 1px solid var(--border-color);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cockpit-tab-nav {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.cockpit-tab-btn {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.cockpit-tab-btn:hover {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.cockpit-tab-btn.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+}
+
+.cockpit-tab-panel {
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+
+.cockpit-tab-panel.active {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cockpit-quick-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.quick-chip {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.quick-chip:hover {
+  border-color: #0f172a;
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.cockpit-chat-container {
+  flex: 1;
+  min-height: 340px;
+  max-height: 480px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cockpit-chat-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cockpit-model-select {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #0f172a;
+  outline: none;
+  max-width: 170px;
+}
+
+.cockpit-chat-form input[type="text"] {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+  outline: none;
+}
+
+.btn-cockpit-send {
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+/* Remote Terminal Console */
+.terminal-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1e293b;
+  padding: 8px 12px;
+  border-radius: 8px 8px 0 0;
+}
+
+.terminal-lights {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.terminal-lights .light {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.terminal-lights .light.red { background: #ef4444; }
+.terminal-lights .light.yellow { background: #f59e0b; }
+.terminal-lights .light.green { background: #10b981; }
+
+.terminal-host-title {
+  color: #94a3b8;
+  font-family: monospace;
+  font-size: 11px;
+  margin-left: 8px;
+}
+
+.btn-terminal-clear {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #cbd5e1;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  cursor: pointer;
+}
+
+.remote-terminal-console {
+  background: #0f172a;
+  color: #f8fafc;
+  font-family: 'Space Mono', 'Consolas', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 14px;
+  height: 320px;
+  overflow-y: auto;
+  border-radius: 0 0 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid #1e293b;
+  border-top: none;
+}
+
+.term-line.info { color: #60a5fa; }
+.term-line.cmd-input { color: #34d399; font-weight: bold; }
+.term-line.stdout { color: #f1f5f9; white-space: pre-wrap; word-break: break-word; }
+.term-line.stderr { color: #f87171; white-space: pre-wrap; word-break: break-word; }
+.term-line.error { color: #ef4444; font-weight: bold; }
+
+.terminal-quick-commands {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.cmd-pill {
+  background: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid #334155;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.cmd-pill:hover {
+  background: #334155;
+  color: #ffffff;
+}
+
+.remote-terminal-input-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: #0f172a;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #1e293b;
+}
+
+.term-prefix {
+  color: #34d399;
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.remote-terminal-input-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #f8fafc;
+  font-family: monospace;
+  font-size: 12.5px;
+  outline: none;
+}
+
+.btn-term-run {
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Visual Feed */
+.visual-feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-cockpit-action {
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.screenshot-viewer-container {
+  min-height: 280px;
+  max-height: 420px;
+  overflow: auto;
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.screenshot-placeholder {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Docs Reader */
+.doc-reader-content {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 260px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.6;
+}

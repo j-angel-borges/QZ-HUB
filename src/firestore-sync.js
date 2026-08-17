@@ -322,3 +322,89 @@ export async function syncJournalHistory(journalHistory) {
     await setDoc(masterDocRef(), { journalHistory, updatedAt: new Date().toISOString() }, { merge: true });
   }
 }
+
+// ─── REMOTE AGENT & TELEMETRY HELPERS (REMOTE CONTROL COCKPIT) ───────────────
+export async function sendRemoteTask(action, payload = {}) {
+  const taskId = 'task_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+  const taskDocRef = doc(db, 'qz_remote_tasks', 'current_task');
+  const taskData = {
+    id: taskId,
+    action: action, // 'exec_command', 'take_screenshot', 'read_markdown', 'run_agent'
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    ...payload
+  };
+  await setDoc(taskDocRef, taskData);
+  return taskId;
+}
+
+export function listenToRemoteTask(callback) {
+  const taskDocRef = doc(db, 'qz_remote_tasks', 'current_task');
+  return onSnapshot(taskDocRef, (snap) => {
+    if (snap.exists()) {
+      callback(snap.data());
+    }
+  });
+}
+
+export function listenToRemoteTelemetry(callback) {
+  const telemDocRef = doc(db, 'qz_remote_telemetry', 'pc_host');
+  return onSnapshot(telemDocRef, (snap) => {
+    if (snap.exists()) {
+      callback(snap.data());
+    } else {
+      callback({ status: 'offline' });
+    }
+  });
+}
+
+export function listenToLatestScreenshot(callback) {
+  const mediaDocRef = doc(db, 'qz_remote_media', 'latest_screenshot');
+  return onSnapshot(mediaDocRef, (snap) => {
+    if (snap.exists()) {
+      callback(snap.data());
+    }
+  });
+}
+
+// ─── GOOGLE CLOUD VERTEX AI / GEMINI DIRECT ENGINE ───────────────────────────
+export async function callVertexGemini(prompt, systemInstruction = '', model = 'gemini-2.5-flash', apiKey = '') {
+  const key = (apiKey || localStorage.getItem('gemini_api_key') || '').trim();
+  if (!key) {
+    throw new Error("No hay API Key de Google Cloud configurada. Ingresa tu API Key de GCP en la pestaña 'Configuración GCP & Bridge'.");
+  }
+  
+  const cleanModel = model || 'gemini-2.5-flash';
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${key}`;
+  
+  const payload = {
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: prompt }]
+      }
+    ]
+  };
+
+  if (systemInstruction) {
+    payload.systemInstruction = {
+      parts: [{ text: systemInstruction }]
+    };
+  }
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error?.message || `HTTP ${response.status}: Error de Google Cloud Vertex AI`);
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "No se recibió respuesta del modelo.";
+  return text;
+}
+

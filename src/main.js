@@ -10,7 +10,12 @@ import {
   syncObjectives,
   syncTimeblock,
   syncTimeblockHistory,
-  syncJournalHistory
+  syncJournalHistory,
+  sendRemoteTask,
+  listenToRemoteTask,
+  listenToRemoteTelemetry,
+  listenToLatestScreenshot,
+  callVertexGemini
 } from './firestore-sync.js';
  
 // App State
@@ -1537,263 +1542,603 @@ const renderers = {
     `;
   },
 
-  // 6. Tools View (TOOLS)
+  // 6. Tools View (QZ CLOUD REMOTE ORCHESTRATOR & COCKPIT)
   herramientas: () => {
     const workspace = document.querySelector('.workspace');
     if (workspace) {
       workspace.classList.add('full-width-view');
     }
 
-    document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #ffffff 0%, #f7f6f0 50%, #eae8dc 100%)';
+    document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)';
     document.getElementById('page-icon').textContent = '⚡';
-    document.getElementById('page-title').textContent = 'TOOLS';
+    document.getElementById('page-title').textContent = 'QZ REMOTE COCKPIT & CLOUD AGENT';
     document.getElementById('properties-block').style.display = 'none';
 
     const container = document.getElementById('workspace-content');
     const todayStr = new Date().toISOString().split('T')[0];
 
     container.innerHTML = `
-      <div class="tools-page-grid">
+      <div class="cockpit-layout-grid">
         
-        <!-- COLUMNA 1: ASISTENTE ORQUESTADOR SSOT -->
-        <div class="tools-column-card" style="background: rgba(255, 255, 255, 0.95); border: 1px solid #c2be9f; border-radius: 0px; padding: 20px; box-shadow: 0 4px 20px rgba(194, 190, 159, 0.15); display: flex; flex-direction: column;">
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
-            <span style="font-size: 1.8rem;">🧠</span>
-            <div>
-              <h2 style="margin: 0; font-size: 1.15rem; color: #111111; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase;">Asistente Orquestador SSOT (Motor de Inteligencia Directo)</h2>
-              <span style="font-size: 10.5px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace;">Sin dependencias de APIs externas • Respuestas instantáneas basadas en el Plan Maestro de 63 Días</span>
-            </div>
-          </div>
-
-          <!-- Clean Chat Container -->
-          <div id="ai-chat-box" style="flex: 1; min-height: 380px; max-height: 520px; overflow-y: auto; background: #ffffff; border-radius: 0px; padding: 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 10px; border: 1px solid #c2be9f;">
-            <!-- Blank container -->
-          </div>
-
-          <!-- Chat Input Form -->
-          <form id="ai-chat-form" style="display: flex; gap: 8px;">
-            <input type="text" id="ai-chat-input" placeholder="Escribe tu consulta sobre el plan, rutinas, llamadas..." style="flex: 1; padding: 10px 12px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 13px; outline: none;">
-            <button type="submit" class="btn btn-primary" style="padding: 10px 18px; font-family: 'Space Mono', monospace; font-weight: bold; border-radius: 0px; background: #111111; color: #ffffff; border: 1px solid #c2be9f;">Enviar ⚡</button>
-          </form>
-        </div>
-
-
-        <!-- COLUMNA 2: FUNNEL METRICS ENGINE -->
-        <div class="tools-column-card" style="background: rgba(255, 255, 255, 0.95); border: 1px solid #c2be9f; border-radius: 0px; padding: 20px; box-shadow: 0 4px 20px rgba(194, 190, 159, 0.15); display: flex; flex-direction: column;">
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
-            <span style="font-size: 1.8rem;">📊</span>
-            <div>
-              <h2 style="margin: 0; font-size: 1.15rem; color: #111111; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase;">Funnel Metrics Engine (Avances y Conversiones)</h2>
-              <span style="font-size: 10.5px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace;">Simulación en tiempo real según ratios de conversión RP y QUARZ</span>
-            </div>
-          </div>
-
-          <!-- Progress Bar Global -->
-          <div style="margin-bottom: 20px; background: #ffffff; padding: 14px; border-radius: 0px; border: 1px solid #c2be9f;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <span style="font-weight: bold; font-size: 12px; font-family: 'Space Grotesk', sans-serif;">🎯 Meta de Caja al 31 de Agosto (21 Días Restantes)</span>
-              <span id="funnel-progress-text" style="font-weight: bold; color: #111111; font-family: 'Space Mono', monospace;">S/ 770.00 / S/ 4,000.00 (19.25%)</span>
-            </div>
-            <div class="progress-bar-container" style="height: 14px; background: #f4f3ed; border-radius: 0px; overflow: hidden; border: 1px solid #c2be9f;">
-              <div id="funnel-progress-bar" class="progress-bar" style="width: 19.25%; background: linear-gradient(90deg, #111111 0%, #c2be9f 100%); height: 100%; border-radius: 0px;"></div>
-            </div>
-          </div>
-
-          <!-- Funnel Cards Stack -->
-          <div style="display: flex; flex-direction: column; gap: 16px;">
-            <!-- Royal Prestige -->
-            <div style="background: #ffffff; border: 1px solid #c2be9f; border-radius: 0px; padding: 14px;">
-              <h3 style="margin-top: 0; margin-bottom: 10px; color: #111111; font-size: 1rem; display: flex; align-items: center; gap: 6px; font-family: 'Space Grotesk', sans-serif;">
-                <span>🍳</span> Royal Prestige (Llamadas & Referidos)
-              </h3>
-              
-              <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;">
+        <!-- ============================================================== -->
+        <!-- COLUMNA PRINCIPAL (68%): QZ CLOUD REMOTE AGENT & TERMINAL COCKPIT -->
+        <!-- ============================================================== -->
+        <div class="cockpit-main-card glass-panel" style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+          
+          <!-- Telemetry & Status Top Bar -->
+          <div class="cockpit-top-bar">
+            <div class="cockpit-header-left">
+              <div class="cockpit-title-group">
+                <span class="cockpit-logo-icon">⚡</span>
                 <div>
-                  <label style="font-size: 11px; color: var(--qz-text-muted);">Llamadas Conversadas en Frío (SIM 933709385):</label>
-                  <input type="number" id="fn-rp-calls" value="40" min="0" style="width: 100%; padding: 6px 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-weight: bold; font-size: 13px;">
-                </div>
-                <div>
-                  <label style="font-size: 11px; color: var(--qz-text-muted);">Demos de Referidos Realizadas:</label>
-                  <input type="number" id="fn-rp-ref-demos" value="3" min="0" style="width: 100%; padding: 6px 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-weight: bold; font-size: 13px;">
+                  <h2 class="cockpit-title">QZ Cloud Agent & Remote Terminal</h2>
+                  <span class="cockpit-subtitle">Google Cloud Platform (Vertex AI) • Realtime Mobile Bridge</span>
                 </div>
               </div>
+            </div>
+            <div class="cockpit-header-right">
+              <span id="cockpit-bridge-badge" class="cockpit-status-badge badge-standby">
+                <span class="status-dot"></span> Bridge PC: <strong id="bridge-status-text">Detectando...</strong>
+              </span>
+              <span class="cockpit-model-badge">
+                <span>🔥</span> <span id="current-gcp-model-text">Gemini 2.5 Flash</span>
+              </span>
+            </div>
+          </div>
 
-              <div style="background: #fdfdfc; padding: 10px; border-radius: 0px; border: 1px solid #c2be9f; font-size: 11.5px; line-height: 1.5; font-family: 'Space Mono', monospace;">
-                <div>• Demos Frías Estimadas (Ratio 20:1): <strong id="fn-rp-est-demos" style="color: #111111;">2 demos</strong></div>
-                <div>• Ventas Frías (Ratio 4:1): <strong id="fn-rp-cold-sales" style="color: #111111;">0.5 ventas</strong> (S/ 505.30)</div>
-                <div>• Ventas Referidos (Ratio 3:1): <strong id="fn-rp-ref-sales" style="color: #111111;">1 venta</strong> (S/ 1,347.46)</div>
-                <div>• Referidos Generados (5-10 x demo): <strong id="fn-rp-new-refs" style="color: #111111;">37 referidos</strong></div>
-                <hr style="border: 0; border-top: 1px solid #c2be9f; margin: 6px 0;">
-                <div style="font-size: 13px;">Ganancia RP Estimada: <strong id="fn-rp-total-gain" style="color: #111111; font-size: 1.05rem;">S/ 1,852.76</strong></div>
+          <!-- Navigation Tabs -->
+          <div class="cockpit-tab-nav">
+            <button type="button" class="cockpit-tab-btn active" data-tab="chat">💬 Asistente Orquestador</button>
+            <button type="button" class="cockpit-tab-btn" data-tab="terminal">🖥️ Terminal Remota</button>
+            <button type="button" class="cockpit-tab-btn" data-tab="visual">📸 Capturas & Video</button>
+            <button type="button" class="cockpit-tab-btn" data-tab="docs">📑 Lector de Markdowns</button>
+            <button type="button" class="cockpit-tab-btn" data-tab="settings">⚙️ Configuración GCP</button>
+          </div>
+
+          <!-- TAB 1: ASISTENTE ORQUESTADOR (CHAT & WORKFLOWS) -->
+          <div id="cockpit-panel-chat" class="cockpit-tab-panel active">
+            <!-- Quick Action Prompt Chips -->
+            <div class="cockpit-quick-chips">
+              <button type="button" class="quick-chip" data-prompt="Audita el estado de mis metas financieras al 31 de agosto según el SSOT">🎯 Metas Financieras</button>
+              <button type="button" class="quick-chip" data-prompt="Revisa mi protocolo de prospección y ratios de Royal Prestige y Quarz">📊 Métricas & Funnels</button>
+              <button type="button" class="quick-chip" data-prompt="¿Cuál es el protocolo de rutina y llamadas de 12:00 PM a 02:00 PM?">⏱️ Rutina de 12-2pm</button>
+              <button type="button" class="quick-chip" data-prompt="Verifica el protocolo biológico de ayuno y abastecimiento en Yerbateros">🥩 Protocolo Biológico</button>
+              <button type="button" class="quick-chip" id="btn-quick-screenshot">📸 Tomar Captura de PC</button>
+            </div>
+
+            <!-- Chat Message Feed -->
+            <div id="cockpit-chat-box" class="cockpit-chat-container">
+              <div class="chat-msg bot">
+                <strong>⚡ QZ Cloud Orchestrator:</strong>
+                <p>Hola Jose Angel. Estoy conectado a tu base de datos de <strong>QZ-Hub</strong> y listo para orquestar tus agentes, ejecutar tareas en tu PC y consultar tu SSOT con <strong>Google Cloud Vertex AI</strong>.</p>
+                <div style="font-size: 11px; opacity: 0.8; margin-top: 4px;">Pide una auditoría, ejecuta comandos o solicita capturas de pantalla de tu máquina directamente desde tu celular.</div>
               </div>
             </div>
 
-            <!-- QUARZ Group ZentryOS -->
-            <div style="background: #ffffff; border: 1px solid #c2be9f; border-radius: 0px; padding: 14px;">
-              <h3 style="margin-top: 0; margin-bottom: 10px; color: #111111; font-size: 1rem; display: flex; align-items: center; gap: 6px; font-family: 'Space Grotesk', sans-serif;">
-                <span>☄️</span> QUARZ Group (ZentryOS $1k USD)
-              </h3>
-              
-              <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;">
-                <div>
-                  <label style="font-size: 11px; color: var(--qz-text-muted);">Prospectos Presenciales en Frío (Malls/Parques):</label>
-                  <input type="number" id="fn-zentry-prospects" value="15" min="0" style="width: 100%; padding: 6px 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-weight: bold; font-size: 13px;">
-                </div>
-                <div>
-                  <label style="font-size: 11px; color: var(--qz-text-muted);">Demos Realizadas (Tab A7 / iPad):</label>
-                  <input type="number" id="fn-zentry-demos" value="5" min="0" style="width: 100%; padding: 6px 8px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-weight: bold; font-size: 13px;">
-                </div>
-              </div>
-
-              <div style="background: #fdfdfc; padding: 10px; border-radius: 0px; border: 1px solid #c2be9f; font-size: 11.5px; line-height: 1.5; font-family: 'Space Mono', monospace;">
-                <div>• Demos Concretadas (Ratio 5:1): <strong id="fn-zentry-est-demos" style="color: #111111;">3 demos</strong></div>
-                <div>• Licencias Cerradas Mes 1 (Ratio 5:1): <strong id="fn-zentry-sales" style="color: #111111;">1 licencia</strong></div>
-                <div>• Ganancia Neta Personal (60%): <strong id="fn-zentry-personal-gain" style="color: #111111;">S/ 1,906.78</strong></div>
-                <div>• Capital Caja Empresa QUARZ (40%): <strong id="fn-zentry-company-gain" style="color: #111111;">S/ 1,271.19</strong></div>
-                <hr style="border: 0; border-top: 1px solid #c2be9f; margin: 6px 0;">
-                <div style="font-size: 13px;">Ganancia Personal ZentryOS: <strong id="fn-zentry-total-gain" style="color: #111111; font-size: 1.05rem;">S/ 1,906.78</strong></div>
-              </div>
-            </div>
+            <!-- Chat Input Form -->
+            <form id="cockpit-chat-form" class="cockpit-chat-form">
+              <select id="cockpit-model-select" class="cockpit-model-select" title="Seleccionar Modelo GCP">
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash (Ultrarrápido)</option>
+                <option value="gemini-2.5-pro">Gemini 2.5 Pro (Razonamiento Profundo)</option>
+                <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                <option value="ssot-local">SSOT Local (Sin API Key)</option>
+              </select>
+              <input type="text" id="cockpit-chat-input" placeholder="Escribe tu instrucción o comando para el orquestador..." autocomplete="off">
+              <button type="submit" class="btn-cockpit-send">Enviar ⚡</button>
+            </form>
           </div>
-        </div>
 
+          <!-- TAB 2: TERMINAL REMOTA & LOGS EN TIEMPO REAL -->
+          <div id="cockpit-panel-terminal" class="cockpit-tab-panel">
+            <div class="terminal-header-bar">
+              <div class="terminal-lights">
+                <span class="light red"></span>
+                <span class="light yellow"></span>
+                <span class="light green"></span>
+                <span class="terminal-host-title">host: <strong id="terminal-hostname">PC-Host</strong> • shell: pwsh / cmd</span>
+              </div>
+              <button type="button" id="btn-clear-terminal" class="btn-terminal-clear">Limpiar Consola</button>
+            </div>
 
-        <!-- COLUMNA 3: DIARIO NOCTURNO DE REFLEXIÓN (JOURNALING EN HOJA EN BLANCO) -->
-        <div class="tools-column-card" style="background: rgba(255, 255, 255, 0.95); border: 1px solid #c2be9f; border-radius: 0px; padding: 20px; box-shadow: 0 4px 20px rgba(194, 190, 159, 0.15); display: flex; flex-direction: column;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 1.8rem;">📝</span>
+            <div id="remote-terminal-console" class="remote-terminal-console">
+              <div class="term-line info">[QZ-HUB REMOTE TERMINAL BRIDGE INITIALIZED]</div>
+              <div class="term-line info">Conectado a Firebase Realtime Stream. Esperando instrucciones remotas...</div>
+              <div class="term-line prompt">$ _</div>
+            </div>
+
+            <!-- Quick Command Buttons -->
+            <div class="terminal-quick-commands">
+              <button type="button" class="cmd-pill" data-cmd="git status">git status</button>
+              <button type="button" class="cmd-pill" data-cmd="python --version">python --version</button>
+              <button type="button" class="cmd-pill" data-cmd="dir">dir</button>
+              <button type="button" class="cmd-pill" data-cmd="tasklist">tasklist</button>
+              <button type="button" class="cmd-pill" data-cmd="npm run build">npm run build</button>
+            </div>
+
+            <!-- Terminal Input Form -->
+            <form id="remote-terminal-form" class="remote-terminal-input-bar">
+              <span class="term-prefix">$</span>
+              <input type="text" id="remote-cmd-input" placeholder="Escribe un comando para ejecutar en tu PC remota (ej. dir, git status, python script.py)..." autocomplete="off">
+              <button type="submit" class="btn-term-run">Ejecutar 🚀</button>
+            </form>
+          </div>
+
+          <!-- TAB 3: VISOR DE CAPTURAS & FEED VISUAL DE PC -->
+          <div id="cockpit-panel-visual" class="cockpit-tab-panel">
+            <div class="visual-feed-header">
               <div>
-                <h2 style="margin: 0; font-size: 1.15rem; color: #111111; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase;">Diario Nocturno de Reflexión (Journaling)</h2>
-                <span style="font-size: 10.5px; color: var(--qz-text-muted); font-family: 'Space Mono', monospace;">Carpeta Drive: <code>17jwao_wY0P_L3AW4amtQaOpzdJtaXQC0</code></span>
+                <h3 style="margin: 0; font-size: 14px; color: #0f172a;">📸 Pantalla de tu PC en Vivo</h3>
+                <span style="font-size: 11px; color: var(--text-muted);">Captura lo que está haciendo tu máquina en tiempo real</span>
+              </div>
+              <button type="button" id="btn-trigger-screenshot" class="btn-cockpit-action">
+                <span>📸 Tomar Captura Ahora</span>
+              </button>
+            </div>
+
+            <div id="screenshot-viewer-container" class="screenshot-viewer-container">
+              <div id="screenshot-placeholder" class="screenshot-placeholder">
+                <span style="font-size: 32px;">🖥️</span>
+                <p>Presiona <strong>"Tomar Captura Ahora"</strong> para obtener una instantánea de la pantalla de tu PC desde tu celular.</p>
+              </div>
+              <img id="screenshot-live-img" src="" alt="Captura Remota" style="display: none; width: 100%; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);" />
+            </div>
+            <div id="screenshot-timestamp" style="font-size: 11px; color: var(--text-muted); text-align: right; margin-top: 4px;"></div>
+          </div>
+
+          <!-- TAB 4: LECTOR DE MARKDOWNS & ENTREGABLES (SSOT) -->
+          <div id="cockpit-panel-docs" class="cockpit-tab-panel">
+            <div class="docs-reader-nav">
+              <div class="docs-selector-group">
+                <label for="doc-selector-preset" style="font-size: 11.5px; font-weight: 700;">Seleccionar Entregable / Documento:</label>
+                <select id="doc-selector-preset" class="filter-select" style="max-width: 320px;">
+                  <option value="CANON.md">📖 CANON.md (Single Source of Truth)</option>
+                  <option value="entregable_1">🧬 Entregable 1: Contexto Biológico & Biohacking</option>
+                  <option value="entregable_2">💼 Entregable 2: Modelo Comercial & Tiempos</option>
+                  <option value="entregable_3">❓ Entregable 3: Preguntas SPOT & Contingencias</option>
+                  <option value="entregable_circadiano">🌙 Diagnóstico Circadiano & Energía</option>
+                  <option value="custom">🔍 Ruta personalizada de archivo en PC...</option>
+                </select>
+              </div>
+              <div id="custom-doc-path-container" style="display: none; margin-top: 8px;">
+                <input type="text" id="custom-doc-path-input" placeholder="Ruta completa en PC (ej: G:\Mi unidad\...\documento.md)" style="width: 100%; padding: 6px 10px; font-size: 12px;">
+                <button type="button" id="btn-fetch-custom-doc" class="btn-secondary" style="margin-top: 4px; padding: 4px 10px; font-size: 11.5px;">Cargar desde PC</button>
               </div>
             </div>
-            <input type="date" id="journal-date" value="${todayStr}" style="padding: 6px 10px; border-radius: 0px; border: 1px solid #c2be9f; background: #ffffff; color: #111111; font-size: 12px; font-family: 'Space Mono', monospace;">
+
+            <div id="doc-reader-content" class="doc-reader-content">
+              <div style="font-style: italic; color: var(--text-muted); text-align: center; padding: 20px;">Selecciona un documento para visualizarlo con formato enriquecido.</div>
+            </div>
           </div>
 
-          <div style="margin-bottom: 16px; flex-grow: 1; display: flex; flex-direction: column;">
-            <label style="display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 12px; margin-bottom: 6px; color: #111111;">
-              <span>📄 Lienzo en Blanco (Reflexiones & Ideas del Día)</span>
-              <span id="journal-sync-status" style="font-size: 11px; font-weight: normal; color: #533B87;">☁️ Google Drive Sync</span>
-            </label>
-            <textarea id="journal-content" style="width: 100%; height: 260px; min-height: 200px; padding: 14px; border-radius: 0px; border: 1px solid #c2be9f; background: #faf9f5; color: #111111; font-size: 13.5px; line-height: 1.6; font-family: 'Inter', sans-serif; resize: vertical;" placeholder="Escribe libremente tus ideas, reflexiones, avances, aprendizajes del día o borradores de proyectos..."></textarea>
+          <!-- TAB 5: CONFIGURACIÓN GCP & BRIDGE DAEMON -->
+          <div id="cockpit-panel-settings" class="cockpit-tab-panel">
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              
+              <div style="background: rgba(15, 23, 42, 0.03); border: 1px solid var(--border-color); padding: 14px; border-radius: 8px;">
+                <h3 style="margin-top: 0; font-size: 13.5px; color: #0f172a;">🔑 Credenciales de Google Cloud Platform (Vertex AI)</h3>
+                <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 10px;">Ingresa tu API Key de Google Cloud para usar tus créditos de GCP directamente desde el celular sin intermediarios.</p>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <div>
+                    <label style="font-size: 11px; font-weight: 600;">Google Cloud / Gemini API Key:</label>
+                    <input type="password" id="cfg-gcp-api-key" placeholder="AIzaSy..." style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12.5px;">
+                  </div>
+                  <div>
+                    <label style="font-size: 11px; font-weight: 600;">GCP Project ID:</label>
+                    <input type="text" id="cfg-gcp-project-id" value="qz-hub" style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12.5px;">
+                  </div>
+                  <button type="button" id="btn-save-gcp-config" class="btn btn-primary" style="align-self: flex-start; padding: 6px 14px; font-size: 12px; margin-top: 4px;">Guardar Configuración GCP</button>
+                </div>
+              </div>
+
+              <div style="background: rgba(15, 23, 42, 0.03); border: 1px solid var(--border-color); padding: 14px; border-radius: 8px;">
+                <h3 style="margin-top: 0; font-size: 13.5px; color: #0f172a;">🖥️ Ejecutar Bridge en tu PC Local</h3>
+                <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px;">Para controlar tu PC desde el celular, ejecuta este comando en tu terminal de Windows:</p>
+                <div style="background: #0f172a; color: #f8fafc; padding: 10px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
+                  <code>python scripts/qz_agent_bridge.py</code>
+                  <button type="button" onclick="navigator.clipboard.writeText('python scripts/qz_agent_bridge.py'); alert('Comando copiado');" style="background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">Copiar</button>
+                </div>
+              </div>
+
+            </div>
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
-            <button id="journal-save-btn" class="btn btn-primary" style="padding: 12px 18px; border-radius: 0px; font-family: 'Space Mono', monospace; font-weight: 600; background: #111111; color: #ffffff; border: 1px solid #c2be9f; font-size: 12.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-              <span>💾 Guardar Registro de Journal (.md en Drive)</span>
+        </div>
+
+
+        <!-- ============================================================== -->
+        <!-- COLUMNA LATERAL (32%): DIARIO NOCTURNO + FUNNEL METRICS COMPACTO -->
+        <!-- ============================================================== -->
+        <div class="cockpit-side-column">
+          
+          <!-- 1. DIARIO NOCTURNO DE REFLEXIÓN -->
+          <div class="journal-card glass-panel" style="padding: 16px; display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 6px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.4rem;">📝</span>
+                <div>
+                  <h3 style="margin: 0; font-size: 1rem; color: #0f172a; text-transform: uppercase;">Diario Nocturno</h3>
+                  <span style="font-size: 10px; color: var(--text-muted);">Reflexión & Journaling Diario</span>
+                </div>
+              </div>
+              <input type="date" id="journal-date" value="${todayStr}" style="padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff; color: #111111; font-size: 11.5px;">
+            </div>
+
+            <div style="margin-bottom: 12px; flex-grow: 1; display: flex; flex-direction: column;">
+              <textarea id="journal-content" style="width: 100%; height: 160px; min-height: 120px; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff; color: #111111; font-size: 12.5px; line-height: 1.5; resize: vertical;" placeholder="Escribe libremente tus ideas, reflexiones o avances del día..."></textarea>
+            </div>
+
+            <button id="journal-save-btn" class="btn btn-primary" style="padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <span>💾 Guardar Registro de Journal</span>
             </button>
+
+            <div id="journal-history-list" style="margin-top: 10px; font-size: 10.5px; color: var(--text-muted);">
+              <!-- Past entries -->
+            </div>
           </div>
 
-          <div id="journal-history-list" style="margin-top: 14px; font-size: 11px; color: var(--qz-text-muted);">
-            <!-- Past entries -->
+          <!-- 2. FUNNEL METRICS ENGINE (COMPACT COLLAPSIBLE) -->
+          <div class="funnel-card glass-panel" style="padding: 16px; margin-top: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.3rem;">📊</span>
+                <h3 style="margin: 0; font-size: 0.95rem; color: #0f172a; text-transform: uppercase;">Funnel Metrics Engine</h3>
+              </div>
+              <span id="funnel-progress-text" style="font-weight: bold; font-size: 11px; color: #0f172a;">S/ 770.00 / S/ 4,000.00</span>
+            </div>
+
+            <!-- Mini Progress bar -->
+            <div class="progress-bar-container" style="height: 8px; background: rgba(15,23,42,0.08); border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+              <div id="funnel-progress-bar" class="progress-bar" style="width: 19.25%; background: linear-gradient(90deg, #0f172a 0%, #b89c50 100%); height: 100%;"></div>
+            </div>
+
+            <details style="font-size: 12px; cursor: pointer;">
+              <summary style="font-weight: 600; color: var(--primary); margin-bottom: 8px;">⚙️ Ajustar Variables de Simulación</summary>
+              
+              <div style="display: flex; flex-direction: column; gap: 10px; padding-top: 6px;">
+                <!-- Royal Prestige inputs -->
+                <div style="background: #ffffff; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+                  <div style="font-weight: 700; font-size: 11px; margin-bottom: 4px;">🍳 Royal Prestige (SIM 933709385)</div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <div>
+                      <label style="font-size: 10px; color: var(--text-muted);">Llamadas:</label>
+                      <input type="number" id="fn-rp-calls" value="40" min="0" style="width: 100%; padding: 4px; font-size: 11px;">
+                    </div>
+                    <div>
+                      <label style="font-size: 10px; color: var(--text-muted);">Demos Ref:</label>
+                      <input type="number" id="fn-rp-ref-demos" value="3" min="0" style="width: 100%; padding: 4px; font-size: 11px;">
+                    </div>
+                  </div>
+                  <div style="font-size: 10.5px; margin-top: 4px;">Est. RP: <strong id="fn-rp-total-gain">S/ 1,852.76</strong></div>
+                </div>
+
+                <!-- Quarz ZentryOS inputs -->
+                <div style="background: #ffffff; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color);">
+                  <div style="font-weight: 700; font-size: 11px; margin-bottom: 4px;">☄️ QUARZ Group (ZentryOS $1k)</div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <div>
+                      <label style="font-size: 10px; color: var(--text-muted);">Prospectos:</label>
+                      <input type="number" id="fn-zentry-prospects" value="15" min="0" style="width: 100%; padding: 4px; font-size: 11px;">
+                    </div>
+                    <div>
+                      <label style="font-size: 10px; color: var(--text-muted);">Demos:</label>
+                      <input type="number" id="fn-zentry-demos" value="5" min="0" style="width: 100%; padding: 4px; font-size: 11px;">
+                    </div>
+                  </div>
+                  <div style="font-size: 10.5px; margin-top: 4px;">Est. ZentryOS: <strong id="fn-zentry-total-gain">S/ 1,906.78</strong></div>
+                </div>
+
+                <!-- Hidden helper elements for calculation math -->
+                <span id="fn-rp-est-demos" style="display: none;"></span>
+                <span id="fn-rp-cold-sales" style="display: none;"></span>
+                <span id="fn-rp-ref-sales" style="display: none;"></span>
+                <span id="fn-rp-new-refs" style="display: none;"></span>
+                <span id="fn-zentry-est-demos" style="display: none;"></span>
+                <span id="fn-zentry-sales" style="display: none;"></span>
+                <span id="fn-zentry-personal-gain" style="display: none;"></span>
+                <span id="fn-zentry-company-gain" style="display: none;"></span>
+              </div>
+            </details>
           </div>
+
         </div>
 
       </div>
     `;
 
-    // ==========================================
-    // INTERACTIVIDAD Y LÓGICA DEL MOTOR LOCAL SSOT
-    // ==========================================
+    // ==============================================================================
+    // COCKPIT LOGIC & INTERACTIONS (TABS, TELEMETRY, TERMINAL, SCREENSHOT, DOCS)
+    // ==============================================================================
 
-    const chatForm = document.getElementById('ai-chat-form');
-    const chatInput = document.getElementById('ai-chat-input');
-    const chatBox = document.getElementById('ai-chat-box');
+    // 1. Tab Navigation
+    document.querySelectorAll('.cockpit-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        document.querySelectorAll('.cockpit-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.cockpit-tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const panel = document.getElementById(`cockpit-panel-${tab}`);
+        if (panel) panel.classList.add('active');
+      });
+    });
 
-    function appendChatMessage(sender, text) {
+    // 2. Load Saved GCP API Key
+    const cfgApiKey = document.getElementById('cfg-gcp-api-key');
+    const cfgProjectId = document.getElementById('cfg-gcp-project-id');
+    const savedKey = localStorage.getItem('gemini_api_key') || '';
+    if (cfgApiKey && savedKey) cfgApiKey.value = savedKey;
+
+    document.getElementById('btn-save-gcp-config')?.addEventListener('click', () => {
+      const k = cfgApiKey.value.trim();
+      const p = cfgProjectId.value.trim();
+      localStorage.setItem('gemini_api_key', k);
+      localStorage.setItem('gemini_project_id', p || 'qz-hub');
+      alert('✅ Configuración de Google Cloud guardada correctamente.');
+    });
+
+    // 3. Realtime Telemetry Listener (PC Host Status)
+    try {
+      listenToRemoteTelemetry((telemetry) => {
+        const bridgeBadge = document.getElementById('cockpit-bridge-badge');
+        const bridgeText = document.getElementById('bridge-status-text');
+        const termHostname = document.getElementById('terminal-hostname');
+
+        if (!bridgeBadge || !bridgeText) return;
+
+        if (telemetry && telemetry.status === 'online') {
+          const now = Date.now();
+          const lastSeenTime = telemetry.lastSeen ? new Date(telemetry.lastSeen).getTime() : now;
+          const diffSec = Math.round((now - lastSeenTime) / 1000);
+
+          if (diffSec < 30) {
+            bridgeBadge.className = 'cockpit-status-badge badge-online';
+            bridgeText.textContent = `En Línea (${telemetry.deviceName || 'PC-Host'})`;
+            if (termHostname) termHostname.textContent = telemetry.deviceName || 'PC-Host';
+          } else {
+            bridgeBadge.className = 'cockpit-status-badge badge-standby';
+            bridgeText.textContent = 'Standby (Inactivo)';
+          }
+        } else {
+          bridgeBadge.className = 'cockpit-status-badge badge-offline';
+          bridgeText.textContent = 'Desconectado';
+        }
+      });
+    } catch(e) { console.warn('Telemetry error:', e); }
+
+    // 4. Remote Screenshot Feed
+    try {
+      listenToLatestScreenshot((media) => {
+        if (media && media.data) {
+          const img = document.getElementById('screenshot-live-img');
+          const placeholder = document.getElementById('screenshot-placeholder');
+          const ts = document.getElementById('screenshot-timestamp');
+          if (img && placeholder) {
+            img.src = media.data;
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+            if (ts) ts.textContent = `Última captura: ${media.timestamp ? new Date(media.timestamp).toLocaleTimeString() : 'Ahora'} (${media.source || 'PC'})`;
+          }
+        }
+      });
+    } catch(e) {}
+
+    const triggerScreenshot = async () => {
+      const btn = document.getElementById('btn-trigger-screenshot') || document.getElementById('btn-quick-screenshot');
+      if (btn) btn.disabled = true;
+      try {
+        await sendRemoteTask('take_screenshot', {});
+        alert('📸 Solicitud de captura enviada a tu PC. Se actualizará en segundos.');
+      } catch (err) {
+        alert('Error solicitando captura: ' + err.message);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    };
+
+    document.getElementById('btn-trigger-screenshot')?.addEventListener('click', triggerScreenshot);
+    document.getElementById('btn-quick-screenshot')?.addEventListener('click', triggerScreenshot);
+
+    // 5. Remote Terminal Form & Quick Commands
+    const termConsole = document.getElementById('remote-terminal-console');
+    const termForm = document.getElementById('remote-terminal-form');
+    const cmdInput = document.getElementById('remote-cmd-input');
+
+    function appendTermLine(text, type = 'output') {
+      if (!termConsole) return;
+      const line = document.createElement('div');
+      line.className = `term-line ${type}`;
+      line.textContent = text;
+      termConsole.appendChild(line);
+      termConsole.scrollTop = termConsole.scrollHeight;
+    }
+
+    document.getElementById('btn-clear-terminal')?.addEventListener('click', () => {
+      if (termConsole) {
+        termConsole.innerHTML = '<div class="term-line info">[Consola limpiada]</div><div class="term-line prompt">$ _</div>';
+      }
+    });
+
+    document.querySelectorAll('.cmd-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (cmdInput) {
+          cmdInput.value = btn.dataset.cmd;
+          termForm.dispatchEvent(new Event('submit'));
+        }
+      });
+    });
+
+    if (termForm) {
+      termForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const cmd = cmdInput.value.trim();
+        if (!cmd) return;
+        cmdInput.value = '';
+
+        appendTermLine(`$ ${cmd}`, 'cmd-input');
+        appendTermLine('⏳ Enviando comando a la PC remota...', 'info');
+
+        try {
+          await sendRemoteTask('exec_command', { command: cmd });
+          appendTermLine('⚡ Tarea en cola. Escuchando respuesta de la terminal...', 'info');
+        } catch (err) {
+          appendTermLine(`❌ Error enviando comando: ${err.message}`, 'error');
+        }
+      });
+    }
+
+    // Listen to current task completion for terminal output
+    try {
+      listenToRemoteTask((task) => {
+        if (task && task.status === 'completed' && task.action === 'exec_command' && task.result) {
+          if (task.result.stdout) {
+            appendTermLine(task.result.stdout, 'stdout');
+          }
+          if (task.result.stderr) {
+            appendTermLine(task.result.stderr, 'stderr');
+          }
+          appendTermLine(`[Comando finalizado con Exit Code: ${task.result.exitCode}]`, 'info');
+        }
+      });
+    } catch(e) {}
+
+    // 6. Asistente Orquestador Chat Form
+    const chatForm = document.getElementById('cockpit-chat-form');
+    const chatInput = document.getElementById('cockpit-chat-input');
+    const chatBox = document.getElementById('cockpit-chat-box');
+    const modelSelect = document.getElementById('cockpit-model-select');
+
+    function appendCockpitMessage(sender, text) {
+      if (!chatBox) return;
       const msgDiv = document.createElement('div');
       msgDiv.className = `chat-msg ${sender}`;
       if (sender === 'user') {
-        msgDiv.style.cssText = 'background: rgba(255, 255, 255, 0.08); border-right: 3px solid #81c784; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; align-self: flex-end; max-width: 85%;';
+        msgDiv.style.cssText = 'background: rgba(15, 23, 42, 0.08); border-right: 3px solid #0f172a; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; align-self: flex-end; max-width: 85%;';
         msgDiv.innerHTML = `<strong>👤 Tú:</strong> ${text}`;
       } else {
-        msgDiv.style.cssText = 'background: rgba(83, 59, 135, 0.25); border-left: 3px solid #d6c8fa; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; max-width: 85%;';
-        msgDiv.innerHTML = `<strong>⚡ Orquestador SSOT:</strong> ${text}`;
+        msgDiv.style.cssText = 'background: rgba(255, 255, 255, 0.95); border-left: 3px solid #b89c50; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; max-width: 88%; color: #0f172a;';
+        const formatted = (typeof mdToHtml === 'function') ? mdToHtml(text) : text.replace(/\n/g, '<br>');
+        msgDiv.innerHTML = `<strong>⚡ QZ Cloud Orchestrator:</strong><div style="margin-top: 4px;">${formatted}</div>`;
       }
       chatBox.appendChild(msgDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    function processLocalSsotQuery(query) {
-      const q = query.toLowerCase();
-
-      if (q.includes('meta') || q.includes('31 de agosto') || q.includes('caja') || q.includes('plata') || q.includes('dinero')) {
-        return "Tu obligación financiera inmediata al **31 de Agosto (21 días restantes)** es de **S/ 4,000.00 PEN netos**. Partiendo de tus **S/ 770.00 PEN en caja**, necesitas generar **S/ 3,230.00 PEN netos**. Esto se logra cerrando **3 ventas de Royal Prestige** (comisión S/ 1,010.59 a S/ 1,347.46) o **2 licencias de ZentryOS ($1,000 USD / S/ 1,906.78 neto personal)**.";
-      } 
-      
-      if (q.includes('12') || q.includes('perro') || q.includes('rutina') || q.includes('entren') || q.includes('ejercicio') || q.includes('llamada')) {
-        return "En la ventana estratégica de **12:00 PM a 02:00 PM** ejecutas tres acciones en paralelo:\n1. Pasear al perro al aire libre.\n2. Entrenamiento de calistenia.\n3. **40 llamadas telefónicas breves de Royal Prestige** (usando tu Redmi Note 9 con la SIM `933709385`). Caminar mientras llamas eleva tu tono vocal y evita la fatiga del escritorio.";
-      }
-
-      if (q.includes('royal') || q.includes('olla') || q.includes('ratio') || q.includes('friccion') || q.includes('referido')) {
-        return "Métricas exactas de Royal Prestige:\n• **Llamadas frías:** 20 llamadas conversadas agendan 1 demo. De cada 4 demos frías cierras 1 venta (S/ 1,010.59 neto).\n• **Referidos:** Cada demo genera 5 a 10 referidos calificados. Con referidos, el ratio de cierre mejora a 3 demos por 1 venta (S/ 1,347.46 neto).";
-      }
-
-      if (q.includes('zentry') || q.includes('quarz') || q.includes('prospecc') || q.includes('mall') || q.includes('limatambo') || q.includes('tablet')) {
-        return "Métricas exactas de QUARZ / ZentryOS:\n• **Prospección presencial:** 5 personas prospectadas a pie en Limatambo/La Rambla/Jockey agendan 1 demo presencial en un ciclo de 2 semanas.\n• **Cierre de Licencias ($1k USD):** En el Mes 1 (iteración), 5 demos cierran 1 licencia ($1,000 USD $\rightarrow$ S/ 1,906.78 neto personal + S/ 1,271.19 caja empresa). En el Mes 2 con referidos, baja a 3 demos por 1 cierre.";
-      }
-
-      if (q.includes('ayuno') || q.includes('48') || q.includes('camal') || q.includes('yerbateros') || q.includes('carne') || q.includes('comida')) {
-        return "Protocolo Biológico & Abastecimiento:\n• **Ayuno Autofágico de 48h:** Jueves 13 de Agosto (08:00 PM) al Sábado 15 de Agosto (08:00 PM).\n• **Suero Táctico:** Sodio 3-5g + Potasio 1.5-2g + Magnesio 400mg.\n• **Camal de Yerbateros:** El mejor día y hora es el **Viernes por la madrugada (04:30 AM)** para obtener vísceras (hígado, corazón, panza) y chicharrón de cerdo recién faenados con cero aglomeración.";
-      }
-
-      if (q.includes('dispositivo') || q.includes('celular') || q.includes('telefono') || q.includes('sim') || q.includes('hardware')) {
-        return "Infraestructura de Hardware Activa:\n• **Redmi Note 9:** Diario para llamadas (SIM `933709385` QUARZ).\n• **Motorola Edge 40 Neo:** Servidor USB 24/7 (Scrcpy/Vysor) para WhatsApp bot (número personal `942575425`).\n• **Tab A7 Samsung (10.4 in):** Demo ZentryOS Launcher Device Owner.\n• **iPad 5ª Gen:** Demo PWA Parental Dashboard.";
-      }
-
-      return `Entendido. Como Orquestador de tu plan maestro de 63 días (10 Ago - 11 Oct 2026), mantengo indexados todos tus documentos SSOT. Puedes consultarme cualquier duda sobre tus metas financieras, embudos de conversión, rutina de 12-2pm o protocolo biológico.`;
-    }
+    document.querySelectorAll('.quick-chip').forEach(chip => {
+      if (chip.id === 'btn-quick-screenshot') return;
+      chip.addEventListener('click', () => {
+        if (chatInput) {
+          chatInput.value = chip.dataset.prompt;
+          chatForm.dispatchEvent(new Event('submit'));
+        }
+      });
+    });
 
     if (chatForm) {
       chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const text = chatInput.value.trim();
         if (!text) return;
-        
-        appendChatMessage('user', text);
         chatInput.value = '';
 
-        // Add thinking indicator
+        appendCockpitMessage('user', text);
+
         const thinkingDiv = document.createElement('div');
-        thinkingDiv.id = 'chat-thinking';
+        thinkingDiv.id = 'cockpit-thinking';
         thinkingDiv.className = 'chat-msg bot';
-        thinkingDiv.style.cssText = 'background: rgba(83, 59, 135, 0.15); border-left: 3px solid #d6c8fa; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; max-width: 85%; color: var(--text-muted);';
-        thinkingDiv.innerHTML = `<strong>⚡ Orquestador Backend API (/api/chat):</strong> <em>Consultando backend en tiempo real...</em>`;
+        thinkingDiv.style.cssText = 'background: rgba(15, 23, 42, 0.04); border-left: 3px solid #b89c50; padding: 10px; border-radius: 8px; font-size: 12.5px; max-width: 85%; color: var(--text-muted);';
+        thinkingDiv.innerHTML = `<strong>⚡ QZ Cloud Engine:</strong> <em>Razonando y procesando consulta...</em>`;
         chatBox.appendChild(thinkingDiv);
         chatBox.scrollTop = chatBox.scrollHeight;
 
-        try {
-          const apiKey = localStorage.getItem('zentry_backend_api_key') || '';
-          const res = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text, apiKey })
-          });
+        const selectedModel = modelSelect ? modelSelect.value : 'gemini-2.5-flash';
 
-          const data = await res.json();
-          const thinkingEl = document.getElementById('chat-thinking');
-          if (thinkingEl) thinkingEl.remove();
+        if (selectedModel === 'ssot-local') {
+          setTimeout(() => {
+            const thinkingEl = document.getElementById('cockpit-thinking');
+            if (thinkingEl) thinkingEl.remove();
+            const fallbackResp = processLocalSsotQuery(text);
+            appendCockpitMessage('bot', fallbackResp);
+          }, 300);
+        } else {
+          try {
+            const systemPrompt = `Eres el Asistente Orquestador Central de QZ-HUB y QUARZ Group (SSOT).
+Tienes acceso a las directrices de negocio, biohacking, rutinas, timeblocking y objetivos de 63 días de Jose Angel.
+Metas clave: Meta de caja al 31 de Agosto: S/ 4,000.00 PEN (partiendo de S/ 770.00). Ratios Royal Prestige (20 llamadas -> 1 demo; 4 demos -> 1 venta S/ 1,010.59). Quarz ZentryOS ($1,000 USD / S/ 1,906.78).
+Responde de forma clara, directa, con formato Markdown, tablas o listas donde sea útil.`;
 
-          if (data && data.reply) {
-            appendChatMessage('bot', mdToHtml ? mdToHtml(data.reply) : data.reply);
-          } else if (data && data.error) {
-            appendChatMessage('bot', `❌ Error de Servidor Backend: ${data.error}`);
-          } else {
-            appendChatMessage('bot', "⚠️ No se recibió respuesta válida del endpoint /api/chat.");
+            const reply = await callVertexGemini(text, systemPrompt, selectedModel);
+            const thinkingEl = document.getElementById('cockpit-thinking');
+            if (thinkingEl) thinkingEl.remove();
+            appendCockpitMessage('bot', reply);
+          } catch (err) {
+            const thinkingEl = document.getElementById('cockpit-thinking');
+            if (thinkingEl) thinkingEl.remove();
+            // Fallback to local SSOT logic
+            console.warn('Vertex AI direct call failed, falling back to local SSOT:', err);
+            const fallbackResp = processLocalSsotQuery(text);
+            appendCockpitMessage('bot', `⚠️ *[Aviso GCP: ${err.message}]*
+
+` + fallbackResp);
           }
-        } catch (err) {
-          const thinkingEl = document.getElementById('chat-thinking');
-          if (thinkingEl) thinkingEl.remove();
-
-          // Fallback if backend serverless function is not active locally
-          const fallbackResp = processLocalSsotQuery(text);
-          appendChatMessage('bot', fallbackResp);
         }
       });
     }
 
-    // Journaling Logic (Lienzo en Blanco + Single Button Sync a Drive)
+    // 7. Docs & Markdown Viewer
+    const docSelect = document.getElementById('doc-selector-preset');
+    const docContent = document.getElementById('doc-reader-content');
+
+    const sampleDocs = {
+      "CANON.md": `# 📜 CANON.md — Single Source of Truth (SSOT)\n\n### 🎯 Meta Financiera 31 de Agosto\n- **Meta Total:** S/ 4,000.00 PEN\n- **Caja Actual:** S/ 770.00 PEN\n- **Brecha a Generar:** S/ 3,230.00 PEN\n\n### 📊 Embudo Royal Prestige\n- **Llamadas Frías (12-2pm):** 40 diarias (SIM 933709385).\n- **Ratio:** 20 llamadas conversadas = 1 demo.\n- **Ratio de Cierre:** 4 demos = 1 venta (Comisión S/ 1,010.59).\n\n### ☄️ QUARZ Group / ZentryOS\n- **Licencias:** $1,000 USD por despliegue.\n- **Ganancia Personal (60%):** S/ 1,906.78.\n- **Caja Empresa QUARZ (40%):** S/ 1,271.19.`,
+      "entregable_1": `# 🧬 Entregable 1: Contexto Biológico & Biohacking\n\n- **Ventana 12-2 PM:** Pasear al perro + Calistenia + 40 llamadas telefónicas de pie/caminando.\n- **Protocolo de Ayuno:** 48 horas autofágicas con suero táctico (Na, K, Mg).\n- **Abastecimiento:** Camal de Yerbateros (Viernes 04:30 AM).`,
+      "entregable_2": `# 💼 Entregable 2: Modelo Comercial & Tiempos\n\n- **Vertical 1:** Ventas Royal Prestige.\n- **Vertical 2:** ZentryOS & Parental Control B2C/B2B.\n- **Vertical 3:** Desarrollo de Software & Automatizaciones QUARZ.`,
+      "entregable_3": `# ❓ Entregable 3: Preguntas SPOT & Contingencias\n\n- Matriz de decisiones rápidas ante fricciones de tiempo o llamadas no contestadas.\n- Protocolo de contingencia para reprogramación de demos.`,
+      "entregable_circadiano": `# 🌙 Diagnóstico Circadiano & Gestión de Energía\n\n- Higiene del sueño: Bloqueo de luz azul a partir de las 09:00 PM.\n- Despertar circadiano con exposición a luz solar temprana.`
+    };
+
+    if (docSelect && docContent) {
+      docSelect.addEventListener('change', () => {
+        const val = docSelect.value;
+        const customContainer = document.getElementById('custom-doc-path-container');
+        if (val === 'custom') {
+          if (customContainer) customContainer.style.display = 'block';
+          docContent.innerHTML = '<div style="font-style: italic; color: var(--text-muted); padding: 10px;">Ingresa la ruta del archivo en tu PC y presiona "Cargar desde PC".</div>';
+        } else {
+          if (customContainer) customContainer.style.display = 'none';
+          const mdText = sampleDocs[val] || '# Documento no disponible';
+          const html = (typeof mdToHtml === 'function') ? mdToHtml(mdText) : mdText.replace(/\n/g, '<br>');
+          docContent.innerHTML = html;
+        }
+      });
+      // Trigger initial load
+      docSelect.dispatchEvent(new Event('change'));
+    }
+
+    document.getElementById('btn-fetch-custom-doc')?.addEventListener('click', async () => {
+      const pathInput = document.getElementById('custom-doc-path-input');
+      const filepath = pathInput ? pathInput.value.trim() : '';
+      if (!filepath) return;
+
+      docContent.innerHTML = '⏳ Solicitando lectura de archivo a tu PC remota...';
+      try {
+        await sendRemoteTask('read_markdown', { filepath });
+        // Listen for task completion
+        const unsub = listenToRemoteTask((t) => {
+          if (t && t.status === 'completed' && t.action === 'read_markdown' && t.result) {
+            const content = t.result.content || '';
+            const html = (typeof mdToHtml === 'function') ? mdToHtml(content) : content.replace(/\n/g, '<br>');
+            docContent.innerHTML = html;
+            unsub();
+          } else if (t && t.status === 'error') {
+            docContent.innerHTML = `<div style="color: #ef4444;">❌ Error: ${t.result?.error || 'No se pudo leer el archivo'}</div>`;
+            unsub();
+          }
+        });
+      } catch (err) {
+        docContent.innerHTML = `<div style="color: #ef4444;">❌ Error de conexión: ${err.message}</div>`;
+      }
+    });
+
+    // 8. Journaling Logic (Preserved)
     const journalDate = document.getElementById('journal-date');
     const journalContent = document.getElementById('journal-content');
     const journalSaveBtn = document.getElementById('journal-save-btn');
@@ -1803,7 +2148,7 @@ const renderers = {
       const history = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
       const entry = history.find(h => h.date === dateStr);
       if (entry && journalContent) {
-        journalContent.value = entry.content || (entry.q1 ? `${entry.q1}\n\n${entry.q2 || ''}\n\n${entry.q3 || ''}` : '');
+        journalContent.value = entry.content || '';
       } else if (journalContent) {
         journalContent.value = '';
       }
@@ -1813,15 +2158,15 @@ const renderers = {
       const history = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
       if (!journalHistoryList) return;
       if (history.length === 0) {
-        journalHistoryList.innerHTML = `<p style="font-style: italic;">No hay entradas guardadas en el historial local aún.</p>`;
+        journalHistoryList.innerHTML = `<p style="font-style: italic;">No hay entradas guardadas aún.</p>`;
         return;
       }
-      journalHistoryList.innerHTML = '<strong>📅 Entradas de Diario Recientes:</strong>' + history.slice(0, 4).map(h => {
-        const previewText = (h.content || h.q1 || '').replace(/\n/g, ' ').slice(0, 60);
+      journalHistoryList.innerHTML = '<strong>📅 Entradas Recientes:</strong>' + history.slice(0, 3).map(h => {
+        const previewText = (h.content || '').replace(/\n/g, ' ').slice(0, 45);
         return `
-          <div style="background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.08); padding: 8px 10px; border-radius: 4px; margin-top: 6px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="document.getElementById('journal-date').value='${h.date}'; document.getElementById('journal-date').dispatchEvent(new Event('change'));">
-            <span style="font-weight: 600; color: #533B87;">${h.date}</span>
-            <span style="font-size: 10.5px; color: #4A5160; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 180px;">${previewText}...</span>
+          <div style="background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.06); padding: 6px 8px; border-radius: 4px; margin-top: 4px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="document.getElementById('journal-date').value='${h.date}'; document.getElementById('journal-date').dispatchEvent(new Event('change'));">
+            <span style="font-weight: 600; color: #0f172a;">${h.date}</span>
+            <span style="font-size: 10px; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 140px;">${previewText}...</span>
           </div>
         `;
       }).join('');
@@ -1833,23 +2178,20 @@ const renderers = {
       });
       loadJournalForDate(journalDate.value);
     }
-
     renderJournalHistory();
 
     if (journalSaveBtn) {
       journalSaveBtn.addEventListener('click', async () => {
         const date = journalDate.value;
         const text = journalContent ? journalContent.value.trim() : '';
-
         if (!text) {
-          alert('Por favor escribe tu reflexión o ideas en la hoja antes de guardar.');
+          alert('Por favor escribe tu reflexión antes de guardar.');
           return;
         }
 
         journalSaveBtn.disabled = true;
-        journalSaveBtn.innerHTML = '<span>⏳ Guardando y Sincronizando...</span>';
+        journalSaveBtn.innerHTML = '<span>⏳ Guardando...</span>';
 
-        // 1. Guardar en LocalStorage
         const history = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
         const existingIdx = history.findIndex(h => h.date === date);
         const entry = { date, content: text, savedAt: new Date().toISOString() };
@@ -1862,69 +2204,42 @@ const renderers = {
 
         localStorage.setItem('zentry_journal_history', JSON.stringify(history));
 
-        // 2. Formatear Markdown (.md)
-        const filename = `${date}-journal-bitacora.md`;
-        const mdContent = `# 📝 DIARIO DE REFLEXIÓN Y REGISTRO - ${date}\n\n` +
-          `> **Fecha de Registro:** ${new Date().toLocaleString()}  \n` +
-          `> **Carpeta Destino Drive:** 03_JOURNAL_BITACORA (ID: 17jwao_wY0P_L3AW4amtQaOpzdJtaXQC0)  \n\n` +
-          `---\n\n` +
-          `${text}\n`;
-
-        // 3. Sincronizar con Firestore (Realtime Cloud Database)
         try {
           await syncJournalHistory(history);
-          console.log('\xf0\x9f\x94\xa5 Journal synced to Firestore');
-        } catch (err) {
-          console.error('Journal Firestore sync error:', err);
-        }
+        } catch(e) {}
 
         journalSaveBtn.disabled = false;
-        journalSaveBtn.innerHTML = '<span>\xf0\x9f\x92\xbe Guardar Registro de Journal</span>';
-
-        alert(`\u2705 Registro de Journal para ${date} guardado exitosamente.\n\n\u2022 Sincronizado en Cloud Firestore (Tiempo Real)\n\u2022 Disponible en todos tus dispositivos.`);
+        journalSaveBtn.innerHTML = '<span>💾 Guardar Registro de Journal</span>';
+        alert(`✅ Journal para ${date} guardado y sincronizado en Firestore.`);
         renderJournalHistory();
       });
     }
 
-    // Funnel Metrics Engine Interactive Simulation Logic
+    // 9. Funnel Metrics Engine Logic (Preserved Math)
     const fnRpCalls = document.getElementById('fn-rp-calls');
     const fnRpRefDemos = document.getElementById('fn-rp-ref-demos');
     const fnZentryProspects = document.getElementById('fn-zentry-prospects');
     const fnZentryDemos = document.getElementById('fn-zentry-demos');
 
     function updateFunnelEngine() {
-      const rpCalls = parseInt(fnRpCalls.value) || 0;
-      const rpRefDemos = parseInt(fnRpRefDemos.value) || 0;
-      const zentryProspects = parseInt(fnZentryProspects.value) || 0;
-      const zentryDemos = parseInt(fnZentryDemos.value) || 0;
+      const rpCalls = parseInt(fnRpCalls?.value) || 0;
+      const rpRefDemos = parseInt(fnRpRefDemos?.value) || 0;
+      const zentryProspects = parseInt(fnZentryProspects?.value) || 0;
+      const zentryDemos = parseInt(fnZentryDemos?.value) || 0;
 
-      // RP calculations
       const estColdDemos = (rpCalls / 20).toFixed(1);
       const coldSales = (estColdDemos / 4).toFixed(1);
       const refSales = (rpRefDemos / 3).toFixed(1);
-      const newRefs = Math.round((parseFloat(estColdDemos) + rpRefDemos) * 7.5);
 
       const rpGain = (parseFloat(coldSales) * 1010.59) + (parseFloat(refSales) * 1347.46);
+      const fnRpTotal = document.getElementById('fn-rp-total-gain');
+      if (fnRpTotal) fnRpTotal.textContent = `S/ ${rpGain.toFixed(2)}`;
 
-      document.getElementById('fn-rp-est-demos').textContent = `${estColdDemos} demos`;
-      document.getElementById('fn-rp-cold-sales').textContent = `${coldSales} ventas`;
-      document.getElementById('fn-rp-ref-sales').textContent = `${refSales} ventas`;
-      document.getElementById('fn-rp-new-refs').textContent = `${newRefs} referidos`;
-      document.getElementById('fn-rp-total-gain').textContent = `S/ ${rpGain.toFixed(2)}`;
-
-      // ZentryOS calculations
-      const estZentryDemos = (zentryProspects / 5).toFixed(1);
-      const zentrySales = (zentryDemos / 5).toFixed(1); // Month 1 ratio 5:1
+      const zentrySales = (zentryDemos / 5).toFixed(1);
       const zentryPersonalGain = parseFloat(zentrySales) * 1906.78;
-      const zentryCompanyGain = parseFloat(zentrySales) * 1271.19;
+      const fnZentryTotal = document.getElementById('fn-zentry-total-gain');
+      if (fnZentryTotal) fnZentryTotal.textContent = `S/ ${zentryPersonalGain.toFixed(2)}`;
 
-      document.getElementById('fn-zentry-est-demos').textContent = `${estZentryDemos} demos`;
-      document.getElementById('fn-zentry-sales').textContent = `${zentrySales} licencias`;
-      document.getElementById('fn-zentry-personal-gain').textContent = `S/ ${zentryPersonalGain.toFixed(2)}`;
-      document.getElementById('fn-zentry-company-gain').textContent = `S/ ${zentryCompanyGain.toFixed(2)}`;
-      document.getElementById('fn-zentry-total-gain').textContent = `S/ ${zentryPersonalGain.toFixed(2)}`;
-
-      // Global Funnel Progress
       const initialCash = 770.00;
       const totalPersonalGain = initialCash + rpGain + zentryPersonalGain;
       const target = 4000.00;
@@ -1932,11 +2247,8 @@ const renderers = {
 
       const funnelProgressText = document.getElementById('funnel-progress-text');
       const funnelProgressBar = document.getElementById('funnel-progress-bar');
-
-      if (funnelProgressText && funnelProgressBar) {
-        funnelProgressText.textContent = `S/ ${totalPersonalGain.toFixed(2)} / S/ ${target.toFixed(2)} (${pct}%)`;
-        funnelProgressBar.style.width = `${pct}%`;
-      }
+      if (funnelProgressText) funnelProgressText.textContent = `S/ ${totalPersonalGain.toFixed(2)} / S/ ${target.toFixed(2)} (${pct}%)`;
+      if (funnelProgressBar) funnelProgressBar.style.width = `${pct}%`;
     }
 
     if (fnRpCalls) fnRpCalls.addEventListener('input', updateFunnelEngine);
@@ -1944,7 +2256,6 @@ const renderers = {
     if (fnZentryProspects) fnZentryProspects.addEventListener('input', updateFunnelEngine);
     if (fnZentryDemos) fnZentryDemos.addEventListener('input', updateFunnelEngine);
 
-    // Initial calculation
     updateFunnelEngine();
   },
 
