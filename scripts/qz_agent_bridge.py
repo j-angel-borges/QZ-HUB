@@ -1,15 +1,8 @@
 #!/usr/bin/env python3
 """
-QZ-HUB AGENT BRIDGE & INTERACTIVE REMOTE TERMINAL (v2.0)
+QZ-HUB AGENT BRIDGE & INTERACTIVE REMOTE TERMINAL (v2.1)
 ========================================================
-Permite interacción bidireccional en tiempo real con AGY (Antigravity CLI),
-PowerShell, Python y la terminal de tu PC desde tu celular / QZ-HUB.
-
-Soporta:
-- Streaming en vivo de stdout/stderr línea por línea.
-- Envío de stdin interactivo a procesos activos (ej: prompts a agy en ejecución).
-- Captura de pantalla en tiempo real (Pillow).
-- Lectura y transmisión de entregables Markdown a la PWA.
+Thread-safe Class-based Process Manager for AGY, PowerShell, Python & Bash.
 """
 
 import os
@@ -45,11 +38,6 @@ COLLECTION_LOGS = "qz_remote_terminal_logs"
 DEVICE_NAME = os.environ.get("COMPUTERNAME", "PC-Local-JoseAngel")
 IS_RUNNING = True
 LAST_PROCESSED_TASK_ID = None
-
-# Proceso activo interactivo (para AGY, shell interactiva, etc.)
-ACTIVE_PROCESS = None
-ACTIVE_PROCESS_LOCK = threading.Lock()
-ACTIVE_PROCESS_CMD = ""
 
 def now_iso():
     return datetime.now(timezone.utc).isoformat()
@@ -150,94 +138,114 @@ def push_terminal_log_chunk(line, stream_type="stdout"):
             "timestamp": now_iso(),
             "type": stream_type,
             "line": line.rstrip("\r\n"),
-            "activeCmd": ACTIVE_PROCESS_CMD
+            "activeCmd": ProcessManager.get_active_cmd()
         }
         set_firestore_doc(COLLECTION_LOGS, "live_stream", log_payload)
     except Exception:
         pass
 
-def process_output_reader(proc):
-    """Lee continuamente la salida de un proceso en ejecución y la transmite."""
-    global ACTIVE_PROCESS, ACTIVE_PROCESS_CMD
-    accumulated_lines = []
-    
-    try:
-        for raw_line in iter(proc.stdout.readline, ''):
-            if not raw_line:
-                break
-            print(raw_line, end="")
-            accumulated_lines.append(raw_line)
-            push_terminal_log_chunk(raw_line, "stdout")
-            
-            # Si se acumulan muchas líneas, mantener un búfer razonable
-            if len(accumulated_lines) > 200:
-                accumulated_lines = accumulated_lines[-100:]
-    except Exception as e:
-        print(f"Error en reader thread: {e}")
-    finally:
-        with ACTIVE_PROCESS_LOCK:
-            if ACTIVE_PROCESS == proc:
-                ACTIVE_PROCESS = None
-                ACTIVE_PROCESS_CMD = ""
+class ProcessManager:
+    """Administrador de procesos thread-safe sin dependencias de variables globales sueltas."""
+    active_process = None
+    active_cmd = ""
+    lock = threading.Lock()
 
-def start_interactive_or_streaming_command(cmd, cwd=None):
-    """Inicia un comando en streaming o interactivo (como agy)."""
-    global ACTIVE_PROCESS, ACTIVE_PROCESS_CMD
-    if not cwd or not os.path.exists(cwd):
-        cwd = os.getcwd()
+    @classmethod
+    def is_running(cls):
+        with cls.lock:
+            return cls.active_process is not None and cls.active_process.poll() is None
 
-    # Si ya hay un proceso activo, terminarlo limpiamente
-    with ACTIVE_PROCESS_LOCK:
-        if ACTIVE_PROCESS and ACTIVE_PROCESS.poll() is None:
+    @classmethod
+    def get_active_cmd(cls):
+        with cls.lock:
+            return cls.active_cmd if (cls.active_process is not None and cls.active_process.poll() is None) else "idle"
+
+    @classmethod
+    def start(cls, cmd, cwd=None):
+        if not cwd or not os.path.exists(cwd):
+            cwd = os.getcwd()
+
+        with cls.lock:
+            if cls.active_process and cls.active_process.poll() is None:
+                try:
+                    cls.active_process.terminate()
+                except Exception:
+                    pass
+
             try:
-                ACTIVE_PROCESS.terminate()
-            except Exception:
-                pass
-
-        try:
-            # Iniciar proceso con PIPEs para interacción continua
-            proc = subprocess.Popen(
-                cmd,
-                shell=True,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                bufsize=1,
-                cwd=cwd,
-                encoding="utf-8",
-                errors="replace"
-            )
-            ACTIVE_PROCESS = proc
-            ACTIVE_PROCESS_CMD = cmd
-            
-            # Lanzar thread para lectura en vivo
-            t = threading.Thread(target=process_output_reader, args=(proc,), daemon=True)
-            t.start()
-            return True, "Proceso iniciado en streaming"
-        except Exception as e:
-            return False, str(e)
-
-def send_stdin_to_active_process(text):
-    """Envía texto / prompt al proceso interactivo activo (ej: AGY)."""
-    global ACTIVE_PROCESS
-    with ACTIVE_PROCESS_LOCK:
-        if ACTIVE_PROCESS and ACTIVE_PROCESS.poll() is None:
-            try:
-                print(f"📥 [STDIN] -> {text}")
-                ACTIVE_PROCESS.stdin.write(text + "\n")
-                ACTIVE_PROCESS.stdin.flush()
-                push_terminal_log_chunk(f"> {text}", "stdin")
-                return True, "Input enviado exitosamente"
+                proc = subprocess.Popen(
+                    cmd,
+                    shell=True,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    bufsize=1,
+                    cwd=cwd,
+                    encoding="utf-8",
+                    errors="replace"
+                )
+                cls.active_process = proc
+                cls.active_cmd = cmd
+                
+                t = threading.Thread(target=cls._reader, args=(proc,), daemon=True)
+                t.start()
+                return True, "Proceso iniciado en streaming"
             except Exception as e:
-                return False, f"Error escribiendo a stdin: {e}"
-        else:
-            return False, "No hay proceso interactivo activo. Puedes iniciar uno ejecutando un comando."
+                return False, str(e)
+
+    @classmethod
+    def _reader(cls, proc):
+        accumulated_lines = []
+        try:
+            for raw_line in iter(proc.stdout.readline, ''):
+                if not raw_line:
+                    break
+                print(raw_line, end="")
+                accumulated_lines.append(raw_line)
+                push_terminal_log_chunk(raw_line, "stdout")
+                
+                if len(accumulated_lines) > 200:
+                    accumulated_lines = accumulated_lines[-100:]
+        except Exception as e:
+            print(f"Error en reader thread: {e}")
+        finally:
+            with cls.lock:
+                if cls.active_process == proc:
+                    cls.active_process = None
+                    cls.active_cmd = ""
+
+    @classmethod
+    def send_stdin(cls, text):
+        with cls.lock:
+            if cls.active_process and cls.active_process.poll() is None:
+                try:
+                    print(f"📥 [STDIN] -> {text}")
+                    cls.active_process.stdin.write(text + "\n")
+                    cls.active_process.stdin.flush()
+                    push_terminal_log_chunk(f"> {text}", "stdin")
+                    return True, "Input enviado exitosamente"
+                except Exception as e:
+                    return False, f"Error escribiendo a stdin: {e}"
+            else:
+                return False, "No hay proceso interactivo activo"
+
+    @classmethod
+    def kill(cls):
+        with cls.lock:
+            if cls.active_process and cls.active_process.poll() is None:
+                try:
+                    cls.active_process.terminate()
+                except Exception:
+                    pass
+            cls.active_process = None
+            cls.active_cmd = ""
+            return True
 
 def telemetry_loop():
     while IS_RUNNING:
         try:
-            is_active = ACTIVE_PROCESS is not None and ACTIVE_PROCESS.poll() is None
+            is_active = ProcessManager.is_running()
             telemetry_data = {
                 "deviceName": DEVICE_NAME,
                 "status": "online",
@@ -245,7 +253,7 @@ def telemetry_loop():
                 "os": sys.platform,
                 "cwd": os.getcwd(),
                 "hasScreenCapture": HAS_PIL,
-                "activeProcess": ACTIVE_PROCESS_CMD if is_active else "idle",
+                "activeProcess": ProcessManager.get_active_cmd(),
                 "isInteractiveRunning": is_active
             }
             set_firestore_doc(COLLECTION_TELEMETRY, "pc_host", telemetry_data)
@@ -254,7 +262,7 @@ def telemetry_loop():
         time.sleep(4)
 
 def task_worker_loop():
-    global LAST_PROCESSED_TASK_ID, ACTIVE_PROCESS, ACTIVE_PROCESS_CMD
+    global LAST_PROCESSED_TASK_ID
     print("🟢 Escuchando comandos remotos de QZ-HUB...")
     
     while IS_RUNNING:
@@ -275,13 +283,13 @@ def task_worker_loop():
                         cmd = task_doc.get("command", "").strip()
                         cwd = task_doc.get("cwd", os.getcwd())
                         
-                        # Si el comando es un prompt interactivo mientras hay un proceso activo
-                        if ACTIVE_PROCESS and ACTIVE_PROCESS.poll() is None and not cmd.startswith("agy") and not cmd.startswith("python"):
-                            success, msg = send_stdin_to_active_process(cmd)
+                        # Si hay un proceso interactivo activo y el comando no es para arrancar uno nuevo
+                        if ProcessManager.is_running() and not cmd.startswith("agy") and not cmd.startswith("python"):
+                            success, msg = ProcessManager.send_stdin(cmd)
                             task_doc["status"] = "completed"
                             task_doc["result"] = {"message": msg, "mode": "stdin"}
                         else:
-                            success, msg = start_interactive_or_streaming_command(cmd, cwd)
+                            success, msg = ProcessManager.start(cmd, cwd)
                             task_doc["status"] = "completed" if success else "error"
                             task_doc["result"] = {"message": msg, "mode": "process_started"}
                         
@@ -290,20 +298,14 @@ def task_worker_loop():
 
                     elif action == "send_stdin":
                         text = task_doc.get("input", "")
-                        success, msg = send_stdin_to_active_process(text)
+                        success, msg = ProcessManager.send_stdin(text)
                         task_doc["status"] = "completed" if success else "error"
                         task_doc["result"] = {"message": msg}
                         task_doc["completedAt"] = now_iso()
                         set_firestore_doc(COLLECTION_TASKS, "current_task", task_doc)
 
                     elif action == "kill_process":
-                        with ACTIVE_PROCESS_LOCK:
-                            if ACTIVE_PROCESS:
-                                try:
-                                    ACTIVE_PROCESS.terminate()
-                                except Exception:
-                                    pass
-                                ACTIVE_PROCESS = None
+                        ProcessManager.kill()
                         task_doc["status"] = "completed"
                         task_doc["result"] = {"message": "Proceso terminado"}
                         task_doc["completedAt"] = now_iso()
@@ -349,7 +351,7 @@ def task_worker_loop():
 
 def main():
     print("=" * 60)
-    print("🤖 QZ-HUB INTERACTIVE AGENT BRIDGE (v2.0)")
+    print("🤖 QZ-HUB INTERACTIVE AGENT BRIDGE (v2.1)")
     print(f"Dispositivo: {DEVICE_NAME}")
     print(f"Directorio: {os.getcwd()}")
     print("=" * 60)
