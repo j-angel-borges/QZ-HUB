@@ -15,6 +15,9 @@ import {
   listenToRemoteTask,
   listenToRemoteTelemetry,
   listenToLatestScreenshot,
+  listenToTerminalStream,
+  sendRemoteStdin,
+  killRemoteProcess,
   callVertexGemini
 } from './firestore-sync.js';
  
@@ -1599,10 +1602,10 @@ const renderers = {
           <div id="cockpit-panel-chat" class="cockpit-tab-panel active">
             <!-- Quick Action Prompt Chips -->
             <div class="cockpit-quick-chips">
+              <button type="button" class="quick-chip" id="btn-start-agy" style="background: #0f172a; color: #fff; border-color: #b89c50;">🤖 Iniciar AGY (Antigravity CLI)</button>
               <button type="button" class="quick-chip" data-prompt="Audita el estado de mis metas financieras al 31 de agosto según el SSOT">🎯 Metas Financieras</button>
               <button type="button" class="quick-chip" data-prompt="Revisa mi protocolo de prospección y ratios de Royal Prestige y Quarz">📊 Métricas & Funnels</button>
               <button type="button" class="quick-chip" data-prompt="¿Cuál es el protocolo de rutina y llamadas de 12:00 PM a 02:00 PM?">⏱️ Rutina de 12-2pm</button>
-              <button type="button" class="quick-chip" data-prompt="Verifica el protocolo biológico de ayuno y abastecimiento en Yerbateros">🥩 Protocolo Biológico</button>
               <button type="button" class="quick-chip" id="btn-quick-screenshot">📸 Tomar Captura de PC</button>
             </div>
 
@@ -1635,9 +1638,12 @@ const renderers = {
                 <span class="light red"></span>
                 <span class="light yellow"></span>
                 <span class="light green"></span>
-                <span class="terminal-host-title">host: <strong id="terminal-hostname">PC-Host</strong> • shell: pwsh / cmd</span>
+                <span class="terminal-host-title">host: <strong id="terminal-hostname">PC-Host</strong> • <span id="term-active-pill" style="color: #34d399; font-weight: bold;">[IDLE]</span></span>
               </div>
-              <button type="button" id="btn-clear-terminal" class="btn-terminal-clear">Limpiar Consola</button>
+              <div style="display: flex; gap: 6px;">
+                <button type="button" id="btn-kill-terminal-proc" class="btn-terminal-clear" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #fca5a5;">⏹️ Detener Proceso</button>
+                <button type="button" id="btn-clear-terminal" class="btn-terminal-clear">Limpiar Consola</button>
+              </div>
             </div>
 
             <div id="remote-terminal-console" class="remote-terminal-console">
@@ -1937,10 +1943,12 @@ const renderers = {
     document.getElementById('btn-trigger-screenshot')?.addEventListener('click', triggerScreenshot);
     document.getElementById('btn-quick-screenshot')?.addEventListener('click', triggerScreenshot);
 
-    // 5. Remote Terminal Form & Quick Commands
+    // 5. Remote Terminal Form & Live Interactive Streaming
     const termConsole = document.getElementById('remote-terminal-console');
     const termForm = document.getElementById('remote-terminal-form');
     const cmdInput = document.getElementById('remote-cmd-input');
+    const termActivePill = document.getElementById('term-active-pill');
+    let isProcessInteractiveRunning = false;
 
     function appendTermLine(text, type = 'output') {
       if (!termConsole) return;
@@ -1957,6 +1965,25 @@ const renderers = {
       }
     });
 
+    document.getElementById('btn-kill-terminal-proc')?.addEventListener('click', async () => {
+      try {
+        await killRemoteProcess();
+        appendTermLine('⏹️ Señal de detención enviada al proceso.', 'info');
+      } catch (e) {
+        alert('Error deteniendo proceso: ' + e.message);
+      }
+    });
+
+    document.getElementById('btn-start-agy')?.addEventListener('click', () => {
+      // Switch to terminal tab and launch AGY
+      const termTabBtn = document.querySelector('.cockpit-tab-btn[data-tab="terminal"]');
+      if (termTabBtn) termTabBtn.click();
+      if (cmdInput && termForm) {
+        cmdInput.value = 'agy';
+        termForm.dispatchEvent(new Event('submit'));
+      }
+    });
+
     document.querySelectorAll('.cmd-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         if (cmdInput) {
@@ -1969,33 +1996,57 @@ const renderers = {
     if (termForm) {
       termForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const cmd = cmdInput.value.trim();
-        if (!cmd) return;
+        const inputVal = cmdInput.value.trim();
+        if (!inputVal) return;
         cmdInput.value = '';
 
-        appendTermLine(`$ ${cmd}`, 'cmd-input');
-        appendTermLine('⏳ Enviando comando a la PC remota...', 'info');
+        if (isProcessInteractiveRunning) {
+          // Send stdin directly to the running session (e.g. AGY)
+          appendTermLine(`> ${inputVal}`, 'cmd-input');
+          try {
+            await sendRemoteStdin(inputVal);
+          } catch (err) {
+            appendTermLine(`❌ Error enviando stdin: ${err.message}`, 'error');
+          }
+        } else {
+          // Launch new process / command
+          appendTermLine(`$ ${inputVal}`, 'cmd-input');
+          appendTermLine('⏳ Iniciando comando en la PC remota...', 'info');
 
-        try {
-          await sendRemoteTask('exec_command', { command: cmd });
-          appendTermLine('⚡ Tarea en cola. Escuchando respuesta de la terminal...', 'info');
-        } catch (err) {
-          appendTermLine(`❌ Error enviando comando: ${err.message}`, 'error');
+          try {
+            await sendRemoteTask('exec_command', { command: inputVal });
+          } catch (err) {
+            appendTermLine(`❌ Error enviando comando: ${err.message}`, 'error');
+          }
         }
       });
     }
 
-    // Listen to current task completion for terminal output
+    // Live streaming log listener (Realtime output stream line by line)
     try {
-      listenToRemoteTask((task) => {
-        if (task && task.status === 'completed' && task.action === 'exec_command' && task.result) {
-          if (task.result.stdout) {
-            appendTermLine(task.result.stdout, 'stdout');
+      listenToTerminalStream((log) => {
+        if (log && log.line !== undefined) {
+          const type = log.type === 'stdin' ? 'cmd-input' : 'stdout';
+          appendTermLine(log.line, type);
+        }
+      });
+    } catch(e) {}
+
+    // Telemetry updates for interactive process status
+    try {
+      listenToRemoteTelemetry((telemetry) => {
+        if (!telemetry) return;
+        isProcessInteractiveRunning = !!telemetry.isInteractiveRunning;
+        if (termActivePill) {
+          if (telemetry.isInteractiveRunning) {
+            termActivePill.textContent = `[ACTIVO: ${telemetry.activeProcess || 'agy'}]`;
+            termActivePill.style.color = '#34d399';
+            if (cmdInput) cmdInput.placeholder = '💬 Enviar prompt o respuesta a AGY / proceso activo...';
+          } else {
+            termActivePill.textContent = '[IDLE]';
+            termActivePill.style.color = '#94a3b8';
+            if (cmdInput) cmdInput.placeholder = 'Escribe un comando para ejecutar en tu PC remota (ej: agy, dir, git status)...';
           }
-          if (task.result.stderr) {
-            appendTermLine(task.result.stderr, 'stderr');
-          }
-          appendTermLine(`[Comando finalizado con Exit Code: ${task.result.exitCode}]`, 'info');
         }
       });
     } catch(e) {}

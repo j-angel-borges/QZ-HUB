@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-QZ-HUB AGENT BRIDGE & REMOTE CONTROL DAEMON
-===========================================
-Conecta tu máquina local con QZ-HUB (Vercel / Celular) a través de Firebase Firestore
-y Google Cloud Platform (Vertex AI).
+QZ-HUB AGENT BRIDGE & INTERACTIVE REMOTE TERMINAL (v2.0)
+========================================================
+Permite interacción bidireccional en tiempo real con AGY (Antigravity CLI),
+PowerShell, Python y la terminal de tu PC desde tu celular / QZ-HUB.
 
-Permite:
-- Ejecutar comandos de terminal de forma remota desde tu celular.
-- Tomar capturas de pantalla de tu PC en tiempo real y enviarlas a QZ-HUB.
-- Ejecutar agentes y sub-agentes con Vertex AI / Gemini usando tus créditos de GCP.
-- Leer y transmitir archivos Markdown (.md) y entregables a tu celular.
+Soporta:
+- Streaming en vivo de stdout/stderr línea por línea.
+- Envío de stdin interactivo a procesos activos (ej: prompts a agy en ejecución).
+- Captura de pantalla en tiempo real (Pillow).
+- Lectura y transmisión de entregables Markdown a la PWA.
 """
 
 import os
@@ -20,63 +20,62 @@ import subprocess
 import threading
 import traceback
 import base64
-from datetime import datetime
+from datetime import datetime, timezone
 from io import BytesIO
 
 # Requerimientos básicos
 try:
     import requests
 except ImportError:
-    print("Instalando requests...")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "requests"])
     import requests
 
-# Requerimiento para capturas de pantalla
 try:
     from PIL import ImageGrab
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
-    print("Nota: Para capturas de pantalla automáticas instala Pillow: pip install Pillow")
 
-# Configuración por defecto
 FIRESTORE_BASE_URL = "https://firestore.googleapis.com/v1/projects/qz-hub/databases/(default)/documents"
 COLLECTION_TASKS = "qz_remote_tasks"
 COLLECTION_TELEMETRY = "qz_remote_telemetry"
-COLLECTION_MESSAGES = "qz_agent_messages"
 COLLECTION_MEDIA = "qz_remote_media"
+COLLECTION_LOGS = "qz_remote_terminal_logs"
 
 DEVICE_NAME = os.environ.get("COMPUTERNAME", "PC-Local-JoseAngel")
 IS_RUNNING = True
 LAST_PROCESSED_TASK_ID = None
 
+# Proceso activo interactivo (para AGY, shell interactiva, etc.)
+ACTIVE_PROCESS = None
+ACTIVE_PROCESS_LOCK = threading.Lock()
+ACTIVE_PROCESS_CMD = ""
+
+def now_iso():
+    return datetime.now(timezone.utc).isoformat()
+
 def get_firestore_doc(collection, doc_id="master"):
-    """Obtiene un documento de Firestore vía REST API."""
     url = f"{FIRESTORE_BASE_URL}/{collection}/{doc_id}"
     try:
-        r = requests.get(url, timeout=10)
+        r = requests.get(url, timeout=8)
         if r.status_code == 200:
             data = r.json()
             return parse_firestore_fields(data.get("fields", {}))
         return None
     except Exception as e:
-        print(f"Error leyendo Firestore {collection}/{doc_id}: {e}")
         return None
 
 def set_firestore_doc(collection, doc_id, data_dict):
-    """Guarda un documento en Firestore vía REST API."""
     url = f"{FIRESTORE_BASE_URL}/{collection}/{doc_id}"
     fields = encode_firestore_fields(data_dict)
     payload = {"fields": fields}
     try:
-        r = requests.patch(url, json=payload, timeout=10)
+        r = requests.patch(url, json=payload, timeout=8)
         return r.status_code == 200
     except Exception as e:
-        print(f"Error escribiendo Firestore {collection}/{doc_id}: {e}")
         return False
 
 def parse_firestore_fields(fields):
-    """Convierte campos de Firestore a dict normal de Python."""
     result = {}
     for k, v in fields.items():
         if "stringValue" in v:
@@ -103,7 +102,6 @@ def parse_firestore_fields(fields):
     return result
 
 def encode_firestore_fields(data):
-    """Convierte dict de Python a formato de campos de Firestore."""
     fields = {}
     for k, v in data.items():
         if isinstance(v, str):
@@ -127,12 +125,10 @@ def encode_firestore_fields(data):
     return fields
 
 def capture_screen_base64():
-    """Toma una captura de pantalla y la comprime en base64 JPEG."""
     if not HAS_PIL:
         return None
     try:
         screenshot = ImageGrab.grab()
-        # Redimensionar para optimizar ancho de banda (max 1280px)
         max_width = 1280
         if screenshot.width > max_width:
             ratio = max_width / float(screenshot.width)
@@ -147,59 +143,117 @@ def capture_screen_base64():
         print(f"Error capturando pantalla: {e}")
         return None
 
-def execute_terminal_command(command, cwd=None):
-    """Ejecuta un comando en la shell y retorna stdout y stderr."""
-    if not cwd or not os.path.exists(cwd):
-        cwd = os.getcwd()
+def push_terminal_log_chunk(line, stream_type="stdout"):
+    """Envía un fragmento de salida en tiempo real a Firestore."""
+    try:
+        log_payload = {
+            "timestamp": now_iso(),
+            "type": stream_type,
+            "line": line.rstrip("\r\n"),
+            "activeCmd": ACTIVE_PROCESS_CMD
+        }
+        set_firestore_doc(COLLECTION_LOGS, "live_stream", log_payload)
+    except Exception:
+        pass
+
+def process_output_reader(proc):
+    """Lee continuamente la salida de un proceso en ejecución y la transmite."""
+    global ACTIVE_PROCESS, ACTIVE_PROCESS_CMD
+    accumulated_lines = []
     
     try:
-        proc = subprocess.Popen(
-            command,
-            shell=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            cwd=cwd
-        )
-        stdout, stderr = proc.communicate(timeout=60)
-        return {
-            "exitCode": proc.returncode,
-            "stdout": stdout,
-            "stderr": stderr
-        }
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        return {
-            "exitCode": -1,
-            "stdout": "",
-            "stderr": "Tiempo de espera agotado (60s)."
-        }
+        for raw_line in iter(proc.stdout.readline, ''):
+            if not raw_line:
+                break
+            print(raw_line, end="")
+            accumulated_lines.append(raw_line)
+            push_terminal_log_chunk(raw_line, "stdout")
+            
+            # Si se acumulan muchas líneas, mantener un búfer razonable
+            if len(accumulated_lines) > 200:
+                accumulated_lines = accumulated_lines[-100:]
     except Exception as e:
-        return {
-            "exitCode": -1,
-            "stdout": "",
-            "stderr": str(e)
-        }
+        print(f"Error en reader thread: {e}")
+    finally:
+        with ACTIVE_PROCESS_LOCK:
+            if ACTIVE_PROCESS == proc:
+                ACTIVE_PROCESS = None
+                ACTIVE_PROCESS_CMD = ""
+
+def start_interactive_or_streaming_command(cmd, cwd=None):
+    """Inicia un comando en streaming o interactivo (como agy)."""
+    global ACTIVE_PROCESS, ACTIVE_PROCESS_CMD
+    if not cwd or not os.path.exists(cwd):
+        cwd = os.getcwd()
+
+    # Si ya hay un proceso activo, terminarlo limpiamente
+    with ACTIVE_PROCESS_LOCK:
+        if ACTIVE_PROCESS and ACTIVE_PROCESS.poll() is None:
+            try:
+                ACTIVE_PROCESS.terminate()
+            except Exception:
+                pass
+
+        try:
+            # Iniciar proceso con PIPEs para interacción continua
+            proc = subprocess.Popen(
+                cmd,
+                shell=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+                cwd=cwd,
+                encoding="utf-8",
+                errors="replace"
+            )
+            ACTIVE_PROCESS = proc
+            ACTIVE_PROCESS_CMD = cmd
+            
+            # Lanzar thread para lectura en vivo
+            t = threading.Thread(target=process_output_reader, args=(proc,), daemon=True)
+            t.start()
+            return True, "Proceso iniciado en streaming"
+        except Exception as e:
+            return False, str(e)
+
+def send_stdin_to_active_process(text):
+    """Envía texto / prompt al proceso interactivo activo (ej: AGY)."""
+    global ACTIVE_PROCESS
+    with ACTIVE_PROCESS_LOCK:
+        if ACTIVE_PROCESS and ACTIVE_PROCESS.poll() is None:
+            try:
+                print(f"📥 [STDIN] -> {text}")
+                ACTIVE_PROCESS.stdin.write(text + "\n")
+                ACTIVE_PROCESS.stdin.flush()
+                push_terminal_log_chunk(f"> {text}", "stdin")
+                return True, "Input enviado exitosamente"
+            except Exception as e:
+                return False, f"Error escribiendo a stdin: {e}"
+        else:
+            return False, "No hay proceso interactivo activo. Puedes iniciar uno ejecutando un comando."
 
 def telemetry_loop():
-    """Envía latido (heartbeat) y telemetría a Firestore cada 5 segundos."""
     while IS_RUNNING:
         try:
+            is_active = ACTIVE_PROCESS is not None and ACTIVE_PROCESS.poll() is None
             telemetry_data = {
                 "deviceName": DEVICE_NAME,
                 "status": "online",
-                "lastSeen": datetime.utcnow().isoformat() + "Z",
+                "lastSeen": now_iso(),
                 "os": sys.platform,
                 "cwd": os.getcwd(),
-                "hasScreenCapture": HAS_PIL
+                "hasScreenCapture": HAS_PIL,
+                "activeProcess": ACTIVE_PROCESS_CMD if is_active else "idle",
+                "isInteractiveRunning": is_active
             }
             set_firestore_doc(COLLECTION_TELEMETRY, "pc_host", telemetry_data)
         except Exception as e:
-            print(f"Error en loop de telemetría: {e}")
-        time.sleep(5)
+            pass
+        time.sleep(4)
 
 def task_worker_loop():
-    """Escucha y procesa comandos remotos enviados desde QZ-HUB."""
     global LAST_PROCESSED_TASK_ID
     print("🟢 Escuchando comandos remotos de QZ-HUB...")
     
@@ -213,27 +267,53 @@ def task_worker_loop():
                     action = task_doc.get("action")
                     print(f"⚡ Procesando comando remoto [{action}] ID: {task_id}")
                     
-                    # Marcar tarea como ejecutando
                     task_doc["status"] = "running"
-                    task_doc["startedAt"] = datetime.utcnow().isoformat() + "Z"
+                    task_doc["startedAt"] = now_iso()
                     set_firestore_doc(COLLECTION_TASKS, "current_task", task_doc)
                     
                     if action == "exec_command":
-                        cmd = task_doc.get("command", "")
+                        cmd = task_doc.get("command", "").strip()
                         cwd = task_doc.get("cwd", os.getcwd())
-                        res = execute_terminal_command(cmd, cwd)
                         
-                        task_doc["status"] = "completed"
-                        task_doc["result"] = res
-                        task_doc["completedAt"] = datetime.utcnow().isoformat() + "Z"
+                        # Si el comando es un prompt interactivo mientras hay un proceso activo
+                        if ACTIVE_PROCESS and ACTIVE_PROCESS.poll() is None and not cmd.startswith("agy") and not cmd.startswith("python"):
+                            success, msg = send_stdin_to_active_process(cmd)
+                            task_doc["status"] = "completed"
+                            task_doc["result"] = {"message": msg, "mode": "stdin"}
+                        else:
+                            success, msg = start_interactive_or_streaming_command(cmd, cwd)
+                            task_doc["status"] = "completed" if success else "error"
+                            task_doc["result"] = {"message": msg, "mode": "process_started"}
+                        
+                        task_doc["completedAt"] = now_iso()
                         set_firestore_doc(COLLECTION_TASKS, "current_task", task_doc)
-                        print(f"✅ Comando ejecutado. Exit code: {res['exitCode']}")
+
+                    elif action == "send_stdin":
+                        text = task_doc.get("input", "")
+                        success, msg = send_stdin_to_active_process(text)
+                        task_doc["status"] = "completed" if success else "error"
+                        task_doc["result"] = {"message": msg}
+                        task_doc["completedAt"] = now_iso()
+                        set_firestore_doc(COLLECTION_TASKS, "current_task", task_doc)
+
+                    elif action == "kill_process":
+                        with ACTIVE_PROCESS_LOCK:
+                            if ACTIVE_PROCESS:
+                                try:
+                                    ACTIVE_PROCESS.terminate()
+                                except Exception:
+                                    pass
+                                ACTIVE_PROCESS = None
+                        task_doc["status"] = "completed"
+                        task_doc["result"] = {"message": "Proceso terminado"}
+                        task_doc["completedAt"] = now_iso()
+                        set_firestore_doc(COLLECTION_TASKS, "current_task", task_doc)
 
                     elif action == "take_screenshot":
                         img_b64 = capture_screen_base64()
                         if img_b64:
                             media_doc = {
-                                "timestamp": datetime.utcnow().isoformat() + "Z",
+                                "timestamp": now_iso(),
                                 "type": "screenshot",
                                 "data": img_b64,
                                 "source": DEVICE_NAME
@@ -243,9 +323,9 @@ def task_worker_loop():
                             task_doc["result"] = {"message": "Captura de pantalla realizada exitosamente"}
                         else:
                             task_doc["status"] = "error"
-                            task_doc["result"] = {"error": "No se pudo tomar la captura (Pillow no instalado o error de display)"}
+                            task_doc["result"] = {"error": "No se pudo tomar captura"}
                         
-                        task_doc["completedAt"] = datetime.utcnow().isoformat() + "Z"
+                        task_doc["completedAt"] = now_iso()
                         set_firestore_doc(COLLECTION_TASKS, "current_task", task_doc)
 
                     elif action == "read_markdown":
@@ -259,17 +339,17 @@ def task_worker_loop():
                             task_doc["status"] = "error"
                             task_doc["result"] = {"error": f"El archivo {filepath} no existe"}
                         
-                        task_doc["completedAt"] = datetime.utcnow().isoformat() + "Z"
+                        task_doc["completedAt"] = now_iso()
                         set_firestore_doc(COLLECTION_TASKS, "current_task", task_doc)
         except Exception as e:
             print(f"Error procesando tarea: {e}")
             traceback.print_exc()
         
-        time.sleep(1.5)
+        time.sleep(1.2)
 
 def main():
     print("=" * 60)
-    print("🤖 QZ-HUB REMOTE AGENT BRIDGE INICIADO")
+    print("🤖 QZ-HUB INTERACTIVE AGENT BRIDGE (v2.0)")
     print(f"Dispositivo: {DEVICE_NAME}")
     print(f"Directorio: {os.getcwd()}")
     print("=" * 60)

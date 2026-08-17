@@ -367,6 +367,24 @@ export function listenToLatestScreenshot(callback) {
   });
 }
 
+export function listenToTerminalStream(callback) {
+  const logDocRef = doc(db, 'qz_remote_terminal_logs', 'live_stream');
+  return onSnapshot(logDocRef, (snap) => {
+    if (snap.exists()) {
+      callback(snap.data());
+    }
+  });
+}
+
+export async function sendRemoteStdin(text) {
+  return await sendRemoteTask('send_stdin', { input: text });
+}
+
+export async function killRemoteProcess() {
+  return await sendRemoteTask('kill_process', {});
+}
+
+
 // ─── GOOGLE CLOUD VERTEX AI / GEMINI DIRECT ENGINE ───────────────────────────
 export async function callVertexGemini(prompt, systemInstruction = '', model = 'gemini-2.5-flash', apiKey = '') {
   const key = (apiKey || localStorage.getItem('gemini_api_key') || '').trim();
