@@ -3599,11 +3599,13 @@ document.querySelectorAll('.sidebar-nav a').forEach(link => {
   });
 });
 
-// Load Sidebar Collapsed State Preference for Desktop
-if (window.innerWidth > 768) {
+// Load Sidebar Collapsed State (Default collapsed on mobile)
+if (window.innerWidth <= 768) {
+  document.getElementById('app')?.classList.add('sidebar-collapsed');
+} else {
   const sidebarCollapsed = localStorage.getItem('sidebar_collapsed') === 'true';
   if (sidebarCollapsed) {
-    document.getElementById('app').classList.add('sidebar-collapsed');
+    document.getElementById('app')?.classList.add('sidebar-collapsed');
   }
 }
 
