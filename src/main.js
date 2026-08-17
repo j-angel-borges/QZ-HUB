@@ -1733,9 +1733,9 @@ const renderers = {
               <div style="background: rgba(15, 23, 42, 0.03); border: 1px solid var(--border-color); padding: 14px; border-radius: 8px;">
                 <h3 style="margin-top: 0; font-size: 13.5px; color: #0f172a;">🖥️ Ejecutar Bridge en tu PC Local</h3>
                 <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px;">Para controlar tu PC desde el celular, ejecuta este comando en tu terminal de Windows:</p>
-                <div style="background: #0f172a; color: #f8fafc; padding: 10px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
-                  <code>python scripts/qz_agent_bridge.py</code>
-                  <button type="button" onclick="navigator.clipboard.writeText('python scripts/qz_agent_bridge.py'); alert('Comando copiado');" style="background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">Copiar</button>
+                <div style="background: #0f172a; color: #f8fafc; padding: 10px 14px; border-radius: 6px; font-family: monospace; font-size: 12px; display: flex; justify-content: space-between; align-items: center; word-break: break-all;">
+                  <code id="bridge-cmd-code">python "C:\Users\jange\Documents\GitHub\zentry-hub\scripts\qz_agent_bridge.py"</code>
+                  <button type="button" onclick="navigator.clipboard.writeText('python \"C:\\Users\\jange\\Documents\\GitHub\\zentry-hub\\scripts\\qz_agent_bridge.py\"'); alert('Comando copiado al portapapeles');" style="background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; white-space: nowrap; margin-left: 8px;">Copiar</button>
                 </div>
               </div>
 
