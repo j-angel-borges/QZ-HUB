@@ -254,7 +254,7 @@ def telemetry_loop():
         time.sleep(4)
 
 def task_worker_loop():
-    global LAST_PROCESSED_TASK_ID
+    global LAST_PROCESSED_TASK_ID, ACTIVE_PROCESS, ACTIVE_PROCESS_CMD
     print("🟢 Escuchando comandos remotos de QZ-HUB...")
     
     while IS_RUNNING:
