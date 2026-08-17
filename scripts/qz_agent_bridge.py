@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-QZ-HUB AGENT BRIDGE & INTERACTIVE REMOTE TERMINAL (v2.1)
+QZ-HUB AGENT BRIDGE & INTERACTIVE REMOTE TERMINAL (v2.2)
 ========================================================
-Thread-safe Class-based Process Manager for AGY, PowerShell, Python & Bash.
+Full bidirectional streaming with non-blocking reader and auto-AGY print mode.
 """
 
 import os
@@ -50,7 +50,7 @@ def get_firestore_doc(collection, doc_id="master"):
             data = r.json()
             return parse_firestore_fields(data.get("fields", {}))
         return None
-    except Exception as e:
+    except Exception:
         return None
 
 def set_firestore_doc(collection, doc_id, data_dict):
@@ -60,7 +60,7 @@ def set_firestore_doc(collection, doc_id, data_dict):
     try:
         r = requests.patch(url, json=payload, timeout=8)
         return r.status_code == 200
-    except Exception as e:
+    except Exception:
         return False
 
 def parse_firestore_fields(fields):
@@ -132,7 +132,6 @@ def capture_screen_base64():
         return None
 
 def push_terminal_log_chunk(line, stream_type="stdout"):
-    """Envía un fragmento de salida en tiempo real a Firestore."""
     try:
         log_payload = {
             "timestamp": now_iso(),
@@ -145,7 +144,6 @@ def push_terminal_log_chunk(line, stream_type="stdout"):
         pass
 
 class ProcessManager:
-    """Administrador de procesos thread-safe sin dependencias de variables globales sueltas."""
     active_process = None
     active_cmd = ""
     lock = threading.Lock()
@@ -165,6 +163,18 @@ class ProcessManager:
         if not cwd or not os.path.exists(cwd):
             cwd = os.getcwd()
 
+        # Si el comando es agy con un prompt pero sin flags, formatearlo para ejecución óptima
+        clean_cmd = cmd.strip()
+        if clean_cmd.startswith("agy ") and not any(flag in clean_cmd for flag in ["--print", "-p", "-i", "--help", "version", "agent", "plugin"]):
+            prompt_content = clean_cmd[4:].strip()
+            if (prompt_content.startswith('"') and prompt_content.endswith('"')) or (prompt_content.startswith("'") and prompt_content.endswith("'")):
+                clean_cmd = f'agy -p --dangerously-skip-permissions {prompt_content}'
+            else:
+                clean_cmd = f'agy -p --dangerously-skip-permissions "{prompt_content}"'
+        elif clean_cmd == "agy":
+            # Si solo escribió 'agy', ejecutarlo de forma interactiva con bienvenida o prompt
+            clean_cmd = 'agy'
+
         with cls.lock:
             if cls.active_process and cls.active_process.poll() is None:
                 try:
@@ -173,8 +183,11 @@ class ProcessManager:
                     pass
 
             try:
+                print(f"🚀 Ejecutando comando: {clean_cmd}")
+                push_terminal_log_chunk(f"$ {clean_cmd}", "cmd-input")
+
                 proc = subprocess.Popen(
-                    cmd,
+                    clean_cmd,
                     shell=True,
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
@@ -186,11 +199,11 @@ class ProcessManager:
                     errors="replace"
                 )
                 cls.active_process = proc
-                cls.active_cmd = cmd
+                cls.active_cmd = clean_cmd
                 
                 t = threading.Thread(target=cls._reader, args=(proc,), daemon=True)
                 t.start()
-                return True, "Proceso iniciado en streaming"
+                return True, f"Proceso iniciado: {clean_cmd}"
             except Exception as e:
                 return False, str(e)
 
@@ -198,22 +211,29 @@ class ProcessManager:
     def _reader(cls, proc):
         accumulated_lines = []
         try:
-            for raw_line in iter(proc.stdout.readline, ''):
-                if not raw_line:
-                    break
-                print(raw_line, end="")
-                accumulated_lines.append(raw_line)
-                push_terminal_log_chunk(raw_line, "stdout")
+            # Lectura línea por línea con flush inmediato
+            while True:
+                line = proc.stdout.readline()
+                if not line:
+                    if proc.poll() is not None:
+                        break
+                    time.sleep(0.05)
+                    continue
                 
-                if len(accumulated_lines) > 200:
-                    accumulated_lines = accumulated_lines[-100:]
+                print(line, end="", flush=True)
+                accumulated_lines.append(line)
+                push_terminal_log_chunk(line, "stdout")
+                
+                if len(accumulated_lines) > 300:
+                    accumulated_lines = accumulated_lines[-150:]
         except Exception as e:
-            print(f"Error en reader thread: {e}")
+            print(f"Error en reader: {e}")
         finally:
             with cls.lock:
                 if cls.active_process == proc:
                     cls.active_process = None
                     cls.active_cmd = ""
+            push_terminal_log_chunk("[Proceso finalizado]", "info")
 
     @classmethod
     def send_stdin(cls, text):
@@ -240,6 +260,7 @@ class ProcessManager:
                     pass
             cls.active_process = None
             cls.active_cmd = ""
+            push_terminal_log_chunk("[Proceso detenido por el usuario]", "info")
             return True
 
 def telemetry_loop():
@@ -257,9 +278,9 @@ def telemetry_loop():
                 "isInteractiveRunning": is_active
             }
             set_firestore_doc(COLLECTION_TELEMETRY, "pc_host", telemetry_data)
-        except Exception as e:
+        except Exception:
             pass
-        time.sleep(4)
+        time.sleep(3)
 
 def task_worker_loop():
     global LAST_PROCESSED_TASK_ID
@@ -347,11 +368,11 @@ def task_worker_loop():
             print(f"Error procesando tarea: {e}")
             traceback.print_exc()
         
-        time.sleep(1.2)
+        time.sleep(1.0)
 
 def main():
     print("=" * 60)
-    print("🤖 QZ-HUB INTERACTIVE AGENT BRIDGE (v2.1)")
+    print("🤖 QZ-HUB INTERACTIVE AGENT BRIDGE (v2.2)")
     print(f"Dispositivo: {DEVICE_NAME}")
     print(f"Directorio: {os.getcwd()}")
     print("=" * 60)
