@@ -1,3 +1,30 @@
+
+function processLocalSsotQuery(query) {
+  const q = (query || '').toLowerCase().trim();
+  
+  if (q.includes('hola') || q.includes('buenos') || q.includes('saludos') || q === 'hi') {
+    return `¡Hola Jose Angel! 👋 Estoy listo para asistirte en la orquestación operativa de **QZ-Hub**.\n\nPuedes consultarme sobre:\n- 🎯 **Metas y Brecha de Caja al 31 de Agosto**\n- 📊 **Ratios y llamadas de Royal Prestige**\n- ☄️ **Licencias y ganancias de QUARZ / ZentryOS**\n- 📸 **Capturas de pantalla o comandos en tu PC**\n\n*(Para activar respuestas avanzadas con Gemini 2.5 y tus créditos de GCP, asegúrate de ingresar tu API Key en **⚙️ Config GCP**)*.`;
+  }
+  
+  if (q.includes('meta') || q.includes('financier') || q.includes('caja') || q.includes('agosto')) {
+    return `### 🎯 Estado de Metas Financieras (Al 31 de Agosto)\n- **Meta Total de Facturación:** S/ 4,000.00 PEN\n- **Caja Actual en Cuenta:** S/ 770.00 PEN\n- **Brecha Restante a Generar:** **S/ 3,230.00 PEN**\n- **Estrategia Combinada:**\n  - Royal Prestige (3 ventas estimadas = S/ 3,031.77)\n  - Quarz / ZentryOS (1 despliegue de licencia = S/ 1,906.78 ganancia neta personal).`;
+  }
+
+  if (q.includes('royal') || q.includes('llamada') || q.includes('demo') || q.includes('embudo')) {
+    return `### 📊 Embudo Operativo Royal Prestige (SIM: 933709385)\n- **Franja Horaria:** 12:00 PM a 02:00 PM (Ininterrumpida)\n- **Volumen Objetivo:** 40 llamadas frías diarias\n- **Ratio de Conversión:** 20 llamadas conversadas = 1 Demo agendada\n- **Ratio de Cierre:** 4 Demos realizadas = 1 Venta cerrada\n- **Comisión Promedio por Venta:** S/ 1,010.59 PEN.`;
+  }
+
+  if (q.includes('quarz') || q.includes('zentry') || q.includes('licencia')) {
+    return `### ☄️ Modelo de Negocio QUARZ Group / ZentryOS\n- **Precio por Despliegue de Licencia:** $1,000 USD (S/ 3,177.97 aprox.)\n- **Distribución de Ganancia:**\n  - **60% Personal (Jose Angel):** S/ 1,906.78 PEN\n  - **40% Caja Empresa (QUARZ):** S/ 1,271.19 PEN.`;
+  }
+
+  if (q.includes('rutina') || q.includes('biohack') || q.includes('ayuno') || q.includes('yerbatero')) {
+    return `### 🥩 Protocolo Biológico y Rutina Diaria\n- **05:00 AM - 08:30 AM:** Levantamiento, luz solar, hidratación y foco profundo\n- **12:00 PM - 02:00 PM:** Bloque sagrado de prospección y llamadas comerciales\n- **Ayuno Autofágico:** Ciclo semanal de 48h con reabastecimiento carnívoro denso\n- **Abastecimiento Yerbateros:** Viernes 04:30 AM (Hígado, corazón, grasa y cortes limpios).`;
+  }
+
+  return `Entendido. He registrado tu consulta en esta sesión: **"${query}"**.\n\n*Nota:* Para que pueda generar análisis profundos, redactar documentos complejos y procesar prompts con **Google Cloud Vertex AI (Gemini 2.5)**, haz clic en el botón **⚙️ Config GCP** abajo y pega tu **Google Cloud API Key**.`;
+}
+
 import { manifestMarkdown, circadianoMarkdown, metricasMarkdown, dispositivosData } from './herramientas-data.js';
 import './style.css';
 import db from './ssot-db.json';
@@ -1796,9 +1823,16 @@ const renderers = {
             <button id="gcp-modal-close" class="modal-close-btn">&times;</button>
           </div>
           <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; font-size: 12px; color: #334155;">
+              <strong>¿Cómo obtener tu API Key con tus créditos de GCP?</strong>
+              <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b;">
+                1. Ve a <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #0f172a; font-weight: bold; text-decoration: underline;">Google AI Studio API Keys</a> o tu <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color: #0f172a; font-weight: bold; text-decoration: underline;">Consola de GCP</a> en tu proyecto <code>qz-hub</code>.<br>
+                2. Haz clic en <strong>Create API Key</strong> y pégala aquí abajo.
+              </p>
+            </div>
             <div>
               <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px;">Google Cloud / Gemini API Key (Vertex AI):</label>
-              <input type="password" id="modal-gcp-api-key" placeholder="AIzaSy..." style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px;">
+              <input type="password" id="modal-gcp-api-key" placeholder="Pega tu clave AIzaSy..." style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px;">
             </div>
             <div>
               <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px;">GCP Project ID:</label>
