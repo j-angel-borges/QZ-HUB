@@ -384,6 +384,32 @@ export async function killRemoteProcess() {
   return await sendRemoteTask('kill_process', {});
 }
 
+export function listenToActiveSession(callback) {
+  const sessionDocRef = doc(db, 'qz_remote_sessions', 'active_session');
+  return onSnapshot(sessionDocRef, (snap) => {
+    if (snap.exists()) {
+      callback(snap.data());
+    }
+  });
+}
+
+export function listenToSessionList(callback) {
+  const listDocRef = doc(db, 'qz_remote_sessions', 'session_list');
+  return onSnapshot(listDocRef, (snap) => {
+    if (snap.exists()) {
+      callback(snap.data());
+    }
+  });
+}
+
+export async function switchRemoteSession(sessionId) {
+  return await sendRemoteTask('switch_session', { sessionId });
+}
+
+export async function readRemoteArtifact(sessionId, filename) {
+  return await sendRemoteTask('read_artifact', { sessionId, filename });
+}
+
 
 // ─── GOOGLE CLOUD VERTEX AI / GEMINI DIRECT ENGINE ───────────────────────────
 export async function callVertexGemini(prompt, systemInstruction = '', model = 'gemini-2.5-flash', apiKey = '') {

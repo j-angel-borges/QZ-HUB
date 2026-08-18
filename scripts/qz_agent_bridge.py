@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-QZ-HUB AGENT BRIDGE & INTERACTIVE REMOTE TERMINAL (v2.2)
-========================================================
-Full bidirectional streaming with non-blocking reader and auto-AGY print mode.
+QZ-HUB AGENT BRIDGE & CLAUDE-STYLE REMOTE SESSION CONTROLLER (v3.0)
+===================================================================
+Connects your laptop's Antigravity (AGY) sessions, real-time transcripts,
+artifacts (*.md), tasks, screenshots, and terminal to your mobile PWA via Firebase.
 """
 
 import os
@@ -13,16 +14,22 @@ import subprocess
 import threading
 import traceback
 import base64
+import glob
 from datetime import datetime, timezone
 from io import BytesIO
 
-# Requerimientos básicos
+# Fix Windows console encoding
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
+# Ensure requests
 try:
     import requests
 except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "requests"])
     import requests
 
+# Ensure PIL for screen captures
 try:
     from PIL import ImageGrab
     HAS_PIL = True
@@ -34,14 +41,22 @@ COLLECTION_TASKS = "qz_remote_tasks"
 COLLECTION_TELEMETRY = "qz_remote_telemetry"
 COLLECTION_MEDIA = "qz_remote_media"
 COLLECTION_LOGS = "qz_remote_terminal_logs"
+COLLECTION_SESSIONS = "qz_remote_sessions"
 
+BRAIN_DIR = os.path.expanduser(r"~\.gemini\antigravity-cli\brain")
 DEVICE_NAME = os.environ.get("COMPUTERNAME", "PC-Local-JoseAngel")
 IS_RUNNING = True
 LAST_PROCESSED_TASK_ID = None
 
+CURRENT_TARGET_SESSION_ID = None
+LAST_TRANSCRIPT_LINE_COUNT = 0
+
+
 def now_iso():
     return datetime.now(timezone.utc).isoformat()
 
+
+# ─── FIRESTORE REST API CLIENT ────────────────────────────────────────────────
 def get_firestore_doc(collection, doc_id="master"):
     url = f"{FIRESTORE_BASE_URL}/{collection}/{doc_id}"
     try:
@@ -53,6 +68,7 @@ def get_firestore_doc(collection, doc_id="master"):
     except Exception:
         return None
 
+
 def set_firestore_doc(collection, doc_id, data_dict):
     url = f"{FIRESTORE_BASE_URL}/{collection}/{doc_id}"
     fields = encode_firestore_fields(data_dict)
@@ -62,6 +78,7 @@ def set_firestore_doc(collection, doc_id, data_dict):
         return r.status_code == 200
     except Exception:
         return False
+
 
 def parse_firestore_fields(fields):
     result = {}
@@ -89,6 +106,7 @@ def parse_firestore_fields(fields):
             result[k] = parsed_list
     return result
 
+
 def encode_firestore_fields(data):
     fields = {}
     for k, v in data.items():
@@ -112,6 +130,8 @@ def encode_firestore_fields(data):
             fields[k] = {"arrayValue": {"values": vals}}
     return fields
 
+
+# ─── SCREENSHOT CAPTURE ───────────────────────────────────────────────────────
 def capture_screen_base64():
     if not HAS_PIL:
         return None
@@ -122,14 +142,15 @@ def capture_screen_base64():
             ratio = max_width / float(screenshot.width)
             new_height = int((float(screenshot.height) * float(ratio)))
             screenshot = screenshot.resize((max_width, new_height))
-        
+
         buffered = BytesIO()
-        screenshot.save(buffered, format="JPEG", quality=70)
+        screenshot.save(buffered, format="JPEG", quality=75)
         img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
         return f"data:image/jpeg;base64,{img_str}"
     except Exception as e:
         print(f"Error capturando pantalla: {e}")
         return None
+
 
 def push_terminal_log_chunk(line, stream_type="stdout"):
     try:
@@ -143,6 +164,8 @@ def push_terminal_log_chunk(line, stream_type="stdout"):
     except Exception:
         pass
 
+
+# ─── PROCESS MANAGER ──────────────────────────────────────────────────────────
 class ProcessManager:
     active_process = None
     active_cmd = ""
@@ -163,17 +186,14 @@ class ProcessManager:
         if not cwd or not os.path.exists(cwd):
             cwd = os.getcwd()
 
-        # Si el comando es agy con un prompt pero sin flags, formatearlo para ejecución óptima
         clean_cmd = cmd.strip()
+        # Formato optimizado para agy no interactivo si se envía un prompt
         if clean_cmd.startswith("agy ") and not any(flag in clean_cmd for flag in ["--print", "-p", "-i", "--help", "version", "agent", "plugin"]):
             prompt_content = clean_cmd[4:].strip()
             if (prompt_content.startswith('"') and prompt_content.endswith('"')) or (prompt_content.startswith("'") and prompt_content.endswith("'")):
                 clean_cmd = f'agy -p --dangerously-skip-permissions {prompt_content}'
             else:
                 clean_cmd = f'agy -p --dangerously-skip-permissions "{prompt_content}"'
-        elif clean_cmd == "agy":
-            # Si solo escribió 'agy', ejecutarlo de forma interactiva con bienvenida o prompt
-            clean_cmd = 'agy'
 
         with cls.lock:
             if cls.active_process and cls.active_process.poll() is None:
@@ -183,7 +203,7 @@ class ProcessManager:
                     pass
 
             try:
-                print(f"🚀 Ejecutando comando: {clean_cmd}")
+                print(f"🚀 [Bridge] Ejecutando: {clean_cmd}")
                 push_terminal_log_chunk(f"$ {clean_cmd}", "cmd-input")
 
                 proc = subprocess.Popen(
@@ -200,7 +220,7 @@ class ProcessManager:
                 )
                 cls.active_process = proc
                 cls.active_cmd = clean_cmd
-                
+
                 t = threading.Thread(target=cls._reader, args=(proc,), daemon=True)
                 t.start()
                 return True, f"Proceso iniciado: {clean_cmd}"
@@ -209,9 +229,7 @@ class ProcessManager:
 
     @classmethod
     def _reader(cls, proc):
-        accumulated_lines = []
         try:
-            # Lectura línea por línea con flush inmediato
             while True:
                 line = proc.stdout.readline()
                 if not line:
@@ -219,13 +237,9 @@ class ProcessManager:
                         break
                     time.sleep(0.05)
                     continue
-                
+
                 print(line, end="", flush=True)
-                accumulated_lines.append(line)
                 push_terminal_log_chunk(line, "stdout")
-                
-                if len(accumulated_lines) > 300:
-                    accumulated_lines = accumulated_lines[-150:]
         except Exception as e:
             print(f"Error en reader: {e}")
         finally:
@@ -263,10 +277,166 @@ class ProcessManager:
             push_terminal_log_chunk("[Proceso detenido por el usuario]", "info")
             return True
 
-def telemetry_loop():
+
+# ─── ANTIGRAVITY SESSION SCANNER & REALTIME SYNC ──────────────────────────────
+def scan_antigravity_sessions():
+    """Escanea ~/.gemini/antigravity-cli/brain para extraer sesiones reales, markdowns y transcripciones."""
+    if not os.path.exists(BRAIN_DIR):
+        return [], None
+
+    sessions = []
+    try:
+        entries = [d for d in os.listdir(BRAIN_DIR) if os.path.isdir(os.path.join(BRAIN_DIR, d))]
+    except Exception:
+        return [], None
+
+    for conv_id in entries:
+        conv_path = os.path.join(BRAIN_DIR, conv_id)
+        transcript_path = os.path.join(conv_path, ".system_generated", "logs", "transcript.jsonl")
+
+        title = "Sesión Antigravity"
+        last_msg_snippet = ""
+        total_messages = 0
+
+        if os.path.exists(transcript_path):
+            try:
+                with open(transcript_path, "r", encoding="utf-8", errors="ignore") as tf:
+                    for line in tf:
+                        if not line.strip():
+                            continue
+                        try:
+                            d = json.loads(line)
+                            step_type = d.get("type", "")
+                            content = d.get("content", "")
+                            if step_type == "USER_INPUT" and title == "Sesión Antigravity" and content:
+                                clean_t = content.replace("<USER_REQUEST>", "").replace("</USER_REQUEST>", "").strip()
+                                first_line = clean_t.split("\n")[0][:70]
+                                if first_line:
+                                    title = first_line
+                            if content:
+                                total_messages += 1
+                                last_msg_snippet = content.replace("\n", " ")[:100]
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+
+        artifacts = []
+        try:
+            for f in os.listdir(conv_path):
+                if f.endswith(".md"):
+                    f_path = os.path.join(conv_path, f)
+                    try:
+                        f_size = os.path.getsize(f_path)
+                        artifacts.append({
+                            "filename": f,
+                            "path": f_path,
+                            "size": f_size,
+                            "updatedAt": datetime.fromtimestamp(os.path.getmtime(f_path), tz=timezone.utc).isoformat()
+                        })
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+        tasks_count = 0
+        tasks_dir = os.path.join(conv_path, ".system_generated", "tasks")
+        if os.path.exists(tasks_dir):
+            try:
+                tasks_count = len([f for f in os.listdir(tasks_dir) if f.endswith(".log")])
+            except Exception:
+                pass
+
+        try:
+            mtime = os.path.getmtime(conv_path)
+        except Exception:
+            mtime = 0
+
+        sessions.append({
+            "id": conv_id,
+            "title": title,
+            "mtime": mtime,
+            "updatedAt": datetime.fromtimestamp(mtime, tz=timezone.utc).isoformat(),
+            "artifactsCount": len(artifacts),
+            "artifacts": artifacts,
+            "totalMessages": total_messages,
+            "lastMessage": last_msg_snippet,
+            "tasksCount": tasks_count
+        })
+
+    sessions.sort(key=lambda s: s["mtime"], reverse=True)
+    active_session = sessions[0] if sessions else None
+    return sessions[:15], active_session
+
+
+def get_session_transcript_feed(conv_id):
+    """Lee el transcript de la sesión y formatea los mensajes para el chat móvil."""
+    conv_path = os.path.join(BRAIN_DIR, conv_id)
+    transcript_path = os.path.join(conv_path, ".system_generated", "logs", "transcript.jsonl")
+    if not os.path.exists(transcript_path):
+        return []
+
+    messages = []
+    try:
+        with open(transcript_path, "r", encoding="utf-8", errors="ignore") as tf:
+            for line in tf:
+                if not line.strip():
+                    continue
+                try:
+                    d = json.loads(line)
+                    msg_type = d.get("type", "")
+                    content = d.get("content", "")
+                    tool_calls = d.get("tool_calls", [])
+                    step_idx = d.get("step_index", 0)
+
+                    if msg_type == "USER_INPUT" and content:
+                        clean_text = content.replace("<USER_REQUEST>", "").replace("</USER_REQUEST>", "")
+                        if "<ADDITIONAL_METADATA>" in clean_text:
+                            clean_text = clean_text.split("<ADDITIONAL_METADATA>")[0]
+                        clean_text = clean_text.strip()
+                        if clean_text:
+                            messages.append({
+                                "id": f"step_{step_idx}_user",
+                                "sender": "user",
+                                "text": clean_text,
+                                "type": "text"
+                            })
+
+                    elif msg_type == "PLANNER_RESPONSE":
+                        if content and content.strip():
+                            messages.append({
+                                "id": f"step_{step_idx}_bot",
+                                "sender": "bot",
+                                "text": content.strip(),
+                                "type": "text"
+                            })
+                        elif tool_calls:
+                            tool_names = [tc.get("name", "tool") for tc in tool_calls if isinstance(tc, dict)]
+                            actions = [tc.get("args", {}).get("toolAction", "") for tc in tool_calls if isinstance(tc, dict) and "args" in tc]
+                            summary = ", ".join(filter(None, actions)) or ", ".join(tool_names)
+                            messages.append({
+                                "id": f"step_{step_idx}_tool",
+                                "sender": "bot",
+                                "text": f"🛠️ **Acción:** {summary}",
+                                "type": "tool_activity"
+                            })
+                except Exception:
+                    pass
+    except Exception as e:
+        print(f"Error leyendo transcript: {e}")
+
+    return messages[-35:]
+
+
+# ─── TELEMETRY & SESSION SYNC LOOP ────────────────────────────────────────────
+def telemetry_and_sessions_loop():
+    global CURRENT_TARGET_SESSION_ID
     while IS_RUNNING:
         try:
-            is_active = ProcessManager.is_running()
+            sessions, active_session = scan_antigravity_sessions()
+
+            target_id = CURRENT_TARGET_SESSION_ID or (active_session["id"] if active_session else None)
+
             telemetry_data = {
                 "deviceName": DEVICE_NAME,
                 "status": "online",
@@ -275,17 +445,46 @@ def telemetry_loop():
                 "cwd": os.getcwd(),
                 "hasScreenCapture": HAS_PIL,
                 "activeProcess": ProcessManager.get_active_cmd(),
-                "isInteractiveRunning": is_active
+                "isInteractiveRunning": ProcessManager.is_running(),
+                "activeSessionId": target_id or "none",
+                "activeSessionTitle": active_session["title"] if active_session else "Sin sesión activa"
             }
             set_firestore_doc(COLLECTION_TELEMETRY, "pc_host", telemetry_data)
-        except Exception:
-            pass
-        time.sleep(3)
 
+            if sessions:
+                sessions_payload = {
+                    "updatedAt": now_iso(),
+                    "total": len(sessions),
+                    "activeId": target_id or sessions[0]["id"],
+                    "sessions": sessions
+                }
+                set_firestore_doc(COLLECTION_SESSIONS, "session_list", sessions_payload)
+
+                current_conv_id = target_id or sessions[0]["id"]
+                current_meta = next((s for s in sessions if s["id"] == current_conv_id), sessions[0])
+                messages_feed = get_session_transcript_feed(current_conv_id)
+
+                active_doc_payload = {
+                    "id": current_conv_id,
+                    "title": current_meta.get("title", "Sesión Antigravity"),
+                    "updatedAt": now_iso(),
+                    "artifacts": current_meta.get("artifacts", []),
+                    "messages": messages_feed,
+                    "tasksCount": current_meta.get("tasksCount", 0)
+                }
+                set_firestore_doc(COLLECTION_SESSIONS, "active_session", active_doc_payload)
+
+        except Exception as e:
+            print(f"Error en telemetry loop: {e}")
+
+        time.sleep(3.5)
+
+
+# ─── TASK WORKER LOOP (RECEIVES COMMANDS FROM MOBILE) ─────────────────────────
 def task_worker_loop():
-    global LAST_PROCESSED_TASK_ID
-    print("🟢 Escuchando comandos remotos de QZ-HUB...")
-    
+    global LAST_PROCESSED_TASK_ID, CURRENT_TARGET_SESSION_ID
+    print("🟢 Escuchando comandos y tareas remotas de QZ-HUB...")
+
     while IS_RUNNING:
         try:
             task_doc = get_firestore_doc(COLLECTION_TASKS, "current_task")
@@ -294,17 +493,16 @@ def task_worker_loop():
                 if task_id and task_id != LAST_PROCESSED_TASK_ID:
                     LAST_PROCESSED_TASK_ID = task_id
                     action = task_doc.get("action")
-                    print(f"⚡ Procesando comando remoto [{action}] ID: {task_id}")
-                    
+                    print(f"⚡ [Bridge Task] [{action}] ID: {task_id}")
+
                     task_doc["status"] = "running"
                     task_doc["startedAt"] = now_iso()
                     set_firestore_doc(COLLECTION_TASKS, "current_task", task_doc)
-                    
+
                     if action == "exec_command":
                         cmd = task_doc.get("command", "").strip()
                         cwd = task_doc.get("cwd", os.getcwd())
-                        
-                        # Si hay un proceso interactivo activo y el comando no es para arrancar uno nuevo
+
                         if ProcessManager.is_running() and not cmd.startswith("agy") and not cmd.startswith("python"):
                             success, msg = ProcessManager.send_stdin(cmd)
                             task_doc["status"] = "completed"
@@ -313,7 +511,7 @@ def task_worker_loop():
                             success, msg = ProcessManager.start(cmd, cwd)
                             task_doc["status"] = "completed" if success else "error"
                             task_doc["result"] = {"message": msg, "mode": "process_started"}
-                        
+
                         task_doc["completedAt"] = now_iso()
                         set_firestore_doc(COLLECTION_TASKS, "current_task", task_doc)
 
@@ -328,7 +526,7 @@ def task_worker_loop():
                     elif action == "kill_process":
                         ProcessManager.kill()
                         task_doc["status"] = "completed"
-                        task_doc["result"] = {"message": "Proceso terminado"}
+                        task_doc["result"] = {"message": "Proceso detenido"}
                         task_doc["completedAt"] = now_iso()
                         set_firestore_doc(COLLECTION_TASKS, "current_task", task_doc)
 
@@ -343,51 +541,72 @@ def task_worker_loop():
                             }
                             set_firestore_doc(COLLECTION_MEDIA, "latest_screenshot", media_doc)
                             task_doc["status"] = "completed"
-                            task_doc["result"] = {"message": "Captura de pantalla realizada exitosamente"}
+                            task_doc["result"] = {"message": "Captura exitosa"}
                         else:
                             task_doc["status"] = "error"
-                            task_doc["result"] = {"error": "No se pudo tomar captura"}
-                        
+                            task_doc["result"] = {"error": "Error al capturar pantalla"}
+
                         task_doc["completedAt"] = now_iso()
                         set_firestore_doc(COLLECTION_TASKS, "current_task", task_doc)
 
-                    elif action == "read_markdown":
+                    elif action == "read_markdown" or action == "read_artifact":
                         filepath = task_doc.get("filepath", "")
-                        if os.path.exists(filepath) and os.path.isfile(filepath):
+                        if not filepath and "sessionId" in task_doc and "filename" in task_doc:
+                            filepath = os.path.join(BRAIN_DIR, task_doc["sessionId"], task_doc["filename"])
+
+                        if filepath and os.path.exists(filepath) and os.path.isfile(filepath):
                             with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
                                 content = f.read()
                             task_doc["status"] = "completed"
-                            task_doc["result"] = {"content": content, "filepath": filepath}
+                            task_doc["result"] = {
+                                "content": content,
+                                "filepath": filepath,
+                                "filename": os.path.basename(filepath)
+                            }
                         else:
                             task_doc["status"] = "error"
                             task_doc["result"] = {"error": f"El archivo {filepath} no existe"}
-                        
+
                         task_doc["completedAt"] = now_iso()
                         set_firestore_doc(COLLECTION_TASKS, "current_task", task_doc)
+
+                    elif action == "switch_session":
+                        req_session_id = task_doc.get("sessionId", "")
+                        if req_session_id:
+                            CURRENT_TARGET_SESSION_ID = req_session_id
+                            print(f"🔄 [Bridge] Sesión activa cambiada a: {req_session_id}")
+                        task_doc["status"] = "completed"
+                        task_doc["result"] = {"activeSessionId": CURRENT_TARGET_SESSION_ID}
+                        task_doc["completedAt"] = now_iso()
+                        set_firestore_doc(COLLECTION_TASKS, "current_task", task_doc)
+
         except Exception as e:
             print(f"Error procesando tarea: {e}")
             traceback.print_exc()
-        
+
         time.sleep(1.0)
 
+
 def main():
-    print("=" * 60)
-    print("🤖 QZ-HUB INTERACTIVE AGENT BRIDGE (v2.2)")
+    print("=" * 65)
+    print("🤖 QZ-HUB AGENT BRIDGE & CLAUDE REMOTE COMPANION (v3.0)")
     print(f"Dispositivo: {DEVICE_NAME}")
-    print(f"Directorio: {os.getcwd()}")
-    print("=" * 60)
-    
-    t1 = threading.Thread(target=telemetry_loop, daemon=True)
+    print(f"Directorio de Trabajo: {os.getcwd()}")
+    print(f"Directorio Antigravity Brain: {BRAIN_DIR}")
+    print("=" * 65)
+
+    t1 = threading.Thread(target=telemetry_and_sessions_loop, daemon=True)
     t2 = threading.Thread(target=task_worker_loop, daemon=True)
-    
+
     t1.start()
     t2.start()
-    
+
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("\nDeteniendo bridge...")
+        print("\n🛑 Deteniendo bridge...")
+
 
 if __name__ == "__main__":
     main()
