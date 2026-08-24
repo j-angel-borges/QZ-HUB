@@ -5422,3 +5422,309 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   width: 100%;
   margin-top: 6px;
 }
+
+
+
+/* ==============================================================================
+   MANUAL DE PRE-CIERRES STYLES
+   ============================================================================== */
+
+.precierres-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 10px 0 40px;
+}
+
+.precierres-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.precierres-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.precierres-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 680px;
+  line-height: 1.4;
+}
+
+.precierres-catalog-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.precierre-main-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+}
+
+.precierre-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.precierre-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.precierre-id-badge {
+  background: #0f172a;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.precierre-status-badge.hot {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.precierre-target-tag {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.precierre-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .precierre-hero-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.precierre-hero-img-box {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  position: relative;
+}
+
+.precierre-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.precierre-img-caption {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(6px);
+  color: #ffffff;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.precierre-hero-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.precierre-stat-pill {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  border-radius: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.precierre-stat-pill .stat-icon {
+  font-size: 22px;
+}
+
+.precierre-stat-pill .stat-number {
+  font-size: 15px;
+  color: #0f172a;
+  display: block;
+  font-family: 'Outfit', sans-serif;
+}
+
+.precierre-stat-pill .stat-desc {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.precierre-stat-pill.danger {
+  background: #fff5f5;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.precierre-stat-pill.danger .stat-number {
+  color: #dc2626;
+}
+
+.precierre-stat-pill.gold {
+  background: #fffdf5;
+  border-color: rgba(184, 156, 80, 0.3);
+}
+
+.precierre-stat-pill.gold .stat-number {
+  color: #b89c50;
+}
+
+.precierre-script-section {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.script-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.btn-copy-script {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #0f172a;
+}
+
+.btn-copy-script:hover {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.precierre-script-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.script-block {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.script-role {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.script-expected {
+  font-size: 11.5px;
+  color: #16a34a;
+  margin-top: 4px;
+  display: block;
+}
+
+.script-block.paradox {
+  border-left: 3px solid #b89c50;
+  background: #fffdf7;
+}
+
+.script-block.closing {
+  border-left: 3px solid #ef4444;
+  background: #fff5f5;
+  color: #991b1b;
+}
+
+.precierre-placeholder-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 768px) {
+  .precierre-placeholder-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.precierre-mini-card {
+  background: #ffffff;
+  border: 1px dashed var(--border-color);
+  padding: 14px;
+  border-radius: 12px;
+  opacity: 0.75;
+}
+
+.mini-card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.mini-id {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.mini-status {
+  font-size: 9.5px;
+  background: rgba(15, 23, 42, 0.06);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--text-muted);
+}
+
+.precierre-mini-card h4 {
+  font-size: 13px;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.precierre-mini-card p {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+}

@@ -1546,7 +1546,166 @@ const renderers = {
               <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
+          <a href="#precierres" class="demobook-card-link">
+            <div class="demobook-card-minimal">
+              <div class="demobook-card-content">
+                <span class="demobook-card-icon">📑</span>
+                <span class="demobook-card-title">Manual de Pre-Cierres</span>
+              </div>
+              <span class="demobook-card-arrow">➔</span>
+            </div>
+          </a>
         </div>
+      </div>
+    `;
+  },
+
+  // 6.2. Manual de Pre-Cierres View
+  precierres: () => {
+    const workspace = document.querySelector('.workspace');
+    if (workspace) workspace.classList.add('minimal-view');
+
+    document.getElementById('page-title').textContent = 'Manual de Pre-Cierres';
+    document.getElementById('page-icon').textContent = '🏷️';
+    document.getElementById('properties-block').style.display = 'none';
+
+    const container = document.getElementById('workspace-content');
+    container.innerHTML = `
+      <div class="precierres-container">
+        <div class="precierres-header-bar">
+          <div>
+            <h2 class="precierres-title">Arsenal Dialéctico de Pre-Cierres Comerciales</h2>
+            <p class="precierres-subtitle">Estructuras psicológicas y guiones de alto impacto para demolición de objeciones durante la presentación de ZentryOS.</p>
+          </div>
+          <a href="#demobook" class="btn btn-secondary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+            <span>← Volver al Demobook</span>
+          </a>
+        </div>
+
+        <div class="precierres-catalog-grid">
+          
+          <!-- PRE-CIERRE 01: REMATE DE HORAS -->
+          <div class="precierre-main-card glass-panel">
+            <div class="precierre-card-top">
+              <div class="precierre-badge-wrap">
+                <span class="precierre-id-badge">PRE-CIERRE #01</span>
+                <span class="precierre-status-badge hot">🔥 ALTA CONVERSIÓN</span>
+              </div>
+              <span class="precierre-target-tag">Objeción: "¿Por qué cuesta?" / "¿Por qué no dejarlo en TikTok/YouTube gratis?"</span>
+            </div>
+
+            <div class="precierre-hero-grid">
+              <div class="precierre-hero-img-box">
+                <img src="/assets/remate-horas.jpg" alt="Remate de Horas" class="precierre-img" />
+                <div class="precierre-img-caption">⏳ La Paradoja del Tiempo vs. El Negocio de META</div>
+              </div>
+              <div class="precierre-hero-stats">
+                <div class="precierre-stat-pill">
+                  <span class="stat-icon">💰</span>
+                  <div>
+                    <strong class="stat-number">+S/ 412 Millones</strong>
+                    <span class="stat-desc">Facturación de META en Perú ($110M USD/año)</span>
+                  </div>
+                </div>
+                <div class="precierre-stat-pill">
+                  <span class="stat-icon">👥</span>
+                  <div>
+                    <strong class="stat-number">31 Millones</strong>
+                    <span class="stat-desc">Usuarios peruanos activos drenados diariamente</span>
+                  </div>
+                </div>
+                <div class="precierre-stat-pill danger">
+                  <span class="stat-icon">⏱️</span>
+                  <div>
+                    <strong class="stat-number">1 Céntimo / Hora</strong>
+                    <span class="stat-desc">Lo que META gana de ti (S/ 14.00 al año)</span>
+                  </div>
+                </div>
+                <div class="precierre-stat-pill gold">
+                  <span class="stat-icon">💎</span>
+                  <div>
+                    <strong class="stat-number">S/ 14,690 PEN</strong>
+                    <span class="stat-desc">Valor productivo real de las horas que regalas</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Guion Dialéctico Completo -->
+            <div class="precierre-script-section">
+              <div class="script-header">
+                <h3 style="font-size: 14.5px; color: #0f172a; margin: 0;">📜 Guion Dialéctico Paso a Paso (Para el Asesor)</h3>
+                <button type="button" class="btn-copy-script" onclick="navigator.clipboard.writeText(document.getElementById('script-remate-text').innerText); alert('✅ Guion copiado al portapapeles');">📋 Copiar Guion</button>
+              </div>
+
+              <div id="script-remate-text" class="precierre-script-content">
+                <div class="script-block question">
+                  <span class="script-role">🗣️ Asesor:</span>
+                  <p><em>"¿Alguien sabe por qué las redes sociales son gratis?"</em></p>
+                  <span class="script-expected">➔ Esperar respuesta del padre (Sí/No).</span>
+                </div>
+
+                <div class="script-block narrative">
+                  <span class="script-role">🗣️ Asesor:</span>
+                  <p><em>"Es por los anuncios. META no te cobra con dinero, <strong>te cobra con la atención de tus hijos</strong>. Se los pongo así:"</em></p>
+                </div>
+
+                <div class="script-block paradox">
+                  <span class="script-role">💡 La Paradoja del Millón de Dólares:</span>
+                  <p><strong>"Si yo te pagara un millón de dólares con la única condición de que mañana morirás, ¿los aceptarías?"</strong></p>
+                  <span class="script-expected">➔ Respuesta unánime del padre: <strong>NO</strong>.</span>
+                </div>
+
+                <div class="script-block punchline">
+                  <span class="script-role">🎯 Anclaje de Valor:</span>
+                  <p><em>"Eso quiere decir que para ti el resto de tus días y el futuro de tus hijos valen mucho más que un millón, ¿verdad?"</em></p>
+                  <span class="script-expected">➔ Respuesta: <strong>SÍ</strong>.</span>
+                </div>
+
+                <div class="script-block breakdown">
+                  <span class="script-role">📊 Demolición Numérica (La Ecuación del Drenaje):</span>
+                  <p><em>"Pero ¿sabías que META y las plataformas de consumo hacen que esos días valgan menos? Te lo explico:<br><br>
+                  Meta factura a nivel global más de 200,000 millones de dólares. En el Perú nada más, se estima que facturan unos <strong>110 millones de dólares al año (más de 412 millones de soles)</strong>, generados por aproximadamente 31 millones de usuarios activos. Eso quiere decir que, por persona, Meta gana unos <strong>14 soles al año</strong>.<br><br>
+                  Si Meta gana apenas <strong>1 céntimo de sol por cada hora</strong> que pasas en su pantalla, significa que está drenando el verdadero valor productivo de tu familia. Si el ingreso promedio urbano es de unos 2,000 soles al mes, en el acumulado del tiempo que les regalas, <strong>META te está comprando 14,690 soles del valor real de tus horas a cambio de solo 14 soles</strong>."</em></p>
+                </div>
+
+                <div class="script-block closing">
+                  <span class="script-role">🔥 Conclusión Inapelable:</span>
+                  <p><strong>"Básicamente, estás rematando el activo más valioso de tus hijos —que es su tiempo y desarrollo neuronal— para hacer millonario a otro. ZentryOS devuelve el control absoluto a las manos del padre."</strong></p>
+                </div>
+              </div>
+
+              <div class="precierre-actions-bar" style="margin-top: 14px;">
+                <a href="https://recursos-venta.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+                  <span>🚀 Probar en Diapositivas Interactivas (Slide 4)</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Próximos Pre-Cierres Placeholder -->
+          <div class="precierre-placeholder-grid">
+            <div class="precierre-mini-card">
+              <div class="mini-card-header">
+                <span class="mini-id">PRE-CIERRE #02</span>
+                <span class="mini-status">En Desarrollo</span>
+              </div>
+              <h4>La Analogía del Excel y la Personalización</h4>
+              <p>Cómo justificar el valor de una licencia de software frente al costo de contratar tutores privados.</p>
+            </div>
+
+            <div class="precierre-mini-card">
+              <div class="mini-card-header">
+                <span class="mini-id">PRE-CIERRE #03</span>
+                <span class="mini-status">En Desarrollo</span>
+              </div>
+              <h4>El Costo Invisible del Déficit de Atención</h4>
+              <p>La ecuación del rendimiento escolar y el costo futuro de no intervenir a tiempo.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
     `;
   },
 
@@ -3688,7 +3847,7 @@ function handleRouting() {
   const hash = window.location.hash || '#backlog';
   
   // Set data-module on body to preserve Zentry colorimetry when accessing Zentry views
-  const isZentryView = hash.includes('demobook') || hash.includes('prospeccion') || hash.includes('branding') || hash.includes('iacontext') || hash === '#backlog/zentry';
+  const isZentryView = hash.includes('demobook') || hash.includes('precierres') || hash.includes('prospeccion') || hash.includes('branding') || hash.includes('iacontext') || hash === '#backlog/zentry';
   if (isZentryView) {
     document.body.setAttribute('data-module', 'zentry');
   } else {
