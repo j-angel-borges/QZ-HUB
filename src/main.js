@@ -1069,50 +1069,75 @@ const renderers = {
     if (state.backlogMode === 'selection') {
       document.getElementById('properties-block').style.display = 'none';
       container.innerHTML = `
-        <div class="backlog-selector-wrapper">
-          <div class="backlog-selector-container">
-            <!-- Card 1: TIMEBLOCKING (Personal / Timeblocking) -->
-            <a href="#backlog/personal" class="selector-card selector-card-personal">
-              <div class="selector-card-icon">⏱️</div>
-              <span class="selector-card-title">TIMEBLOCKING</span>
-              <span class="selector-card-desc">Timeblocking diario, 3 indispensables M.I.T. y rutina circadiana.</span>
-              <button class="btn-selector-enter btn-personal-enter">Entrar a Timeblocking</button>
-            </a>
-
-            <!-- Card 2: TABLERO QUARZ (Visual: Logo 3D Quarz) -->
-            <a href="#backlog/quarz" class="selector-card selector-card-quarz">
-              <div class="selector-card-icon">
-                <img src="/assets/quarz/QUARZ_3D_Cuarzo_Vertical_QZ-removebg-preview.png" alt="QUARZ 3D" style="width: 52px; height: 52px; object-fit: contain;" />
+        <div class="backlog-selection-layout">
+          
+          <!-- COLUMNA IZQUIERDA: HERO TIMEBLOCKING -->
+          <div class="backlog-selection-left">
+            <a href="#backlog/personal" class="backlog-hero-card">
+              <div class="hero-card-icon-box">
+                <span class="hero-icon-clock">⏱️</span>
               </div>
-              <span class="selector-card-title">TABLERO QUARZ</span>
-              <span class="selector-card-desc">Gobernanza estratégica, decisiones de holding y prioridades corporativas de QUARZ Group.</span>
-              <button class="btn-selector-enter btn-quarz-enter">Entrar a Quarz</button>
-            </a>
-
-            <!-- Card 3: TABLERO ZENTRY (Visual: Z Icon) -->
-            <a href="#backlog/zentry" class="selector-card selector-card-zentry">
-              <div class="selector-card-icon">
-                <span style="font-size: 42px; font-weight: 800; color: #533B87; font-family: 'Space Grotesk', sans-serif;">Z</span>
+              <div class="hero-card-content">
+                <h3 class="hero-card-title">TIMEBLOCKING</h3>
+                <p class="hero-card-desc">Timeblocking diario, 3 indispensables M.I.T. y rutina circadiana.</p>
               </div>
-              <span class="selector-card-title">TABLERO ZENTRY</span>
-              <span class="selector-card-desc">Roadmap comercial, arquitectura técnica MVP, prospectos y ecosistema ZentryOS.</span>
-              <button class="btn-selector-enter btn-zentry-enter">Entrar a Zentry</button>
+              <button type="button" class="btn-hero-enter">Entrar a Timeblocking</button>
             </a>
           </div>
 
-          <!-- Bottom Button: TABLERO GLOBAL (Combinado) -->
-          <div class="global-board-banner-container" style="margin-top: 32px; text-align: center;">
-            <a href="#backlog/global" class="global-board-card" style="display: inline-flex; align-items: center; justify-content: space-between; width: 100%; max-width: 960px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 18px 28px; border-radius: 16px; text-decoration: none; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 8px 32px rgba(15,23,42,0.15); transition: transform 0.2s;">
-              <div style="display: flex; align-items: center; gap: 16px; text-align: left;">
-                <span style="font-size: 32px;">🌐</span>
-                <div>
-                  <h3 style="color: #ffffff; margin: 0; font-size: 1.15rem; font-family: 'Space Grotesk', sans-serif; font-weight: 700;">TABLERO GLOBAL (Todas las Unidades)</h3>
-                  <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 0.85rem;">Vista consolidada con todas las tareas y eventos combinados de Quarz, Zentry y Personal.</p>
-                </div>
+          <!-- COLUMNA DERECHA: 2x2 GRID DE TABLEROS EQUITATIVOS -->
+          <div class="backlog-selection-right">
+            
+            <!-- 1. TABLERO QUARZ -->
+            <a href="#backlog/quarz" class="selection-unit-card">
+              <div class="unit-card-icon-box">
+                <img src="/assets/quarz/QUARZ_3D_Cuarzo_Vertical_QZ-removebg-preview.png" alt="QUARZ" class="unit-quarz-logo" />
               </div>
-              <button style="background: #b89c50; color: #0f172a; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; cursor: pointer;">Abrir Tablero Global ➔</button>
+              <div class="unit-card-text">
+                <h4 class="unit-card-title">TABLERO QUARZ</h4>
+                <p class="unit-card-desc">Gobernanza estratégica, decisiones de holding y prioridades corporativas de QUARZ Group.</p>
+              </div>
+              <button type="button" class="btn-unit-enter">Entrar a Quarz</button>
             </a>
+
+            <!-- 2. TABLERO ZENTRY -->
+            <a href="#backlog/zentry" class="selection-unit-card">
+              <div class="unit-card-icon-box">
+                <span class="unit-zentry-z">Z</span>
+              </div>
+              <div class="unit-card-text">
+                <h4 class="unit-card-title">TABLERO ZENTRY</h4>
+                <p class="unit-card-desc">Roadmap comercial, arquitectura técnica MVP, prospectos y ecosistema ZentryOS.</p>
+              </div>
+              <button type="button" class="btn-unit-enter">Entrar a Zentry</button>
+            </a>
+
+            <!-- 3. TABLERO GLOBAL -->
+            <a href="#backlog/global" class="selection-unit-card">
+              <div class="unit-card-icon-box">
+                <span class="unit-global-icon">🌐</span>
+              </div>
+              <div class="unit-card-text">
+                <h4 class="unit-card-title">TABLERO GLOBAL</h4>
+                <p class="unit-card-desc">Perspectiva global de operaciones, KPIs y objetivos estratégicos de la organización.</p>
+              </div>
+              <button type="button" class="btn-unit-enter">Entrar a Global</button>
+            </a>
+
+            <!-- 4. TABLERO PERSONAL -->
+            <a href="#backlog/personal-board" class="selection-unit-card">
+              <div class="unit-card-icon-box">
+                <span class="unit-personal-icon">👤</span>
+              </div>
+              <div class="unit-card-text">
+                <h4 class="unit-card-title">TABLERO PERSONAL</h4>
+                <p class="unit-card-desc">Tus tareas individuales, notas y objetivos personales.</p>
+              </div>
+              <button type="button" class="btn-unit-enter">Entrar a Personal</button>
+            </a>
+
           </div>
+
         </div>
       `;
       return;

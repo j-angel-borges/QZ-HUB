@@ -5728,3 +5728,236 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   margin: 0;
   line-height: 1.4;
 }
+
+
+
+/* ==============================================================================
+   BACKLOG SELECTION SPLIT LAYOUT (TIMEBLOCKING HERO + 2x2 BOARDS GRID)
+   ============================================================================== */
+
+.backlog-selection-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 28px;
+  max-width: 1040px;
+  margin: 10px auto 40px;
+  align-items: stretch;
+}
+
+@media (max-width: 960px) {
+  .backlog-selection-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.backlog-selection-left {
+  display: flex;
+  height: 100%;
+}
+
+.backlog-hero-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 36px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  width: 100%;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 480px;
+}
+
+.backlog-hero-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
+}
+
+.hero-card-icon-box {
+  width: 110px;
+  height: 110px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.hero-icon-clock {
+  font-size: 58px;
+  line-height: 1;
+}
+
+.hero-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  text-transform: uppercase;
+  margin: 0 0 10px 0;
+  letter-spacing: 0.4px;
+}
+
+.hero-card-desc {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 250px;
+}
+
+.btn-hero-enter {
+  background: #111111;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 22px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 24px;
+  transition: all 0.2s;
+  width: auto;
+}
+
+.backlog-hero-card:hover .btn-hero-enter {
+  background: #000000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Columna Derecha (2x2 Grid) */
+.backlog-selection-right {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  height: 100%;
+}
+
+@media (max-width: 640px) {
+  .backlog-selection-right {
+    grid-template-columns: 1fr;
+  }
+}
+
+.selection-unit-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  min-height: 230px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.selection-unit-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+}
+
+.unit-card-icon-box {
+  width: 62px;
+  height: 62px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.unit-quarz-logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.unit-zentry-z {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: #533B87;
+  line-height: 1;
+}
+
+.unit-global-icon {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.unit-personal-icon {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.unit-card-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.unit-card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  text-transform: uppercase;
+  margin: 0 0 6px 0;
+  letter-spacing: 0.4px;
+}
+
+.unit-card-desc {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.btn-unit-enter {
+  background: #111111;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 7px 18px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 14px;
+  transition: all 0.2s;
+}
+
+.selection-unit-card:hover .btn-unit-enter {
+  background: #000000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
