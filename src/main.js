@@ -1053,6 +1053,422 @@ function renderBacklogCalendar() {
   });
 }
 
+// ==============================================================================
+// BIO-TRACKER & PROTOCOLO CUÁNTICO GAMIFICADO (9 MÉTRICAS DE DISCIPLINA)
+// ==============================================================================
+
+function getDefaultHabitTrackerData() {
+  return {
+    ay: { daysSince: 51, h24: 1, h48: 0, h72: 0 },
+    lec: { daysSince: 7, daysRead: 7, daysMissed: 0, lastPages: 25 },
+    am: { slot5to6: 1, slot6to7: 3, missed: 2 },
+    z: { daysClean: 0, daysConsumed: 1 },
+    fri: { coldDays: 15, missedDays: 31 },
+    ik: { doneDays: 11, missedDays: 15 },
+    a: { cleanDays: 77, targetDays: 90, missedDays: 0 },
+    e: { retentionDays: 8, ejaculations: 0, pornFreeDays: 36 },
+    s: { days: 12 }
+  };
+}
+
+function getHabitTrackerData() {
+  const stored = localStorage.getItem('qz_bio_tracker');
+  if (stored) {
+    try {
+      return { ...getDefaultHabitTrackerData(), ...JSON.parse(stored) };
+    } catch (e) {
+      return getDefaultHabitTrackerData();
+    }
+  }
+  return getDefaultHabitTrackerData();
+}
+
+function saveHabitTrackerData(data) {
+  localStorage.setItem('qz_bio_tracker', JSON.stringify(data));
+}
+
+function resetHabitTrackerDefaults() {
+  const defaults = getDefaultHabitTrackerData();
+  saveHabitTrackerData(defaults);
+  return defaults;
+}
+
+function renderHabitTrackerHTML(tData) {
+  const friTotal = tData.fri.coldDays + tData.fri.missedDays;
+  const friPercent = friTotal > 0 ? Math.round((tData.fri.coldDays / friTotal) * 100) : 0;
+  
+  const ikTotal = tData.ik.doneDays + tData.ik.missedDays;
+  const ikPercent = ikTotal > 0 ? Math.round((tData.ik.doneDays / ikTotal) * 100) : 0;
+  
+  const aPercent = tData.a.targetDays > 0 ? Math.min(100, Math.round((tData.a.cleanDays / tData.a.targetDays) * 100)) : 100;
+  const aRemaining = Math.max(0, tData.a.targetDays - tData.a.cleanDays);
+
+  return `
+    <div class="backlog-tracker-card" id="backlog-tracker-widget">
+      <div class="tracker-card-header">
+        <div class="tracker-title-group">
+          <span class="tracker-icon">🧬</span>
+          <div>
+            <h4 class="tracker-card-title">BIO-TRACKER GAMIFICADO</h4>
+            <span class="tracker-card-subtitle">Protocolo de Disciplina y Rendimiento</span>
+          </div>
+        </div>
+        <button type="button" class="btn-tracker-config" id="btn-open-tracker-config" title="Configurar métricas y cifras">⚙️</button>
+      </div>
+
+      <div class="tracker-metrics-grid">
+        <!-- 1. AY (Ayuno) -->
+        <div class="metric-chip chip-ay" data-metric="ay" title="Ayuno: ${tData.ay.daysSince}d tracking | 24h: ${tData.ay.h24}, 48h: ${tData.ay.h48}, 72h: ${tData.ay.h72}">
+          <div class="metric-chip-header">
+            <span class="metric-code">AY</span>
+            <span class="metric-total">${tData.ay.daysSince}d</span>
+          </div>
+          <div class="metric-chip-body">
+            <span class="metric-badge ${tData.ay.h24 > 0 ? 'active' : ''}">24h: <strong>${tData.ay.h24}</strong></span>
+            <span class="metric-badge ${tData.ay.h48 > 0 ? 'active' : ''}">48h: <strong>${tData.ay.h48}</strong></span>
+            <span class="metric-badge ${tData.ay.h72 > 0 ? 'active' : ''}">72h: <strong>${tData.ay.h72}</strong></span>
+          </div>
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-ay-24" title="+1 Ayuno 24h">＋24</button>
+            <button type="button" class="btn-chip-inc" data-action="inc-ay-48" title="+1 Ayuno 48h">＋48</button>
+          </div>
+        </div>
+
+        <!-- 2. LEC (Lectura) -->
+        <div class="metric-chip chip-lec" data-metric="lec" title="Lectura: +${tData.lec.daysRead} leídos, -${tData.lec.daysMissed} omitidos | ${tData.lec.lastPages} páginas">
+          <div class="metric-chip-header">
+            <span class="metric-code">LEC</span>
+            <span class="metric-streak success">+${tData.lec.daysRead}</span>
+            <span class="metric-missed danger">-${tData.lec.daysMissed}</span>
+          </div>
+          <div class="metric-chip-body">
+            <span class="metric-subval">📖 <strong>${tData.lec.lastPages}</strong> pág.</span>
+          </div>
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-lec-read" title="+1 Día de Lectura">＋Día</button>
+            <button type="button" class="btn-chip-inc" data-action="inc-lec-pages" title="Modificar Páginas">＋Pág</button>
+          </div>
+        </div>
+
+        <!-- 3. AM (Madrugar) -->
+        <div class="metric-chip chip-am" data-metric="am" title="Madrugar: 5-6am (${tData.am.slot5to6}), 6-7am (${tData.am.slot6to7}), Tarde (-${tData.am.missed})">
+          <div class="metric-chip-header">
+            <span class="metric-code">AM</span>
+            <span class="metric-missed danger">-${tData.am.missed}</span>
+          </div>
+          <div class="metric-chip-body">
+            <span class="metric-tag gold">5a: <strong>${tData.am.slot5to6}</strong></span>
+            <span class="metric-tag">6a: <strong>${tData.am.slot6to7}</strong></span>
+          </div>
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-am-5" title="+1 Madrugón 5 AM">＋5a</button>
+            <button type="button" class="btn-chip-inc" data-action="inc-am-6" title="+1 Madrugón 6 AM">＋6a</button>
+          </div>
+        </div>
+
+        <!-- 4. Z (Azúcar) -->
+        <div class="metric-chip chip-z" data-metric="z" title="Zero Azúcar: ${tData.z.daysClean}d limpio, ${tData.z.daysConsumed} consumos">
+          <div class="metric-chip-header">
+            <span class="metric-code">Z</span>
+            <span class="metric-exp-display"><span class="exp-base">+${tData.z.daysClean}</span><sup class="exp-sup">-${tData.z.daysConsumed}</sup></span>
+          </div>
+          <div class="metric-chip-body">
+            <span class="metric-subval">${tData.z.daysClean === 0 ? '⚠️ Reset reciente' : '🔥 Racha activa'}</span>
+          </div>
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-z-clean" title="+1 Día Sin Azúcar">＋Día</button>
+            <button type="button" class="btn-chip-inc danger" data-action="inc-z-consumed" title="Registrar Consumo / Reset">⚠️ Consumo</button>
+          </div>
+        </div>
+
+        <!-- 5. FRI (Agua Fría) -->
+        <div class="metric-chip chip-fri" data-metric="fri" title="Ducha Fría: ${tData.fri.coldDays} frío / ${tData.fri.missedDays} omitidos (${friPercent}%)">
+          <div class="metric-chip-header">
+            <span class="metric-code">FRI</span>
+            <span class="metric-ratio">${tData.fri.coldDays}/${friTotal}</span>
+          </div>
+          <div class="metric-chip-body">
+            <div class="mini-progress-track">
+              <div class="mini-progress-fill cyan" style="width: ${friPercent}%;"></div>
+            </div>
+            <span class="metric-ratio-text">${friPercent}% (1 de ${friTotal > 0 && tData.fri.coldDays > 0 ? (friTotal / tData.fri.coldDays).toFixed(1) : '-'})</span>
+          </div>
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-fri-cold" title="+1 Ducha Fría">＋🧊</button>
+            <button type="button" class="btn-chip-inc" data-action="inc-fri-missed" title="+1 Omitido">＋🔥</button>
+          </div>
+        </div>
+
+        <!-- 6. IK (Isha Kriya) -->
+        <div class="metric-chip chip-ik" data-metric="ik" title="Isha Kriya: ${tData.ik.doneDays} hechos / ${tData.ik.missedDays} omitidos (${ikPercent}%)">
+          <div class="metric-chip-header">
+            <span class="metric-code">IK</span>
+            <span class="metric-ratio">${tData.ik.doneDays}/${ikTotal}</span>
+          </div>
+          <div class="metric-chip-body">
+            <div class="mini-progress-track">
+              <div class="mini-progress-fill purple" style="width: ${ikPercent}%;"></div>
+            </div>
+            <span class="metric-ratio-text">${ikPercent}% consistencia</span>
+          </div>
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-ik-done" title="+1 Meditación">＋🧘</button>
+            <button type="button" class="btn-chip-inc" data-action="inc-ik-missed" title="+1 Omitido">＋⭕</button>
+          </div>
+        </div>
+
+        <!-- 7. A (Alcohol) -->
+        <div class="metric-chip chip-a" data-metric="a" title="Alcohol: ${tData.a.cleanDays} de ${tData.a.targetDays} días sobrio (${aPercent}%)">
+          <div class="metric-chip-header">
+            <span class="metric-code">A</span>
+            <span class="metric-streak gold">${tData.a.cleanDays}/${tData.a.targetDays}d</span>
+          </div>
+          <div class="metric-chip-body">
+            <div class="mini-progress-track">
+              <div class="mini-progress-fill gold" style="width: ${aPercent}%;"></div>
+            </div>
+            <span class="metric-ratio-text">${aPercent}% (${aRemaining}d faltan)</span>
+          </div>
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-a-clean" title="+1 Día Sobrio">＋1d</button>
+          </div>
+        </div>
+
+        <!-- 8. E (Energía Sexual) -->
+        <div class="metric-chip chip-e" data-metric="e" title="Energía Sexual: ${tData.e.retentionDays}d Retención | ${tData.e.pornFreeDays}d Sin Pornografía | ${tData.e.ejaculations} Eyaculaciones">
+          <div class="metric-chip-header">
+            <span class="metric-code">E</span>
+            <span class="metric-tag-dual">
+              <span class="ret-badge" title="Retención">⚡ ${tData.e.retentionDays}d</span>
+              <span class="pmo-badge" title="No-Porn">🚫 ${tData.e.pornFreeDays}d</span>
+            </span>
+          </div>
+          <div class="metric-chip-body">
+            <span class="metric-subval">Eyaculaciones: <strong>-${tData.e.ejaculations}</strong></span>
+          </div>
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-e-ret" title="+1 Día Retención">＋⚡</button>
+            <button type="button" class="btn-chip-inc" data-action="inc-e-noporn" title="+1 Día No-Porn">＋🚫</button>
+          </div>
+        </div>
+
+        <!-- 9. S (Suplementos) -->
+        <div class="metric-chip chip-s" data-metric="s" title="Suplementos: ${tData.s.days} días consistentes">
+          <div class="metric-chip-header">
+            <span class="metric-code">S</span>
+            <span class="metric-streak success">💊 +${tData.s.days}d</span>
+          </div>
+          <div class="metric-chip-body">
+            <span class="metric-subval">Adherencia activa</span>
+          </div>
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-s-day" title="+1 Día Suplementado">＋💊</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function setupHabitTrackerEvents(container) {
+  const trackerWidget = container.querySelector('#backlog-tracker-widget');
+  if (!trackerWidget) return;
+
+  const updateWidgetUI = () => {
+    const currentData = getHabitTrackerData();
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = renderHabitTrackerHTML(currentData);
+    const newWidget = tempDiv.firstElementChild;
+    trackerWidget.replaceWith(newWidget);
+    setupHabitTrackerEvents(container);
+  };
+
+  // 1. Action buttons on chips
+  trackerWidget.querySelectorAll('.btn-chip-inc').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const action = btn.getAttribute('data-action');
+      const data = getHabitTrackerData();
+
+      if (action === 'inc-ay-24') {
+        data.ay.h24 += 1;
+      } else if (action === 'inc-ay-48') {
+        data.ay.h48 += 1;
+      } else if (action === 'inc-lec-read') {
+        data.lec.daysRead += 1;
+      } else if (action === 'inc-lec-pages') {
+        const p = prompt('¿Cuántas páginas leíste en tu última sesión?', data.lec.lastPages || '25');
+        if (p !== null && !isNaN(parseInt(p))) {
+          data.lec.lastPages = parseInt(p);
+        }
+      } else if (action === 'inc-am-5') {
+        data.am.slot5to6 += 1;
+      } else if (action === 'inc-am-6') {
+        data.am.slot6to7 += 1;
+      } else if (action === 'inc-z-clean') {
+        data.z.daysClean += 1;
+      } else if (action === 'inc-z-consumed') {
+        data.z.daysClean = 0;
+        data.z.daysConsumed += 1;
+      } else if (action === 'inc-fri-cold') {
+        data.fri.coldDays += 1;
+      } else if (action === 'inc-fri-missed') {
+        data.fri.missedDays += 1;
+      } else if (action === 'inc-ik-done') {
+        data.ik.doneDays += 1;
+      } else if (action === 'inc-ik-missed') {
+        data.ik.missedDays += 1;
+      } else if (action === 'inc-a-clean') {
+        data.a.cleanDays += 1;
+      } else if (action === 'inc-e-ret') {
+        data.e.retentionDays += 1;
+      } else if (action === 'inc-e-noporn') {
+        data.e.pornFreeDays += 1;
+      } else if (action === 'inc-s-day') {
+        data.s.days += 1;
+      }
+
+      saveHabitTrackerData(data);
+      updateWidgetUI();
+    });
+  });
+
+  // 2. Open Config Modal
+  const configBtn = trackerWidget.querySelector('#btn-open-tracker-config');
+  if (configBtn) {
+    configBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      openHabitTrackerConfigModal(updateWidgetUI);
+    });
+  }
+}
+
+function openHabitTrackerConfigModal(onSaveCallback) {
+  const modal = document.getElementById('tracker-modal');
+  if (!modal) return;
+
+  const data = getHabitTrackerData();
+
+  // Populate inputs
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val ?? 0;
+  };
+
+  setVal('cfg-ay-days', data.ay.daysSince);
+  setVal('cfg-ay-24', data.ay.h24);
+  setVal('cfg-ay-48', data.ay.h48);
+  setVal('cfg-ay-72', data.ay.h72);
+
+  setVal('cfg-lec-read', data.lec.daysRead);
+  setVal('cfg-lec-missed', data.lec.daysMissed);
+  setVal('cfg-lec-pages', data.lec.lastPages);
+  setVal('cfg-lec-days', data.lec.daysSince);
+
+  setVal('cfg-am-5', data.am.slot5to6);
+  setVal('cfg-am-6', data.am.slot6to7);
+  setVal('cfg-am-late', data.am.missed);
+
+  setVal('cfg-z-clean', data.z.daysClean);
+  setVal('cfg-z-consumed', data.z.daysConsumed);
+
+  setVal('cfg-fri-cold', data.fri.coldDays);
+  setVal('cfg-fri-missed', data.fri.missedDays);
+
+  setVal('cfg-ik-done', data.ik.doneDays);
+  setVal('cfg-ik-missed', data.ik.missedDays);
+
+  setVal('cfg-a-clean', data.a.cleanDays);
+  setVal('cfg-a-target', data.a.targetDays);
+
+  setVal('cfg-e-ret', data.e.retentionDays);
+  setVal('cfg-e-noporn', data.e.pornFreeDays);
+  setVal('cfg-e-ejac', data.e.ejaculations);
+
+  setVal('cfg-s-days', data.s.days);
+
+  modal.classList.add('show');
+
+  const closeModal = () => {
+    modal.classList.remove('show');
+  };
+
+  document.getElementById('tracker-modal-close')?.addEventListener('click', closeModal, { once: true });
+  document.getElementById('tracker-modal-cancel')?.addEventListener('click', closeModal, { once: true });
+
+  // Reset defaults button
+  const resetBtn = document.getElementById('btn-reset-tracker-defaults');
+  if (resetBtn) {
+    resetBtn.onclick = () => {
+      if (confirm('¿Restaurar todas las cifras a los valores iniciales de tu pizarra?')) {
+        resetHabitTrackerDefaults();
+        closeModal();
+        if (onSaveCallback) onSaveCallback();
+      }
+    };
+  }
+
+  // Form submit
+  const form = document.getElementById('tracker-config-form');
+  if (form) {
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const getNum = (id) => parseInt(document.getElementById(id)?.value) || 0;
+
+      const updated = {
+        ay: {
+          daysSince: getNum('cfg-ay-days'),
+          h24: getNum('cfg-ay-24'),
+          h48: getNum('cfg-ay-48'),
+          h72: getNum('cfg-ay-72')
+        },
+        lec: {
+          daysSince: getNum('cfg-lec-days'),
+          daysRead: getNum('cfg-lec-read'),
+          daysMissed: getNum('cfg-lec-missed'),
+          lastPages: getNum('cfg-lec-pages')
+        },
+        am: {
+          slot5to6: getNum('cfg-am-5'),
+          slot6to7: getNum('cfg-am-6'),
+          missed: getNum('cfg-am-late')
+        },
+        z: {
+          daysClean: getNum('cfg-z-clean'),
+          daysConsumed: getNum('cfg-z-consumed')
+        },
+        fri: {
+          coldDays: getNum('cfg-fri-cold'),
+          missedDays: getNum('cfg-fri-missed')
+        },
+        ik: {
+          doneDays: getNum('cfg-ik-done'),
+          missedDays: getNum('cfg-ik-missed')
+        },
+        a: {
+          cleanDays: getNum('cfg-a-clean'),
+          targetDays: getNum('cfg-a-target') || 90,
+          missedDays: 0
+        },
+        e: {
+          retentionDays: getNum('cfg-e-ret'),
+          pornFreeDays: getNum('cfg-e-noporn'),
+          ejaculations: getNum('cfg-e-ejac')
+        },
+        s: {
+          days: getNum('cfg-s-days')
+        }
+      };
+
+      saveHabitTrackerData(updated);
+      closeModal();
+      if (onSaveCallback) onSaveCallback();
+    };
+  }
+}
+
 const renderers = {
   // 1. Kanban Backlog View
   backlog: () => {
@@ -1068,21 +1484,31 @@ const renderers = {
 
     if (state.backlogMode === 'selection') {
       document.getElementById('properties-block').style.display = 'none';
+      const trackerData = getHabitTrackerData();
+
       container.innerHTML = `
         <div class="backlog-selection-layout">
           
-          <!-- COLUMNA IZQUIERDA: HERO TIMEBLOCKING -->
+          <!-- COLUMNA IZQUIERDA: HERO TIMEBLOCKING + BIO-TRACKER GAMIFICADO -->
           <div class="backlog-selection-left">
+            
+            <!-- RECUADRO 1: TIMEBLOCKING HERO -->
             <a href="#backlog/personal" class="backlog-hero-card">
-              <div class="hero-card-icon-box">
-                <span class="hero-icon-clock">⏱️</span>
-              </div>
-              <div class="hero-card-content">
-                <h3 class="hero-card-title">TIMEBLOCKING</h3>
-                <p class="hero-card-desc">Timeblocking diario, 3 indispensables M.I.T. y rutina circadiana.</p>
+              <div class="hero-card-header-compact">
+                <div class="hero-card-icon-box">
+                  <span class="hero-icon-clock">⏱️</span>
+                </div>
+                <div class="hero-card-content">
+                  <h3 class="hero-card-title">TIMEBLOCKING</h3>
+                  <p class="hero-card-desc">Timeblocking diario, 3 indispensables M.I.T. y rutina circadiana.</p>
+                </div>
               </div>
               <button type="button" class="btn-hero-enter">Entrar a Timeblocking</button>
             </a>
+
+            <!-- RECUADRO 2: BIO-TRACKER GAMIFICADO (9 MÉTRICAS) -->
+            ${renderHabitTrackerHTML(trackerData)}
+
           </div>
 
           <!-- COLUMNA DERECHA: 2x2 GRID DE TABLEROS EQUITATIVOS -->
@@ -1140,6 +1566,8 @@ const renderers = {
 
         </div>
       `;
+
+      setupHabitTrackerEvents(container);
       return;
     }
 

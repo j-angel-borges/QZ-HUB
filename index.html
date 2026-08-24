@@ -333,6 +333,231 @@
     </div>
   </div>
 
+  <!-- Habit & Bio-Tracker Configuration Modal -->
+  <div id="tracker-modal" class="modal-overlay">
+    <div class="modal-content glass-modal tracker-config-modal">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 22px;">🧬</span>
+          <div>
+            <h2 class="modal-task-id" style="font-size: 17px; margin: 0; color: #0f172a;">Configurar Bio-Tracker Gamificado</h2>
+            <span style="font-size: 11px; color: #64748b; font-family: 'Inter', sans-serif;">Protocolo de Hábitos y Disciplina QZ</span>
+          </div>
+        </div>
+        <button id="tracker-modal-close" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 16px; font-size: 12.5px; color: #64748b; line-height: 1.4;">
+          Ajusta tus cifras base, rachas y metas de disciplina personal. Los cambios se guardarán automáticamente en tu espacio local y persistirán en tiempo real.
+        </p>
+
+        <form id="tracker-config-form">
+          <div class="tracker-form-grid">
+            
+            <!-- AY (Ayuno) -->
+            <div class="tracker-form-card">
+              <div class="t-card-header">
+                <span class="t-badge-code">AY</span>
+                <strong>Ayuno Intermitente / Prolongado</strong>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-ay-days">Días Tracking</label>
+                  <input type="number" id="cfg-ay-days" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cfg-ay-24">Ayunos 24h</label>
+                  <input type="number" id="cfg-ay-24" min="0" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-ay-48">Ayunos 48h</label>
+                  <input type="number" id="cfg-ay-48" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cfg-ay-72">Ayunos 72h</label>
+                  <input type="number" id="cfg-ay-72" min="0" />
+                </div>
+              </div>
+            </div>
+
+            <!-- LEC (Lectura) -->
+            <div class="tracker-form-card">
+              <div class="t-card-header">
+                <span class="t-badge-code">LEC</span>
+                <strong>Lectura Diaria</strong>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-lec-read">Días Leídos (+)</label>
+                  <input type="number" id="cfg-lec-read" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cfg-lec-missed">Días Omitidos (-)</label>
+                  <input type="number" id="cfg-lec-missed" min="0" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-lec-pages">Últimas Páginas (P)</label>
+                  <input type="number" id="cfg-lec-pages" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cfg-lec-days">Días Tracking Total</label>
+                  <input type="number" id="cfg-lec-days" min="0" />
+                </div>
+              </div>
+            </div>
+
+            <!-- AM (Madrugar) -->
+            <div class="tracker-form-card">
+              <div class="t-card-header">
+                <span class="t-badge-code">AM</span>
+                <strong>Rutina de Madrugar</strong>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-am-5">5:00 - 6:00 AM</label>
+                  <input type="number" id="cfg-am-5" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cfg-am-6">6:00 - 7:00 AM</label>
+                  <input type="number" id="cfg-am-6" min="0" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-am-late">Días Tarde (-)</label>
+                  <input type="number" id="cfg-am-late" min="0" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Z (Azúcar) -->
+            <div class="tracker-form-card">
+              <div class="t-card-header">
+                <span class="t-badge-code">Z</span>
+                <strong>Zero Azúcar Refinado</strong>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-z-clean">Días Limpio (+)</label>
+                  <input type="number" id="cfg-z-clean" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cfg-z-consumed">Consumos / Deslices (-)</label>
+                  <input type="number" id="cfg-z-consumed" min="0" />
+                </div>
+              </div>
+            </div>
+
+            <!-- FRI (Agua Fría) -->
+            <div class="tracker-form-card">
+              <div class="t-card-header">
+                <span class="t-badge-code">FRI</span>
+                <strong>Duchas de Agua Fría</strong>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-fri-cold">Días Frío (+)</label>
+                  <input type="number" id="cfg-fri-cold" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cfg-fri-missed">Días Omitidos (-)</label>
+                  <input type="number" id="cfg-fri-missed" min="0" />
+                </div>
+              </div>
+            </div>
+
+            <!-- IK (Isha Kriya) -->
+            <div class="tracker-form-card">
+              <div class="t-card-header">
+                <span class="t-badge-code">IK</span>
+                <strong>Isha Kriya (Meditación)</strong>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-ik-done">Días Meditados (+)</label>
+                  <input type="number" id="cfg-ik-done" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cfg-ik-missed">Días Omitidos (-)</label>
+                  <input type="number" id="cfg-ik-missed" min="0" />
+                </div>
+              </div>
+            </div>
+
+            <!-- A (Alcohol) -->
+            <div class="tracker-form-card">
+              <div class="t-card-header">
+                <span class="t-badge-code">A</span>
+                <strong>Sobriedad (Cero Alcohol)</strong>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-a-clean">Racha Días Sobrio (+)</label>
+                  <input type="number" id="cfg-a-clean" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cfg-a-target">Meta de Días</label>
+                  <input type="number" id="cfg-a-target" min="0" />
+                </div>
+              </div>
+            </div>
+
+            <!-- E (Energía Sexual) -->
+            <div class="tracker-form-card">
+              <div class="t-card-header">
+                <span class="t-badge-code">E</span>
+                <strong>Energía Sexual & NoPMO</strong>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-e-ret">Racha Retención Seminal</label>
+                  <input type="number" id="cfg-e-ret" min="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cfg-e-noporn">Racha Sin Pornografía</label>
+                  <input type="number" id="cfg-e-noporn" min="0" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-e-ejac">Eyaculaciones Históricas (-)</label>
+                  <input type="number" id="cfg-e-ejac" min="0" />
+                </div>
+              </div>
+            </div>
+
+            <!-- S (Suplementos) -->
+            <div class="tracker-form-card">
+              <div class="t-card-header">
+                <span class="t-badge-code">S</span>
+                <strong>Suplementación Diaria</strong>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-s-days">Días Consistentes (+)</label>
+                  <input type="number" id="cfg-s-days" min="0" />
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="modal-actions" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(0,0,0,0.06);">
+            <button type="button" id="btn-reset-tracker-defaults" class="btn btn-danger" style="font-size: 11.5px; padding: 7px 14px;">Restaurar Cifras Iniciales</button>
+            <div style="display: flex; gap: 10px;">
+              <button type="button" id="tracker-modal-cancel" class="btn btn-secondary" style="padding: 8px 18px; font-size: 12px;">Cancelar</button>
+              <button type="submit" class="btn btn-primary" style="padding: 8px 20px; font-size: 12px; background: #0f172a; color: white;">Guardar Cifras</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 

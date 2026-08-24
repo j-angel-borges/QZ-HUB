@@ -5732,19 +5732,20 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
 
 /* ==============================================================================
-   BACKLOG SELECTION SPLIT LAYOUT (TIMEBLOCKING HERO + 2x2 BOARDS GRID)
+/* ==============================================================================
+   BACKLOG SELECTION SPLIT LAYOUT (TIMEBLOCKING HERO + BIO-TRACKER + 2x2 BOARDS)
    ============================================================================== */
 
 .backlog-selection-layout {
   display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 28px;
-  max-width: 1040px;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+  max-width: 1100px;
   margin: 10px auto 40px;
   align-items: stretch;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1024px) {
   .backlog-selection-layout {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -5753,14 +5754,17 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
 .backlog-selection-left {
   display: flex;
+  flex-direction: column;
+  gap: 16px;
   height: 100%;
 }
 
+/* 1. COMPACT TIMEBLOCKING HERO CARD (BOX 1) */
 .backlog-hero-card {
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
-  padding: 36px 24px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -5769,60 +5773,63 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   width: 100%;
   text-decoration: none;
   color: inherit;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 480px;
+  flex: 0.85;
+  box-sizing: border-box;
 }
 
 .backlog-hero-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(0, 0, 0, 0.2);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
+  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.hero-card-header-compact {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
 }
 
 .hero-card-icon-box {
-  width: 110px;
-  height: 110px;
-  border-radius: 12px;
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  background: #ffffff;
+  background: #fafafa;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 10px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
 }
 
 .hero-icon-clock {
-  font-size: 58px;
+  font-size: 28px;
   line-height: 1;
 }
 
 .hero-card-content {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 .hero-card-title {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 22px;
+  font-size: 15px;
   font-weight: 700;
   color: #0f172a;
   text-transform: uppercase;
-  margin: 0 0 10px 0;
+  margin: 0 0 3px 0;
   letter-spacing: 0.4px;
 }
 
 .hero-card-desc {
-  font-size: 13.5px;
+  font-size: 11px;
   color: #64748b;
-  line-height: 1.5;
+  line-height: 1.35;
   margin: 0;
-  max-width: 250px;
 }
 
 .btn-hero-enter {
@@ -5830,26 +5837,359 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   color: #ffffff;
   border: none;
   border-radius: 4px;
-  padding: 10px 22px;
+  padding: 6px 16px;
   font-family: 'Space Mono', monospace;
-  font-size: 12px;
+  font-size: 10.5px;
   font-weight: 700;
   cursor: pointer;
-  margin-top: 24px;
+  margin-top: 10px;
   transition: all 0.2s;
-  width: auto;
+  width: 100%;
 }
 
 .backlog-hero-card:hover .btn-hero-enter {
   background: #000000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 2. BIO-TRACKER GAMIFICADO CARD (BOX 2) */
+.backlog-tracker-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  flex: 1.15;
+  box-sizing: border-box;
+}
+
+.tracker-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.tracker-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tracker-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.tracker-card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 0.3px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.tracker-card-subtitle {
+  font-size: 9.5px;
+  color: #64748b;
+  display: block;
+}
+
+.btn-tracker-config {
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 4px;
+  padding: 3px 7px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #0f172a;
+}
+
+.btn-tracker-config:hover {
+  background: rgba(15, 23, 42, 0.09);
+  transform: rotate(30deg);
+}
+
+/* 9-METRICS GRID */
+.tracker-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+
+.metric-chip {
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 6px;
+  padding: 6px 7px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-chip:hover {
+  background: #ffffff;
+  border-color: rgba(184, 156, 80, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.metric-chip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+.metric-code {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.06);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.metric-total, .metric-streak {
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.metric-streak.success {
+  color: #10b981;
+}
+
+.metric-streak.gold {
+  color: #b89c50;
+}
+
+.metric-missed.danger {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.metric-chip-body {
+  font-size: 9.5px;
+  color: #475569;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.metric-badge {
+  display: inline-block;
+  font-size: 8.5px;
+  padding: 1px 3px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.04);
+  margin-right: 2px;
+}
+
+.metric-badge.active {
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  font-weight: 700;
+}
+
+.metric-exp-display {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.metric-exp-display .exp-base {
+  color: #10b981;
+}
+
+.metric-exp-display .exp-sup {
+  font-size: 8px;
+  color: #ef4444;
+  vertical-align: super;
+  margin-left: 1px;
+}
+
+.metric-subval {
+  font-size: 9px;
+  color: #64748b;
+  display: block;
+}
+
+.metric-tag {
+  font-size: 8.5px;
+  padding: 1px 3px;
+  border-radius: 2px;
+  background: rgba(15, 23, 42, 0.05);
+  display: inline-block;
+}
+
+.metric-tag.gold {
+  background: rgba(184, 156, 80, 0.18);
+  color: #92752b;
+  font-weight: 700;
+}
+
+.metric-tag-dual {
+  display: flex;
+  gap: 2px;
+  font-size: 8.5px;
+}
+
+.ret-badge {
+  color: #d97706;
+  font-weight: 700;
+}
+
+.pmo-badge {
+  color: #059669;
+  font-weight: 700;
+}
+
+.mini-progress-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 3px 0 2px 0;
+}
+
+.mini-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.mini-progress-fill.cyan {
+  background: #06b6d4;
+}
+
+.mini-progress-fill.purple {
+  background: #8b5cf6;
+}
+
+.mini-progress-fill.gold {
+  background: #b89c50;
+}
+
+.metric-ratio-text {
+  font-size: 8.5px;
+  color: #64748b;
+  font-family: 'Space Mono', monospace;
+}
+
+/* CHIP QUICK ACTIONS */
+.metric-chip-actions {
+  display: flex;
+  gap: 3px;
+  margin-top: 3px;
+}
+
+.btn-chip-inc {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 3px;
+  font-family: 'Space Mono', monospace;
+  font-size: 8.5px;
+  font-weight: 600;
+  padding: 2px 0;
+  color: #0f172a;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.btn-chip-inc:hover {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+.btn-chip-inc.danger:hover {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+/* TRACKER CONFIG MODAL */
+.tracker-config-modal {
+  max-width: 720px !important;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.tracker-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .tracker-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tracker-form-card {
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.t-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #0f172a;
+}
+
+.t-badge-code {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: 10px;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+
+.tracker-form-card label {
+  font-size: 11px !important;
+  color: #475569 !important;
+  margin-bottom: 2px !important;
+}
+
+.tracker-form-card input[type="number"] {
+  width: 100%;
+  padding: 5px 8px;
+  font-size: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  border-radius: 4px;
+  background: #ffffff;
+  box-sizing: border-box;
 }
 
 /* Columna Derecha (2x2 Grid) */
 .backlog-selection-right {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 16px;
   height: 100%;
 }
 
