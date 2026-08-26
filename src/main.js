@@ -1538,16 +1538,16 @@ const renderers = {
               <button type="button" class="btn-unit-enter">Entrar a Zentry</button>
             </a>
 
-            <!-- 3. TABLERO GLOBAL -->
-            <a href="#backlog/global" class="selection-unit-card">
+            <!-- 3. DIARIO NOCTURNO (FULL TAB JOURNAL) -->
+            <a href="#backlog/journal" class="selection-unit-card">
               <div class="unit-card-icon-box">
-                <span class="unit-global-icon">🌐</span>
+                <span class="unit-journal-icon" style="font-size: 26px;">📖</span>
               </div>
               <div class="unit-card-text">
-                <h4 class="unit-card-title">TABLERO GLOBAL</h4>
-                <p class="unit-card-desc">Perspectiva global de operaciones, KPIs y objetivos estratégicos de la organización.</p>
+                <h4 class="unit-card-title">DIARIO NOCTURNO</h4>
+                <p class="unit-card-desc">Bitácora de pensamiento estratégico, avances diarios y reflexión nocturna integral.</p>
               </div>
-              <button type="button" class="btn-unit-enter">Entrar a Global</button>
+              <button type="button" class="btn-unit-enter">Entrar a Journal</button>
             </a>
 
             <!-- 4. TABLERO PERSONAL -->
@@ -1568,6 +1568,12 @@ const renderers = {
       `;
 
       setupHabitTrackerEvents(container);
+      return;
+    }
+
+    // Journal Full Page mode → Dedicated Full-tab Journal Workspace
+    if (state.backlogMode === 'journal') {
+      renderJournalFullPage(container);
       return;
     }
 
@@ -3481,6 +3487,276 @@ function openJournalModal(initialDateStr) {
   modal.classList.add('show');
 }
 
+// ==============================================================================
+// FULL-PAGE JOURNAL VIEW (FULL TAB WORKSPACE)
+// ==============================================================================
+
+function renderJournalFullPage(container) {
+  document.getElementById('properties-block').style.display = 'none';
+  document.getElementById('page-banner').style.display = 'none';
+  const wsHeader = document.querySelector('.workspace-header');
+  if (wsHeader) wsHeader.style.display = 'none';
+
+  let currentDate = state.personalDate || new Date().toISOString().split('T')[0];
+
+  container.innerHTML = `
+    <div class="journal-fullpage-container">
+      
+      <!-- Top Navigation Bar -->
+      <div class="espacio-personal-header journal-fullpage-header">
+        <a href="#backlog" class="btn-back-personal">⬅️ Volver a Selección</a>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.4rem;">📖</span>
+          <h2 style="font-family: 'Space Grotesk', sans-serif; color: #0f172a; margin: 0; font-size: 1.3rem;">DIARIO & REFLEXIÓN NOCTURNA</h2>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <a href="#backlog/personal" class="btn-open-personal-board" style="background: #ffffff; color: #0f172a; border: 1px solid rgba(15,23,42,0.15); text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">⏱️ Ir a Timeblocking</a>
+          <a href="#backlog/personal-board" class="btn-open-personal-board" style="background: #0f172a; color: #ffffff; text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">📋 Tablero Personal</a>
+        </div>
+      </div>
+
+      <!-- Main Full Workspace Grid: Sidebar (300px) + Main Editor (1fr) -->
+      <div class="journal-fullpage-layout glass-panel">
+        
+        <!-- Sidebar: Fechas, Búsqueda e Historial -->
+        <aside class="journal-sidebar journal-fullpage-sidebar">
+          <div class="journal-sidebar-top">
+            <div class="journal-date-selector-box">
+              <label for="fp-journal-date" class="journal-input-label">📅 Seleccionar Fecha:</label>
+              <input type="date" id="fp-journal-date" class="journal-date-input" value="${currentDate}" />
+            </div>
+            <div class="journal-search-box">
+              <input type="text" id="fp-journal-search-input" placeholder="🔍 Buscar en el historial..." class="journal-search-input" />
+            </div>
+          </div>
+
+          <div class="journal-entries-heading">
+            <span>📚 Entradas Guardadas</span>
+            <span id="fp-journal-total-count" class="journal-count-badge">0</span>
+          </div>
+
+          <div id="fp-journal-history-list" class="journal-history-scroll">
+            <!-- Loaded dynamically -->
+          </div>
+        </aside>
+
+        <!-- Main Editor Column -->
+        <main class="journal-editor-main journal-fullpage-main">
+          <div class="journal-editor-header">
+            <div class="journal-current-date-info">
+              <div>
+                <span id="fp-journal-active-date-label" class="journal-active-date">${formatDateLabel(currentDate)}</span>
+                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Reflexión Diaria, Decisiones y Pensamiento Estratégico</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="fp-journal-sync-status" class="journal-sync-status">⚡ Sincronizado en la nube</span>
+              </div>
+            </div>
+            
+            <!-- Quick prompt chips -->
+            <div class="journal-prompt-pills">
+              <span style="font-size: 11px; font-weight: 600; color: #64748b; margin-right: 4px;">Insertar sección:</span>
+              <button type="button" class="btn-prompt-pill" data-prompt="🎯 Logros del día:&#10;- ">🎯 Logros</button>
+              <button type="button" class="btn-prompt-pill" data-prompt="🧠 Aprendizajes:&#10;- ">🧠 Aprendizajes</button>
+              <button type="button" class="btn-prompt-pill" data-prompt="⚠️ Obstáculos & Soluciones:&#10;- ">⚠️ Obstáculos</button>
+              <button type="button" class="btn-prompt-pill" data-prompt="⚡ Prioridades de mañana:&#10;1. &#10;2. &#10;3. ">⚡ Plan Mañana</button>
+              <button type="button" class="btn-prompt-pill" data-prompt="💡 Ideas & Epifanías:&#10;- ">💡 Ideas</button>
+            </div>
+          </div>
+
+          <div class="journal-textarea-container">
+            <textarea id="fp-journal-content" class="journal-textarea" placeholder="Escribe libremente tus reflexiones, decisiones estratégicas, aprendizajes o avances del día..."></textarea>
+          </div>
+
+          <div class="journal-editor-footer">
+            <div class="journal-stats-info">
+              <span id="fp-journal-word-count">0 palabras</span> • <span id="fp-journal-char-count">0 caracteres</span>
+            </div>
+            <div class="journal-actions-group">
+              <button type="button" id="fp-journal-delete-btn" class="btn btn-danger" style="display: none; font-size: 11.5px; padding: 7px 14px;">🗑️ Borrar Día</button>
+              <button type="button" id="fp-journal-save-btn" class="btn btn-primary" style="background: #0f172a; color: white; padding: 8px 22px; font-weight: 600; font-size: 12.5px; border-radius: 6px; display: flex; align-items: center; gap: 6px;">
+                <span>💾 Guardar Registro</span>
+              </button>
+            </div>
+          </div>
+        </main>
+
+      </div>
+    </div>
+  `;
+
+  // Bind Events for Full Page Journal
+  const dateInput = document.getElementById('fp-journal-date');
+  const searchInput = document.getElementById('fp-journal-search-input');
+  const contentTextarea = document.getElementById('fp-journal-content');
+  const activeDateLabel = document.getElementById('fp-journal-active-date-label');
+  const totalCountBadge = document.getElementById('fp-journal-total-count');
+  const historyListContainer = document.getElementById('fp-journal-history-list');
+  const deleteBtn = document.getElementById('fp-journal-delete-btn');
+  const saveBtn = document.getElementById('fp-journal-save-btn');
+  const wordCountSpan = document.getElementById('fp-journal-word-count');
+  const charCountSpan = document.getElementById('fp-journal-char-count');
+
+  const updateStats = () => {
+    const text = contentTextarea ? contentTextarea.value.trim() : '';
+    const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+    const chars = text.length;
+    if (wordCountSpan) wordCountSpan.textContent = `${words} palabra${words === 1 ? '' : 's'}`;
+    if (charCountSpan) charCountSpan.textContent = `${chars} carácter${chars === 1 ? '' : 'es'}`;
+  };
+
+  const loadEntryForDate = (dateStr) => {
+    currentDate = dateStr;
+    state.personalDate = dateStr;
+    if (dateInput) dateInput.value = dateStr;
+    if (activeDateLabel) activeDateLabel.textContent = formatDateLabel(dateStr);
+
+    const history = getJournalHistory();
+    const entry = history.find(h => h.date === dateStr);
+
+    if (entry && contentTextarea) {
+      contentTextarea.value = entry.content || '';
+      if (deleteBtn) deleteBtn.style.display = 'inline-flex';
+    } else if (contentTextarea) {
+      contentTextarea.value = '';
+      if (deleteBtn) deleteBtn.style.display = 'none';
+    }
+    updateStats();
+    renderHistoryList(searchInput ? searchInput.value.trim() : '');
+  };
+
+  const renderHistoryList = (filterQuery = '') => {
+    if (!historyListContainer) return;
+    const history = getJournalHistory();
+    if (totalCountBadge) totalCountBadge.textContent = history.length;
+
+    const filtered = filterQuery 
+      ? history.filter(h => h.date.includes(filterQuery) || (h.content || '').toLowerCase().includes(filterQuery.toLowerCase()))
+      : history;
+
+    if (filtered.length === 0) {
+      historyListContainer.innerHTML = `
+        <div style="padding: 20px 10px; text-align: center; color: #94a3b8; font-size: 12px; font-style: italic;">
+          ${filterQuery ? 'No se encontraron entradas para esa búsqueda.' : 'No hay entradas aún. ¡Escribe la primera reflexión de hoy!'}
+        </div>
+      `;
+      return;
+    }
+
+    historyListContainer.innerHTML = filtered.map(h => {
+      const isActive = h.date === currentDate ? ' active' : '';
+      const text = (h.content || '').replace(/\n/g, ' ');
+      const preview = text.length > 70 ? text.slice(0, 70) + '...' : (text || '(Entrada vacía)');
+      const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+
+      return `
+        <div class="journal-entry-item${isActive}" data-date="${h.date}">
+          <div class="journal-entry-date">
+            <span>📅 ${h.date}</span>
+            <span class="journal-entry-words">${words} palabras</span>
+          </div>
+          <div class="journal-entry-snippet">${preview}</div>
+        </div>
+      `;
+    }).join('');
+
+    historyListContainer.querySelectorAll('.journal-entry-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const d = item.getAttribute('data-date');
+        if (d) loadEntryForDate(d);
+      });
+    });
+  };
+
+  if (dateInput) {
+    dateInput.onchange = () => {
+      if (dateInput.value) loadEntryForDate(dateInput.value);
+    };
+  }
+
+  if (searchInput) {
+    searchInput.oninput = () => {
+      renderHistoryList(searchInput.value.trim());
+    };
+  }
+
+  if (contentTextarea) {
+    contentTextarea.oninput = updateStats;
+  }
+
+  container.querySelectorAll('.btn-prompt-pill').forEach(pill => {
+    pill.onclick = () => {
+      const promptText = pill.getAttribute('data-prompt');
+      if (contentTextarea && promptText) {
+        if (contentTextarea.value.length > 0 && !contentTextarea.value.endsWith('\n\n')) {
+          contentTextarea.value += '\n\n';
+        }
+        contentTextarea.value += promptText;
+        contentTextarea.focus();
+        updateStats();
+      }
+    };
+  });
+
+  if (saveBtn) {
+    saveBtn.onclick = async () => {
+      const text = contentTextarea ? contentTextarea.value.trim() : '';
+      if (!text) {
+        alert('Por favor escribe tu reflexión o notas antes de guardar.');
+        return;
+      }
+
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span>⏳ Guardando...</span>';
+
+      const history = getJournalHistory();
+      const existingIdx = history.findIndex(h => h.date === currentDate);
+      const entry = { date: currentDate, content: text, savedAt: new Date().toISOString() };
+
+      if (existingIdx !== -1) {
+        history[existingIdx] = entry;
+      } else {
+        history.unshift(entry);
+      }
+
+      history.sort((a, b) => b.date.localeCompare(a.date));
+      localStorage.setItem('zentry_journal_history', JSON.stringify(history));
+
+      try {
+        await syncJournalHistory(history);
+      } catch (e) {
+        console.warn('Firestore sync failed or offline:', e);
+      }
+
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<span>✅ ¡Guardado!</span>';
+      setTimeout(() => {
+        if (saveBtn) saveBtn.innerHTML = '<span>💾 Guardar Registro</span>';
+      }, 1800);
+
+      loadEntryForDate(currentDate);
+    };
+  }
+
+  if (deleteBtn) {
+    deleteBtn.onclick = async () => {
+      if (confirm(`¿Estás seguro de eliminar el registro de journal del día ${currentDate}?`)) {
+        let history = getJournalHistory();
+        history = history.filter(h => h.date !== currentDate);
+        localStorage.setItem('zentry_journal_history', JSON.stringify(history));
+
+        try {
+          await syncJournalHistory(history);
+        } catch (e) {}
+
+        loadEntryForDate(currentDate);
+      }
+    };
+  }
+
+  loadEntryForDate(currentDate);
+}
+
 // ========================================
 // ESPACIO PERSONAL: Timeblock + AI Chat
 // ========================================
@@ -3557,9 +3833,9 @@ function renderEspacioPersonal(container) {
       <a href="#backlog" class="btn-back-personal">⬅️ Volver a Selección</a>
       <h2 style="font-family: 'Space Grotesk', sans-serif; color: #0f172a;">⏱️ Timeblocking</h2>
       <div class="personal-header-actions" style="display: flex; gap: 8px; align-items: center;">
-        <button type="button" id="btn-open-journal-modal" class="btn-open-journal">
+        <a href="#backlog/journal" class="btn-open-journal" style="background: #ffffff; color: #0f172a; text-decoration: none; border: 1px solid rgba(15, 23, 42, 0.15); padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
           <span>📖</span> Abrir Journal
-        </button>
+        </a>
         <a href="#backlog/personal-board" class="btn-open-personal-board" style="background: #0f172a; color: #ffffff; text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
           <span>📋</span> Abrir Tablero Personal
         </a>
@@ -4356,8 +4632,8 @@ function handleRouting() {
     } else if (hash === '#backlog/personal') {
       state.backlogMode = 'personal';
       document.body.setAttribute('data-module', 'quarz');
-    } else if (hash === '#backlog/global') {
-      state.backlogMode = 'global';
+    } else if (hash === '#backlog/journal' || hash === '#backlog/global') {
+      state.backlogMode = 'journal';
       document.body.setAttribute('data-module', 'quarz');
     } else {
       state.backlogMode = 'selection';

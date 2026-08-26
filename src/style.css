@@ -6582,3 +6582,46 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   transform: translateY(-1px) !important;
 }
 
+/* Fullpage Journal Workspace */
+.journal-fullpage-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 40px);
+  max-width: 1400px;
+  margin: 0 auto;
+  gap: 12px;
+  width: 100%;
+}
+
+.journal-fullpage-header {
+  margin-bottom: 0 !important;
+}
+
+.journal-fullpage-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  flex: 1;
+  min-height: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+@media (max-width: 860px) {
+  .journal-fullpage-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.journal-fullpage-sidebar {
+  border-right: 1px solid rgba(15, 23, 42, 0.08);
+  height: 100%;
+}
+
+.journal-fullpage-main {
+  height: 100%;
+}
+
+
