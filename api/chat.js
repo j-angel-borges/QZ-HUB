@@ -117,6 +117,7 @@ Por favor ingresa tu Clave de API en la configuración del chat o establece \`GE
     }
 
     // Try candidate models
+    // Candidate models in strict order of availability
     const requestedModel = req.body?.model;
     const candidateModels = [
       ...(requestedModel ? [requestedModel] : []),
@@ -153,11 +154,15 @@ Por favor ingresa tu Clave de API en la configuración del chat o establece \`GE
 
         if (data.error) {
           lastError = data.error;
-          // If 404 model not found, try next candidate model
-          if (data.error.code === 404) continue;
+          const msg = (data.error.message || '').toLowerCase();
+
+          // If model is deprecated, not found, or not available, try next candidate model
+          if (data.error.code === 404 || msg.includes('not found') || msg.includes('no longer available') || msg.includes('unsupported')) {
+            continue;
+          }
 
           // If 429 Prepayment credits depleted or 403 billing issue, fall back to backend SSOT engine gracefully
-          if (data.error.code === 429 || data.error.code === 403 || (data.error.message && data.error.message.includes('prepayment'))) {
+          if (data.error.code === 429 || data.error.code === 403 || msg.includes('prepayment') || msg.includes('quota')) {
             console.warn("GCP Prepayment/Billing error detected (429/403). Falling back to Backend SSOT Engine.");
             const fallbackReply = generateBackendSsotFallback(message);
             return res.status(200).json({
@@ -167,7 +172,11 @@ Por favor ingresa tu Clave de API en la configuración del chat o establece \`GE
             });
           }
           
-          // Return clear API error if unhandled
+          // Try next model if any other 400 error
+          if (data.error.code === 400 && uniqueModels.indexOf(modelName) < uniqueModels.length - 1) {
+            continue;
+          }
+
           return res.status(200).json({
             reply: `❌ **Error de la API de Gemini (${data.error.code}):** ${data.error.message}`,
             error: data.error

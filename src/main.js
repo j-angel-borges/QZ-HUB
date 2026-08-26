@@ -2195,10 +2195,9 @@ const renderers = {
 
             <div class="session-header-actions">
               <select id="cockpit-model-select" class="cockpit-model-select" title="Motor de Inteligencia (Créditos GCP)">
-                <option value="gemini-2.5-flash">⚡ Gemini 2.5 Flash</option>
-                <option value="gemini-2.5-pro">🧠 Gemini 2.5 Pro</option>
-                <option value="gemini-1.5-pro">💎 Gemini 1.5 Pro</option>
-                <option value="ssot-local">📖 SSOT Local</option>
+                <option value="gemini-2.5-flash">⚡ Gemini 2.5 Flash (GCP)</option>
+                <option value="gemini-2.5-pro">🧠 Gemini 2.5 Pro (GCP)</option>
+                <option value="ssot-local">📖 Motor SSOT Local</option>
               </select>
               <button type="button" id="btn-toggle-sessions-list" class="btn-cockpit-icon" title="Ver Historial de Sesiones">📋 Sesiones</button>
               <button type="button" id="btn-new-session" class="btn-cockpit-primary">＋ Nueva Sesión</button>
