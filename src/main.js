@@ -2236,10 +2236,11 @@ const renderers = {
 
             <div class="session-header-actions">
               <select id="cockpit-model-select" class="cockpit-model-select" title="Motor de Inteligencia (Créditos GCP)">
-                <option value="gemini-2.5-flash">⚡ Gemini 2.5 Flash</option>
-                <option value="gemini-2.5-pro">🧠 Gemini 2.5 Pro</option>
-                <option value="gemini-1.5-pro">💎 Gemini 1.5 Pro</option>
-                <option value="ssot-local">📖 SSOT Local</option>
+                <option value="gemini-2.5-flash">⚡ Gemini 2.5 Flash (Quarz Group)</option>
+                <option value="gemini-2.5-pro">🧠 Gemini 2.5 Pro (Razonamiento)</option>
+                <option value="gemini-2.5-flash-lite">⚡ Gemini 2.5 Flash Lite</option>
+                <option value="gemini-3.7-flash">🚀 Gemini 3.7 Flash (Next-Gen)</option>
+                <option value="ssot-local">📖 SSOT Local (Offline)</option>
               </select>
               <button type="button" id="btn-toggle-sessions-list" class="btn-cockpit-icon" title="Ver Historial de Sesiones">📋 Sesiones</button>
               <button type="button" id="btn-new-session" class="btn-cockpit-primary">＋ Nueva Sesión</button>
@@ -2343,28 +2344,33 @@ const renderers = {
 
       <!-- GCP Settings Modal -->
       <div id="gcp-settings-modal" class="modal-overlay">
-        <div class="modal-content glass-modal" style="max-width: 480px;">
+        <div class="modal-content glass-modal" style="max-width: 500px;">
           <div class="modal-header">
-            <h2 class="modal-task-id" style="font-size: 16px;">⚙️ Configuración Google Cloud Platform</h2>
+            <h2 class="modal-task-id" style="font-size: 16px;">⚙️ Configuración GCP & Vertex AI</h2>
             <button id="gcp-modal-close" class="modal-close-btn">&times;</button>
           </div>
           <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; font-size: 12px; color: #334155;">
-              <strong>¿Cómo obtener tu API Key con tus créditos de GCP?</strong>
-              <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b;">
-                1. Ve a <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #0f172a; font-weight: bold; text-decoration: underline;">Google AI Studio API Keys</a> o tu <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color: #0f172a; font-weight: bold; text-decoration: underline;">Consola de GCP</a> en tu proyecto <code>qz-hub</code>.<br>
-                2. Haz clic en <strong>Create API Key</strong> y pégala aquí abajo.
+              <strong>Conexión con Casa Matriz (QUARZ Group)</strong>
+              <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b; line-height: 1.4;">
+                1. Ve a <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #0f172a; font-weight: bold; text-decoration: underline;">Google AI Studio API Keys</a>.<br>
+                2. Haz clic en <strong>Create API Key</strong> y selecciona tu proyecto <code>quarz-group</code> (Quarz Group con facturación activa).<br>
+                3. Pega la clave generada aquí abajo.
               </p>
             </div>
             <div>
-              <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px;">Google Cloud / Gemini API Key (Vertex AI):</label>
-              <input type="password" id="modal-gcp-api-key" placeholder="Pega tu clave AIzaSy..." style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px;">
+              <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px;">Google Cloud / Gemini API Key:</label>
+              <input type="password" id="modal-gcp-api-key" placeholder="AIzaSy..." style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
             </div>
             <div>
               <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px;">GCP Project ID:</label>
-              <input type="text" id="modal-gcp-project-id" value="qz-hub" style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px;">
+              <input type="text" id="modal-gcp-project-id" value="quarz-group" style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
             </div>
-            <button type="button" id="btn-save-modal-gcp-settings" class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 12.5px; margin-top: 6px;">Guardar y Conectar</button>
+            <div id="gcp-test-feedback" style="font-size: 11.5px; display: none; padding: 6px 10px; border-radius: 6px;"></div>
+            <div style="display: flex; gap: 8px; margin-top: 4px;">
+              <button type="button" id="btn-test-gcp-connection" class="btn btn-secondary" style="flex: 1; padding: 9px; font-size: 12px;">🧪 Probar Conexión</button>
+              <button type="button" id="btn-save-modal-gcp-settings" class="btn btn-primary" style="flex: 1; padding: 9px; font-size: 12px; background: #0f172a; color: white;">Guardar y Activar</button>
+            </div>
           </div>
         </div>
       </div>
@@ -2706,10 +2712,12 @@ const renderers = {
     const gcpModal = document.getElementById('gcp-settings-modal');
     const modalApiKey = document.getElementById('modal-gcp-api-key');
     const modalProjectId = document.getElementById('modal-gcp-project-id');
+    const gcpFeedback = document.getElementById('gcp-test-feedback');
 
     document.getElementById('btn-open-gcp-settings')?.addEventListener('click', () => {
       if (modalApiKey) modalApiKey.value = localStorage.getItem('gemini_api_key') || '';
-      if (modalProjectId) modalProjectId.value = localStorage.getItem('gemini_project_id') || 'qz-hub';
+      if (modalProjectId) modalProjectId.value = localStorage.getItem('gemini_project_id') || 'quarz-group';
+      if (gcpFeedback) gcpFeedback.style.display = 'none';
       if (gcpModal) gcpModal.classList.add('show');
     });
 
@@ -2717,13 +2725,56 @@ const renderers = {
       gcpModal?.classList.remove('show');
     });
 
+    document.getElementById('btn-test-gcp-connection')?.addEventListener('click', async () => {
+      const key = (modalApiKey ? modalApiKey.value : '').trim();
+      const testBtn = document.getElementById('btn-test-gcp-connection');
+      if (!key) {
+        if (gcpFeedback) {
+          gcpFeedback.style.display = 'block';
+          gcpFeedback.style.background = '#fee2e2';
+          gcpFeedback.style.color = '#991b1b';
+          gcpFeedback.textContent = 'Por favor ingresa una API Key antes de probar.';
+        }
+        return;
+      }
+
+      if (testBtn) {
+        testBtn.disabled = true;
+        testBtn.textContent = '⏳ Probando...';
+      }
+
+      const start = Date.now();
+      try {
+        await callVertexGemini('Responde exactamente: PING_OK', '', 'gemini-2.5-flash', key);
+        const elapsed = Date.now() - start;
+        if (gcpFeedback) {
+          gcpFeedback.style.display = 'block';
+          gcpFeedback.style.background = '#dcfce7';
+          gcpFeedback.style.color = '#166534';
+          gcpFeedback.textContent = `✅ Conexión exitosa con Gemini (quarz-group) en ${elapsed}ms.`;
+        }
+      } catch (err) {
+        if (gcpFeedback) {
+          gcpFeedback.style.display = 'block';
+          gcpFeedback.style.background = '#fee2e2';
+          gcpFeedback.style.color = '#991b1b';
+          gcpFeedback.textContent = `❌ Error: ${err.message}`;
+        }
+      } finally {
+        if (testBtn) {
+          testBtn.disabled = false;
+          testBtn.textContent = '🧪 Probar Conexión';
+        }
+      }
+    });
+
     document.getElementById('btn-save-modal-gcp-settings')?.addEventListener('click', () => {
       const key = (modalApiKey ? modalApiKey.value : '').trim();
-      const proj = (modalProjectId ? modalProjectId.value : '').trim() || 'qz-hub';
+      const proj = (modalProjectId ? modalProjectId.value : '').trim() || 'quarz-group';
       localStorage.setItem('gemini_api_key', key);
       localStorage.setItem('gemini_project_id', proj);
       gcpModal?.classList.remove('show');
-      alert('✅ Credenciales de Google Cloud guardadas.');
+      alert('✅ Credenciales de Google Cloud guardadas y activas.');
     });
 
     // Tool: Remote Screenshot Button (Attaches to Active Session)
