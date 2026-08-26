@@ -2316,74 +2316,6 @@ const renderers = {
 
         </div>
 
-
-        <!-- ============================================================== -->
-        <!-- COLUMNA LATERAL (30%): FUNNEL METRICS ENGINE & TELEMETRÍA -->
-        <!-- ============================================================== -->
-        <div class="cockpit-side-column">
-          
-          <!-- 1. FUNNEL METRICS ENGINE (COMPACT COLLAPSIBLE) -->
-          <div class="funnel-card glass-panel" style="padding: 14px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-size: 1.2rem;">📊</span>
-                <h3 style="margin: 0; font-size: 0.9rem; color: #0f172a; text-transform: uppercase;">Funnel Metrics</h3>
-              </div>
-              <span id="funnel-progress-text" style="font-weight: bold; font-size: 10.5px; color: #0f172a;">S/ 770 / S/ 4,000</span>
-            </div>
-
-            <div class="progress-bar-container" style="height: 6px; background: rgba(15,23,42,0.08); border-radius: 3px; overflow: hidden; margin-bottom: 10px;">
-              <div id="funnel-progress-bar" class="progress-bar" style="width: 19.25%; background: linear-gradient(90deg, #0f172a 0%, #b89c50 100%); height: 100%;"></div>
-            </div>
-
-            <details style="font-size: 11.5px; cursor: pointer;">
-              <summary style="font-weight: 600; color: var(--primary); margin-bottom: 6px;">⚙️ Variables de Simulación</summary>
-              
-              <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 4px;">
-                <div style="background: #ffffff; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color);">
-                  <div style="font-weight: 700; font-size: 10.5px; margin-bottom: 3px;">🍳 Royal Prestige (933709385)</div>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                    <div>
-                      <label style="font-size: 9.5px; color: var(--text-muted);">Llamadas:</label>
-                      <input type="number" id="fn-rp-calls" value="40" min="0" style="width: 100%; padding: 3px; font-size: 10.5px;">
-                    </div>
-                    <div>
-                      <label style="font-size: 9.5px; color: var(--text-muted);">Demos:</label>
-                      <input type="number" id="fn-rp-ref-demos" value="3" min="0" style="width: 100%; padding: 3px; font-size: 10.5px;">
-                    </div>
-                  </div>
-                  <div style="font-size: 10px; margin-top: 3px;">Est. RP: <strong id="fn-rp-total-gain">S/ 1,852.76</strong></div>
-                </div>
-
-                <div style="background: #ffffff; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color);">
-                  <div style="font-weight: 700; font-size: 10.5px; margin-bottom: 3px;">☄️ QUARZ Group (ZentryOS $1k)</div>
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
-                    <div>
-                      <label style="font-size: 9.5px; color: var(--text-muted);">Prospectos:</label>
-                      <input type="number" id="fn-zentry-prospects" value="15" min="0" style="width: 100%; padding: 3px; font-size: 10.5px;">
-                    </div>
-                    <div>
-                      <label style="font-size: 9.5px; color: var(--text-muted);">Demos:</label>
-                      <input type="number" id="fn-zentry-demos" value="5" min="0" style="width: 100%; padding: 3px; font-size: 10.5px;">
-                    </div>
-                  </div>
-                  <div style="font-size: 10px; margin-top: 3px;">Est. ZentryOS: <strong id="fn-zentry-total-gain">S/ 1,906.78</strong></div>
-                </div>
-
-                <span id="fn-rp-est-demos" style="display: none;"></span>
-                <span id="fn-rp-cold-sales" style="display: none;"></span>
-                <span id="fn-rp-ref-sales" style="display: none;"></span>
-                <span id="fn-rp-new-refs" style="display: none;"></span>
-                <span id="fn-zentry-est-demos" style="display: none;"></span>
-                <span id="fn-zentry-sales" style="display: none;"></span>
-                <span id="fn-zentry-personal-gain" style="display: none;"></span>
-                <span id="fn-zentry-company-gain" style="display: none;"></span>
-              </div>
-            </details>
-          </div>
-
-        </div>
-
       </div>
 
       <!-- Markdown Viewer Modal for Artifacts -->
@@ -3021,48 +2953,6 @@ Responde de forma concisa, ejecutiva y formateada en Markdown limpio.`;
     // Initial render of active session
     renderCurrentSession();
 
-    // 8. Funnel Metrics Engine Logic (Preserved Math)
-    const fnRpCalls = document.getElementById('fn-rp-calls');
-    const fnRpRefDemos = document.getElementById('fn-rp-ref-demos');
-    const fnZentryProspects = document.getElementById('fn-zentry-prospects');
-    const fnZentryDemos = document.getElementById('fn-zentry-demos');
-
-    function updateFunnelEngine() {
-      const rpCalls = parseInt(fnRpCalls?.value) || 0;
-      const rpRefDemos = parseInt(fnRpRefDemos?.value) || 0;
-      const zentryProspects = parseInt(fnZentryProspects?.value) || 0;
-      const zentryDemos = parseInt(fnZentryDemos?.value) || 0;
-
-      const estColdDemos = (rpCalls / 20).toFixed(1);
-      const coldSales = (estColdDemos / 4).toFixed(1);
-      const refSales = (rpRefDemos / 3).toFixed(1);
-
-      const rpGain = (parseFloat(coldSales) * 1010.59) + (parseFloat(refSales) * 1347.46);
-      const fnRpTotal = document.getElementById('fn-rp-total-gain');
-      if (fnRpTotal) fnRpTotal.textContent = `S/ ${rpGain.toFixed(2)}`;
-
-      const zentrySales = (zentryDemos / 5).toFixed(1);
-      const zentryPersonalGain = parseFloat(zentrySales) * 1906.78;
-      const fnZentryTotal = document.getElementById('fn-zentry-total-gain');
-      if (fnZentryTotal) fnZentryTotal.textContent = `S/ ${zentryPersonalGain.toFixed(2)}`;
-
-      const initialCash = 770.00;
-      const totalPersonalGain = initialCash + rpGain + zentryPersonalGain;
-      const target = 4000.00;
-      const pct = Math.min(100, Math.round((totalPersonalGain / target) * 100));
-
-      const funnelProgressText = document.getElementById('funnel-progress-text');
-      const funnelProgressBar = document.getElementById('funnel-progress-bar');
-      if (funnelProgressText) funnelProgressText.textContent = `S/ ${totalPersonalGain.toFixed(2)} / S/ ${target.toFixed(2)} (${pct}%)`;
-      if (funnelProgressBar) funnelProgressBar.style.width = `${pct}%`;
-    }
-
-    if (fnRpCalls) fnRpCalls.addEventListener('input', updateFunnelEngine);
-    if (fnRpRefDemos) fnRpRefDemos.addEventListener('input', updateFunnelEngine);
-    if (fnZentryProspects) fnZentryProspects.addEventListener('input', updateFunnelEngine);
-    if (fnZentryDemos) fnZentryDemos.addEventListener('input', updateFunnelEngine);
-
-    updateFunnelEngine();
   },
 
   // 6.7. Plan Maestro 63 Días View
