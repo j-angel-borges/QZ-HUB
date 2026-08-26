@@ -117,16 +117,21 @@ Por favor ingresa tu Clave de API en la configuración del chat o establece \`GE
     }
 
     // Try candidate models
+    const requestedModel = req.body?.model;
     const candidateModels = [
-      'gemini-1.5-flash-latest',
+      ...(requestedModel ? [requestedModel] : []),
+      'gemini-2.5-flash',
+      'gemini-2.5-pro',
       'gemini-2.0-flash',
       'gemini-1.5-flash',
       'gemini-1.5-pro'
     ];
+    // Remove duplicates
+    const uniqueModels = [...new Set(candidateModels)];
 
     let lastError = null;
 
-    for (const modelName of candidateModels) {
+    for (const modelName of uniqueModels) {
       try {
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
         const fetchRes = await fetch(endpoint, {

@@ -752,17 +752,11 @@ function setupBrickWallInteraction(baseScale) {
   }
 }
 
-// Views Renderers
-
-// Function to invoke real Google Cloud / AI Studio Gemini API with full SSOT System Instruction
+// Function to invoke real Google Cloud Vertex AI / Gemini API with full SSOT System Instruction
 async function callRealGeminiAPI(userQuery, chatHistory = []) {
-  const apiKey = localStorage.getItem('gemini_api_key');
-  if (!apiKey) throw new Error('MISSING_API_KEY');
+  const model = localStorage.getItem('gemini_model') || 'gemini-2.5-flash';
 
-  const model = localStorage.getItem('gemini_model') || 'gemini-2.0-flash';
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-  const systemInstruction = `Eres el Orquestador SSOT Maestro de José Ángel para el Plan de 63 Días (10 Agosto a 11 Octubre de 2026).
+  const systemInstruction = `Eres el Orquestador SSOT Maestro de José Ángel para el Plan de 63 Días (10 Agosto a 11 Octubre de 2026) y QUARZ Group.
 Tienes conocimiento completo del SSOT:
 1. MANIFIESTO MAESTRO 63 DÍAS:
 ${manifestMarkdown.slice(0, 4000)}
@@ -774,7 +768,6 @@ ${metricasMarkdown.slice(0, 3000)}
 ${circadianoMarkdown.slice(0, 3000)}
 
 INFORMACIÓN OPERATIVA:
-- Fecha de hoy: Lunes 10 de Agosto de 2026.
 - Obligación financiera al 31 de agosto: S/ 4,000.00 PEN (Caja actual S/ 770.00).
 - Dispositivos: Redmi Note 9 (SIM 933709385 QUARZ para llamadas), Motorola Edge 40 Neo (Servidor USB Scrcpy para WhatsApp), Tab A7 Samsung (Demo ZentryOS Launcher Device Owner), iPad 5ª Gen (Demo PWA Dashboard).
 - Franja 12:00 PM - 02:00 PM: Paseo del perro + Calistenia + 40 llamadas breves Royal Prestige.
@@ -783,49 +776,15 @@ INFORMACIÓN OPERATIVA:
 
 Responde con profesionalismo, concisión, estructura Markdown impecable y máxima alineación al SSOT.`;
 
-  const contents = [];
-  
-  // Format past history into Gemini role objects
-  chatHistory.slice(-6).forEach(msg => {
-    if (msg.sender === 'user') {
-      contents.push({ role: 'user', parts: [{ text: msg.text }] });
-    } else if (msg.sender === 'bot') {
-      contents.push({ role: 'model', parts: [{ text: msg.text }] });
-    }
-  });
-
-  // Ensure current userQuery is at the end
-  if (contents.length === 0 || contents[contents.length - 1].role !== 'user' || contents[contents.length - 1].parts[0].text !== userQuery) {
-    contents.push({ role: 'user', parts: [{ text: userQuery }] });
+  // Format past history into prompt
+  let fullPrompt = '';
+  if (Array.isArray(chatHistory) && chatHistory.length > 0) {
+    fullPrompt = chatHistory.slice(-6).map(m => `${m.sender === 'user' ? 'Usuario' : 'Asistente'}: ${m.text}`).join('\n\n') + `\n\nUsuario: ${userQuery}`;
+  } else {
+    fullPrompt = userQuery;
   }
 
-  const payload = {
-    system_instruction: {
-      parts: [{ text: systemInstruction }]
-    },
-    contents: contents,
-    generationConfig: {
-      temperature: 0.7,
-      maxOutputTokens: 1024
-    }
-  };
-
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error?.message || `Error HTTP ${response.status}`);
-  }
-
-  const data = await response.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Respuesta vacía recibida de Gemini API.');
-  
-  return text;
+  return await callVertexGemini(fullPrompt, systemInstruction, model);
 }
 
 
@@ -2236,11 +2195,10 @@ const renderers = {
 
             <div class="session-header-actions">
               <select id="cockpit-model-select" class="cockpit-model-select" title="Motor de Inteligencia (Créditos GCP)">
-                <option value="gemini-2.5-flash">⚡ Gemini 2.5 Flash (Quarz Group)</option>
-                <option value="gemini-2.5-pro">🧠 Gemini 2.5 Pro (Razonamiento)</option>
-                <option value="gemini-2.5-flash-lite">⚡ Gemini 2.5 Flash Lite</option>
-                <option value="gemini-3.7-flash">🚀 Gemini 3.7 Flash (Next-Gen)</option>
-                <option value="ssot-local">📖 SSOT Local (Offline)</option>
+                <option value="gemini-2.5-flash">⚡ Gemini 2.5 Flash</option>
+                <option value="gemini-2.5-pro">🧠 Gemini 2.5 Pro</option>
+                <option value="gemini-1.5-pro">💎 Gemini 1.5 Pro</option>
+                <option value="ssot-local">📖 SSOT Local</option>
               </select>
               <button type="button" id="btn-toggle-sessions-list" class="btn-cockpit-icon" title="Ver Historial de Sesiones">📋 Sesiones</button>
               <button type="button" id="btn-new-session" class="btn-cockpit-primary">＋ Nueva Sesión</button>
@@ -2342,35 +2300,33 @@ const renderers = {
         </div>
       </div>
 
-      <!-- GCP Settings Modal -->
+      <!-- GCP Settings Modal (QUARZ Group Vertex AI) -->
       <div id="gcp-settings-modal" class="modal-overlay">
         <div class="modal-content glass-modal" style="max-width: 500px;">
           <div class="modal-header">
-            <h2 class="modal-task-id" style="font-size: 16px;">⚙️ Configuración GCP & Vertex AI</h2>
+            <h2 class="modal-task-id" style="font-size: 16px;">⚙️ Configuración GCP (quarz-group)</h2>
             <button id="gcp-modal-close" class="modal-close-btn">&times;</button>
           </div>
           <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; font-size: 12px; color: #334155;">
-              <strong>Conexión con Casa Matriz (QUARZ Group)</strong>
-              <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b; line-height: 1.4;">
-                1. Ve a <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #0f172a; font-weight: bold; text-decoration: underline;">Google AI Studio API Keys</a>.<br>
-                2. Haz clic en <strong>Create API Key</strong> y selecciona tu proyecto <code>quarz-group</code> (Quarz Group con facturación activa).<br>
-                3. Pega la clave generada aquí abajo.
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 12px; border-radius: 8px; font-size: 12px; color: #334155;">
+              <strong style="color: #0f172a;">🏢 Facturación Empresarial QUARZ Group</strong>
+              <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b; line-height: 1.45;">
+                Conectado directamente a la infraestructura de <strong>Google Cloud Platform</strong> del proyecto <code>quarz-group</code> (Vertex AI nativo). Los modelos recomendados son <strong>Gemini 2.5 Flash</strong> y <strong>Gemini 2.5 Pro</strong>.
               </p>
-            </div>
-            <div>
-              <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px;">Google Cloud / Gemini API Key:</label>
-              <input type="password" id="modal-gcp-api-key" placeholder="AIzaSy..." style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
             </div>
             <div>
               <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px;">GCP Project ID:</label>
               <input type="text" id="modal-gcp-project-id" value="quarz-group" style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
             </div>
-            <div id="gcp-test-feedback" style="font-size: 11.5px; display: none; padding: 6px 10px; border-radius: 6px;"></div>
-            <div style="display: flex; gap: 8px; margin-top: 4px;">
-              <button type="button" id="btn-test-gcp-connection" class="btn btn-secondary" style="flex: 1; padding: 9px; font-size: 12px;">🧪 Probar Conexión</button>
-              <button type="button" id="btn-save-modal-gcp-settings" class="btn btn-primary" style="flex: 1; padding: 9px; font-size: 12px; background: #0f172a; color: white;">Guardar y Activar</button>
+            <div>
+              <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px;">Google Cloud API Key (o Token Vertex AI):</label>
+              <input type="password" id="modal-gcp-api-key" placeholder="Pega tu clave AIzaSy..." style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
             </div>
+            <div style="display: flex; gap: 8px; margin-top: 4px;">
+              <button type="button" id="btn-test-gcp-connection" class="btn btn-secondary" style="flex: 1; padding: 9px; font-size: 11.5px; border-radius: 6px; border: 1px solid #cbd5e1; background: #f1f5f9; color: #0f172a; cursor: pointer; font-weight: 600;">⚡ Probar Conexión</button>
+              <button type="button" id="btn-save-modal-gcp-settings" class="btn btn-primary" style="flex: 1; padding: 9px; font-size: 11.5px; border-radius: 6px; background: #0f172a; color: white; cursor: pointer; font-weight: 600;">Guardar y Conectar</button>
+            </div>
+            <div id="gcp-connection-status" style="font-size: 11.5px; display: none; padding: 8px 10px; border-radius: 6px; margin-top: 2px;"></div>
           </div>
         </div>
       </div>
@@ -2712,12 +2668,12 @@ const renderers = {
     const gcpModal = document.getElementById('gcp-settings-modal');
     const modalApiKey = document.getElementById('modal-gcp-api-key');
     const modalProjectId = document.getElementById('modal-gcp-project-id');
-    const gcpFeedback = document.getElementById('gcp-test-feedback');
 
     document.getElementById('btn-open-gcp-settings')?.addEventListener('click', () => {
       if (modalApiKey) modalApiKey.value = localStorage.getItem('gemini_api_key') || '';
       if (modalProjectId) modalProjectId.value = localStorage.getItem('gemini_project_id') || 'quarz-group';
-      if (gcpFeedback) gcpFeedback.style.display = 'none';
+      const statusDiv = document.getElementById('gcp-connection-status');
+      if (statusDiv) statusDiv.style.display = 'none';
       if (gcpModal) gcpModal.classList.add('show');
     });
 
@@ -2726,44 +2682,32 @@ const renderers = {
     });
 
     document.getElementById('btn-test-gcp-connection')?.addEventListener('click', async () => {
-      const key = (modalApiKey ? modalApiKey.value : '').trim();
-      const testBtn = document.getElementById('btn-test-gcp-connection');
-      if (!key) {
-        if (gcpFeedback) {
-          gcpFeedback.style.display = 'block';
-          gcpFeedback.style.background = '#fee2e2';
-          gcpFeedback.style.color = '#991b1b';
-          gcpFeedback.textContent = 'Por favor ingresa una API Key antes de probar.';
-        }
-        return;
+      const statusDiv = document.getElementById('gcp-connection-status');
+      const testKey = (modalApiKey ? modalApiKey.value : '').trim();
+      const testProj = (modalProjectId ? modalProjectId.value : '').trim() || 'quarz-group';
+      
+      if (statusDiv) {
+        statusDiv.style.display = 'block';
+        statusDiv.style.background = '#fef3c7';
+        statusDiv.style.color = '#92400e';
+        statusDiv.style.border = '1px solid #fde68a';
+        statusDiv.textContent = `⏳ Probando conexión con Vertex AI en proyecto GCP '${testProj}'...`;
       }
 
-      if (testBtn) {
-        testBtn.disabled = true;
-        testBtn.textContent = '⏳ Probando...';
-      }
-
-      const start = Date.now();
       try {
-        await callVertexGemini('Responde exactamente: PING_OK', '', 'gemini-2.5-flash', key);
-        const elapsed = Date.now() - start;
-        if (gcpFeedback) {
-          gcpFeedback.style.display = 'block';
-          gcpFeedback.style.background = '#dcfce7';
-          gcpFeedback.style.color = '#166534';
-          gcpFeedback.textContent = `✅ Conexión exitosa con Gemini (quarz-group) en ${elapsed}ms.`;
+        const reply = await callVertexGemini('Responde únicamente: "Conexión exitosa con Vertex AI en QUARZ Group."', '', 'gemini-2.5-flash', testKey);
+        if (statusDiv) {
+          statusDiv.style.background = '#d1fae5';
+          statusDiv.style.color = '#065f46';
+          statusDiv.style.border = '1px solid #a7f3d0';
+          statusDiv.textContent = `✅ ${reply}`;
         }
       } catch (err) {
-        if (gcpFeedback) {
-          gcpFeedback.style.display = 'block';
-          gcpFeedback.style.background = '#fee2e2';
-          gcpFeedback.style.color = '#991b1b';
-          gcpFeedback.textContent = `❌ Error: ${err.message}`;
-        }
-      } finally {
-        if (testBtn) {
-          testBtn.disabled = false;
-          testBtn.textContent = '🧪 Probar Conexión';
+        if (statusDiv) {
+          statusDiv.style.background = '#fee2e2';
+          statusDiv.style.color = '#991b1b';
+          statusDiv.style.border = '1px solid #fecaca';
+          statusDiv.textContent = `⚠️ ${err.message}`;
         }
       }
     });
@@ -2774,7 +2718,7 @@ const renderers = {
       localStorage.setItem('gemini_api_key', key);
       localStorage.setItem('gemini_project_id', proj);
       gcpModal?.classList.remove('show');
-      alert('✅ Credenciales de Google Cloud guardadas y activas.');
+      alert(`✅ Configuración de Google Cloud guardada para el proyecto '${proj}'.`);
     });
 
     // Tool: Remote Screenshot Button (Attaches to Active Session)

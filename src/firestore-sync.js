@@ -414,74 +414,74 @@ export async function readRemoteArtifact(sessionId, filename) {
 // ─── GOOGLE CLOUD VERTEX AI / GEMINI DIRECT ENGINE ───────────────────────────
 export async function callVertexGemini(prompt, systemInstruction = '', model = 'gemini-2.5-flash', apiKey = '') {
   const key = (apiKey || localStorage.getItem('gemini_api_key') || '').trim();
-  if (!key) {
-    throw new Error("No hay API Key de Google Cloud configurada. Haz clic en '⚙️ Config GCP' e ingresa tu API Key vinculada a tu proyecto 'quarz-group'.");
-  }
-  
-  const modelsToTry = [
-    model || 'gemini-2.5-flash',
-    'gemini-2.5-flash',
-    'gemini-2.5-flash-lite',
-    'gemini-flash-latest',
-    'gemini-2.5-pro',
-    'gemini-3.7-flash',
-    'gemini-1.5-flash'
-  ];
+  const cleanModel = model || 'gemini-2.5-flash';
 
-  // Remove duplicates while keeping order
-  const uniqueModels = [...new Set(modelsToTry)];
-  let lastError = null;
+  // 1. First attempt: Serverless backend /api/chat (with server-side GCP Vertex AI & environment keys)
+  try {
+    const backendRes = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(key ? { 'x-api-key': key } : {})
+      },
+      body: JSON.stringify({
+        message: prompt,
+        systemInstruction,
+        model: cleanModel,
+        apiKey: key
+      })
+    });
 
-  for (const targetModel of uniqueModels) {
-    try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${key}`;
-      
-      const payload = {
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: prompt }]
-          }
-        ]
-      };
-
-      if (systemInstruction) {
-        payload.systemInstruction = {
-          parts: [{ text: systemInstruction }]
-        };
+    if (backendRes.ok) {
+      const data = await backendRes.json();
+      if (data && data.reply && !data.isConfigWarning) {
+        return data.reply;
       }
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errMsg = errorData.error?.message || `HTTP ${response.status}`;
-        
-        // If the key is invalid or quota is exceeded, fail immediately
-        if (errMsg.includes('API key not valid') || errMsg.includes('API_KEY_INVALID') || errMsg.includes('prepayment credits are depleted') || errMsg.includes('exceeded your current quota')) {
-          throw new Error(`GCP Error (${targetModel}): ${errMsg}`);
-        }
-        
-        throw new Error(errMsg);
-      }
-
-      const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (text) return text;
-    } catch (err) {
-      lastError = err;
-      if (err.message.includes('API key not valid') || err.message.includes('prepayment credits') || err.message.includes('quota')) {
-        throw err;
-      }
-      console.warn(`[QZ AI] Intento con modelo ${targetModel} falló:`, err.message);
     }
+  } catch (e) {
+    // Continue to direct call
   }
 
-  throw lastError || new Error("No se pudo obtener respuesta de los modelos de Gemini / Vertex AI.");
-}
+  // 2. Direct call to Generative Language / Vertex AI endpoint
+  if (!key) {
+    throw new Error("No hay API Key de GCP configurada. Haz clic en '⚙️ Config GCP' para configurar tu llave de quarz-group o usa el motor SSOT Local.");
+  }
 
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${key}`;
+  
+  const payload = {
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: prompt }]
+      }
+    ]
+  };
+
+  if (systemInstruction) {
+    payload.systemInstruction = {
+      parts: [{ text: systemInstruction }]
+    };
+  }
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const errMsg = errorData.error?.message || `HTTP ${response.status}: Error de Google Cloud Vertex AI`;
+    
+    if (errMsg.includes('prepayment') || errorData.error?.code === 429) {
+      throw new Error(`Los créditos de prepago de esta API key están agotados. Usa una API Key generada en la Consola de Google Cloud vinculada a tu proyecto con facturación 'quarz-group'.`);
+    }
+    throw new Error(errMsg);
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "No se recibió respuesta del modelo.";
+  return text;
+}
 
