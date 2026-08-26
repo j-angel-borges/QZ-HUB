@@ -2668,9 +2668,32 @@ const renderers = {
     const modalApiKey = document.getElementById('modal-gcp-api-key');
     const modalProjectId = document.getElementById('modal-gcp-project-id');
 
+    // Auto-migrate on view load
+    let activeGcpProj = localStorage.getItem('gemini_project_id') || '';
+    if (!activeGcpProj || activeGcpProj.startsWith('gen-lang-client') || activeGcpProj === 'qz-hub') {
+      localStorage.setItem('gemini_project_id', 'quarz-group');
+    }
+    let activeGcpKey = localStorage.getItem('gemini_api_key') || '';
+    if (!activeGcpKey) {
+      localStorage.setItem('gemini_api_key', 'AIzaSyBOyKk7awEgQba7L7j19VAU0pz-5xRxqI0');
+    }
+
     document.getElementById('btn-open-gcp-settings')?.addEventListener('click', () => {
-      if (modalApiKey) modalApiKey.value = localStorage.getItem('gemini_api_key') || '';
-      if (modalProjectId) modalProjectId.value = localStorage.getItem('gemini_project_id') || 'quarz-group';
+      let storedKey = localStorage.getItem('gemini_api_key') || 'AIzaSyBOyKk7awEgQba7L7j19VAU0pz-5xRxqI0';
+      let storedProj = localStorage.getItem('gemini_project_id') || 'quarz-group';
+
+      if (!storedProj || storedProj.startsWith('gen-lang-client') || storedProj === 'qz-hub') {
+        storedProj = 'quarz-group';
+        localStorage.setItem('gemini_project_id', storedProj);
+      }
+
+      if (!storedKey) {
+        storedKey = 'AIzaSyBOyKk7awEgQba7L7j19VAU0pz-5xRxqI0';
+        localStorage.setItem('gemini_api_key', storedKey);
+      }
+
+      if (modalApiKey) modalApiKey.value = storedKey;
+      if (modalProjectId) modalProjectId.value = storedProj;
       const statusDiv = document.getElementById('gcp-connection-status');
       if (statusDiv) statusDiv.style.display = 'none';
       if (gcpModal) gcpModal.classList.add('show');

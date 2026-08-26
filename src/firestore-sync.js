@@ -412,9 +412,25 @@ export async function readRemoteArtifact(sessionId, filename) {
 
 
 // ─── GOOGLE CLOUD VERTEX AI / GEMINI DIRECT ENGINE ───────────────────────────
+export const DEFAULT_GCP_PROJECT_ID = 'quarz-group';
+export const DEFAULT_GCP_API_KEY = 'AIzaSyBOyKk7awEgQba7L7j19VAU0pz-5xRxqI0';
+
 export async function callVertexGemini(prompt, systemInstruction = '', model = 'gemini-2.5-flash', apiKey = '') {
-  const key = (apiKey || localStorage.getItem('gemini_api_key') || '').trim();
-  const projectId = (localStorage.getItem('gemini_project_id') || 'quarz-group').trim();
+  let key = (apiKey || localStorage.getItem('gemini_api_key') || '').trim();
+  let projectId = (localStorage.getItem('gemini_project_id') || '').trim();
+
+  // Auto-migrate legacy or empty project
+  if (!projectId || projectId.startsWith('gen-lang-client') || projectId === 'qz-hub') {
+    projectId = DEFAULT_GCP_PROJECT_ID;
+    localStorage.setItem('gemini_project_id', projectId);
+  }
+
+  // Auto-fill default GCP API key if empty
+  if (!key) {
+    key = DEFAULT_GCP_API_KEY;
+    localStorage.setItem('gemini_api_key', key);
+  }
+
   const cleanModel = model || 'gemini-2.5-flash';
 
   // 1. First attempt: Serverless backend /api/chat (with server-side GCP Vertex AI & environment keys)
