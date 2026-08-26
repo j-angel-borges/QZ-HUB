@@ -6301,3 +6301,292 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   background: #000000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
+
+/* ==============================================================================
+   JOURNAL MODAL & DIARIO NOCTURNO STYLES (PREMIUM QUARZ DESIGN)
+   ============================================================================== */
+
+.journal-modal-content {
+  max-width: 980px !important;
+  width: 92vw !important;
+  height: 85vh !important;
+  max-height: 720px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 12px !important;
+}
+
+.journal-modal-header {
+  padding: 16px 22px !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+  background: #ffffff !important;
+}
+
+.journal-modal-body {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  flex: 1;
+  min-height: 0;
+  background: #f8fafc;
+}
+
+@media (max-width: 768px) {
+  .journal-modal-body {
+    grid-template-columns: 1fr;
+  }
+  .journal-sidebar {
+    display: none;
+  }
+}
+
+.journal-sidebar {
+  border-right: 1px solid rgba(15, 23, 42, 0.08);
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.journal-sidebar-top {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.journal-input-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.journal-date-input {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+.journal-search-input {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 11.5px;
+  box-sizing: border-box;
+}
+
+.journal-entries-heading {
+  padding: 10px 16px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.journal-count-badge {
+  background: rgba(15, 23, 42, 0.07);
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  color: #0f172a;
+  font-family: 'Space Mono', monospace;
+}
+
+.journal-history-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.journal-entry-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.journal-entry-item:hover {
+  border-color: rgba(184, 156, 80, 0.5);
+  background: #fafafa;
+  transform: translateX(2px);
+}
+
+.journal-entry-item.active {
+  border-color: #0f172a;
+  background: rgba(15, 23, 42, 0.04);
+  box-shadow: inset 3px 0 0 #0f172a;
+}
+
+.journal-entry-date {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: 11px;
+  color: #0f172a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3px;
+}
+
+.journal-entry-words {
+  font-size: 9.5px;
+  color: #94a3b8;
+  font-weight: normal;
+}
+
+.journal-entry-snippet {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Main Editor */
+.journal-editor-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: #ffffff;
+}
+
+.journal-editor-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.journal-current-date-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.journal-active-date {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.journal-sync-status {
+  font-size: 10.5px;
+  color: #10b981;
+  font-weight: 600;
+  font-family: 'Space Mono', monospace;
+}
+
+.journal-prompt-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-prompt-pill {
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-prompt-pill:hover {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+.journal-textarea-container {
+  flex: 1;
+  min-height: 0;
+  padding: 16px 20px;
+}
+
+.journal-textarea {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #1e293b;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.journal-editor-footer {
+  padding: 12px 20px;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fafafa;
+}
+
+.journal-stats-info {
+  font-size: 11px;
+  color: #64748b;
+  font-family: 'Space Mono', monospace;
+}
+
+.journal-actions-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-open-journal {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.15) !important;
+  padding: 6px 14px !important;
+  border-radius: 8px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03) !important;
+}
+
+.btn-open-journal:hover {
+  background: #f1f5f9 !important;
+  border-color: #0f172a !important;
+  transform: translateY(-1px) !important;
+}
+

@@ -558,6 +558,80 @@
     </div>
   </div>
 
+  <!-- Premium Journal & Diario Nocturno Modal -->
+  <div id="journal-modal" class="modal-overlay">
+    <div class="modal-content glass-modal journal-modal-content">
+      <div class="modal-header journal-modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 24px;">📖</span>
+          <div>
+            <h2 class="modal-task-id" style="font-size: 18px; margin: 0; color: #0f172a; font-family: 'Space Grotesk', sans-serif;">DIARIO & REFLEXIÓN NOCTURNA</h2>
+            <span style="font-size: 11px; color: #64748b; font-family: 'Inter', sans-serif;">Bitácora de Pensamiento Estratégico y Avances Diarios | QUARZ Sync</span>
+          </div>
+        </div>
+        <button id="journal-modal-close" class="modal-close-btn">&times;</button>
+      </div>
+
+      <div class="journal-modal-body">
+        <!-- Sidebar: Historial & Fechas -->
+        <aside class="journal-sidebar">
+          <div class="journal-sidebar-top">
+            <div class="journal-date-selector-box">
+              <label for="modal-journal-date" class="journal-input-label">📅 Seleccionar Fecha:</label>
+              <input type="date" id="modal-journal-date" class="journal-date-input" />
+            </div>
+            <div class="journal-search-box">
+              <input type="text" id="journal-search-input" placeholder="🔍 Buscar en el historial..." class="journal-search-input" />
+            </div>
+          </div>
+
+          <div class="journal-entries-heading">
+            <span>📚 Entradas Guardadas</span>
+            <span id="journal-total-count" class="journal-count-badge">0</span>
+          </div>
+
+          <div id="modal-journal-history-list" class="journal-history-scroll">
+            <!-- Dynamic entries loaded here -->
+          </div>
+        </aside>
+
+        <!-- Main Content: Editor de Journal -->
+        <main class="journal-editor-main">
+          <div class="journal-editor-header">
+            <div class="journal-current-date-info">
+              <span id="journal-active-date-label" class="journal-active-date">Miércoles, 26 de Agosto de 2026</span>
+              <span id="journal-sync-status" class="journal-sync-status">⚡ Sincronizado en la nube</span>
+            </div>
+            
+            <!-- Quick prompt chips -->
+            <div class="journal-prompt-pills">
+              <button type="button" class="btn-prompt-pill" data-prompt="🎯 Logros del día:&#10;- ">🎯 Logros</button>
+              <button type="button" class="btn-prompt-pill" data-prompt="🧠 Aprendizajes:&#10;- ">🧠 Aprendizajes</button>
+              <button type="button" class="btn-prompt-pill" data-prompt="⚠️ Obstáculos & Soluciones:&#10;- ">⚠️ Obstáculos</button>
+              <button type="button" class="btn-prompt-pill" data-prompt="⚡ Prioridades de mañana:&#10;1. &#10;2. &#10;3. ">⚡ Plan Mañana</button>
+            </div>
+          </div>
+
+          <div class="journal-textarea-container">
+            <textarea id="modal-journal-content" class="journal-textarea" placeholder="Escribe libremente tus reflexiones, decisiones estratégicas, aprendizajes o avances del día..."></textarea>
+          </div>
+
+          <div class="journal-editor-footer">
+            <div class="journal-stats-info">
+              <span id="journal-word-count">0 palabras</span> • <span id="journal-char-count">0 caracteres</span>
+            </div>
+            <div class="journal-actions-group">
+              <button type="button" id="modal-journal-delete-btn" class="btn btn-danger" style="display: none; font-size: 11.5px; padding: 6px 12px;">🗑️ Borrar Día</button>
+              <button type="button" id="modal-journal-save-btn" class="btn btn-primary" style="background: #0f172a; color: white; padding: 7px 18px; font-weight: 600; font-size: 12px; border-radius: 6px; display: flex; align-items: center; gap: 6px;">
+                <span>💾 Guardar Registro</span>
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 

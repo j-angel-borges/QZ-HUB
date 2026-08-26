@@ -2318,36 +2318,12 @@ const renderers = {
 
 
         <!-- ============================================================== -->
-        <!-- COLUMNA LATERAL (30%): DIARIO NOCTURNO + FUNNEL METRICS ENGINE -->
+        <!-- COLUMNA LATERAL (30%): FUNNEL METRICS ENGINE & TELEMETRÍA -->
         <!-- ============================================================== -->
         <div class="cockpit-side-column">
           
-          <!-- 1. DIARIO NOCTURNO DE REFLEXIÓN -->
-          <div class="journal-card glass-panel" style="padding: 16px; display: flex; flex-direction: column;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px;">
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-size: 1.3rem;">📝</span>
-                <div>
-                  <h3 style="margin: 0; font-size: 0.95rem; color: #0f172a; text-transform: uppercase;">Diario Nocturno</h3>
-                  <span style="font-size: 10px; color: var(--text-muted);">Reflexión Diaria</span>
-                </div>
-              </div>
-              <input type="date" id="journal-date" value="${todayStr}" style="padding: 3px 6px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff; color: #111111; font-size: 11px;">
-            </div>
-
-            <textarea id="journal-content" style="width: 100%; height: 140px; min-height: 100px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff; color: #111111; font-size: 12px; line-height: 1.5; resize: vertical; margin-bottom: 10px;" placeholder="Escribe libremente tus reflexiones o avances del día..."></textarea>
-
-            <button id="journal-save-btn" class="btn btn-primary" style="padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
-              <span>💾 Guardar Registro de Journal</span>
-            </button>
-
-            <div id="journal-history-list" style="margin-top: 8px; font-size: 10px; color: var(--text-muted);">
-              <!-- Past entries -->
-            </div>
-          </div>
-
-          <!-- 2. FUNNEL METRICS ENGINE (COMPACT COLLAPSIBLE) -->
-          <div class="funnel-card glass-panel" style="padding: 14px; margin-top: 14px;">
+          <!-- 1. FUNNEL METRICS ENGINE (COMPACT COLLAPSIBLE) -->
+          <div class="funnel-card glass-panel" style="padding: 14px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
               <div style="display: flex; align-items: center; gap: 6px;">
                 <span style="font-size: 1.2rem;">📊</span>
@@ -3045,84 +3021,7 @@ Responde de forma concisa, ejecutiva y formateada en Markdown limpio.`;
     // Initial render of active session
     renderCurrentSession();
 
-    // 8. Journaling Logic (Preserved)
-    const journalDate = document.getElementById('journal-date');
-    const journalContent = document.getElementById('journal-content');
-    const journalSaveBtn = document.getElementById('journal-save-btn');
-    const journalHistoryList = document.getElementById('journal-history-list');
-
-    function loadJournalForDate(dateStr) {
-      const history = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
-      const entry = history.find(h => h.date === dateStr);
-      if (entry && journalContent) {
-        journalContent.value = entry.content || '';
-      } else if (journalContent) {
-        journalContent.value = '';
-      }
-    }
-
-    function renderJournalHistory() {
-      const history = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
-      if (!journalHistoryList) return;
-      if (history.length === 0) {
-        journalHistoryList.innerHTML = `<p style="font-style: italic;">No hay entradas guardadas aún.</p>`;
-        return;
-      }
-      journalHistoryList.innerHTML = '<strong>📅 Entradas Recientes:</strong>' + history.slice(0, 3).map(h => {
-        const previewText = (h.content || '').replace(/\n/g, ' ').slice(0, 45);
-        return `
-          <div style="background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.06); padding: 6px 8px; border-radius: 4px; margin-top: 4px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="document.getElementById('journal-date').value='${h.date}'; document.getElementById('journal-date').dispatchEvent(new Event('change'));">
-            <span style="font-weight: 600; color: #0f172a;">${h.date}</span>
-            <span style="font-size: 10px; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 140px;">${previewText}...</span>
-          </div>
-        `;
-      }).join('');
-    }
-
-    if (journalDate) {
-      journalDate.addEventListener('change', () => {
-        loadJournalForDate(journalDate.value);
-      });
-      loadJournalForDate(journalDate.value);
-    }
-    renderJournalHistory();
-
-    if (journalSaveBtn) {
-      journalSaveBtn.addEventListener('click', async () => {
-        const date = journalDate.value;
-        const text = journalContent ? journalContent.value.trim() : '';
-        if (!text) {
-          alert('Por favor escribe tu reflexión antes de guardar.');
-          return;
-        }
-
-        journalSaveBtn.disabled = true;
-        journalSaveBtn.innerHTML = '<span>⏳ Guardando...</span>';
-
-        const history = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
-        const existingIdx = history.findIndex(h => h.date === date);
-        const entry = { date, content: text, savedAt: new Date().toISOString() };
-
-        if (existingIdx !== -1) {
-          history[existingIdx] = entry;
-        } else {
-          history.unshift(entry);
-        }
-
-        localStorage.setItem('zentry_journal_history', JSON.stringify(history));
-
-        try {
-          await syncJournalHistory(history);
-        } catch(e) {}
-
-        journalSaveBtn.disabled = false;
-        journalSaveBtn.innerHTML = '<span>💾 Guardar Registro de Journal</span>';
-        alert(`✅ Journal para ${date} guardado y sincronizado en Firestore.`);
-        renderJournalHistory();
-      });
-    }
-
-    // 9. Funnel Metrics Engine Logic (Preserved Math)
+    // 8. Funnel Metrics Engine Logic (Preserved Math)
     const fnRpCalls = document.getElementById('fn-rp-calls');
     const fnRpRefDemos = document.getElementById('fn-rp-ref-demos');
     const fnZentryProspects = document.getElementById('fn-zentry-prospects');
@@ -3482,6 +3381,216 @@ function renderCorkboardObjectives() {
   });
 }
 
+// ==============================================================================
+// MODULAR JOURNAL & DIARIO NOCTURNO SYSTEM (FIREBASE & LOCAL SYNC)
+// ==============================================================================
+
+function getJournalHistory() {
+  const stored = localStorage.getItem('zentry_journal_history');
+  if (stored) {
+    try { return JSON.parse(stored); } catch(e) { return []; }
+  }
+  return [];
+}
+
+function openJournalModal(initialDateStr) {
+  const modal = document.getElementById('journal-modal');
+  if (!modal) return;
+
+  const dateInput = document.getElementById('modal-journal-date');
+  const searchInput = document.getElementById('journal-search-input');
+  const contentTextarea = document.getElementById('modal-journal-content');
+  const activeDateLabel = document.getElementById('journal-active-date-label');
+  const totalCountBadge = document.getElementById('journal-total-count');
+  const historyListContainer = document.getElementById('modal-journal-history-list');
+  const deleteBtn = document.getElementById('modal-journal-delete-btn');
+  const saveBtn = document.getElementById('modal-journal-save-btn');
+  const wordCountSpan = document.getElementById('journal-word-count');
+  const charCountSpan = document.getElementById('journal-char-count');
+  const closeBtn = document.getElementById('journal-modal-close');
+
+  let currentDate = initialDateStr || state.personalDate || new Date().toISOString().split('T')[0];
+
+  const updateStats = () => {
+    const text = contentTextarea ? contentTextarea.value.trim() : '';
+    const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+    const chars = text.length;
+    if (wordCountSpan) wordCountSpan.textContent = `${words} palabra${words === 1 ? '' : 's'}`;
+    if (charCountSpan) charCountSpan.textContent = `${chars} carácter${chars === 1 ? '' : 'es'}`;
+  };
+
+  const loadEntryForDate = (dateStr) => {
+    currentDate = dateStr;
+    if (dateInput) dateInput.value = dateStr;
+    if (activeDateLabel) activeDateLabel.textContent = formatDateLabel(dateStr);
+
+    const history = getJournalHistory();
+    const entry = history.find(h => h.date === dateStr);
+
+    if (entry && contentTextarea) {
+      contentTextarea.value = entry.content || '';
+      if (deleteBtn) deleteBtn.style.display = 'inline-flex';
+    } else if (contentTextarea) {
+      contentTextarea.value = '';
+      if (deleteBtn) deleteBtn.style.display = 'none';
+    }
+    updateStats();
+    renderHistoryList(searchInput ? searchInput.value.trim() : '');
+  };
+
+  const renderHistoryList = (filterQuery = '') => {
+    if (!historyListContainer) return;
+    const history = getJournalHistory();
+    if (totalCountBadge) totalCountBadge.textContent = history.length;
+
+    const filtered = filterQuery 
+      ? history.filter(h => h.date.includes(filterQuery) || (h.content || '').toLowerCase().includes(filterQuery.toLowerCase()))
+      : history;
+
+    if (filtered.length === 0) {
+      historyListContainer.innerHTML = `
+        <div style="padding: 16px 8px; text-align: center; color: #94a3b8; font-size: 11px; font-style: italic;">
+          ${filterQuery ? 'No se encontraron entradas para esa búsqueda.' : 'No hay entradas en tu diario aún. ¡Escribe tu primera reflexión!'}
+        </div>
+      `;
+      return;
+    }
+
+    historyListContainer.innerHTML = filtered.map(h => {
+      const isActive = h.date === currentDate ? ' active' : '';
+      const text = (h.content || '').replace(/\n/g, ' ');
+      const preview = text.length > 65 ? text.slice(0, 65) + '...' : (text || '(Entrada vacía)');
+      const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+
+      return `
+        <div class="journal-entry-item${isActive}" data-date="${h.date}">
+          <div class="journal-entry-date">
+            <span>📅 ${h.date}</span>
+            <span class="journal-entry-words">${words} palabras</span>
+          </div>
+          <div class="journal-entry-snippet">${preview}</div>
+        </div>
+      `;
+    }).join('');
+
+    // Bind item click
+    historyListContainer.querySelectorAll('.journal-entry-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const d = item.getAttribute('data-date');
+        if (d) loadEntryForDate(d);
+      });
+    });
+  };
+
+  // Date input change
+  if (dateInput) {
+    dateInput.onchange = () => {
+      if (dateInput.value) loadEntryForDate(dateInput.value);
+    };
+  }
+
+  // Search input
+  if (searchInput) {
+    searchInput.oninput = () => {
+      renderHistoryList(searchInput.value.trim());
+    };
+  }
+
+  // Textarea input for stats
+  if (contentTextarea) {
+    contentTextarea.oninput = updateStats;
+  }
+
+  // Prompt pills click
+  modal.querySelectorAll('.btn-prompt-pill').forEach(pill => {
+    pill.onclick = () => {
+      const promptText = pill.getAttribute('data-prompt');
+      if (contentTextarea && promptText) {
+        if (contentTextarea.value.length > 0 && !contentTextarea.value.endsWith('\n\n')) {
+          contentTextarea.value += '\n\n';
+        }
+        contentTextarea.value += promptText;
+        contentTextarea.focus();
+        updateStats();
+      }
+    };
+  });
+
+  // Save button
+  if (saveBtn) {
+    saveBtn.onclick = async () => {
+      const text = contentTextarea ? contentTextarea.value.trim() : '';
+      if (!text) {
+        alert('Por favor escribe tu reflexión o notas antes de guardar.');
+        return;
+      }
+
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span>⏳ Guardando...</span>';
+
+      const history = getJournalHistory();
+      const existingIdx = history.findIndex(h => h.date === currentDate);
+      const entry = { date: currentDate, content: text, savedAt: new Date().toISOString() };
+
+      if (existingIdx !== -1) {
+        history[existingIdx] = entry;
+      } else {
+        history.unshift(entry);
+      }
+
+      // Sort by date descending
+      history.sort((a, b) => b.date.localeCompare(a.date));
+
+      localStorage.setItem('zentry_journal_history', JSON.stringify(history));
+
+      try {
+        await syncJournalHistory(history);
+      } catch (e) {
+        console.warn('Firestore sync failed or offline:', e);
+      }
+
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<span>✅ ¡Guardado!</span>';
+      setTimeout(() => {
+        if (saveBtn) saveBtn.innerHTML = '<span>💾 Guardar Registro</span>';
+      }, 1800);
+
+      loadEntryForDate(currentDate);
+    };
+  }
+
+  // Delete button
+  if (deleteBtn) {
+    deleteBtn.onclick = async () => {
+      if (confirm(`¿Estás seguro de eliminar el registro de journal del día ${currentDate}?`)) {
+        let history = getJournalHistory();
+        history = history.filter(h => h.date !== currentDate);
+        localStorage.setItem('zentry_journal_history', JSON.stringify(history));
+
+        try {
+          await syncJournalHistory(history);
+        } catch (e) {}
+
+        loadEntryForDate(currentDate);
+      }
+    };
+  }
+
+  // Close handlers
+  const closeModal = () => {
+    modal.classList.remove('show');
+  };
+
+  if (closeBtn) closeBtn.onclick = closeModal;
+  modal.onclick = (e) => {
+    if (e.target === modal) closeModal();
+  };
+
+  // Open modal and load initial date
+  loadEntryForDate(currentDate);
+  modal.classList.add('show');
+}
+
 // ========================================
 // ESPACIO PERSONAL: Timeblock + AI Chat
 // ========================================
@@ -3557,7 +3666,14 @@ function renderEspacioPersonal(container) {
     <div class="espacio-personal-header">
       <a href="#backlog" class="btn-back-personal">⬅️ Volver a Selección</a>
       <h2 style="font-family: 'Space Grotesk', sans-serif; color: #0f172a;">⏱️ Timeblocking</h2>
-      <a href="#backlog/personal-board" class="btn-open-personal-board" style="background: #0f172a; color: #ffffff; text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">📋 Abrir Tablero Personal</a>
+      <div class="personal-header-actions" style="display: flex; gap: 8px; align-items: center;">
+        <button type="button" id="btn-open-journal-modal" class="btn-open-journal">
+          <span>📖</span> Abrir Journal
+        </button>
+        <a href="#backlog/personal-board" class="btn-open-personal-board" style="background: #0f172a; color: #ffffff; text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+          <span>📋</span> Abrir Tablero Personal
+        </a>
+      </div>
     </div>
 
     <div class="date-navigator">
@@ -3584,6 +3700,11 @@ function renderEspacioPersonal(container) {
   `;
 
   // --- Bind Events ---
+
+  // Abrir Journal
+  document.getElementById('btn-open-journal-modal')?.addEventListener('click', () => {
+    openJournalModal(state.personalDate);
+  });
 
   // Date navigation
   document.getElementById('date-prev')?.addEventListener('click', () => {
