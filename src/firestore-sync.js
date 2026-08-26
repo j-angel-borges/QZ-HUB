@@ -414,6 +414,7 @@ export async function readRemoteArtifact(sessionId, filename) {
 // ─── GOOGLE CLOUD VERTEX AI / GEMINI DIRECT ENGINE ───────────────────────────
 export async function callVertexGemini(prompt, systemInstruction = '', model = 'gemini-2.5-flash', apiKey = '') {
   const key = (apiKey || localStorage.getItem('gemini_api_key') || '').trim();
+  const projectId = (localStorage.getItem('gemini_project_id') || 'quarz-group').trim();
   const cleanModel = model || 'gemini-2.5-flash';
 
   // 1. First attempt: Serverless backend /api/chat (with server-side GCP Vertex AI & environment keys)
@@ -428,6 +429,7 @@ export async function callVertexGemini(prompt, systemInstruction = '', model = '
         message: prompt,
         systemInstruction,
         model: cleanModel,
+        projectId,
         apiKey: key
       })
     });
@@ -442,12 +444,21 @@ export async function callVertexGemini(prompt, systemInstruction = '', model = '
     // Continue to direct call
   }
 
-  // 2. Direct call to Generative Language / Vertex AI endpoint
+  // 2. Direct call: Determine whether it's a Bearer Token (ya29...) or API Key (AIzaSy...)
   if (!key) {
-    throw new Error("No hay API Key de GCP configurada. Haz clic en '⚙️ Config GCP' para configurar tu llave de quarz-group o usa el motor SSOT Local.");
+    throw new Error("No hay credenciales de Google Cloud configuradas. Ingresa tu Clave o Token en '⚙️ Config GCP' o selecciona '📖 Motor SSOT Local'.");
   }
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${key}`;
+  const isBearerToken = key.startsWith('ya29.') || key.length > 80;
+  let endpoint = '';
+  let headers = { 'Content-Type': 'application/json' };
+
+  if (isBearerToken) {
+    endpoint = `https://us-central1-aiplatform.googleapis.com/v1/projects/${projectId}/locations/us-central1/publishers/google/models/${cleanModel}:generateContent`;
+    headers['Authorization'] = `Bearer ${key}`;
+  } else {
+    endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${key}`;
+  }
   
   const payload = {
     contents: [
@@ -466,16 +477,16 @@ export async function callVertexGemini(prompt, systemInstruction = '', model = '
 
   const response = await fetch(endpoint, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: headers,
     body: JSON.stringify(payload)
   });
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    const errMsg = errorData.error?.message || `HTTP ${response.status}: Error de Google Cloud Vertex AI`;
+    const errMsg = errorData.error?.message || `HTTP ${response.status}: Error en Vertex AI / Google Cloud`;
     
     if (errMsg.includes('prepayment') || errorData.error?.code === 429) {
-      throw new Error(`Los créditos de prepago de esta API key están agotados. Usa una API Key generada en la Consola de Google Cloud vinculada a tu proyecto con facturación 'quarz-group'.`);
+      throw new Error(`Los créditos de prepago están agotados. Usa el proyecto empresarial 'quarz-group' con Vertex AI o selecciona '📖 Motor SSOT Local'.`);
     }
     throw new Error(errMsg);
   }

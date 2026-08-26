@@ -188,13 +188,21 @@ Por favor ingresa tu Clave de API en la configuración del chat o establece \`GE
       }
     }
 
-    return res.status(500).json({
-      error: 'Failed to generate response from Gemini API after trying all candidate models.',
-      details: lastError ? (lastError.message || JSON.stringify(lastError)) : 'Unknown error'
+    // Graceful fallback to SSOT Knowledge Engine if external models are overloaded or unavailable
+    const fallbackReply = generateBackendSsotFallback(message);
+    return res.status(200).json({
+      reply: fallbackReply,
+      status: 'ssot_fallback',
+      notice: 'Respuesta generada por el Motor SSOT Operativo.'
     });
 
   } catch (err) {
     console.error('Serverless function error in /api/chat:', err);
-    return res.status(500).json({ error: 'Internal Server Error', message: err.message });
+    const fallbackReply = generateBackendSsotFallback(req.body?.message || '');
+    return res.status(200).json({
+      reply: fallbackReply,
+      status: 'ssot_fallback',
+      error: err.message
+    });
   }
 }
