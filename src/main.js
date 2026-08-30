@@ -1978,6 +1978,81 @@ const renderers = {
     `;
   },
 
+  // 6.1. Accesos Directos a Ecosistema ZentryOS
+  accesos: () => {
+    const workspace = document.querySelector('.workspace');
+    if (workspace) workspace.classList.add('minimal-view');
+
+    document.getElementById('page-title').textContent = 'Accesos';
+    document.getElementById('page-icon').textContent = '🔗';
+    document.getElementById('properties-block').style.display = 'none';
+
+    const container = document.getElementById('workspace-content');
+    container.innerHTML = `
+      <div class="demobook-minimal-container">
+        <div style="margin-bottom: 20px;">
+          <h2 style="font-family: var(--font-family-title); font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">Plataformas & Portales ZentryOS</h2>
+          <p style="font-size: 13px; color: #64748b; margin: 0;">Accesos directos a los entornos web, consolas de administración y dashboards del ecosistema ZentryOS.</p>
+        </div>
+
+        <div class="demobook-grid">
+          
+          <!-- 1. ZENTRY PARENT DASHBOARD -->
+          <a href="https://zentry-parent-dashboard.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
+            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff;">
+              <div class="demobook-card-content" style="gap: 16px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                  🛡️
+                </div>
+                <div>
+                  <div class="demobook-card-title" style="font-size: 15.5px; margin-bottom: 3px; color: #0f172a;">Zentry Parent Dashboard</div>
+                  <div style="font-size: 11.5px; color: #3b82f6; font-family: monospace;">zentry-parent-dashboard.vercel.app</div>
+                  <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Portal de supervisión y control parental para tutores.</div>
+                </div>
+              </div>
+              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px;">➔</span>
+            </div>
+          </a>
+
+          <!-- 2. ZENTRYOS WEB -->
+          <a href="https://zentryos.web.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
+            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff;">
+              <div class="demobook-card-content" style="gap: 16px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                  ☄️
+                </div>
+                <div>
+                  <div class="demobook-card-title" style="font-size: 15.5px; margin-bottom: 3px; color: #0f172a;">ZentryOS Web</div>
+                  <div style="font-size: 11.5px; color: #10b981; font-family: monospace;">zentryos.web.app</div>
+                  <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Web App principal y entorno launcher de ZentryOS.</div>
+                </div>
+              </div>
+              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px;">➔</span>
+            </div>
+          </a>
+
+          <!-- 3. ZENTRYOS ADMIN -->
+          <a href="https://zentryos-admin.web.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
+            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff;">
+              <div class="demobook-card-content" style="gap: 16px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(139, 92, 246, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                  ⚡
+                </div>
+                <div>
+                  <div class="demobook-card-title" style="font-size: 15.5px; margin-bottom: 3px; color: #0f172a;">ZentryOS Admin</div>
+                  <div style="font-size: 11.5px; color: #8b5cf6; font-family: monospace;">zentryos-admin.web.app</div>
+                  <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Consola administrativa y gestión de licencias / usuarios.</div>
+                </div>
+              </div>
+              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px;">➔</span>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    `;
+  },
+
   // 6.2. Manual de Pre-Cierres View
   precierres: () => {
     const workspace = document.querySelector('.workspace');
@@ -4603,6 +4678,13 @@ function renderKanbanCards() {
 function handleRouting() {
   const hash = window.location.hash || '#backlog';
   
+  // Set data-module on body to preserve Zentry colorimetry when accessing Zentry views
+  const isZentryView = hash.includes('demobook') || hash.includes('accesos') || hash.includes('precierres') || hash.includes('prospeccion') || hash.includes('branding') || hash.includes('iacontext') || hash === '#backlog/zentry';
+  if (isZentryView) {
+    document.body.setAttribute('data-module', 'zentry');
+  } else {
+    document.body.setAttribute('data-module', 'hub');
+  }
 
   // Reset minimal-view by default
   const workspace = document.querySelector('.workspace');
