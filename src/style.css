@@ -1141,71 +1141,45 @@ body[data-module="zentry"] .workspace-banner {
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 12px;
   margin-bottom: 24px;
+  color: #111827 !important;
 }
 
-/* DEMO Section Cards Layout (Dark Theme) */
-.demobook-minimal-container,
-.demo-view-container {
+/* Demobook / DEMO Cards Layout */
+.demobook-minimal-container {
   margin-top: 12px;
 }
 
-.demobook-grid,
-.demo-grid {
+.demobook-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 18px;
+  gap: 16px;
 }
 
-.demobook-card-link,
-.demo-card-link {
+.demobook-card-link {
   text-decoration: none;
   color: inherit;
-  display: block;
 }
 
-.demobook-card-minimal,
-.demo-card-dark {
+.demobook-card-minimal {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #0f1318 !important;
-  background: linear-gradient(145deg, #161a22 0%, #0d1117 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
   border-radius: 14px;
-  padding: 22px 26px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  padding: 20px 24px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   cursor: pointer;
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 0 1px 1px rgba(255, 255, 255, 0.05);
-  position: relative;
-  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
 }
 
-.demobook-card-minimal::before,
-.demo-card-dark::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(194, 190, 159, 0.5), transparent);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.demobook-card-minimal:hover,
-.demo-card-dark:hover {
-  background: linear-gradient(145deg, #1c222c 0%, #121720 100%) !important;
-  border-color: #c2be9f !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 20px rgba(194, 190, 159, 0.25) !important;
-  transform: translateY(-3px);
-}
-
-.demobook-card-minimal:hover::before,
-.demo-card-dark:hover::before {
-  opacity: 1;
+.demobook-card-minimal:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: var(--primary);
+  box-shadow: 0 8px 32px var(--primary-glow);
+  transform: translateY(-2px);
 }
 
 .demobook-card-content {
@@ -1215,44 +1189,26 @@ body[data-module="zentry"] .workspace-banner {
 }
 
 .demobook-card-icon {
-  font-size: 24px;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+  font-size: 22px;
 }
 
-.demobook-card-title,
-.demo-card-title {
-  font-family: var(--font-family-title, 'Space Grotesk', sans-serif);
-  font-size: 16px;
+.demobook-card-title {
+  font-family: var(--font-family-title);
+  font-size: 15.5px;
   font-weight: 600;
-  color: #f8fafc !important;
+  color: var(--text-main);
   letter-spacing: -0.2px;
 }
 
-.demobook-card-arrow,
-.demo-card-arrow {
-  font-size: 15px;
-  color: #94a3b8 !important;
+.demobook-card-arrow {
+  font-size: 14px;
+  color: var(--text-muted);
   transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), color 0.3s;
 }
 
-.demobook-card-minimal:hover .demobook-card-arrow,
-.demo-card-dark:hover .demobook-card-arrow,
-.demo-card-dark:hover .demo-card-arrow {
-  transform: translateX(5px);
-  color: #c2be9f !important;
-}
-
-.sidebar-nav .nav-link[data-view="demo"].active,
-.sidebar-nav .nav-link[data-view="demobook"].active {
-  background-color: #0f1318 !important;
-  color: #ffffff !important;
-  border-left: 3px solid #c2be9f !important;
-}
-
-.sidebar-nav .nav-link[data-view="demo"].active .link-text,
-.sidebar-nav .nav-link[data-view="demobook"].active .link-text {
-  color: #ffffff !important;
-  font-weight: 700 !important;
+.demobook-card-minimal:hover .demobook-card-arrow {
+  transform: translateX(4px);
+  color: var(--primary);
 }
 
 /* Sidebar Toggle Button floating in workspace */
@@ -3659,8 +3615,9 @@ body[data-module="zentry"] .page-icon-wrapper {
 body[data-module="zentry"] .page-title {
   font-family: 'Outfit', sans-serif !important;
   text-transform: none !important;
-  color: #ffffff !important;
-  letter-spacing: 0px !important;
+  color: #111827 !important;
+  letter-spacing: -0.3px !important;
+  font-weight: 800 !important;
 }
 
 body[data-module="zentry"] .kanban-column,
@@ -3669,11 +3626,34 @@ body[data-module="zentry"] .corkboard-widget,
 body[data-module="zentry"] .selector-card,
 body[data-module="zentry"] .color-card,
 body[data-module="zentry"] .keep-card,
-body[data-module="zentry"] .glass-modal {
+body[data-module="zentry"] .glass-modal,
+body[data-module="zentry"] .demobook-card-minimal {
   background: #ffffff !important;
   border: 1px solid rgba(83, 59, 135, 0.2) !important;
   border-radius: 14px !important;
   box-shadow: 0 4px 20px rgba(83, 59, 135, 0.08) !important;
+}
+
+body[data-module="zentry"] .demobook-card-minimal:hover {
+  background: #ffffff !important;
+  border-color: #533B87 !important;
+  box-shadow: 0 8px 30px rgba(83, 59, 135, 0.18) !important;
+  transform: translateY(-2px);
+}
+
+body[data-module="zentry"] .demobook-card-title {
+  color: #111827 !important;
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+}
+
+body[data-module="zentry"] .demobook-card-arrow {
+  color: #64748b !important;
+}
+
+body[data-module="zentry"] .demobook-card-minimal:hover .demobook-card-arrow {
+  color: #533B87 !important;
 }
 
 body[data-module="zentry"] .kanban-card {

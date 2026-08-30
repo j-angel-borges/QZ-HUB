@@ -1944,10 +1944,10 @@ const renderers = {
 
     const container = document.getElementById('workspace-content');
     container.innerHTML = `
-      <div class="demobook-minimal-container demo-view-container">
-        <div class="demobook-grid demo-grid">
-          <a href="https://bienestar-chi.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link demo-card-link">
-            <div class="demobook-card-minimal demo-card-dark">
+      <div class="demobook-minimal-container">
+        <div class="demobook-grid">
+          <a href="https://bienestar-chi.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
+            <div class="demobook-card-minimal">
               <div class="demobook-card-content">
                 <span class="demobook-card-icon">📋</span>
                 <span class="demobook-card-title">Preguntas-Bienestar</span>
@@ -1955,8 +1955,8 @@ const renderers = {
               <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
-          <a href="https://recursos-venta.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link demo-card-link">
-            <div class="demobook-card-minimal demo-card-dark">
+          <a href="https://recursos-venta.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
+            <div class="demobook-card-minimal">
               <div class="demobook-card-content">
                 <span class="demobook-card-icon">📊</span>
                 <span class="demobook-card-title">Slides - DEMO</span>
@@ -1964,8 +1964,8 @@ const renderers = {
               <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
-          <a href="#precierres" class="demobook-card-link demo-card-link">
-            <div class="demobook-card-minimal demo-card-dark">
+          <a href="#precierres" class="demobook-card-link">
+            <div class="demobook-card-minimal">
               <div class="demobook-card-content">
                 <span class="demobook-card-icon">📑</span>
                 <span class="demobook-card-title">Manual de Pre-Cierres</span>
