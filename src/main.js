@@ -1934,20 +1934,20 @@ const renderers = {
     container.innerHTML = html;
   },
 
-  // 6. Demobook View
-  demobook: () => {
+  // 6. DEMO View (formerly Demobook)
+  demo: () => {
     const workspace = document.querySelector('.workspace');
     if (workspace) workspace.classList.add('minimal-view');
 
-    document.getElementById('page-title').textContent = 'Demobook';
+    document.getElementById('page-title').textContent = 'DEMO';
     document.getElementById('properties-block').style.display = 'none';
 
     const container = document.getElementById('workspace-content');
     container.innerHTML = `
-      <div class="demobook-minimal-container">
-        <div class="demobook-grid">
-          <a href="https://bienestar-chi.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-            <div class="demobook-card-minimal">
+      <div class="demobook-minimal-container demo-view-container">
+        <div class="demobook-grid demo-grid">
+          <a href="https://bienestar-chi.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link demo-card-link">
+            <div class="demobook-card-minimal demo-card-dark">
               <div class="demobook-card-content">
                 <span class="demobook-card-icon">📋</span>
                 <span class="demobook-card-title">Preguntas-Bienestar</span>
@@ -1955,17 +1955,17 @@ const renderers = {
               <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
-          <a href="https://recursos-venta.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-            <div class="demobook-card-minimal">
+          <a href="https://recursos-venta.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link demo-card-link">
+            <div class="demobook-card-minimal demo-card-dark">
               <div class="demobook-card-content">
                 <span class="demobook-card-icon">📊</span>
-                <span class="demobook-card-title">Slides - Demobook</span>
+                <span class="demobook-card-title">Slides - DEMO</span>
               </div>
               <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
-          <a href="#precierres" class="demobook-card-link">
-            <div class="demobook-card-minimal">
+          <a href="#precierres" class="demobook-card-link demo-card-link">
+            <div class="demobook-card-minimal demo-card-dark">
               <div class="demobook-card-content">
                 <span class="demobook-card-icon">📑</span>
                 <span class="demobook-card-title">Manual de Pre-Cierres</span>
@@ -1976,6 +1976,9 @@ const renderers = {
         </div>
       </div>
     `;
+  },
+  demobook: function() {
+    this.demo();
   },
 
   // 6.1. Accesos Directos a Ecosistema ZentryOS
@@ -2070,8 +2073,8 @@ const renderers = {
             <h2 class="precierres-title">Arsenal Dialéctico de Pre-Cierres Comerciales</h2>
             <p class="precierres-subtitle">Estructuras psicológicas y guiones de alto impacto para demolición de objeciones durante la presentación de ZentryOS.</p>
           </div>
-          <a href="#demobook" class="btn btn-secondary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
-            <span>← Volver al Demobook</span>
+          <a href="#demo" class="btn btn-secondary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+            <span>← Volver a DEMO</span>
           </a>
         </div>
 
@@ -4679,7 +4682,7 @@ function handleRouting() {
   const hash = window.location.hash || '#backlog';
   
   // Set data-module on body to preserve Zentry colorimetry when accessing Zentry views
-  const isZentryView = hash.includes('demobook') || hash.includes('accesos') || hash.includes('precierres') || hash.includes('prospeccion') || hash.includes('branding') || hash.includes('iacontext') || hash === '#backlog/zentry';
+  const isZentryView = hash.includes('demobook') || hash.includes('demo') || hash.includes('accesos') || hash.includes('precierres') || hash.includes('prospeccion') || hash.includes('branding') || hash.includes('iacontext') || hash === '#backlog/zentry';
   if (isZentryView) {
     document.body.setAttribute('data-module', 'zentry');
   } else {
@@ -4738,13 +4741,20 @@ function handleRouting() {
     renderers.backlog();
   } else {
     state.activeView = hash.replace('#', '');
-    const navLink = document.querySelector(`.nav-link[data-view="${state.activeView}"]`);
+    let navLink = document.querySelector(`.nav-link[data-view="${state.activeView}"]`);
+    if (!navLink && (state.activeView === 'demo' || state.activeView === 'demobook')) {
+      navLink = document.querySelector(`.nav-link[data-view="demo"], .nav-link[data-view="demobook"]`);
+    }
     if (navLink) navLink.classList.add('active');
     
     buildDocTree(); // Clear tree highlights
 
     if (renderers[state.activeView]) {
       renderers[state.activeView]();
+    } else if (state.activeView === 'demobook' && renderers.demo) {
+      renderers.demo();
+    } else if (state.activeView === 'demo' && renderers.demobook) {
+      renderers.demobook();
     } else {
       renderers.backlog();
     }
