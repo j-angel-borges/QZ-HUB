@@ -2071,7 +2071,6 @@ const renderers = {
         <div class="precierres-header-bar">
           <div>
             <h2 class="precierres-title">Arsenal Dialéctico de Pre-Cierres Comerciales</h2>
-            <p class="precierres-subtitle">Estructuras psicológicas y guiones de alto impacto para demolición de objeciones durante la presentación de ZentryOS.</p>
           </div>
           <a href="#demo" class="btn btn-secondary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
             <span>← Volver a DEMO</span>
@@ -4742,7 +4741,7 @@ function handleRouting() {
   } else {
     state.activeView = hash.replace('#', '');
     let navLink = document.querySelector(`.nav-link[data-view="${state.activeView}"]`);
-    if (!navLink && (state.activeView === 'demo' || state.activeView === 'demobook')) {
+    if (!navLink && (state.activeView === 'demo' || state.activeView === 'demobook' || state.activeView === 'precierres')) {
       navLink = document.querySelector(`.nav-link[data-view="demo"], .nav-link[data-view="demobook"]`);
     }
     if (navLink) navLink.classList.add('active');
