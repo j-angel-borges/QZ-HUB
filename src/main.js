@@ -1955,7 +1955,7 @@ const renderers = {
               <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
-          <a href="https://recursos-venta.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
+          <a href="https://demobook.quarz.online/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
             <div class="demobook-card-minimal">
               <div class="demobook-card-content">
                 <span class="demobook-card-icon">📊</span>
@@ -2171,7 +2171,7 @@ const renderers = {
               </div>
 
               <div class="precierre-actions-bar" style="margin-top: 14px;">
-                <a href="https://recursos-venta.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+                <a href="https://demobook.quarz.online/" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
                   <span>🚀 Probar en Diapositivas Interactivas (Slide 4)</span>
                 </a>
               </div>
