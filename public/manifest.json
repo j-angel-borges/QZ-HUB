@@ -1,7 +1,7 @@
 {
-  "name": "QZ-Hub — Operational Cockpit & Second Brain",
+  "name": "QZ-Hub",
   "short_name": "QZ-Hub",
-  "description": "PWA Cockpit Operativo y Segundo Cerebro de QUARZ GROUP",
+  "description": "QZ-Hub",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
