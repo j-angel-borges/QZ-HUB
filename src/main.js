@@ -2216,7 +2216,7 @@ const renderers = {
     container.innerHTML = `
       <div class="demobook-minimal-container">
         <div class="demobook-grid">
-          <a href="https://script.google.com/macros/s/AKfycbzXCowYg5XsmnN8s6HJVDtrWK-nh8sBERuP82qGtTDtM9WAm7j3RXotY6bwUsi6eLSlTA/exec" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
+          <a href="https://zentry-prospecc.web.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
             <div class="demobook-card-minimal">
               <div class="demobook-card-content">
                 <span class="demobook-card-icon">🎯</span>
