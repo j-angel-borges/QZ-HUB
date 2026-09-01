@@ -1934,54 +1934,96 @@ const renderers = {
     container.innerHTML = html;
   },
 
-  // 6. DEMO View (formerly Demobook)
+  // 6. Recursos Comerciales View (formerly DEMO / Demobook)
   demo: () => {
     const workspace = document.querySelector('.workspace');
     if (workspace) workspace.classList.add('minimal-view');
 
-    document.getElementById('page-title').textContent = 'DEMO';
+    document.getElementById('page-title').textContent = 'Recursos Comerciales';
+    document.getElementById('page-icon').textContent = '💼';
     document.getElementById('properties-block').style.display = 'none';
 
     const container = document.getElementById('workspace-content');
     container.innerHTML = `
       <div class="demobook-minimal-container">
+        <div style="margin-bottom: 24px;">
+          <h2 style="font-family: var(--font-family-title); font-size: 22px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0; display: flex; align-items: center; gap: 10px;">
+            💼 Recursos Comerciales ZentryOS
+          </h2>
+          <p style="font-size: 13.5px; color: #64748b; margin: 0; line-height: 1.5;">
+            Arsenal de ventas, presentaciones interactivas, guías dialécticas de pre-cierre y microfunciones del sistema operativo para demostraciones de alto valor.
+          </p>
+        </div>
+
         <div class="demobook-grid">
+          
+          <!-- 1. Preguntas-Bienestar -->
           <a href="https://bienestar-chi.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-            <div class="demobook-card-minimal">
-              <div class="demobook-card-content">
-                <span class="demobook-card-icon">📋</span>
-                <span class="demobook-card-title">Preguntas-Bienestar</span>
+            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff;">
+              <div class="demobook-card-content" style="gap: 16px;">
+                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                  📋
+                </div>
+                <div>
+                  <div class="demobook-card-title" style="font-size: 16px; margin-bottom: 3px; color: #0f172a;">Preguntas-Bienestar</div>
+                  <div style="font-size: 12px; color: #64748b;">Diagnóstico y formulario de evaluación de hábitos familiares.</div>
+                </div>
               </div>
-              <span class="demobook-card-arrow">➔</span>
+              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px;">➔</span>
             </div>
           </a>
+
+          <!-- 2. Slides - DEMO -->
           <a href="https://demobook.quarz.online/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-            <div class="demobook-card-minimal">
-              <div class="demobook-card-content">
-                <span class="demobook-card-icon">📊</span>
-                <span class="demobook-card-title">Slides - DEMO</span>
+            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff;">
+              <div class="demobook-card-content" style="gap: 16px;">
+                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(16, 185, 129, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                  📊
+                </div>
+                <div>
+                  <div class="demobook-card-title" style="font-size: 16px; margin-bottom: 3px; color: #0f172a;">Slides - DEMO</div>
+                  <div style="font-size: 12px; color: #64748b;">Presentación visual ejecutiva y diapositivas de apoyo comercial.</div>
+                </div>
               </div>
-              <span class="demobook-card-arrow">➔</span>
+              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px;">➔</span>
             </div>
           </a>
+
+          <!-- 3. Manual de Pre-Cierres -->
           <a href="#precierres" class="demobook-card-link">
-            <div class="demobook-card-minimal">
-              <div class="demobook-card-content">
-                <span class="demobook-card-icon">📑</span>
-                <span class="demobook-card-title">Manual de Pre-Cierres</span>
+            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff;">
+              <div class="demobook-card-content" style="gap: 16px;">
+                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(245, 158, 11, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                  📑
+                </div>
+                <div>
+                  <div class="demobook-card-title" style="font-size: 16px; margin-bottom: 3px; color: #0f172a;">Manual de Pre-Cierres</div>
+                  <div style="font-size: 12px; color: #64748b;">Arsenal dialéctico y remates de conversión (Remate de Horas).</div>
+                </div>
               </div>
-              <span class="demobook-card-arrow">➔</span>
+              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px;">➔</span>
             </div>
           </a>
+
+          <!-- 4. DEMO Features -->
           <a href="#demofeatures" class="demobook-card-link">
-            <div class="demobook-card-minimal">
-              <div class="demobook-card-content">
-                <span class="demobook-card-icon">✨</span>
-                <span class="demobook-card-title">DEMO Features</span>
+            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(139, 92, 246, 0.2); background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);">
+              <div class="demobook-card-content" style="gap: 16px;">
+                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(139, 92, 246, 0.15); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                  ✨
+                </div>
+                <div>
+                  <div class="demobook-card-title" style="font-size: 16px; margin-bottom: 3px; color: #5b21b6; display: flex; align-items: center; gap: 8px;">
+                    DEMO Features
+                    <span style="font-size: 10px; font-weight: 700; background: #8b5cf6; color: white; padding: 2px 8px; border-radius: 10px;">SANDBOX OS</span>
+                  </div>
+                  <div style="font-size: 12px; color: #64748b;">Microfunciones y piezas del SO aisladas para ventas en vivo.</div>
+                </div>
               </div>
-              <span class="demobook-card-arrow">➔</span>
+              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px; color: #8b5cf6;">➔</span>
             </div>
           </a>
+
         </div>
       </div>
     `;
@@ -1990,24 +2032,277 @@ const renderers = {
     this.demo();
   },
 
-  // 6.0. DEMO Features View
+  // 6.0. DEMO Features View (Microfunciones del Sistema Operativo en Sandbox)
   demofeatures: () => {
     const workspace = document.querySelector('.workspace');
     if (workspace) workspace.classList.add('minimal-view');
 
     document.getElementById('page-title').textContent = 'DEMO Features';
+    document.getElementById('page-icon').textContent = '✨';
     document.getElementById('properties-block').style.display = 'none';
+
+    const defaultFeatures = [
+      {
+        id: 'feat-screentime',
+        name: 'Zentry Live Screen Time & Telemetría',
+        icon: '⏱️',
+        category: 'Control Parental',
+        badge: '🟢 GCP Live Telemetry',
+        gcpProject: 'quarz-group',
+        gcpService: 'Firestore: demo_telemetry',
+        webAppUrl: 'https://zentryos.web.app/#demo-screentime',
+        summary: 'Monitoreo en vivo de minutos y horas por app. Permite a los padres ver en el acto el uso real en TikTok, YouTube y videojuegos.',
+        metrics: 'Límite dinámico 2h/día • +85% foco escolar',
+        payloadPreview: { child_id: 'demo_estudiante_1', total_screen_time_min: 222, risk_level: 'warning', active_app: 'TikTok' }
+      },
+      {
+        id: 'feat-remote-lock',
+        name: 'Interruptor de Corte Remoto & Toque de Queda',
+        icon: '🔒',
+        category: 'Seguridad & Límites',
+        badge: '🟢 Trigger Remoto (<200ms)',
+        gcpProject: 'quarz-group',
+        gcpService: 'Firestore Triggers / State Machine',
+        webAppUrl: 'https://zentry-parent-dashboard.vercel.app/#demo-lock',
+        summary: 'Bloqueo instantáneo con un toque desde el celular tutor. La pantalla del menor activa de inmediato el escudo pedagógico de desconexión.',
+        metrics: 'Latencia de corte <200ms • SOS activo',
+        payloadPreview: { action: 'SYSTEM_LOCK_ENGAGED', initiated_by: 'Parent_App', reason: 'Horario de Estudio', bypass_allowed: false }
+      },
+      {
+        id: 'feat-ai-guardian',
+        name: 'Guardián Semántico Vertex AI (Anti-Bullying)',
+        icon: '🧠',
+        category: 'IA & Protección',
+        badge: '🟢 Vertex AI (Gemini 2.5)',
+        gcpProject: 'quarz-group',
+        gcpService: 'Vertex AI (aiplatform.googleapis.com)',
+        webAppUrl: 'https://zentryos-admin.web.app/#demo-ai-guardian',
+        summary: 'Análisis inteligente en tiempo real para detección de ciberacoso y búsquedas peligrosas, alertando al tutor sin violar la intimidad del menor.',
+        metrics: '99.4% precisión • Facturación en Cloud GCP',
+        payloadPreview: { model: 'gemini-2.5-flash', safety_assessment: 'FLAGGED_HARASSMENT', confidence_score: 0.984, action: 'ALERT_PARENT_SILENT' }
+      },
+      {
+        id: 'feat-launcher-sandbox',
+        name: 'ZentryOS Zen Shell Sandbox (Modo Menor)',
+        icon: '☄️',
+        category: 'Shell del Sistema Operativo',
+        badge: '🟢 Backpage Aislada (.web.app)',
+        gcpProject: 'quarz-group',
+        gcpService: 'Firebase Hosting Multi-Site',
+        webAppUrl: 'https://zentryos.web.app/#sandbox-preview',
+        summary: 'Muestra la experiencia minimalista y zen que vive el menor: sin feeds infinitos, con launcher limpio, apps educativas y reloj circadiano.',
+        metrics: '0 feeds adictivos • Offline-first',
+        payloadPreview: { shell_state: 'ACTIVE', active_profile: 'ZEN_LEARNING', whitelist_apps: ['Calculadora', 'Duolingo', 'Lector PDF'] }
+      },
+      {
+        id: 'feat-geofence',
+        name: 'Geocercas Escolares & Alerta de Perímetro',
+        icon: '📍',
+        category: 'Geolocalización',
+        badge: '🟢 GeoPoints Live Stream',
+        gcpProject: 'quarz-group',
+        gcpService: 'Cloud Firestore GeoEvents',
+        webAppUrl: 'https://zentry-parent-dashboard.vercel.app/#demo-geofence',
+        summary: 'Define perímetros seguros (Colegio, Hogar). Emite una alerta inmediata al tutor si el menor sale del radio permitido durante el horario escolar.',
+        metrics: 'Radio seguro 150m • Cero drenaje de batería',
+        payloadPreview: { event_type: 'GEOFENCE_EXIT', location_name: 'Colegio San Agustín', coords: [-12.0865, -77.0342], status: 'ALERT_SENT' }
+      },
+      {
+        id: 'feat-voice-tts',
+        name: 'Asistente Circadiano & Debrief por Voz',
+        icon: '🎙️',
+        category: 'Bienestar & Audio',
+        badge: '🟢 Cloud Speech / TTS API',
+        gcpProject: 'quarz-group',
+        gcpService: 'Google Cloud TTS Engine',
+        webAppUrl: 'https://zentryos.web.app/#demo-voice',
+        summary: 'Resúmenes del día y rutinas guiadas habladas para evitar la exposición a pantallas y luz azul antes del descanso nocturno.',
+        metrics: 'Voz neuronal humana • Luz azul 0%',
+        payloadPreview: { session: 'NIGHT_ROUTINE', voice: 'es-US-Neural2-B', duration_sec: 180, bedtime_target: '21:30' }
+      }
+    ];
 
     const container = document.getElementById('workspace-content');
     container.innerHTML = `
-      <div class="demobook-minimal-container">
-        <div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 24px;">
-          <a href="#demo" class="btn btn-secondary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
-            <span>← Volver a DEMO</span>
+      <div class="demofeatures-container">
+        
+        <!-- Header & Back Navigation -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <a href="#demobook" class="btn btn-secondary" style="font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; padding: 7px 14px; border-radius: 8px;">
+            <span>← Volver a Recursos Comerciales</span>
           </a>
+          <span class="isolation-pill-badge">
+            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+            Entorno Sandbox Aislado (GCP: quarz-group)
+          </span>
         </div>
+
+        <!-- Banner Explicativo de Aislamiento y Beneficio Comercial -->
+        <div class="demofeatures-banner-box">
+          <div>
+            <h2 class="demofeatures-banner-title">
+              ✨ Microfunciones & Demos Aisladas del SO ZentryOS
+            </h2>
+            <p class="demofeatures-banner-desc">
+              Cada elemento representa un módulo real del sistema operativo desacoplado en una <strong>Back Page (.web.app)</strong>. Están conectadas a la infraestructura viva de Google Cloud Platform (Firestore / Vertex AI en <code>quarz-group</code>) operando de forma 100% paralela para <strong>no cruzarse jamás con las versiones oficiales de producción</strong>.
+            </p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button id="btn-add-custom-feature" class="btn btn-primary" style="font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 10px;">
+              <span>➕ Agregar Microfunción</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Grid de Microfunciones -->
+        <div class="demofeatures-grid" id="demofeatures-list">
+          ${defaultFeatures.map(feat => `
+            <div class="demofeature-card" id="${feat.id}">
+              <div>
+                <div class="demofeature-top">
+                  <div class="demofeature-icon-box">${feat.icon}</div>
+                  <span class="demofeature-category">${feat.category}</span>
+                </div>
+                <h3 class="demofeature-title">${feat.name}</h3>
+                <p class="demofeature-desc">${feat.summary}</p>
+                
+                <div class="demofeature-infra-box">
+                  <div class="demofeature-infra-row">
+                    <span class="demofeature-infra-label">🔗 Estado GCP:</span>
+                    <span style="color: #10b981; font-weight: 600;">${feat.badge}</span>
+                  </div>
+                  <div class="demofeature-infra-row">
+                    <span class="demofeature-infra-label">🏢 Proyecto GCP:</span>
+                    <span class="demofeature-infra-val">${feat.gcpProject}</span>
+                  </div>
+                  <div class="demofeature-infra-row">
+                    <span class="demofeature-infra-label">⚡ Servicio / BD:</span>
+                    <span class="demofeature-infra-val">${feat.gcpService}</span>
+                  </div>
+                  <div class="demofeature-infra-row">
+                    <span class="demofeature-infra-label">📈 Métrica Clave:</span>
+                    <span style="color: #4338ca; font-weight: 600;">${feat.metrics}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="demofeature-actions">
+                <a href="${feat.webAppUrl}" target="_blank" rel="noopener noreferrer" class="btn-open-microapp">
+                  <span>Abrir Micro-App (.web.app)</span>
+                  <span>➔</span>
+                </a>
+                <button class="btn-test-microapp" data-feat-id="${feat.id}" title="Simular paquete de datos en tiempo real">
+                  <span>🧪 Simular</span>
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- Modal de Simulación en Vivo (Oculto por defecto) -->
+        <div id="demo-sim-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(6px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+          <div style="background: #ffffff; width: 100%; max-width: 580px; border-radius: 16px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); border: 1px solid rgba(15,23,42,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+              <h4 id="sim-modal-title" style="margin: 0; font-size: 17px; color: #0f172a; font-family: var(--font-family-title); display: flex; align-items: center; gap: 8px;">
+                🧪 Simulación en Vivo
+              </h4>
+              <button id="btn-close-sim-modal" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #94a3b8;">✕</button>
+            </div>
+            <div id="sim-modal-body" style="font-size: 13px; color: #334155; margin-bottom: 20px; line-height: 1.6;">
+              <!-- Dynamic content -->
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+              <button id="btn-close-sim-modal-footer" class="btn btn-secondary" style="font-size: 12.5px; padding: 8px 16px; border-radius: 8px;">Cerrar</button>
+            </div>
+          </div>
+        </div>
+
       </div>
     `;
+
+    // Attach simulation event listeners
+    container.querySelectorAll('.btn-test-microapp').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const featId = e.currentTarget.getAttribute('data-feat-id');
+        const feat = defaultFeatures.find(f => f.id === featId);
+        if (!feat) return;
+
+        const modal = document.getElementById('demo-sim-modal');
+        const modalTitle = document.getElementById('sim-modal-title');
+        const modalBody = document.getElementById('sim-modal-body');
+
+        modalTitle.innerHTML = `${feat.icon} Simulación GCP: ${feat.name}`;
+        modalBody.innerHTML = `
+          <div style="background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 14px 16px; font-family: var(--font-family-code); font-size: 12px; margin-bottom: 14px; overflow-x: auto;">
+            <div style="color: #38bdf8; margin-bottom: 6px;">// Payload GCP transmitido en tiempo real (${feat.gcpProject}):</div>
+            <pre style="margin: 0; color: #a5f3fc;">${JSON.stringify(feat.payloadPreview, null, 2)}</pre>
+          </div>
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 12px; color: #166534; font-size: 12px; margin-bottom: 12px;">
+            ✅ <strong>Conexión Exitosa:</strong> Micro-app respondiendo con status 200 OK. La sesión de demo corre en sandbox aislada sin tocar las bases de datos ni dominios oficiales.
+          </div>
+          <p style="margin: 0; font-size: 12.5px; color: #64748b;">
+            <strong>Beneficio para el pitch:</strong> ${feat.summary}
+          </p>
+        `;
+
+        modal.style.display = 'flex';
+      });
+    });
+
+    const closeModal = () => {
+      const modal = document.getElementById('demo-sim-modal');
+      if (modal) modal.style.display = 'none';
+    };
+
+    document.getElementById('btn-close-sim-modal')?.addEventListener('click', closeModal);
+    document.getElementById('btn-close-sim-modal-footer')?.addEventListener('click', closeModal);
+    document.getElementById('demo-sim-modal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'demo-sim-modal') closeModal();
+    });
+
+    document.getElementById('btn-add-custom-feature')?.addEventListener('click', () => {
+      const name = prompt('Nombre de la nueva Microfunción / Demo Feature:');
+      if (!name) return;
+      const url = prompt('URL de la Back Page (.web.app o ruta de sandbox):', 'https://quarz-group.web.app/demo/nueva-microapp');
+      const desc = prompt('Descripción del beneficio comercial para los padres:');
+      
+      const newCard = document.createElement('div');
+      newCard.className = 'demofeature-card';
+      newCard.innerHTML = `
+        <div>
+          <div class="demofeature-top">
+            <div class="demofeature-icon-box">⚡</div>
+            <span class="demofeature-category">Micro-App Personalizada</span>
+          </div>
+          <h3 class="demofeature-title">${name}</h3>
+          <p class="demofeature-desc">${desc || 'Módulo interactivo personalizado de demostración del sistema operativo.'}</p>
+          
+          <div class="demofeature-infra-box">
+            <div class="demofeature-infra-row">
+              <span class="demofeature-infra-label">🔗 Estado GCP:</span>
+              <span style="color: #10b981; font-weight: 600;">🟢 Conectado</span>
+            </div>
+            <div class="demofeature-infra-row">
+              <span class="demofeature-infra-label">🏢 Proyecto GCP:</span>
+              <span class="demofeature-infra-val">quarz-group</span>
+            </div>
+            <div class="demofeature-infra-row">
+              <span class="demofeature-infra-label">⚡ Servicio / BD:</span>
+              <span class="demofeature-infra-val">Firestore Native</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="demofeature-actions">
+          <a href="${url || '#'}" target="_blank" rel="noopener noreferrer" class="btn-open-microapp">
+            <span>Abrir Micro-App (.web.app)</span>
+            <span>➔</span>
+          </a>
+        </div>
+      `;
+      document.getElementById('demofeatures-list')?.appendChild(newCard);
+      alert('Microfunción agregada al catálogo de demostración.');
+    });
   },
 
   // 6.1. Accesos Directos a Ecosistema ZentryOS
@@ -4710,7 +5005,7 @@ function handleRouting() {
   const hash = window.location.hash || '#backlog';
   
   // Set data-module on body to preserve Zentry colorimetry when accessing Zentry views
-  const isZentryView = hash.includes('demobook') || hash.includes('demo') || hash.includes('accesos') || hash.includes('precierres') || hash.includes('prospeccion') || hash.includes('branding') || hash.includes('iacontext') || hash === '#backlog/zentry';
+  const isZentryView = hash.includes('demobook') || hash.includes('demo') || hash.includes('accesos') || hash.includes('precierres') || hash.includes('demofeatures') || hash.includes('prospeccion') || hash.includes('branding') || hash.includes('iacontext') || hash === '#backlog/zentry';
   if (isZentryView) {
     document.body.setAttribute('data-module', 'zentry');
   } else {
