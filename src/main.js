@@ -1973,12 +1973,41 @@ const renderers = {
               <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
+          <a href="#demofeatures" class="demobook-card-link">
+            <div class="demobook-card-minimal">
+              <div class="demobook-card-content">
+                <span class="demobook-card-icon">✨</span>
+                <span class="demobook-card-title">DEMO Features</span>
+              </div>
+              <span class="demobook-card-arrow">➔</span>
+            </div>
+          </a>
         </div>
       </div>
     `;
   },
   demobook: function() {
     this.demo();
+  },
+
+  // 6.0. DEMO Features View
+  demofeatures: () => {
+    const workspace = document.querySelector('.workspace');
+    if (workspace) workspace.classList.add('minimal-view');
+
+    document.getElementById('page-title').textContent = 'DEMO Features';
+    document.getElementById('properties-block').style.display = 'none';
+
+    const container = document.getElementById('workspace-content');
+    container.innerHTML = `
+      <div class="demobook-minimal-container">
+        <div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 24px;">
+          <a href="#demo" class="btn btn-secondary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+            <span>← Volver a DEMO</span>
+          </a>
+        </div>
+      </div>
+    `;
   },
 
   // 6.1. Accesos Directos a Ecosistema ZentryOS
@@ -4741,7 +4770,7 @@ function handleRouting() {
   } else {
     state.activeView = hash.replace('#', '');
     let navLink = document.querySelector(`.nav-link[data-view="${state.activeView}"]`);
-    if (!navLink && (state.activeView === 'demo' || state.activeView === 'demobook' || state.activeView === 'precierres')) {
+    if (!navLink && (state.activeView === 'demo' || state.activeView === 'demobook' || state.activeView === 'precierres' || state.activeView === 'demofeatures')) {
       navLink = document.querySelector(`.nav-link[data-view="demo"], .nav-link[data-view="demobook"]`);
     }
     if (navLink) navLink.classList.add('active');
