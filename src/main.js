@@ -2279,30 +2279,102 @@ const renderers = {
     `;
   },
 
-  // 6.5. Prospección View
+  // 6.5. Gestión Comercial & Prospección View
   prospeccion: () => {
     const workspace = document.querySelector('.workspace');
-    if (workspace) workspace.classList.add('minimal-view');
+    if (workspace) {
+      workspace.classList.add('minimal-view');
+      workspace.classList.add('full-width-view');
+    }
 
-    document.getElementById('page-title').textContent = 'Prospección';
+    document.getElementById('page-title').textContent = 'Gestión comercial';
+    document.getElementById('page-icon').textContent = '🎯';
     document.getElementById('properties-block').style.display = 'none';
 
     const container = document.getElementById('workspace-content');
     container.innerHTML = `
-      <div class="demobook-minimal-container">
-        <div class="demobook-grid">
-          <a href="https://zentry-prospecc.web.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-            <div class="demobook-card-minimal">
-              <div class="demobook-card-content">
-                <span class="demobook-card-icon">🎯</span>
-                <span class="demobook-card-title">ZentryOS-Prospect</span>
+      <div class="gestion-comercial-container" style="display: flex; flex-direction: column; gap: 24px; width: 100%; max-width: 1300px; margin: 0 auto; padding-bottom: 40px;">
+        
+        <!-- Header descriptivo -->
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <h2 style="font-family: var(--font-family-title); font-size: 20px; font-weight: 700; color: #0f172a; margin: 0;">Plataforma de Captación & CRM Comercial</h2>
+          <p style="font-size: 13px; color: #64748b; margin: 0;">Herramientas operativas de campo para captura de prospectos y administración integral de leads.</p>
+        </div>
+
+        <!-- Tarjeta de Prospección -->
+        <div class="demobook-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+          <a href="https://zentry-prospecc.web.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link" style="text-decoration: none;">
+            <div class="demobook-card-minimal glass-panel" style="padding: 20px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
+              <div class="demobook-card-content" style="display: flex; align-items: center; gap: 16px;">
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(83, 59, 135, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                  🎯
+                </div>
+                <div>
+                  <div class="demobook-card-title" style="font-size: 15.5px; font-weight: 700; margin-bottom: 3px; color: #0f172a;">ZentryOS-Prospect (Evaluación)</div>
+                  <div style="font-size: 11.5px; color: #533b87; font-family: monospace;">zentry-prospecc.web.app</div>
+                  <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Web app de captación y diagnóstico familiar en campo.</div>
+                </div>
               </div>
-              <span class="demobook-card-arrow">➔</span>
+              <span class="demobook-card-arrow" style="font-size: 18px; color: #533b87; margin-left: 12px;">➔</span>
             </div>
           </a>
         </div>
+
+        <!-- Módulo Embed CRM -->
+        <div class="crm-embedded-section" style="background: #ffffff; border: 1px solid rgba(15, 23, 42, 0.08); border-radius: 14px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); overflow: hidden; display: flex; flex-direction: column;">
+          
+          <!-- CRM Barra Superior / Acciones -->
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 14px 20px; background: rgba(248, 250, 252, 0.85); border-bottom: 1px solid rgba(15, 23, 42, 0.08);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(83, 59, 135, 0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+                📊
+              </div>
+              <div>
+                <div style="font-weight: 700; font-size: 14.5px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                  CRM Gestión Comercial
+                  <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 9999px; background: rgba(16, 185, 129, 0.12); color: #059669;">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: inline-block;"></span> En vivo
+                  </span>
+                </div>
+                <div style="font-size: 11.5px; color: #64748b; font-family: monospace;">zentry-prospecc.web.app/crm</div>
+              </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button id="reload-crm-btn" type="button" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px; border: 1px solid rgba(15, 23, 42, 0.12); background: #ffffff; color: #334155; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+                <span>🔄 Recargar</span>
+              </button>
+              <a href="https://zentry-prospecc.web.app/crm" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; border: none; background: #533b87; color: #ffffff; font-size: 12px; font-weight: 600; text-decoration: none; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(83, 59, 135, 0.25);">
+                <span>↗ Abrir CRM Completo</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Contenedor del Iframe -->
+          <div style="position: relative; width: 100%; height: 750px; min-height: 550px; background: #f8fafc;">
+            <iframe
+              id="crm-embedded-iframe"
+              src="https://zentry-prospecc.web.app/crm"
+              title="CRM Gestión Comercial - ZentryOS"
+              style="width: 100%; height: 100%; border: none; display: block;"
+              loading="lazy"
+              allow="clipboard-read; clipboard-write;"
+            ></iframe>
+          </div>
+        </div>
+
       </div>
     `;
+
+    const reloadBtn = document.getElementById('reload-crm-btn');
+    if (reloadBtn) {
+      reloadBtn.addEventListener('click', () => {
+        const iframe = document.getElementById('crm-embedded-iframe');
+        if (iframe) {
+          iframe.src = iframe.src;
+        }
+      });
+    }
   },
 
   // 6. Tools View (QZ CLOUD REMOTE SESSION COMPANION & AGENT COCKPIT)
@@ -4756,7 +4828,7 @@ function handleRouting() {
   const hash = window.location.hash || '#backlog';
   
   // Set data-module on body to preserve Zentry colorimetry when accessing Zentry views
-  const isZentryView = hash.includes('demobook') || hash.includes('demo') || hash.includes('accesos') || hash.includes('precierres') || hash.includes('demofeatures') || hash.includes('prospeccion') || hash.includes('branding') || hash.includes('iacontext') || hash === '#backlog/zentry';
+  const isZentryView = hash.includes('demobook') || hash.includes('demo') || hash.includes('accesos') || hash.includes('precierres') || hash.includes('demofeatures') || hash.includes('prospeccion') || hash.includes('gestion-comercial') || hash.includes('branding') || hash.includes('iacontext') || hash === '#backlog/zentry';
   if (isZentryView) {
     document.body.setAttribute('data-module', 'zentry');
   } else {
@@ -4818,6 +4890,8 @@ function handleRouting() {
     let navLink = document.querySelector(`.nav-link[data-view="${state.activeView}"]`);
     if (!navLink && (state.activeView === 'demo' || state.activeView === 'demobook' || state.activeView === 'precierres' || state.activeView === 'demofeatures')) {
       navLink = document.querySelector(`.nav-link[data-view="demo"], .nav-link[data-view="demobook"]`);
+    } else if (!navLink && (state.activeView === 'gestion-comercial' || state.activeView === 'prospeccion')) {
+      navLink = document.querySelector(`.nav-link[data-view="prospeccion"], .nav-link[data-view="gestion-comercial"]`);
     }
     if (navLink) navLink.classList.add('active');
     
@@ -4825,6 +4899,8 @@ function handleRouting() {
 
     if (renderers[state.activeView]) {
       renderers[state.activeView]();
+    } else if (state.activeView === 'gestion-comercial' && renderers.prospeccion) {
+      renderers.prospeccion();
     } else if (state.activeView === 'demobook' && renderers.demo) {
       renderers.demo();
     } else if (state.activeView === 'demo' && renderers.demobook) {
