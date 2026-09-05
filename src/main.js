@@ -4031,76 +4031,186 @@ function lockPersonalAccess() {
 function renderPersonalLockScreen(container, targetMode = 'personal') {
   container.innerHTML = `
     <div class="personal-lock-overlay" id="personal-lock-overlay">
-      <div class="personal-lock-card" id="personal-lock-card">
+      <div class="vault-card" id="personal-lock-card">
         <button type="button" class="personal-lock-close" id="btn-lock-close" aria-label="Cerrar">✕</button>
-        <h2 class="personal-lock-title">Acceso</h2>
+        <h2 class="personal-lock-title">Vault</h2>
 
-        <form id="personal-pin-form" onsubmit="return false;">
-          <div class="personal-pin-input-group">
-            <input 
-              type="password" 
-              id="personal-pin-input" 
-              class="personal-pin-input" 
-              maxlength="4" 
-              pattern="[0-9]*" 
-              inputmode="numeric" 
-              placeholder="••••" 
-              autocomplete="off"
-              autofocus
-            />
+        <div class="vault-mechanism" id="vault-mechanism" title="Toca para ingresar PIN">
+          <!-- Locking Bolts -->
+          <div class="vault-bolts">
+            <span class="vault-bolt bolt-top"></span>
+            <span class="vault-bolt bolt-right"></span>
+            <span class="vault-bolt bolt-bottom"></span>
+            <span class="vault-bolt bolt-left"></span>
           </div>
 
-          <div class="personal-lock-keypad">
-            <button type="button" class="keypad-btn" data-key="1">1</button>
-            <button type="button" class="keypad-btn" data-key="2">2</button>
-            <button type="button" class="keypad-btn" data-key="3">3</button>
-            <button type="button" class="keypad-btn" data-key="4">4</button>
-            <button type="button" class="keypad-btn" data-key="5">5</button>
-            <button type="button" class="keypad-btn" data-key="6">6</button>
-            <button type="button" class="keypad-btn" data-key="7">7</button>
-            <button type="button" class="keypad-btn" data-key="8">8</button>
-            <button type="button" class="keypad-btn" data-key="9">9</button>
-            <button type="button" class="keypad-btn btn-keypad-clear" id="btn-pin-clear" aria-label="Borrar">⌫</button>
-            <button type="button" class="keypad-btn" data-key="0">0</button>
-            <button type="button" class="keypad-btn btn-keypad-submit" id="btn-pin-submit" aria-label="Entrar">↵</button>
+          <!-- Bezel & Rotating Dial -->
+          <div class="vault-bezel">
+            <div class="vault-wheel" id="vault-wheel">
+              <svg class="vault-svg" viewBox="0 0 160 160">
+                <defs>
+                  <radialGradient id="hubGrad" cx="35%" cy="35%" r="65%">
+                    <stop offset="0%" stop-color="#faecc8" />
+                    <stop offset="50%" stop-color="#b89c50" />
+                    <stop offset="100%" stop-color="#4a3b10" />
+                  </radialGradient>
+                  <linearGradient id="spokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#94a3b8" />
+                    <stop offset="50%" stop-color="#cbd5e1" />
+                    <stop offset="100%" stop-color="#334155" />
+                  </linearGradient>
+                </defs>
+
+                <!-- Outer Dial Face -->
+                <circle cx="80" cy="80" r="74" fill="#090d16" stroke="#b89c50" stroke-width="2.5" />
+                <circle cx="80" cy="80" r="66" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" />
+
+                <!-- Graduations / 12 Dial Ticks -->
+                <g stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round">
+                  <line x1="80" y1="16" x2="80" y2="23" />
+                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(30 80 80)" />
+                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(60 80 80)" />
+                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(90 80 80)" />
+                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(120 80 80)" />
+                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(150 80 80)" />
+                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(180 80 80)" />
+                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(210 80 80)" />
+                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(240 80 80)" />
+                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(270 80 80)" />
+                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(300 80 80)" />
+                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(330 80 80)" />
+                </g>
+
+                <!-- 3 Heavy Chrome Spokes -->
+                <g fill="url(#spokeGrad)">
+                  <rect x="75" y="20" width="10" height="120" rx="5" />
+                  <rect x="75" y="20" width="10" height="120" rx="5" transform="rotate(60 80 80)" />
+                  <rect x="75" y="20" width="10" height="120" rx="5" transform="rotate(120 80 80)" />
+                </g>
+
+                <!-- Brass Center Hub -->
+                <circle cx="80" cy="80" r="26" fill="#0b1120" stroke="#b89c50" stroke-width="2" />
+                <circle cx="80" cy="80" r="19" fill="url(#hubGrad)" />
+                <circle cx="80" cy="80" r="7" fill="#090d16" stroke="#faecc8" stroke-width="1.5" />
+              </svg>
+            </div>
           </div>
-        </form>
+
+          <!-- Invisible Input for Mobile & Desktop Typing -->
+          <input 
+            type="password" 
+            id="personal-pin-input" 
+            class="vault-pin-hidden-input" 
+            maxlength="4" 
+            pattern="[0-9]*" 
+            inputmode="numeric" 
+            autocomplete="off"
+            autofocus
+          />
+        </div>
+
+        <!-- Tumbler Indicator LEDs -->
+        <div class="vault-tumblers" id="vault-tumblers">
+          <span class="vault-tumbler-dot" data-i="0"></span>
+          <span class="vault-tumbler-dot" data-i="1"></span>
+          <span class="vault-tumbler-dot" data-i="2"></span>
+          <span class="vault-tumbler-dot" data-i="3"></span>
+        </div>
       </div>
     </div>
   `;
 
   const pinInput = document.getElementById('personal-pin-input');
   const card = document.getElementById('personal-lock-card');
+  const wheel = document.getElementById('vault-wheel');
+  const mechanism = document.getElementById('vault-mechanism');
   const closeBtn = document.getElementById('btn-lock-close');
-  const submitBtn = document.getElementById('btn-pin-submit');
-  const clearBtn = document.getElementById('btn-pin-clear');
+  const dots = container.querySelectorAll('.vault-tumbler-dot');
 
+  const dialAngles = [0, 65, -55, 125, -95];
+
+  const updateVaultVisuals = (length) => {
+    // Rotate wheel based on digits entered
+    const angle = dialAngles[length] || 0;
+    if (wheel) {
+      wheel.style.transform = `rotate(${angle}deg)`;
+    }
+
+    // Light up tumbler dots
+    dots.forEach((dot, idx) => {
+      if (idx < length) {
+        dot.classList.add('lit');
+      } else {
+        dot.classList.remove('lit');
+      }
+    });
+  };
+
+  // Auto focus input on mount & on any click in vault zone
   setTimeout(() => {
     if (pinInput) pinInput.focus();
-  }, 80);
+  }, 100);
+
+  mechanism?.addEventListener('click', () => {
+    if (pinInput) pinInput.focus();
+  });
+
+  card?.addEventListener('click', () => {
+    if (pinInput) pinInput.focus();
+  });
 
   const attemptUnlock = (pin) => {
     if (pin === PERSONAL_ACCESS_PIN) {
       isPersonalUnlockedMemory = true;
+
+      // Vault Unlock Animation Sequence
+      if (wheel) {
+        wheel.style.transition = 'transform 0.6s cubic-bezier(0.15, 0.9, 0.25, 1)';
+        wheel.style.transform = 'rotate(720deg)';
+      }
+      if (mechanism) {
+        mechanism.classList.add('unlocked');
+      }
       if (card) {
-        card.classList.remove('shake');
+        card.classList.remove('jammed');
         card.classList.add('unlocked-anim');
       }
+
+      dots.forEach(dot => {
+        dot.classList.remove('lit', 'error');
+        dot.classList.add('success');
+      });
+
       setTimeout(() => {
         if (typeof renderers !== 'undefined' && renderers.backlog) {
           renderers.backlog();
         }
-      }, 250);
+      }, 550);
     } else {
+      // Vault Jammed / Error Sequence
       if (card) {
-        card.classList.remove('shake');
+        card.classList.remove('jammed');
         void card.offsetWidth; // trigger reflow
-        card.classList.add('shake');
+        card.classList.add('jammed');
       }
-      if (pinInput) {
-        pinInput.value = '';
-        pinInput.focus();
+      if (mechanism) {
+        mechanism.classList.add('jammed');
       }
+
+      dots.forEach(dot => {
+        dot.classList.add('error');
+      });
+
+      setTimeout(() => {
+        if (pinInput) {
+          pinInput.value = '';
+          pinInput.focus();
+        }
+        updateVaultVisuals(0);
+        if (card) card.classList.remove('jammed');
+        if (mechanism) mechanism.classList.remove('jammed');
+        dots.forEach(dot => dot.classList.remove('error'));
+      }, 480);
     }
   };
 
@@ -4110,6 +4220,7 @@ function renderPersonalLockScreen(container, targetMode = 'personal') {
 
   pinInput?.addEventListener('input', (e) => {
     const val = e.target.value;
+    updateVaultVisuals(val.length);
     if (val.length === 4) {
       attemptUnlock(val);
     }
@@ -4122,33 +4233,6 @@ function renderPersonalLockScreen(container, targetMode = 'personal') {
     } else if (e.key === 'Escape') {
       window.location.hash = '#backlog';
     }
-  });
-
-  // Handle on-screen keypad clicks
-  container.querySelectorAll('.keypad-btn[data-key]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (!pinInput) return;
-      if (pinInput.value.length < 4) {
-        pinInput.value += btn.getAttribute('data-key');
-        if (pinInput.value.length === 4) {
-          attemptUnlock(pinInput.value);
-        }
-      }
-    });
-  });
-
-  clearBtn?.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (pinInput) {
-      pinInput.value = pinInput.value.slice(0, -1);
-      pinInput.focus();
-    }
-  });
-
-  submitBtn?.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (pinInput) attemptUnlock(pinInput.value);
   });
 }
 
