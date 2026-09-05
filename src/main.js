@@ -1539,7 +1539,17 @@ const renderers = {
       return;
     }
 
-    // Personal mode → Espacio Personal (timeblock + AI chat)
+    // Personal mode → Espacio Personal (timeblock + AI chat) & Personal Board (Protected by PIN 1212)
+    if (state.backlogMode === 'personal' || state.backlogMode === 'personal-board') {
+      if (!isPersonalUnlocked()) {
+        document.getElementById('properties-block').style.display = 'none';
+        document.getElementById('page-banner').style.display = 'none';
+        document.querySelector('.workspace-header').style.display = 'none';
+        renderPersonalLockScreen(container, state.backlogMode);
+        return;
+      }
+    }
+
     if (state.backlogMode === 'personal') {
       document.getElementById('properties-block').style.display = 'none';
       document.getElementById('page-banner').style.display = 'none';
@@ -4002,6 +4012,147 @@ function renderJournalFullPage(container) {
 }
 
 // ========================================
+// ========================================
+// QUARZ SECURITY: PERSONAL ACCESS PIN (1212)
+// ========================================
+
+const PERSONAL_ACCESS_PIN = '1212';
+let isPersonalUnlockedMemory = false;
+
+function isPersonalUnlocked() {
+  return isPersonalUnlockedMemory === true;
+}
+
+function lockPersonalAccess() {
+  isPersonalUnlockedMemory = false;
+  sessionStorage.removeItem('qz_personal_unlocked');
+}
+
+function renderPersonalLockScreen(container, targetMode = 'personal') {
+  container.innerHTML = `
+    <div class="personal-lock-overlay" id="personal-lock-overlay">
+      <div class="personal-lock-card" id="personal-lock-card">
+        <button type="button" class="personal-lock-close" id="btn-lock-close" aria-label="Cerrar">✕</button>
+        <h2 class="personal-lock-title">Acceso</h2>
+
+        <form id="personal-pin-form" onsubmit="return false;">
+          <div class="personal-pin-input-group">
+            <input 
+              type="password" 
+              id="personal-pin-input" 
+              class="personal-pin-input" 
+              maxlength="4" 
+              pattern="[0-9]*" 
+              inputmode="numeric" 
+              placeholder="••••" 
+              autocomplete="off"
+              autofocus
+            />
+          </div>
+
+          <div class="personal-lock-keypad">
+            <button type="button" class="keypad-btn" data-key="1">1</button>
+            <button type="button" class="keypad-btn" data-key="2">2</button>
+            <button type="button" class="keypad-btn" data-key="3">3</button>
+            <button type="button" class="keypad-btn" data-key="4">4</button>
+            <button type="button" class="keypad-btn" data-key="5">5</button>
+            <button type="button" class="keypad-btn" data-key="6">6</button>
+            <button type="button" class="keypad-btn" data-key="7">7</button>
+            <button type="button" class="keypad-btn" data-key="8">8</button>
+            <button type="button" class="keypad-btn" data-key="9">9</button>
+            <button type="button" class="keypad-btn btn-keypad-clear" id="btn-pin-clear" aria-label="Borrar">⌫</button>
+            <button type="button" class="keypad-btn" data-key="0">0</button>
+            <button type="button" class="keypad-btn btn-keypad-submit" id="btn-pin-submit" aria-label="Entrar">↵</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  const pinInput = document.getElementById('personal-pin-input');
+  const card = document.getElementById('personal-lock-card');
+  const closeBtn = document.getElementById('btn-lock-close');
+  const submitBtn = document.getElementById('btn-pin-submit');
+  const clearBtn = document.getElementById('btn-pin-clear');
+
+  setTimeout(() => {
+    if (pinInput) pinInput.focus();
+  }, 80);
+
+  const attemptUnlock = (pin) => {
+    if (pin === PERSONAL_ACCESS_PIN) {
+      isPersonalUnlockedMemory = true;
+      if (card) {
+        card.classList.remove('shake');
+        card.classList.add('unlocked-anim');
+      }
+      setTimeout(() => {
+        if (typeof renderers !== 'undefined' && renderers.backlog) {
+          renderers.backlog();
+        }
+      }, 250);
+    } else {
+      if (card) {
+        card.classList.remove('shake');
+        void card.offsetWidth; // trigger reflow
+        card.classList.add('shake');
+      }
+      if (pinInput) {
+        pinInput.value = '';
+        pinInput.focus();
+      }
+    }
+  };
+
+  closeBtn?.addEventListener('click', () => {
+    window.location.hash = '#backlog';
+  });
+
+  pinInput?.addEventListener('input', (e) => {
+    const val = e.target.value;
+    if (val.length === 4) {
+      attemptUnlock(val);
+    }
+  });
+
+  pinInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      attemptUnlock(pinInput.value);
+    } else if (e.key === 'Escape') {
+      window.location.hash = '#backlog';
+    }
+  });
+
+  // Handle on-screen keypad clicks
+  container.querySelectorAll('.keypad-btn[data-key]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!pinInput) return;
+      if (pinInput.value.length < 4) {
+        pinInput.value += btn.getAttribute('data-key');
+        if (pinInput.value.length === 4) {
+          attemptUnlock(pinInput.value);
+        }
+      }
+    });
+  });
+
+  clearBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (pinInput) {
+      pinInput.value = pinInput.value.slice(0, -1);
+      pinInput.focus();
+    }
+  });
+
+  submitBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (pinInput) attemptUnlock(pinInput.value);
+  });
+}
+
+// ========================================
 // ESPACIO PERSONAL: Timeblock + AI Chat
 // ========================================
 
@@ -4083,6 +4234,9 @@ function renderEspacioPersonal(container) {
         <a href="#backlog/personal-board" class="btn-open-personal-board" style="background: #0f172a; color: #ffffff; text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
           <span>📋</span> Abrir Tablero Personal
         </a>
+        <button type="button" id="btn-lock-personal" class="btn-lock-personal" title="Bloquear Backlog Personal">
+          <span>🔒</span> Bloquear
+        </button>
       </div>
     </div>
 
@@ -4110,6 +4264,12 @@ function renderEspacioPersonal(container) {
   `;
 
   // --- Bind Events ---
+
+  // Bloquear Personal
+  document.getElementById('btn-lock-personal')?.addEventListener('click', () => {
+    lockPersonalAccess();
+    window.location.hash = '#backlog';
+  });
 
   // Abrir Journal
   document.getElementById('btn-open-journal-modal')?.addEventListener('click', () => {
@@ -4858,6 +5018,7 @@ function handleRouting() {
   });
 
   if (hash.startsWith('#doc/')) {
+    lockPersonalAccess();
     state.activeView = 'doc';
     state.activeDocPath = hash.replace('#doc/', '');
     buildDocTree(); // Rebuild tree to show active state
@@ -4865,9 +5026,11 @@ function handleRouting() {
   } else if (hash.startsWith('#backlog')) {
     state.activeView = 'backlog';
     if (hash === '#backlog/zentry') {
+      lockPersonalAccess();
       state.backlogMode = 'zentry';
       document.body.setAttribute('data-module', 'zentry');
     } else if (hash === '#backlog/quarz') {
+      lockPersonalAccess();
       state.backlogMode = 'quarz';
       document.body.setAttribute('data-module', 'quarz');
     } else if (hash === '#backlog/personal-board') {
@@ -4877,9 +5040,11 @@ function handleRouting() {
       state.backlogMode = 'personal';
       document.body.setAttribute('data-module', 'quarz');
     } else if (hash === '#backlog/journal' || hash === '#backlog/global') {
+      lockPersonalAccess();
       state.backlogMode = 'journal';
       document.body.setAttribute('data-module', 'quarz');
     } else {
+      lockPersonalAccess();
       state.backlogMode = 'selection';
       document.body.setAttribute('data-module', 'quarz');
     }
@@ -4889,6 +5054,7 @@ function handleRouting() {
     buildDocTree(); // Clear tree highlights
     renderers.backlog();
   } else {
+    lockPersonalAccess();
     state.activeView = hash.replace('#', '');
     let navLink = document.querySelector(`.nav-link[data-view="${state.activeView}"]`);
     if (!navLink && (state.activeView === 'demo' || state.activeView === 'demobook' || state.activeView === 'precierres' || state.activeView === 'demofeatures')) {

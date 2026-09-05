@@ -1,4 +1,4 @@
-const CACHE_NAME = 'qz-hub-v2.0.0';
+const CACHE_NAME = 'qz-hub-v2.1.1-pin';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
