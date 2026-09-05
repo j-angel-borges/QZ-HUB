@@ -1,36 +1,41 @@
 // ==============================================================================
 // QZ HUB — Firebase Configuration
 // ==============================================================================
-// Project ID: qz-hub
+// Project ID: quarz-group
 // ==============================================================================
 
 import { initializeApp } from 'firebase/app';
-import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager
+} from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDW665aZqLsgW5FN9yez35Nj8_6weXDWAw",
-  authDomain: "qz-hub.firebaseapp.com",
-  projectId: "qz-hub",
-  storageBucket: "qz-hub.firebasestorage.app",
-  messagingSenderId: "779313034264",
-  appId: "1:779313034264:web:128bcdcfc5507706037f6d",
-  measurementId: "G-G2WV90X4MG"
+  apiKey: "AIzaSyBurwKhFJL5Dkt_f5R_FAJFdsIz0QhJBEo",
+  authDomain: "quarz-group.firebaseapp.com",
+  projectId: "quarz-group",
+  storageBucket: "quarz-group.firebasestorage.app",
+  messagingSenderId: "1065709368788",
+  appId: "1:1065709368788:web:dc0a0d9a84df766ddb1241"
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
-// Enable offline persistence so the PWA works without internet
+// Initialize Firestore with robust multi-tab offline cache and auto long polling for mobile/Brave shields
+let db;
 try {
-  enableIndexedDbPersistence(db).catch((err) => {
-    if (err.code === 'failed-precondition') {
-      console.warn('QZ Hub Firestore: Multiple tabs open, persistence active in primary tab.');
-    } else if (err.code === 'unimplemented') {
-      console.warn('QZ Hub Firestore: Browser does not support persistence.');
-    }
+  db = initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true,
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager()
+    })
   });
 } catch (e) {
-  console.warn('QZ Hub Firestore: Persistence setup completed.');
+  console.warn('Firestore fallback to standard initialization:', e);
+  db = initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true
+  });
 }
 
-export { db, app };
+export { db, app, firebaseConfig };

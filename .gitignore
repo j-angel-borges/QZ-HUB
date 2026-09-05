@@ -24,4 +24,8 @@ dist-ssr
 *.sw?
 
 .vercel
+.firebase
+live_browser_dump.json
 *.lnk
+
+

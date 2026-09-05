@@ -6,7 +6,7 @@
 // is synced in realtime across all devices.
 // ==============================================================================
 
-import { db } from './firebase-config.js';
+import { db, firebaseConfig } from './firebase-config.js';
 import {
   doc,
   getDoc,
@@ -44,9 +44,12 @@ export function gatherAllLocalData(stateTasks) {
       })();
   result.tasks = tasks;
 
-  // 2. M.I.T.
-  try { result.mit = JSON.parse(localStorage.getItem('zentry_mit') || '[]'); }
-  catch (e) { result.mit = []; }
+  // 2. M.I.T. (General and by Mode)
+  try { result.mit = JSON.parse(localStorage.getItem('zentry_mit') || '[]'); } catch (e) { result.mit = []; }
+  try { result.mit_personal = JSON.parse(localStorage.getItem('zentry_mit_personal') || 'null'); } catch (e) {}
+  try { result.mit_quarz = JSON.parse(localStorage.getItem('zentry_mit_quarz') || 'null'); } catch (e) {}
+  try { result.mit_zentry = JSON.parse(localStorage.getItem('zentry_mit_zentry') || 'null'); } catch (e) {}
+  try { result.mit_global = JSON.parse(localStorage.getItem('zentry_mit_global') || 'null'); } catch (e) {}
 
   // 3. Corkboard Objectives
   try { result.objectives = JSON.parse(localStorage.getItem('zentry_objectives') || '[]'); }
@@ -60,7 +63,11 @@ export function gatherAllLocalData(stateTasks) {
   try { result.journalHistory = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]'); }
   catch (e) { result.journalHistory = []; }
 
-  // 6. All individual timeblock date keys (zentry_timeblock_YYYY-MM-DD)
+  // 6. Bio-Tracker Gamificado (9 métricas)
+  try { result.bioTracker = JSON.parse(localStorage.getItem('qz_bio_tracker') || '{}'); }
+  catch (e) { result.bioTracker = {}; }
+
+  // 7. All individual timeblock date keys (zentry_timeblock_YYYY-MM-DD)
   const timeblocks = {};
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -76,12 +83,13 @@ export function gatherAllLocalData(stateTasks) {
   }
   result.timeblocks = timeblocks;
 
-  // 7. Settings / preferences
+  // 8. Settings / preferences
   result.settings = {
     sidebar_collapsed: localStorage.getItem('sidebar_collapsed') || 'false',
     gcal_gas_url: localStorage.getItem('gcal_gas_url') || '',
     gemini_api_key: localStorage.getItem('gemini_api_key') || '',
-    gemini_model: localStorage.getItem('gemini_model') || 'gemini-2.0-flash',
+    gemini_model: localStorage.getItem('gemini_model') || 'gemini-2.5-flash',
+    gemini_project_id: localStorage.getItem('gemini_project_id') || 'quarz-group'
   };
 
   return result;
@@ -120,22 +128,88 @@ export function pushToFirestoreDebounced(stateTasks) {
   }, 800);
 }
 
-// ─── PULL FROM FIRESTORE AND HYDRATE LOCALSTORAGE ────────────────────────────
-export async function pullFromFirestore() {
+// ─── DECODE FIRESTORE REST FORMAT TO PLAIN JAVASCRIPT OBJECT ────────────────
+function decodeFirestoreValue(val) {
+  if (!val) return null;
+  if ('stringValue' in val) return val.stringValue;
+  if ('booleanValue' in val) return val.booleanValue;
+  if ('integerValue' in val) return parseInt(val.integerValue, 10);
+  if ('doubleValue' in val) return parseFloat(val.doubleValue);
+  if ('timestampValue' in val) return val.timestampValue;
+  if ('nullValue' in val) return null;
+  if ('arrayValue' in val) return (val.arrayValue.values || []).map(decodeFirestoreValue);
+  if ('mapValue' in val) {
+    const res = {};
+    for (const [k, v] of Object.entries(val.mapValue.fields || {})) {
+      res[k] = decodeFirestoreValue(v);
+    }
+    return res;
+  }
+  return val;
+}
+
+// ─── REST-BASED CLOUD DATA PULL (IMMUNE TO BROWSER SHIELDS / WEBSOCKET BLOCKS)
+export async function pullFromFirestoreREST() {
   try {
-    const snap = await getDoc(masterDocRef());
-    if (!snap.exists()) {
-      console.log('🔥 QZ Hub ← Firestore: No cloud data yet.');
+    const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/${COLLECTION}/${USER_DOC_ID}?key=${firebaseConfig.apiKey}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      console.warn(`🔥 Firestore REST fetch returned HTTP ${res.status}`);
       return null;
     }
+    const json = await res.json();
+    if (!json.fields) return null;
 
-    const data = snap.data();
+    const data = {};
+    for (const [k, v] of Object.entries(json.fields)) {
+      data[k] = decodeFirestoreValue(v);
+    }
+    console.log('⚡ QZ Hub ← Firestore REST: Ultra-fast sync successful', {
+      tasks: data.tasks?.length || 0,
+      timeblockDates: Object.keys(data.timeblocks || {}).length
+    });
     hydrateLocalStorage(data);
     return data;
   } catch (err) {
-    console.error('🔥 QZ Hub ← Firestore pull error:', err);
-    throw err;
+    console.warn('🔥 Firestore REST pull fallback caught error:', err);
+    return null;
   }
+}
+
+// ─── HYBRID CLOUD DATA PULL: SDK WITH FAST REST FALLBACK ─────────────────────
+export async function pullFromFirestore() {
+  // 1. Race Firestore SDK against a 2000ms timeout
+  const sdkPromise = getDoc(masterDocRef()).then(snap => {
+    if (!snap.exists()) return null;
+    const data = snap.data();
+    hydrateLocalStorage(data);
+    return data;
+  });
+
+  const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve('__TIMEOUT__'), 2000));
+
+  try {
+    const result = await Promise.race([sdkPromise, timeoutPromise]);
+    if (result !== '__TIMEOUT__' && result !== null) {
+      return result;
+    }
+  } catch (err) {
+    console.warn('Firestore SDK pull delayed or offline, activating REST fast engine...', err);
+  }
+
+  // 2. Fast REST fallback
+  const restData = await pullFromFirestoreREST();
+  if (restData) {
+    return restData;
+  }
+
+  // 3. Last resort: wait for SDK in case REST had network issues
+  try {
+    const snap = await sdkPromise;
+    if (snap && typeof snap === 'object') return snap;
+  } catch(e) {}
+
+  return null;
 }
 
 // ─── HYDRATE LOCALSTORAGE FROM FIRESTORE DATA ────────────────────────────────
@@ -150,6 +224,23 @@ export function hydrateLocalStorage(data) {
   // M.I.T.
   if (Array.isArray(data.mit) && data.mit.length > 0) {
     localStorage.setItem('zentry_mit', JSON.stringify(data.mit));
+  }
+  if (Array.isArray(data.mit_personal)) {
+    localStorage.setItem('zentry_mit_personal', JSON.stringify(data.mit_personal));
+  }
+  if (Array.isArray(data.mit_quarz)) {
+    localStorage.setItem('zentry_mit_quarz', JSON.stringify(data.mit_quarz));
+  }
+  if (Array.isArray(data.mit_zentry)) {
+    localStorage.setItem('zentry_mit_zentry', JSON.stringify(data.mit_zentry));
+  }
+  if (Array.isArray(data.mit_global)) {
+    localStorage.setItem('zentry_mit_global', JSON.stringify(data.mit_global));
+  }
+
+  // Bio-Tracker
+  if (data.bioTracker && typeof data.bioTracker === 'object' && Object.keys(data.bioTracker).length > 0) {
+    localStorage.setItem('qz_bio_tracker', JSON.stringify(data.bioTracker));
   }
 
   // Corkboard Objectives
@@ -176,8 +267,11 @@ export function hydrateLocalStorage(data) {
   // Individual Timeblocks per date
   if (data.timeblocks && typeof data.timeblocks === 'object') {
     for (const [dateStr, blocks] of Object.entries(data.timeblocks)) {
-      if (blocks && Object.keys(blocks).length > 0) {
-        const localBlocks = JSON.parse(localStorage.getItem(`zentry_timeblock_${dateStr}`) || '{}');
+      if (blocks && typeof blocks === 'object' && Object.keys(blocks).length > 0) {
+        let localBlocks = {};
+        try {
+          localBlocks = JSON.parse(localStorage.getItem(`zentry_timeblock_${dateStr}`) || '{}');
+        } catch (e) { localBlocks = {}; }
         const merged = Object.assign({}, blocks, localBlocks);
         localStorage.setItem(`zentry_timeblock_${dateStr}`, JSON.stringify(merged));
       }
@@ -190,6 +284,7 @@ export function hydrateLocalStorage(data) {
     if (data.settings.gcal_gas_url) localStorage.setItem('gcal_gas_url', data.settings.gcal_gas_url);
     if (data.settings.gemini_api_key) localStorage.setItem('gemini_api_key', data.settings.gemini_api_key);
     if (data.settings.gemini_model) localStorage.setItem('gemini_model', data.settings.gemini_model);
+    if (data.settings.gemini_project_id) localStorage.setItem('gemini_project_id', data.settings.gemini_project_id);
   }
 }
 
@@ -249,6 +344,9 @@ export async function bootstrapFirestoreSync(stateTasks, onDataUpdate) {
 
     startRealtimeSync(onDataUpdate);
     console.log('🔥 QZ Hub Firestore: Bootstrap complete — realtime sync active.');
+    if (onDataUpdate && cloudData) {
+      onDataUpdate(cloudData);
+    }
   } catch(e) {
     console.warn('Bootstrap Firestore sync completed with warning:', e);
   }
@@ -266,14 +364,29 @@ export async function syncTasks(tasks) {
   }
 }
 
-export async function syncMIT(mit) {
+export async function syncMIT(mit, mode = 'quarz') {
+  try {
+    const payload = {
+      mit: mit,
+      updatedAt: new Date().toISOString()
+    };
+    if (mode) payload[`mit_${mode}`] = mit;
+    await updateDoc(masterDocRef(), payload);
+  } catch (err) {
+    const setPayload = { mit, updatedAt: new Date().toISOString() };
+    if (mode) setPayload[`mit_${mode}`] = mit;
+    await setDoc(masterDocRef(), setPayload, { merge: true });
+  }
+}
+
+export async function syncHabitTracker(trackerData) {
   try {
     await updateDoc(masterDocRef(), {
-      mit: mit,
+      bioTracker: trackerData,
       updatedAt: new Date().toISOString()
     });
   } catch (err) {
-    await setDoc(masterDocRef(), { mit, updatedAt: new Date().toISOString() }, { merge: true });
+    await setDoc(masterDocRef(), { bioTracker: trackerData, updatedAt: new Date().toISOString() }, { merge: true });
   }
 }
 

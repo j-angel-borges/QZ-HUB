@@ -34,6 +34,7 @@ import {
   pushAllToFirestore,
   syncTasks,
   syncMIT,
+  syncHabitTracker,
   syncObjectives,
   syncTimeblock,
   syncTimeblockHistory,
@@ -111,8 +112,8 @@ bootstrapFirestoreSync(state.tasks, (cloudData) => {
   if (cloudData && Array.isArray(cloudData.tasks) && cloudData.tasks.length > 0) {
     state.tasks = cloudData.tasks;
   }
-  // Trigger re-render if on backlog view
-  if (state.activeView === 'backlog') {
+  // Trigger re-render if on backlog or related view
+  if (state.activeView === 'backlog' || state.activeView === 'journal') {
     if (typeof renderers !== 'undefined' && renderers.backlog) renderers.backlog();
   }
 });
@@ -153,10 +154,11 @@ function getMITData() {
 }
 
 function saveMITData(mit) {
+  const mode = state.backlogMode || 'quarz';
   const key = getMITStorageKey();
   localStorage.setItem(key, JSON.stringify(mit));
   localStorage.setItem('zentry_mit', JSON.stringify(mit));
-  syncMIT(mit);
+  syncMIT(mit, mode);
 }
 
 function getCorkboardObjectives() {
@@ -1044,6 +1046,7 @@ function getHabitTrackerData() {
 
 function saveHabitTrackerData(data) {
   localStorage.setItem('qz_bio_tracker', JSON.stringify(data));
+  syncHabitTracker(data);
 }
 
 function resetHabitTrackerDefaults() {

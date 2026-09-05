@@ -1,5 +1,12 @@
 {
   "version": 2,
   "cleanUrls": true,
-  "framework": "vite"
+  "framework": "vite",
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination": "https://qz-hub-app.web.app/$1",
+      "permanent": true
+    }
+  ]
 }
