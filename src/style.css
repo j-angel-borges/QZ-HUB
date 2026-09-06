@@ -3835,9 +3835,35 @@ body:not([data-module="zentry"]) .timeblock-text {
 }
 
 /* Global Board Banner styling */
+.global-board-card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .global-board-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   border-color: #b89c50 !important;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.22) !important;
+}
+
+.global-board-card:hover .btn-global-enter {
+  background: #d4af37 !important;
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.35) !important;
+}
+
+@media (max-width: 768px) {
+  .global-board-card {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 16px !important;
+    padding: 20px 16px !important;
+  }
+  .global-board-card > div {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+  .global-board-card .btn-global-enter {
+    width: 100% !important;
+  }
 }
 
 /* ==============================================================================

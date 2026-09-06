@@ -142,6 +142,11 @@ function getMITData() {
       { text: 'Cumplir bloque de ayuno y protocolo circadiano de energía', checked: false },
       { text: 'Realizar caminata activa de 45 min + calistenia', checked: false },
       { text: 'Completar 40 llamadas breves Royal Prestige', checked: false }
+    ],
+    global: [
+      { text: 'Sincronizar métricas clave de holding QUARZ y ZentryOS', checked: false },
+      { text: 'Completar bloque diario de prospección y ventas', checked: false },
+      { text: 'Supervisar arquitectura técnica y despliegues en producción', checked: false }
     ]
   };
   
@@ -1526,6 +1531,25 @@ const renderers = {
 
           </div>
 
+        </div>
+
+        <!-- BANNER INFERIOR: TABLERO GLOBAL (CONSOLIDADO) -->
+        <div class="global-board-banner-wrapper" style="max-width: 1040px; margin: -10px auto 40px auto; padding: 0 4px;">
+          <a href="#backlog/global" class="global-board-card" style="display: flex; align-items: center; justify-content: space-between; width: 100%; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 20px 28px; border-radius: 12px; text-decoration: none; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 8px 30px rgba(15,23,42,0.14); transition: all 0.25s ease;">
+            <div style="display: flex; align-items: center; gap: 18px; text-align: left;">
+              <div style="width: 48px; height: 48px; border-radius: 10px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.12);">
+                🌐
+              </div>
+              <div>
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                  <h3 style="color: #ffffff; margin: 0; font-size: 1.15rem; font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: 0.4px;">TABLERO GLOBAL</h3>
+                  <span style="background: rgba(184, 156, 80, 0.2); color: #d4af37; border: 1px solid rgba(184, 156, 80, 0.4); font-size: 10.5px; font-weight: 700; font-family: 'Space Mono', monospace; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">Todas las Unidades</span>
+                </div>
+                <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 0.85rem; line-height: 1.4;">Vista consolidada con todas las tareas de Quarz, Zentry, Personal y Ecosistema Creativo en un único Kanban.</p>
+              </div>
+            </div>
+            <button type="button" class="btn-global-enter" style="background: #b89c50; color: #0f172a; border: none; padding: 11px 22px; border-radius: 6px; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: all 0.2s; box-shadow: 0 4px 12px rgba(184, 156, 80, 0.25);">Abrir Tablero Global ➔</button>
+          </a>
         </div>
       `;
 
@@ -5123,9 +5147,13 @@ function handleRouting() {
     } else if (hash === '#backlog/personal') {
       state.backlogMode = 'personal';
       document.body.setAttribute('data-module', 'quarz');
-    } else if (hash === '#backlog/journal' || hash === '#backlog/global') {
+    } else if (hash === '#backlog/journal') {
       lockPersonalAccess();
       state.backlogMode = 'journal';
+      document.body.setAttribute('data-module', 'quarz');
+    } else if (hash === '#backlog/global') {
+      lockPersonalAccess();
+      state.backlogMode = 'global';
       document.body.setAttribute('data-module', 'quarz');
     } else {
       lockPersonalAccess();
