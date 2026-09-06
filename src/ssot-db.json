@@ -593,124 +593,282 @@
   ],
   "tasks": [
     {
-      "id": "TEC-01",
+      "assignedTo": "UX/Dev Lead",
       "description": "Diseñar barra de tiempo superpuesta (Timer UI Overlay) en Jetpack Compose",
-      "status": "En curso",
-      "priority": "Alta",
       "origin": "ZENTRY SPOT (1)",
-      "assignedTo": "UX/Dev Lead"
+      "priority": "Alta",
+      "status": "En curso",
+      "id": "TEC-01"
     },
     {
-      "id": "TEC-02",
+      "priority": "Alta",
       "description": "Implementar lógica de límites de tiempo dinámicos basados en ciclo circadiano",
-      "status": "En curso",
-      "priority": "Alta",
+      "assignedTo": "Backend Dev",
+      "id": "TEC-02",
       "origin": "ZENTRY SPOT (1)",
-      "assignedTo": "Backend Dev"
+      "status": "En curso"
     },
     {
+      "assignedTo": "Android Dev",
       "id": "TEC-03",
       "description": "Configurar activaciones automáticas del sistema (Luz Nocturna / Night Mode automático)",
       "status": "En curso",
       "priority": "Media",
-      "origin": "ZENTRY SPOT (1)",
-      "assignedTo": "Android Dev"
+      "origin": "ZENTRY SPOT (1)"
     },
     {
-      "id": "TEC-04",
+      "status": "Pendiente",
       "description": "Diseñar API y arquitectura de \"Inteligencia Matriz\" en GCP para vincular TV/Tablet/Móvil",
-      "status": "Pendiente",
+      "assignedTo": "Jose Angel",
+      "id": "TEC-04",
+      "origin": "Zentry",
       "priority": "Alta",
-      "origin": "Ecosistema Creativo",
-      "assignedTo": "Cloud Architect"
+      "deadline": null
     },
     {
+      "origin": "Zentry",
+      "priority": "Media",
+      "assignedTo": "Jose Angel",
       "id": "TEC-05",
-      "description": "Diseñar formulario interactivo de Onboarding para edad y gustos del menor",
+      "deadline": null,
       "status": "Pendiente",
-      "priority": "Media",
-      "origin": "ZENTRY SPOT (4)",
-      "assignedTo": "Frontend Dev"
+      "description": "Diseñar formulario interactivo de Onboarding para edad y gustos del menor"
     },
     {
-      "id": "TEC-06",
-      "description": "Desarrollar motor de Reporte Pedagógico IA para padres (Psicólogo cognitivo en GCP)",
-      "status": "Pendiente",
       "priority": "Alta",
-      "origin": "Ecosistema Creativo",
-      "assignedTo": "AI Engineer"
-    },
-    {
-      "id": "PROD-01",
-      "description": "Estudiar lineamientos pediátricos y pedagógicos para justificar límites circadianos",
+      "description": "Desarrollar motor de Reporte Pedagógico IA para padres (Psicólogo cognitivo en GCP)",
+      "deadline": null,
+      "id": "TEC-06",
+      "assignedTo": "Jose Angel",
       "status": "Pendiente",
-      "priority": "Media",
-      "origin": "ZENTRY SPOT (1)",
-      "assignedTo": "Product Owner"
+      "origin": "Zentry"
     },
     {
-      "id": "PROD-02",
-      "description": "Definir especificaciones para la oferta de bajo ticket Zentry Mini (Bebés/Toddlers)",
+      "origin": "Zentry",
+      "priority": "Media",
+      "deadline": null,
+      "status": "Pendiente",
+      "assignedTo": "Jose Angel",
+      "id": "PROD-01",
+      "description": "Estudiar lineamientos pediátricos y pedagógicos para justificar límites circadianos"
+    },
+    {
+      "origin": "Zentry",
       "status": "Pendiente",
       "priority": "Baja",
-      "origin": "ZENTRY SPOT (3)",
-      "assignedTo": "Product Manager"
+      "deadline": null,
+      "id": "PROD-02",
+      "assignedTo": "Jose Angel",
+      "description": "Definir especificaciones para la oferta de bajo ticket Zentry Mini (Bebés/Toddlers)"
     },
     {
+      "priority": "Alta",
+      "deadline": null,
+      "assignedTo": "Jose Angel",
+      "origin": "Zentry",
+      "status": "Pendiente",
       "id": "PROD-03",
-      "description": "Integración del control parental de YouTube (Restricted Mode / YouTube Kids) según edad",
-      "status": "Pendiente",
-      "priority": "Alta",
-      "origin": "ZENTRY SPOT (4)",
-      "assignedTo": "Integration Dev"
+      "description": "Integración del control parental de YouTube (Restricted Mode / YouTube Kids) según edad"
     },
     {
+      "origin": "Zentry",
       "id": "PROD-04",
+      "status": "Pendiente",
+      "deadline": null,
+      "assignedTo": "Jose Angel",
       "description": "Crear guion de retos y dinámicas físicas guiadas por voz (ej. fútbol con Cristiano Ronaldo)",
-      "status": "Pendiente",
-      "priority": "Media",
-      "origin": "Ecosistema Creativo",
-      "assignedTo": "Content Designer"
+      "priority": "Media"
     },
     {
-      "id": "MKT-01",
-      "description": "Redactar sección comparativa detallada: \"ZentryOS vs. Control Parental Tradicional\"",
-      "status": "Pendiente",
-      "priority": "Alta",
       "origin": "ZENTRY Spot (2)",
-      "assignedTo": "Copywriter / Ventas"
+      "status": "Pendiente",
+      "priority": "Alta",
+      "assignedTo": "Copywriter / Ventas",
+      "id": "MKT-01",
+      "description": "Redactar sección comparativa detallada: \"ZentryOS vs. Control Parental Tradicional\""
     },
     {
-      "id": "MKT-02",
       "description": "Redactar guion del Precierre 1: \"Excel y el Costo de Personalización de Software\"",
+      "assignedTo": "Jose Angel",
       "status": "Pendiente",
+      "origin": "Zentry",
       "priority": "Alta",
-      "origin": "ZENTRY PRECIERRE (1)",
-      "assignedTo": "Sales Manager"
+      "id": "MKT-02",
+      "deadline": null
     },
     {
-      "id": "MKT-03",
-      "description": "Redactar guion del Precierre 2: \"Juego Matemático de Inversión de OS Móvil\"",
-      "status": "Pendiente",
       "priority": "Alta",
-      "origin": "ZENTRY PRECIERRE (2)",
-      "assignedTo": "Sales Manager"
+      "assignedTo": "Jose Angel",
+      "deadline": null,
+      "status": "Pendiente",
+      "description": "Redactar guion del Precierre 2: \"Juego Matemático de Inversión de OS Móvil\"",
+      "id": "MKT-03",
+      "origin": "Zentry"
     },
     {
       "id": "MKT-04",
       "description": "Desarrollar analogía de ventas \"Máquina del cuerpo humano y cerebro inteligente\"",
+      "deadline": null,
       "status": "Pendiente",
       "priority": "Media",
-      "origin": "ZENTRY PRECIERRE (2)",
-      "assignedTo": "Sales Trainer"
+      "origin": "Zentry",
+      "assignedTo": "Jose Angel"
     },
     {
+      "deadline": null,
       "id": "MKT-05",
-      "description": "Diseñar calculadora de costo de OS familiar en Google Sheets para uso de los asesores",
       "status": "Pendiente",
       "priority": "Alta",
-      "origin": "ZENTRY PRECIERRE (2)",
-      "assignedTo": "Operations Lead"
+      "origin": "Zentry",
+      "assignedTo": "Jose Angel",
+      "description": "Diseñar calculadora de costo de OS familiar en Google Sheets para uso de los asesores"
+    },
+    {
+      "id": "TASK-01",
+      "description": "Context Engineering de EPP",
+      "priority": "Media",
+      "assignedTo": "Jose Angel",
+      "deadline": {
+        "type": "range",
+        "startDate": "2026-08-16",
+        "startTime": "",
+        "endDate": "2026-08-18",
+        "endTime": ""
+      },
+      "origin": "Personal",
+      "status": "En curso"
+    },
+    {
+      "priority": "Alta",
+      "assignedTo": "Jose Angel",
+      "deadline": {
+        "singleTime": "23:00",
+        "singleDate": "2026-08-18",
+        "type": "single"
+      },
+      "id": "TASK-02",
+      "description": "Referencial de precio en venezuela para bragas ignifigugas, botas, de seguridad y guantes, precio de venta a empresas petroleras",
+      "status": "En curso",
+      "origin": "Personal"
+    },
+    {
+      "id": "TASK-03",
+      "origin": "Personal",
+      "assignedTo": "Jose Angel",
+      "priority": "Media",
+      "status": "Completado",
+      "description": "Implementar lógica con canchas single para papi ranking en padel center",
+      "deadline": {
+        "singleDate": "2026-08-17",
+        "type": "single",
+        "singleTime": "19:00"
+      }
+    },
+    {
+      "priority": "Alta",
+      "assignedTo": "Jose Angel",
+      "deadline": null,
+      "description": "Investigación de Productos Fisicos Tech que puedan presentarse en un programa 4/14 o adicionales a las compras (Bandas, Alexas, Lentes tech) y como brandear desde afuera hasta dentro",
+      "origin": "Zentry",
+      "id": "TASK-04",
+      "status": "Pendiente"
+    },
+    {
+      "priority": "Media",
+      "id": "TASK-05",
+      "deadline": null,
+      "assignedTo": "Jose Angel",
+      "origin": "Zentry",
+      "status": "Pendiente",
+      "description": "Escalar ZentryOS a nivel global puede empezar en noches en calle de las pizzas ya van 2 veces en las que facilmente conecto con gente europea de mi edad. Y si esta gente fuera la puerta a mercados con capital suficiente para escalar Zentry Worldwide ? \n\nHACER UN PLAN DE EJECUCIÓN para conseguirlo"
+    },
+    {
+      "origin": "Zentry",
+      "assignedTo": "Jose Angel",
+      "priority": "Alta",
+      "deadline": null,
+      "status": "Pendiente",
+      "id": "TASK-06",
+      "description": "La pwa debe servir para padres que le dan sus cels a niños para que usen Zentry"
+    },
+    {
+      "status": "Completado",
+      "description": "Si te pagara un millon moririas mañana ? \nHacer PreCierre",
+      "origin": "Zentry",
+      "priority": "Alta",
+      "assignedTo": "Jose Angel",
+      "id": "TASK-07",
+      "deadline": {
+        "singleDate": "2026-08-24",
+        "singleTime": "07:05",
+        "type": "single"
+      }
+    },
+    {
+      "id": "TASK-08",
+      "description": "Precierre: Como se dan cuenta los adultos tambien somos susceptibles, ahora bien... considera que los profesores que su hijo escucha en la escuela entienden a profundidad esta problematica ?",
+      "priority": "Media",
+      "status": "Pendiente",
+      "assignedTo": "Jose Angel",
+      "origin": "Zentry",
+      "deadline": null
+    },
+    {
+      "id": "TASK-09",
+      "description": "Alcanzar Facturacion y Equipo para comprar una Van y tunearla de Lujo para transporte: \n\nFoton / GAC",
+      "priority": "Baja",
+      "status": "Pendiente",
+      "assignedTo": "Jose Angel",
+      "origin": "Quarz",
+      "deadline": null
+    },
+    {
+      "id": "TASK-10",
+      "description": "Alcanzar 1M de facturacion con 55% de Margen Neto y comprar Casa/Oficina en San Borja: \n\nhttps://urbania.pe/inmueble/clasificado/veclcain-venta-de-casa-en-san-borja-lima-4-dormitorios-148111871?n_src=Listado&n_pills=Parrilla&n_pg=1&n_pos=2&n_search_id=307d6e5a-4193-4bf2-ae2d-8f6f69492b24\n\nOficinas Quarz Group 2027",
+      "priority": "Media",
+      "status": "Pendiente",
+      "assignedTo": "Jose Angel",
+      "origin": "Quarz",
+      "deadline": null
+    },
+    {
+      "id": "TASK-11",
+      "description": "Contenido audiovisual para seguimiento o TOF en Whatsapp",
+      "priority": "Alta",
+      "status": "En curso",
+      "assignedTo": "Jose Angel",
+      "origin": "Zentry",
+      "deadline": {
+        "type": "single",
+        "singleDate": "2026-09-02",
+        "singleTime": ""
+      }
+    },
+    {
+      "id": "TASK-12",
+      "description": "Feature: Demostrar como Zentry pasa de consumo a creacion (de shorts a crear)",
+      "priority": "Alta",
+      "status": "En curso",
+      "assignedTo": "Jose Angel",
+      "origin": "Zentry",
+      "deadline": {
+        "type": "single",
+        "singleDate": "2026-09-02",
+        "singleTime": ""
+      }
+    },
+    {
+      "id": "TASK-13",
+      "description": "QZ HUB: Integrar interconexion entre backlog y tableros para que al colocar rangos o fechas automaticamente se cargue en las diferentes secciones",
+      "priority": "Alta",
+      "status": "Pendiente",
+      "assignedTo": "Jose Angel",
+      "origin": "Quarz",
+      "deadline": {
+        "type": "single",
+        "singleDate": "2026-09-02",
+        "singleTime": ""
+      }
     }
   ],
   "ideas": [

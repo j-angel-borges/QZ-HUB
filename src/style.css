@@ -3834,34 +3834,81 @@ body:not([data-module="zentry"]) .timeblock-text {
   color: #0f172a !important;
 }
 
-/* Global Board Banner styling */
+/* Global Board Banner styling (Consistent with White / Clean Cards Palette) */
 .global-board-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 16px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
 .global-board-card:hover {
-  transform: translateY(-3px);
-  border-color: #b89c50 !important;
-  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.22) !important;
+  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.global-board-card-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+}
+
+.global-board-badge {
+  background: rgba(83, 59, 135, 0.08);
+  color: #533B87;
+  border: 1px solid rgba(83, 59, 135, 0.18);
+  font-size: 10.5px;
+  font-weight: 700;
+  font-family: 'Space Mono', monospace;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.btn-global-enter {
+  background: #111111;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 20px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  flex-shrink: 0;
 }
 
 .global-board-card:hover .btn-global-enter {
-  background: #d4af37 !important;
-  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.35) !important;
+  background: #000000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 @media (max-width: 768px) {
   .global-board-card {
     flex-direction: column !important;
     text-align: center !important;
-    gap: 16px !important;
-    padding: 20px 16px !important;
+    gap: 14px !important;
+    padding: 16px 14px !important;
   }
-  .global-board-card > div {
+  .global-board-card-left {
     flex-direction: column !important;
     text-align: center !important;
+    gap: 10px !important;
   }
-  .global-board-card .btn-global-enter {
+  .btn-global-enter {
     width: 100% !important;
   }
 }

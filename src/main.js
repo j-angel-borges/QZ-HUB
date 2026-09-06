@@ -84,13 +84,14 @@ function initTasks() {
   const stored = localStorage.getItem('zentry_tasks');
   if (stored) {
     try {
-      state.tasks = JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      state.tasks = (Array.isArray(parsed) && parsed.length >= db.tasks.length) ? parsed : JSON.parse(JSON.stringify(db.tasks));
     } catch (e) {
       state.tasks = JSON.parse(JSON.stringify(db.tasks));
     }
   } else {
     state.tasks = JSON.parse(JSON.stringify(db.tasks));
-    localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks)); syncTasks(state.tasks);
+    localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks));
   }
 }
 
@@ -111,6 +112,7 @@ bootstrapFirestoreSync(state.tasks, (cloudData) => {
   // Re-hydrate state from cloud updates received from other devices
   if (cloudData && Array.isArray(cloudData.tasks) && cloudData.tasks.length > 0) {
     state.tasks = cloudData.tasks;
+    localStorage.setItem('zentry_tasks', JSON.stringify(cloudData.tasks));
   }
   // Trigger re-render if on backlog or related view
   if (state.activeView === 'backlog' || state.activeView === 'journal') {
@@ -1533,22 +1535,22 @@ const renderers = {
 
         </div>
 
-        <!-- BANNER INFERIOR: TABLERO GLOBAL (CONSOLIDADO) -->
-        <div class="global-board-banner-wrapper" style="max-width: 1040px; margin: -10px auto 40px auto; padding: 0 4px;">
-          <a href="#backlog/global" class="global-board-card" style="display: flex; align-items: center; justify-content: space-between; width: 100%; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 20px 28px; border-radius: 12px; text-decoration: none; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 8px 30px rgba(15,23,42,0.14); transition: all 0.25s ease;">
-            <div style="display: flex; align-items: center; gap: 18px; text-align: left;">
-              <div style="width: 48px; height: 48px; border-radius: 10px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.12);">
-                🌐
+        <!-- BANNER INFERIOR: TABLERO GLOBAL (CONSOLIDADO - COLORIMETRÍA ARMONIOSA WHITE/GLASS) -->
+        <div class="global-board-banner-wrapper" style="max-width: 1040px; margin: 0 auto 40px auto; padding: 0 4px;">
+          <a href="#backlog/global" class="global-board-card">
+            <div class="global-board-card-left">
+              <div class="unit-card-icon-box" style="margin-bottom: 0; width: 56px; height: 56px; flex-shrink: 0;">
+                <span class="unit-global-icon" style="font-size: 28px;">🌐</span>
               </div>
-              <div>
+              <div class="global-board-card-text">
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                  <h3 style="color: #ffffff; margin: 0; font-size: 1.15rem; font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: 0.4px;">TABLERO GLOBAL</h3>
-                  <span style="background: rgba(184, 156, 80, 0.2); color: #d4af37; border: 1px solid rgba(184, 156, 80, 0.4); font-size: 10.5px; font-weight: 700; font-family: 'Space Mono', monospace; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">Todas las Unidades</span>
+                  <h4 class="unit-card-title" style="margin: 0; font-size: 14.5px;">TABLERO GLOBAL</h4>
+                  <span class="global-board-badge">Todas las Unidades</span>
                 </div>
-                <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 0.85rem; line-height: 1.4;">Vista consolidada con todas las tareas de Quarz, Zentry, Personal y Ecosistema Creativo en un único Kanban.</p>
+                <p class="unit-card-desc" style="margin: 4px 0 0 0; font-size: 12px;">Vista consolidada con todas las tareas y objetivos combinados de Quarz, Zentry, Personal y Ecosistema Creativo.</p>
               </div>
             </div>
-            <button type="button" class="btn-global-enter" style="background: #b89c50; color: #0f172a; border: none; padding: 11px 22px; border-radius: 6px; font-family: 'Space Mono', monospace; font-weight: 700; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: all 0.2s; box-shadow: 0 4px 12px rgba(184, 156, 80, 0.25);">Abrir Tablero Global ➔</button>
+            <button type="button" class="btn-global-enter">Entrar a Global</button>
           </a>
         </div>
       `;
