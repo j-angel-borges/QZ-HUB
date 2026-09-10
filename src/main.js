@@ -29,6 +29,11 @@ import { manifestMarkdown, circadianoMarkdown, metricasMarkdown, dispositivosDat
 import './style.css';
 import db from './ssot-db.json';
 import {
+  renderProtocoloPreviewHTML,
+  renderProtocolo30DiasFullPage,
+  setupProtocoloEvents
+} from './protocolo-30dias.js';
+import {
   bootstrapFirestoreSync,
   pushToFirestoreDebounced,
   pushAllToFirestore,
@@ -1025,6 +1030,62 @@ function renderBacklogCalendar() {
 // BIO-TRACKER & PROTOCOLO CUÁNTICO GAMIFICADO (9 MÉTRICAS DE DISCIPLINA)
 // ==============================================================================
 
+const PROTOCOLS_STORAGE_KEY = 'qz_bio_protocols_history';
+
+function getDefaultProtocolsData() {
+  return {
+    activeId: 'pre-elrow',
+    viewingId: 'pre-elrow',
+    protocols: [
+      {
+        id: 'sobriedad-80d',
+        name: 'Protocolo de Sobriedad (80 Días)',
+        shortName: 'Sobriedad 80D',
+        status: 'completado',
+        dates: '15 Jun 2026 – 03 Sep 2026',
+        durationLabel: '80 Días',
+        summary: '80 días sobrio (100%) • 20d sin eyacular (Récord) • 36d sin PMO',
+        metrics: {
+          ay: { daysSince: 51, h24: 1, h48: 0, h72: 0 },
+          lec: { daysSince: 7, daysRead: 7, daysMissed: 0, lastPages: 25 },
+          am: { slot5to6: 1, slot6to7: 3, missed: 2 },
+          z: { daysClean: 0, daysConsumed: 1 },
+          fri: { coldDays: 15, missedDays: 31 },
+          ik: { doneDays: 11, missedDays: 15 },
+          a: { cleanDays: 80, targetDays: 80, missedDays: 0 },
+          e: { retentionDays: 20, ejaculations: 0, pornFreeDays: 36 },
+          s: { days: 12 }
+        }
+      },
+      {
+        id: 'pre-elrow',
+        name: 'Protocolo Pre-Elrow',
+        shortName: 'Pre-Elrow',
+        status: 'en_curso',
+        dates: '10 Sep 2026 – Presente (hacia Elrow)',
+        durationLabel: '30 Días',
+        summary: 'Protocolo activo: disciplina biológica, prospección presencial y cierres',
+        metrics: null
+      }
+    ]
+  };
+}
+
+function getProtocolsData() {
+  try {
+    const stored = localStorage.getItem(PROTOCOLS_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return { ...getDefaultProtocolsData(), ...parsed };
+    }
+  } catch (e) {}
+  return getDefaultProtocolsData();
+}
+
+function saveProtocolsData(data) {
+  localStorage.setItem(PROTOCOLS_STORAGE_KEY, JSON.stringify(data));
+}
+
 function getDefaultHabitTrackerData() {
   return {
     ay: { daysSince: 51, h24: 1, h48: 0, h72: 0 },
@@ -1063,116 +1124,194 @@ function resetHabitTrackerDefaults() {
 }
 
 function renderHabitTrackerHTML(tData) {
-  const friTotal = tData.fri.coldDays + tData.fri.missedDays;
-  const friPercent = friTotal > 0 ? Math.round((tData.fri.coldDays / friTotal) * 100) : 0;
+  const pData = getProtocolsData();
+  const viewingId = pData.viewingId || 'pre-elrow';
+  const currentProto = pData.protocols.find(p => p.id === viewingId) || pData.protocols[1];
+  const isHistorical = currentProto.status === 'completado';
+  const activeData = isHistorical ? currentProto.metrics : tData;
+
+  const friTotal = activeData.fri.coldDays + activeData.fri.missedDays;
+  const friPercent = friTotal > 0 ? Math.round((activeData.fri.coldDays / friTotal) * 100) : 0;
   
-  const ikTotal = tData.ik.doneDays + tData.ik.missedDays;
-  const ikPercent = ikTotal > 0 ? Math.round((tData.ik.doneDays / ikTotal) * 100) : 0;
+  const ikTotal = activeData.ik.doneDays + activeData.ik.missedDays;
+  const ikPercent = ikTotal > 0 ? Math.round((activeData.ik.doneDays / ikTotal) * 100) : 0;
   
-  const aPercent = tData.a.targetDays > 0 ? Math.min(100, Math.round((tData.a.cleanDays / tData.a.targetDays) * 100)) : 100;
-  const aRemaining = Math.max(0, tData.a.targetDays - tData.a.cleanDays);
+  const aPercent = activeData.a.targetDays > 0 ? Math.min(100, Math.round((activeData.a.cleanDays / activeData.a.targetDays) * 100)) : 100;
+  const aRemaining = Math.max(0, activeData.a.targetDays - activeData.a.cleanDays);
 
   return `
-    <div class="backlog-tracker-card" id="backlog-tracker-widget">
+    <div class="backlog-tracker-card ${isHistorical ? 'historical-mode' : ''}" id="backlog-tracker-widget">
+      <!-- HEADER CON PROTOCOL SELECTOR Y SVG ICONS -->
       <div class="tracker-card-header">
         <div class="tracker-title-group">
-          <span class="tracker-icon">🧬</span>
+          <div class="tracker-icon-svg-wrap">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tracker-svg-dna">
+              <path d="M2 15c6.667-6 13.333 0 20-6"></path>
+              <path d="M2 9c6.667 6 13.333 0 20 6"></path>
+              <path d="M7 11.5v1"></path>
+              <path d="M12 9v6"></path>
+              <path d="M17 11.5v1"></path>
+            </svg>
+          </div>
           <div>
             <h4 class="tracker-card-title">BIO-TRACKER GAMIFICADO</h4>
-            <span class="tracker-card-subtitle">Protocolo de Disciplina y Rendimiento</span>
+            <span class="tracker-card-subtitle">${currentProto.name}</span>
           </div>
         </div>
-        <button type="button" class="btn-tracker-config" id="btn-open-tracker-config" title="Configurar métricas y cifras">⚙️</button>
+
+        <div class="tracker-header-actions">
+          <!-- RECUADRO CON ICONO DE RELOJ: HISTORIAL DE PROTOCOLOS -->
+          <button type="button" class="btn-tracker-history-box" id="btn-open-protocol-history" title="Historial de Protocolos">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tracker-svg-clock">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <div class="history-box-meta">
+              <span class="history-box-tag ${currentProto.status === 'completado' ? 'completed' : 'active'}">
+                ${currentProto.status === 'completado' ? '🏁 Completado' : '🟢 En Curso'}
+              </span>
+              <span class="history-box-name">${currentProto.shortName || currentProto.name}</span>
+            </div>
+            <span class="history-box-arrow">▼</span>
+          </button>
+
+          <button type="button" class="btn-tracker-config" id="btn-open-tracker-config" title="Configurar métricas y cifras">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tracker-svg-gear">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
       </div>
+
+      <!-- BANNER DE MODO HISTÓRICO SI SE ESTÁ VIENDO PROTOCOLO COMPLETADO -->
+      ${isHistorical ? `
+        <div class="tracker-historical-alert-bar">
+          <div class="historical-alert-text">
+            <strong>🏁 REGISTRO HISTÓRICO:</strong> ${currentProto.name} (${currentProto.dates}). Métricas consolidadas.
+          </div>
+          <button type="button" class="btn-return-active-proto" id="btn-return-active-proto" title="Volver al protocolo activo">
+            Volver a Pre-Elrow (En Curso) ➔
+          </button>
+        </div>
+      ` : ''}
 
       <div class="tracker-metrics-grid">
         <!-- 1. AY (Ayuno) -->
-        <div class="metric-chip chip-ay" data-metric="ay" title="Ayuno: ${tData.ay.daysSince}d tracking | 24h: ${tData.ay.h24}, 48h: ${tData.ay.h48}, 72h: ${tData.ay.h72}">
+        <div class="metric-chip chip-ay" data-metric="ay" title="Ayuno: ${activeData.ay.daysSince}d tracking | 24h: ${activeData.ay.h24}, 48h: ${activeData.ay.h48}, 72h: ${activeData.ay.h72}">
           <div class="metric-chip-header">
-            <span class="metric-code">AY</span>
-            <span class="metric-total">${tData.ay.daysSince}d</span>
+            <span class="metric-code-wrap">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+              <span class="metric-code">AY</span>
+            </span>
+            <span class="metric-total">${activeData.ay.daysSince}d</span>
           </div>
           <div class="metric-chip-body">
-            <span class="metric-badge ${tData.ay.h24 > 0 ? 'active' : ''}">24h: <strong>${tData.ay.h24}</strong></span>
-            <span class="metric-badge ${tData.ay.h48 > 0 ? 'active' : ''}">48h: <strong>${tData.ay.h48}</strong></span>
-            <span class="metric-badge ${tData.ay.h72 > 0 ? 'active' : ''}">72h: <strong>${tData.ay.h72}</strong></span>
+            <span class="metric-badge ${activeData.ay.h24 > 0 ? 'active' : ''}">24h: <strong>${activeData.ay.h24}</strong></span>
+            <span class="metric-badge ${activeData.ay.h48 > 0 ? 'active' : ''}">48h: <strong>${activeData.ay.h48}</strong></span>
+            <span class="metric-badge ${activeData.ay.h72 > 0 ? 'active' : ''}">72h: <strong>${activeData.ay.h72}</strong></span>
           </div>
-          <div class="metric-chip-actions">
-            <button type="button" class="btn-chip-inc" data-action="inc-ay-24" title="+1 Ayuno 24h">＋24</button>
-            <button type="button" class="btn-chip-inc" data-action="inc-ay-48" title="+1 Ayuno 48h">＋48</button>
-          </div>
+          ${!isHistorical ? `
+            <div class="metric-chip-actions">
+              <button type="button" class="btn-chip-inc" data-action="inc-ay-24" title="+1 Ayuno 24h">＋24</button>
+              <button type="button" class="btn-chip-inc" data-action="inc-ay-48" title="+1 Ayuno 48h">＋48</button>
+            </div>
+          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
 
         <!-- 2. LEC (Lectura) -->
-        <div class="metric-chip chip-lec" data-metric="lec" title="Lectura: +${tData.lec.daysRead} leídos, -${tData.lec.daysMissed} omitidos | ${tData.lec.lastPages} páginas">
+        <div class="metric-chip chip-lec" data-metric="lec" title="Lectura: +${activeData.lec.daysRead} leídos, -${activeData.lec.daysMissed} omitidos | ${activeData.lec.lastPages} páginas">
           <div class="metric-chip-header">
-            <span class="metric-code">LEC</span>
-            <span class="metric-streak success">+${tData.lec.daysRead}</span>
-            <span class="metric-missed danger">-${tData.lec.daysMissed}</span>
+            <span class="metric-code-wrap">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+              <span class="metric-code">LEC</span>
+            </span>
+            <span class="metric-streak success">+${activeData.lec.daysRead}</span>
+            <span class="metric-missed danger">-${activeData.lec.daysMissed}</span>
           </div>
           <div class="metric-chip-body">
-            <span class="metric-subval">📖 <strong>${tData.lec.lastPages}</strong> pág.</span>
+            <span class="metric-subval">📖 <strong>${activeData.lec.lastPages}</strong> pág.</span>
           </div>
-          <div class="metric-chip-actions">
-            <button type="button" class="btn-chip-inc" data-action="inc-lec-read" title="+1 Día de Lectura">＋Día</button>
-            <button type="button" class="btn-chip-inc" data-action="inc-lec-pages" title="Modificar Páginas">＋Pág</button>
-          </div>
+          ${!isHistorical ? `
+            <div class="metric-chip-actions">
+              <button type="button" class="btn-chip-inc" data-action="inc-lec-read" title="+1 Día de Lectura">＋Día</button>
+              <button type="button" class="btn-chip-inc" data-action="inc-lec-pages" title="Modificar Páginas">＋Pág</button>
+            </div>
+          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
 
         <!-- 3. AM (Madrugar) -->
-        <div class="metric-chip chip-am" data-metric="am" title="Madrugar: 5-6am (${tData.am.slot5to6}), 6-7am (${tData.am.slot6to7}), Tarde (-${tData.am.missed})">
+        <div class="metric-chip chip-am" data-metric="am" title="Madrugar: 5-6am (${activeData.am.slot5to6}), 6-7am (${activeData.am.slot6to7}), Tarde (-${activeData.am.missed})">
           <div class="metric-chip-header">
-            <span class="metric-code">AM</span>
-            <span class="metric-missed danger">-${tData.am.missed}</span>
+            <span class="metric-code-wrap">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><path d="M12 2v4"></path><path d="m4.93 4.93 2.83 2.83"></path><path d="m16.24 7.76 2.83-2.83"></path><path d="M2 18h20"></path><path d="M20 18a8 8 0 0 0-16 0"></path></svg>
+              <span class="metric-code">AM</span>
+            </span>
+            <span class="metric-missed danger">-${activeData.am.missed}</span>
           </div>
           <div class="metric-chip-body">
-            <span class="metric-tag gold">5a: <strong>${tData.am.slot5to6}</strong></span>
-            <span class="metric-tag">6a: <strong>${tData.am.slot6to7}</strong></span>
+            <span class="metric-tag gold">5a: <strong>${activeData.am.slot5to6}</strong></span>
+            <span class="metric-tag">6a: <strong>${activeData.am.slot6to7}</strong></span>
           </div>
-          <div class="metric-chip-actions">
-            <button type="button" class="btn-chip-inc" data-action="inc-am-5" title="+1 Madrugón 5 AM">＋5a</button>
-            <button type="button" class="btn-chip-inc" data-action="inc-am-6" title="+1 Madrugón 6 AM">＋6a</button>
-          </div>
+          ${!isHistorical ? `
+            <div class="metric-chip-actions">
+              <button type="button" class="btn-chip-inc" data-action="inc-am-5" title="+1 Madrugón 5 AM">＋5a</button>
+              <button type="button" class="btn-chip-inc" data-action="inc-am-6" title="+1 Madrugón 6 AM">＋6a</button>
+            </div>
+          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
 
         <!-- 4. Z (Azúcar) -->
-        <div class="metric-chip chip-z" data-metric="z" title="Zero Azúcar: ${tData.z.daysClean}d limpio, ${tData.z.daysConsumed} consumos">
+        <div class="metric-chip chip-z" data-metric="z" title="Zero Azúcar: ${activeData.z.daysClean}d limpio, ${activeData.z.daysConsumed} consumos">
           <div class="metric-chip-header">
-            <span class="metric-code">Z</span>
-            <span class="metric-exp-display"><span class="exp-base">+${tData.z.daysClean}</span><sup class="exp-sup">-${tData.z.daysConsumed}</sup></span>
+            <span class="metric-code-wrap">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+              <span class="metric-code">Z</span>
+            </span>
+            <span class="metric-exp-display"><span class="exp-base">+${activeData.z.daysClean}</span><sup class="exp-sup">-${activeData.z.daysConsumed}</sup></span>
           </div>
           <div class="metric-chip-body">
-            <span class="metric-subval">${tData.z.daysClean === 0 ? '⚠️ Reset reciente' : '🔥 Racha activa'}</span>
+            <span class="metric-subval">${activeData.z.daysClean === 0 ? '⚠️ Reset reciente' : '🔥 Racha activa'}</span>
           </div>
-          <div class="metric-chip-actions">
-            <button type="button" class="btn-chip-inc" data-action="inc-z-clean" title="+1 Día Sin Azúcar">＋Día</button>
-            <button type="button" class="btn-chip-inc danger" data-action="inc-z-consumed" title="Registrar Consumo / Reset">⚠️ Consumo</button>
-          </div>
+          ${!isHistorical ? `
+            <div class="metric-chip-actions">
+              <button type="button" class="btn-chip-inc" data-action="inc-z-clean" title="+1 Día Sin Azúcar">＋Día</button>
+              <button type="button" class="btn-chip-inc danger" data-action="inc-z-consumed" title="Registrar Consumo / Reset">⚠️ Consumo</button>
+            </div>
+          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
 
         <!-- 5. FRI (Agua Fría) -->
-        <div class="metric-chip chip-fri" data-metric="fri" title="Ducha Fría: ${tData.fri.coldDays} frío / ${tData.fri.missedDays} omitidos (${friPercent}%)">
+        <div class="metric-chip chip-fri" data-metric="fri" title="Ducha Fría: ${activeData.fri.coldDays} frío / ${activeData.fri.missedDays} omitidos (${friPercent}%)">
           <div class="metric-chip-header">
-            <span class="metric-code">FRI</span>
-            <span class="metric-ratio">${tData.fri.coldDays}/${friTotal}</span>
+            <span class="metric-code-wrap">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><line x1="12" y1="2" x2="12" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line><line x1="19.07" y1="4.93" x2="4.93" y2="19.07"></line><circle cx="12" cy="12" r="2.5"></circle></svg>
+              <span class="metric-code">FRI</span>
+            </span>
+            <span class="metric-ratio">${activeData.fri.coldDays}/${friTotal}</span>
           </div>
           <div class="metric-chip-body">
             <div class="mini-progress-track">
               <div class="mini-progress-fill cyan" style="width: ${friPercent}%;"></div>
             </div>
-            <span class="metric-ratio-text">${friPercent}% (1 de ${friTotal > 0 && tData.fri.coldDays > 0 ? (friTotal / tData.fri.coldDays).toFixed(1) : '-'})</span>
+            <span class="metric-ratio-text">${friPercent}% (1 de ${friTotal > 0 && activeData.fri.coldDays > 0 ? (friTotal / activeData.fri.coldDays).toFixed(1) : '-'})</span>
           </div>
-          <div class="metric-chip-actions">
-            <button type="button" class="btn-chip-inc" data-action="inc-fri-cold" title="+1 Ducha Fría">＋🧊</button>
-            <button type="button" class="btn-chip-inc" data-action="inc-fri-missed" title="+1 Omitido">＋🔥</button>
-          </div>
+          ${!isHistorical ? `
+            <div class="metric-chip-actions">
+              <button type="button" class="btn-chip-inc" data-action="inc-fri-cold" title="+1 Ducha Fría">＋🧊</button>
+              <button type="button" class="btn-chip-inc" data-action="inc-fri-missed" title="+1 Omitido">＋🔥</button>
+            </div>
+          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
 
         <!-- 6. IK (Isha Kriya) -->
-        <div class="metric-chip chip-ik" data-metric="ik" title="Isha Kriya: ${tData.ik.doneDays} hechos / ${tData.ik.missedDays} omitidos (${ikPercent}%)">
+        <div class="metric-chip chip-ik" data-metric="ik" title="Isha Kriya: ${activeData.ik.doneDays} hechos / ${activeData.ik.missedDays} omitidos (${ikPercent}%)">
           <div class="metric-chip-header">
-            <span class="metric-code">IK</span>
-            <span class="metric-ratio">${tData.ik.doneDays}/${ikTotal}</span>
+            <span class="metric-code-wrap">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><circle cx="12" cy="7" r="4"></circle><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"></path><circle cx="12" cy="12" r="9" stroke-dasharray="2 2"></circle></svg>
+              <span class="metric-code">IK</span>
+            </span>
+            <span class="metric-ratio">${activeData.ik.doneDays}/${ikTotal}</span>
           </div>
           <div class="metric-chip-body">
             <div class="mini-progress-track">
@@ -1180,17 +1319,22 @@ function renderHabitTrackerHTML(tData) {
             </div>
             <span class="metric-ratio-text">${ikPercent}% consistencia</span>
           </div>
-          <div class="metric-chip-actions">
-            <button type="button" class="btn-chip-inc" data-action="inc-ik-done" title="+1 Meditación">＋🧘</button>
-            <button type="button" class="btn-chip-inc" data-action="inc-ik-missed" title="+1 Omitido">＋⭕</button>
-          </div>
+          ${!isHistorical ? `
+            <div class="metric-chip-actions">
+              <button type="button" class="btn-chip-inc" data-action="inc-ik-done" title="+1 Meditación">＋🧘</button>
+              <button type="button" class="btn-chip-inc" data-action="inc-ik-missed" title="+1 Omitido">＋⭕</button>
+            </div>
+          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
 
         <!-- 7. A (Alcohol) -->
-        <div class="metric-chip chip-a" data-metric="a" title="Alcohol: ${tData.a.cleanDays} de ${tData.a.targetDays} días sobrio (${aPercent}%)">
+        <div class="metric-chip chip-a" data-metric="a" title="Alcohol: ${activeData.a.cleanDays} de ${activeData.a.targetDays} días sobrio (${aPercent}%)">
           <div class="metric-chip-header">
-            <span class="metric-code">A</span>
-            <span class="metric-streak gold">${tData.a.cleanDays}/${tData.a.targetDays}d</span>
+            <span class="metric-code-wrap">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line><path d="M8 7h8l-3 4.5v4.5h2"></path></svg>
+              <span class="metric-code">A</span>
+            </span>
+            <span class="metric-streak gold">${activeData.a.cleanDays}/${activeData.a.targetDays}d</span>
           </div>
           <div class="metric-chip-body">
             <div class="mini-progress-track">
@@ -1198,40 +1342,116 @@ function renderHabitTrackerHTML(tData) {
             </div>
             <span class="metric-ratio-text">${aPercent}% (${aRemaining}d faltan)</span>
           </div>
-          <div class="metric-chip-actions">
-            <button type="button" class="btn-chip-inc" data-action="inc-a-clean" title="+1 Día Sobrio">＋1d</button>
-          </div>
+          ${!isHistorical ? `
+            <div class="metric-chip-actions">
+              <button type="button" class="btn-chip-inc" data-action="inc-a-clean" title="+1 Día Sobrio">＋1d</button>
+            </div>
+          ` : '<div class="metric-chip-archived-label">🏁 Meta Cumplida</div>'}
         </div>
 
-        <!-- 8. E (Energía Sexual) -->
-        <div class="metric-chip chip-e" data-metric="e" title="Energía Sexual: ${tData.e.retentionDays}d Retención | ${tData.e.pornFreeDays}d Sin Pornografía | ${tData.e.ejaculations} Eyaculaciones">
+        <!-- 8. E (Energía Sexual / Retención) -->
+        <div class="metric-chip chip-e" data-metric="e" title="Energía Sexual: ${activeData.e.retentionDays}d Retención | ${activeData.e.pornFreeDays}d Sin Pornografía | ${activeData.e.ejaculations} Eyaculaciones">
           <div class="metric-chip-header">
-            <span class="metric-code">E</span>
+            <span class="metric-code-wrap">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              <span class="metric-code">E</span>
+            </span>
             <span class="metric-tag-dual">
-              <span class="ret-badge" title="Retención">⚡ ${tData.e.retentionDays}d</span>
-              <span class="pmo-badge" title="No-Porn">🚫 ${tData.e.pornFreeDays}d</span>
+              <span class="ret-badge" title="Retención Seminal">⚡ ${activeData.e.retentionDays}d</span>
+              <span class="pmo-badge" title="No-Porn">🚫 ${activeData.e.pornFreeDays}d</span>
             </span>
           </div>
           <div class="metric-chip-body">
-            <span class="metric-subval">Eyaculaciones: <strong>-${tData.e.ejaculations}</strong></span>
+            <span class="metric-subval">${isHistorical ? 'Récord sin eyacular: <strong>20d</strong>' : `Eyaculaciones: <strong>-${activeData.e.ejaculations}</strong>`}</span>
           </div>
-          <div class="metric-chip-actions">
-            <button type="button" class="btn-chip-inc" data-action="inc-e-ret" title="+1 Día Retención">＋⚡</button>
-            <button type="button" class="btn-chip-inc" data-action="inc-e-noporn" title="+1 Día No-Porn">＋🚫</button>
-          </div>
+          ${!isHistorical ? `
+            <div class="metric-chip-actions">
+              <button type="button" class="btn-chip-inc" data-action="inc-e-ret" title="+1 Día Retención">＋⚡</button>
+              <button type="button" class="btn-chip-inc" data-action="inc-e-noporn" title="+1 Día No-Porn">＋🚫</button>
+            </div>
+          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
 
         <!-- 9. S (Suplementos) -->
-        <div class="metric-chip chip-s" data-metric="s" title="Suplementos: ${tData.s.days} días consistentes">
+        <div class="metric-chip chip-s" data-metric="s" title="Suplementos: ${activeData.s.days} días consistentes">
           <div class="metric-chip-header">
-            <span class="metric-code">S</span>
-            <span class="metric-streak success">💊 +${tData.s.days}d</span>
+            <span class="metric-code-wrap">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"></line></svg>
+              <span class="metric-code">S</span>
+            </span>
+            <span class="metric-streak success">💊 +${activeData.s.days}d</span>
           </div>
           <div class="metric-chip-body">
             <span class="metric-subval">Adherencia activa</span>
           </div>
-          <div class="metric-chip-actions">
-            <button type="button" class="btn-chip-inc" data-action="inc-s-day" title="+1 Día Suplementado">＋💊</button>
+          ${!isHistorical ? `
+            <div class="metric-chip-actions">
+              <button type="button" class="btn-chip-inc" data-action="inc-s-day" title="+1 Día Suplementado">＋💊</button>
+            </div>
+          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
+        </div>
+      </div>
+
+      <!-- MODAL DE HISTORIAL DE PROTOCOLOS -->
+      <div class="protocols-history-modal" id="protocols-history-modal" style="display: none;">
+        <div class="proto-modal-backdrop" id="proto-modal-backdrop"></div>
+        <div class="proto-modal-card">
+          <div class="proto-modal-header">
+            <div class="proto-modal-title-group">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <h4>HISTORIAL DE PROTOCOLOS</h4>
+            </div>
+            <button type="button" class="btn-proto-modal-close" id="btn-close-proto-history">✕</button>
+          </div>
+
+          <div class="proto-modal-body">
+            <p class="proto-modal-intro">Selecciona un protocolo para cargar sus métricas o gestionar el seguimiento biológico:</p>
+            
+            <div class="proto-cards-list">
+              <!-- 1. PROTOCOLO PRE-ELROW (EN CURSO) -->
+              <div class="proto-entry-card ${viewingId === 'pre-elrow' ? 'selected' : ''}" data-proto-id="pre-elrow">
+                <div class="proto-entry-top">
+                  <div class="proto-entry-title-wrap">
+                    <span class="proto-phase-badge in-progress">🟢 En Curso</span>
+                    <h5>Protocolo Pre-Elrow</h5>
+                  </div>
+                  <span class="proto-entry-dates">10 Sep 2026 – Presente</span>
+                </div>
+                <p class="proto-entry-desc">Protocolo activo: reactivación comercial de ZentryOS, recomposición biológica y disciplina estricta de 30 días.</p>
+                <div class="proto-entry-footer">
+                  <span class="proto-duration-pill">Fase: 30 días (10 Sep - 10 Oct)</span>
+                  <button type="button" class="btn-select-proto ${viewingId === 'pre-elrow' ? 'btn-active' : ''}" data-select-id="pre-elrow">
+                    ${viewingId === 'pre-elrow' ? '✓ Operando Actualmente' : 'Operar Protocolo Activo'}
+                  </button>
+                </div>
+              </div>
+
+              <!-- 2. PROTOCOLO DE SOBRIEDAD (COMPLETADO) -->
+              <div class="proto-entry-card ${viewingId === 'sobriedad-80d' ? 'selected' : ''}" data-proto-id="sobriedad-80d">
+                <div class="proto-entry-top">
+                  <div class="proto-entry-title-wrap">
+                    <span class="proto-phase-badge completed">🏁 Completado</span>
+                    <h5>Protocolo de Sobriedad (80 Días)</h5>
+                  </div>
+                  <span class="proto-entry-dates">15 Jun 2026 – 03 Sep 2026 (80 días)</span>
+                </div>
+                <div class="proto-entry-highlights">
+                  <span class="entry-hl-chip">🍺 <strong>80 días sobrio</strong> (100%)</span>
+                  <span class="entry-hl-chip">⚡ <strong>20 días sin eyacular</strong> (Récord)</span>
+                  <span class="entry-hl-chip">🚫 <strong>36d sin pornografía</strong></span>
+                </div>
+                <p class="proto-entry-desc">Fase culminada con éxito absoluto en abstinencia etílica y retención seminal sostenida.</p>
+                <div class="proto-entry-footer">
+                  <span class="proto-duration-pill">80 días completados</span>
+                  <button type="button" class="btn-select-proto ${viewingId === 'sobriedad-80d' ? 'btn-active' : ''}" data-select-id="sobriedad-80d">
+                    ${viewingId === 'sobriedad-80d' ? '✓ Viendo Métricas' : 'Ver Métricas Históricas'}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1252,7 +1472,7 @@ function setupHabitTrackerEvents(container) {
     setupHabitTrackerEvents(container);
   };
 
-  // 1. Action buttons on chips
+  // 1. Action buttons on chips (active only when not historical)
   trackerWidget.querySelectorAll('.btn-chip-inc').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1310,6 +1530,60 @@ function setupHabitTrackerEvents(container) {
       e.stopPropagation();
       e.preventDefault();
       openHabitTrackerConfigModal(updateWidgetUI);
+    });
+  }
+
+  // 3. Protocol History Modal Toggle
+  const histBtn = trackerWidget.querySelector('#btn-open-protocol-history');
+  const histModal = trackerWidget.querySelector('#protocols-history-modal');
+  const closeHistBtn = trackerWidget.querySelector('#btn-close-proto-history');
+  const backdrop = trackerWidget.querySelector('#proto-modal-backdrop');
+
+  const openHistoryModal = () => {
+    if (histModal) histModal.style.display = 'flex';
+  };
+  const closeHistoryModal = () => {
+    if (histModal) histModal.style.display = 'none';
+  };
+
+  if (histBtn) {
+    histBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openHistoryModal();
+    });
+  }
+  if (closeHistBtn) {
+    closeHistBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeHistoryModal();
+    });
+  }
+  if (backdrop) {
+    backdrop.addEventListener('click', closeHistoryModal);
+  }
+
+  // 4. Select Protocol in Modal
+  trackerWidget.querySelectorAll('[data-select-id]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const protoId = btn.getAttribute('data-select-id');
+      const pData = getProtocolsData();
+      pData.viewingId = protoId;
+      saveProtocolsData(pData);
+      closeHistoryModal();
+      updateWidgetUI();
+    });
+  });
+
+  // 5. Return to Active Protocol button from historical banner
+  const returnActiveBtn = trackerWidget.querySelector('#btn-return-active-proto');
+  if (returnActiveBtn) {
+    returnActiveBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const pData = getProtocolsData();
+      pData.viewingId = 'pre-elrow';
+      saveProtocolsData(pData);
+      updateWidgetUI();
     });
   }
 }
@@ -1451,6 +1725,16 @@ const renderers = {
 
     const container = document.getElementById('workspace-content');
 
+        if (state.backlogMode === 'protocolo-30dias') {
+      document.getElementById('properties-block').style.display = 'none';
+      document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #fee2e2 0%, #fef3c7 50%, #ecfdf5 100%)';
+      document.getElementById('page-icon').textContent = '🔥';
+      document.getElementById('page-title').textContent = 'Protocolo Pre-Elrow (30 Días)';
+      renderProtocolo30DiasFullPage(container);
+      setupProtocoloEvents(container, true);
+      return;
+    }
+
     if (state.backlogMode === 'selection') {
       document.getElementById('properties-block').style.display = 'none';
       const trackerData = getHabitTrackerData();
@@ -1475,67 +1759,82 @@ const renderers = {
               <button type="button" class="btn-hero-enter">Entrar a Timeblocking</button>
             </a>
 
-            <!-- RECUADRO 2: BIO-TRACKER GAMIFICADO (9 MÉTRICAS) -->
+            <!-- RECUADRO 2: BIO-TRACKER GAMIFICADO (CON HISTORIAL & SVGS) -->
             ${renderHabitTrackerHTML(trackerData)}
 
           </div>
 
-          <!-- COLUMNA DERECHA: 2x2 GRID DE TABLEROS EQUITATIVOS -->
+          <!-- COLUMNA DERECHA: TARJETA ÚNICA DE TABLEROS + PREVIEW PROTOCOLO PRE-ELROW -->
           <div class="backlog-selection-right">
             
-            <!-- 1. TABLERO QUARZ -->
-            <a href="#backlog/quarz" class="selection-unit-card">
-              <div class="unit-card-icon-box">
-                <img src="/assets/quarz/QUARZ_3D_Cuarzo_Vertical_QZ-removebg-preview.png" alt="QUARZ" class="unit-quarz-logo" />
+            <!-- TARJETA ÚNICA DE TABLEROS (DESPLEGABLE) -->
+            <div class="consolidated-boards-card" id="consolidated-boards-card">
+              <div class="consolidated-boards-header" id="btn-toggle-boards">
+                <div class="consolidated-icons-cluster">
+                  <img src="/assets/quarz/QUARZ_3D_Cuarzo_Vertical_QZ-removebg-preview.png" alt="QZ" class="cluster-logo-quarz" style="width: 24px; height: 24px; max-width: 24px; max-height: 24px; object-fit: contain;" />
+                  <span class="cluster-logo-zentry">Z</span>
+                  <span class="cluster-logo-personal">👤</span>
+                </div>
+                <div class="consolidated-header-text">
+                  <h4 class="consolidated-title">TABLEROS DE TRABAJO</h4>
+                  <p class="consolidated-subtitle">Quarz • Zentry • Personal • Diario</p>
+                </div>
+                <button type="button" class="btn-toggle-boards">
+                  <span>Ver Tableros</span>
+                  <span class="dropdown-chevron">▼</span>
+                </button>
               </div>
-              <div class="unit-card-text">
-                <h4 class="unit-card-title">TABLERO QUARZ</h4>
-                <p class="unit-card-desc">Gobernanza estratégica, decisiones de holding y prioridades corporativas de QUARZ Group.</p>
-              </div>
-              <button type="button" class="btn-unit-enter">Entrar a Quarz</button>
-            </a>
 
-            <!-- 2. TABLERO ZENTRY -->
-            <a href="#backlog/zentry" class="selection-unit-card">
-              <div class="unit-card-icon-box">
-                <span class="unit-zentry-z">Z</span>
-              </div>
-              <div class="unit-card-text">
-                <h4 class="unit-card-title">TABLERO ZENTRY</h4>
-                <p class="unit-card-desc">Roadmap comercial, arquitectura técnica MVP, prospectos y ecosistema ZentryOS.</p>
-              </div>
-              <button type="button" class="btn-unit-enter">Entrar a Zentry</button>
-            </a>
+              <!-- MENÚ DESPLEGABLE DE TABLEROS -->
+              <div class="consolidated-dropdown-menu" id="consolidated-boards-dropdown" style="display: none;">
+                <a href="#backlog/quarz" class="dropdown-board-item quarz-item">
+                  <img src="/assets/quarz/QUARZ_3D_Cuarzo_Vertical_QZ-removebg-preview.png" alt="QUARZ" class="dropdown-item-icon-img" style="width: 20px; height: 20px; max-width: 20px; max-height: 20px; object-fit: contain;" />
+                  <div class="dropdown-item-info">
+                    <strong>Tablero QUARZ</strong>
+                    <small>Gobernanza de holding y decisiones estratégicas</small>
+                  </div>
+                  <span class="dropdown-arrow">➔</span>
+                </a>
 
-            <!-- 3. DIARIO NOCTURNO (FULL TAB JOURNAL) -->
-            <a href="#backlog/journal" class="selection-unit-card">
-              <div class="unit-card-icon-box">
-                <span class="unit-journal-icon" style="font-size: 26px;">📖</span>
-              </div>
-              <div class="unit-card-text">
-                <h4 class="unit-card-title">DIARIO NOCTURNO</h4>
-                <p class="unit-card-desc">Bitácora de pensamiento estratégico, avances diarios y reflexión nocturna integral.</p>
-              </div>
-              <button type="button" class="btn-unit-enter">Entrar a Journal</button>
-            </a>
+                <a href="#backlog/zentry" class="dropdown-board-item zentry-item">
+                  <span class="dropdown-zentry-badge">Z</span>
+                  <div class="dropdown-item-info">
+                    <strong>Tablero ZENTRY</strong>
+                    <small>Roadmap comercial, MVP y prospectos</small>
+                  </div>
+                  <span class="dropdown-arrow">➔</span>
+                </a>
 
-            <!-- 4. TABLERO PERSONAL -->
-            <a href="#backlog/personal-board" class="selection-unit-card">
-              <div class="unit-card-icon-box">
-                <span class="unit-personal-icon">👤</span>
+                <a href="#backlog/personal-board" class="dropdown-board-item personal-item">
+                  <span class="dropdown-personal-badge">👤</span>
+                  <div class="dropdown-item-info">
+                    <strong>Tablero PERSONAL</strong>
+                    <small>Tareas individuales, notas y objetivos personales</small>
+                  </div>
+                  <span class="dropdown-arrow">➔</span>
+                </a>
+
+                <a href="#backlog/journal" class="dropdown-board-item journal-item">
+                  <span class="dropdown-journal-badge" style="font-size: 16px;">📖</span>
+                  <div class="dropdown-item-info">
+                    <strong>Diario Nocturno</strong>
+                    <small>Bitácora de pensamiento estratégico y reflexión nocturna</small>
+                  </div>
+                  <span class="dropdown-arrow">➔</span>
+                </a>
               </div>
-              <div class="unit-card-text">
-                <h4 class="unit-card-title">TABLERO PERSONAL</h4>
-                <p class="unit-card-desc">Tus tareas individuales, notas y objetivos personales.</p>
-              </div>
-              <button type="button" class="btn-unit-enter">Entrar a Personal</button>
-            </a>
+            </div>
+
+            <!-- CONTENEDOR DE PREVIEW PROTOCOLO PRE-ELROW (30 DÍAS) -->
+            <div class="protocolo-preview-container">
+              ${renderProtocoloPreviewHTML()}
+            </div>
 
           </div>
 
         </div>
 
-        <!-- BANNER INFERIOR: TABLERO GLOBAL (CONSOLIDADO - COLORIMETRÍA ARMONIOSA WHITE/GLASS) -->
+        <!-- BANNER INFERIOR: TABLERO GLOBAL -->
         <div class="global-board-banner-wrapper" style="max-width: 1040px; margin: 0 auto 40px auto; padding: 0 4px;">
           <a href="#backlog/global" class="global-board-card">
             <div class="global-board-card-left">
@@ -1555,6 +1854,21 @@ const renderers = {
         </div>
       `;
 
+      // Evento para desplegar/contraer menú de tableros
+      const toggleBoardsBtn = container.querySelector('#btn-toggle-boards');
+      const boardsDropdown = container.querySelector('#consolidated-boards-dropdown');
+      if (toggleBoardsBtn && boardsDropdown) {
+        toggleBoardsBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isOpen = boardsDropdown.style.display !== 'none';
+          boardsDropdown.style.display = isOpen ? 'none' : 'flex';
+        });
+      }
+
+      // Eventos del Protocolo Pre-Elrow (Preview mode)
+      setupProtocoloEvents(container, false);
+
+      // Eventos de Bio-Tracker
       setupHabitTrackerEvents(container);
       return;
     }
@@ -5145,6 +5459,10 @@ function handleRouting() {
       document.body.setAttribute('data-module', 'quarz');
     } else if (hash === '#backlog/personal-board') {
       state.backlogMode = 'personal-board';
+      document.body.setAttribute('data-module', 'quarz');
+    } else if (hash === '#backlog/protocolo-30dias') {
+      lockPersonalAccess();
+      state.backlogMode = 'protocolo-30dias';
       document.body.setAttribute('data-module', 'quarz');
     } else if (hash === '#backlog/personal') {
       state.backlogMode = 'personal';
