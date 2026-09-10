@@ -1096,7 +1096,13 @@ function getDefaultHabitTrackerData() {
     ik: { doneDays: 0, missedDays: 0 },
     a: { cleanDays: 0, targetDays: 30, missedDays: 0 },
     e: { retentionDays: 0, ejaculations: 0, pornFreeDays: 0 },
-    s: { days: 0, missedDays: 0 }
+    s: { days: 0, missedDays: 0 },
+    prod: {
+      todayDate: new Date().toISOString().split('T')[0],
+      today: { pcc: 0, ll: 0, demos: 0, win: 0 },
+      history: {},
+      totals: { pcc: 0, ll: 0, demos: 0, win: 0 }
+    }
   };
 }
 
@@ -1968,6 +1974,16 @@ function openHabitTrackerConfigModal(onSaveCallback) {
 
   setVal('cfg-s-days', data.s.days);
 
+  const prod = getProductiveData(data);
+  setVal('cfg-prod-pcc-today', prod.today.pcc);
+  setVal('cfg-prod-pcc-total', prod.totals.pcc);
+  setVal('cfg-prod-ll-today', prod.today.ll);
+  setVal('cfg-prod-ll-total', prod.totals.ll);
+  setVal('cfg-prod-demos-today', prod.today.demos);
+  setVal('cfg-prod-demos-total', prod.totals.demos);
+  setVal('cfg-prod-win-today', prod.today.win);
+  setVal('cfg-prod-win-total', prod.totals.win);
+
   modal.classList.add('show');
 
   const closeModal = () => {
@@ -1995,6 +2011,33 @@ function openHabitTrackerConfigModal(onSaveCallback) {
     form.onsubmit = (e) => {
       e.preventDefault();
       const getNum = (id) => parseInt(document.getElementById(id)?.value) || 0;
+
+      const pccToday = getNum('cfg-prod-pcc-today');
+      const pccTotal = getNum('cfg-prod-pcc-total');
+      const llToday = getNum('cfg-prod-ll-today');
+      const llTotal = getNum('cfg-prod-ll-total');
+      const demosToday = getNum('cfg-prod-demos-today');
+      const demosTotal = getNum('cfg-prod-demos-total');
+      const winToday = getNum('cfg-prod-win-today');
+      const winTotal = getNum('cfg-prod-win-total');
+
+      const existingProd = getProductiveData(data);
+      const updatedProd = {
+        ...existingProd,
+        today: {
+          pcc: pccToday,
+          ll: llToday,
+          demos: demosToday,
+          win: winToday
+        },
+        totals: {
+          pcc: pccTotal,
+          ll: llTotal,
+          demos: demosTotal,
+          win: winTotal
+        }
+      };
+      updatedProd.history[updatedProd.todayDate] = { ...updatedProd.today };
 
       const updated = {
         ay: {
@@ -2039,7 +2082,8 @@ function openHabitTrackerConfigModal(onSaveCallback) {
         s: {
           days: getNum('cfg-s-days'),
           missedDays: data.s.missedDays || 0
-        }
+        },
+        prod: updatedProd
       };
 
       saveHabitTrackerData(updated);
