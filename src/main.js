@@ -1088,7 +1088,7 @@ function saveProtocolsData(data) {
 
 function getDefaultHabitTrackerData() {
   return {
-    ay: { daysSince: 0, h24: 0, h48: 0, h72: 0 },
+    ay: { daysSince: 0, h24: 0, h48: 0, h72: 0, missed: 0 },
     lec: { daysSince: 0, daysRead: 0, daysMissed: 0, lastPages: 0 },
     am: { slot5to6: 0, slot6to7: 0, missed: 0 },
     z: { daysClean: 0, daysConsumed: 0 },
@@ -1096,7 +1096,7 @@ function getDefaultHabitTrackerData() {
     ik: { doneDays: 0, missedDays: 0 },
     a: { cleanDays: 0, targetDays: 30, missedDays: 0 },
     e: { retentionDays: 0, ejaculations: 0, pornFreeDays: 0 },
-    s: { days: 0 }
+    s: { days: 0, missedDays: 0 }
   };
 }
 
@@ -1147,6 +1147,9 @@ function renderHabitTrackerHTML(tData) {
   
   const aPercent = activeData.a.targetDays > 0 ? Math.min(100, Math.round((activeData.a.cleanDays / activeData.a.targetDays) * 100)) : 100;
   const aRemaining = Math.max(0, activeData.a.targetDays - activeData.a.cleanDays);
+
+  const eTargetDays = 30;
+  const ePercent = Math.min(100, Math.round(((activeData.e.retentionDays || 0) / eTargetDays) * 100));
 
   return `
     <div class="backlog-tracker-card roman-temple-card ${isHistorical ? 'historical-mode' : ''}" id="backlog-tracker-widget">
@@ -1275,7 +1278,7 @@ function renderHabitTrackerHTML(tData) {
 
       <div class="tracker-metrics-grid">
         <!-- 1. AY (Ayuno) -->
-        <div class="metric-chip chip-ay" data-metric="ay" title="Ayuno: ${activeData.ay.daysSince}d tracking | 24h: ${activeData.ay.h24}, 48h: ${activeData.ay.h48}, 72h: ${activeData.ay.h72}">
+        <div class="metric-chip chip-ay" data-metric="ay" title="Ayuno: ${activeData.ay.daysSince}d tracking | 24h: ${activeData.ay.h24}, 48h: ${activeData.ay.h48}, -: ${activeData.ay.missed || 0}">
           <div class="metric-chip-header">
             <span class="metric-code-wrap">
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
@@ -1286,12 +1289,13 @@ function renderHabitTrackerHTML(tData) {
           <div class="metric-chip-body">
             <span class="metric-badge ${activeData.ay.h24 > 0 ? 'active' : ''}">24h: <strong>${activeData.ay.h24}</strong></span>
             <span class="metric-badge ${activeData.ay.h48 > 0 ? 'active' : ''}">48h: <strong>${activeData.ay.h48}</strong></span>
-            <span class="metric-badge ${activeData.ay.h72 > 0 ? 'active' : ''}">72h: <strong>${activeData.ay.h72}</strong></span>
+            <span class="metric-badge ${activeData.ay.missed > 0 ? 'danger' : ''}">-: <strong>${activeData.ay.missed || 0}</strong></span>
           </div>
           ${!isHistorical ? `
             <div class="metric-chip-actions">
-              <button type="button" class="btn-chip-inc" data-action="inc-ay-24" title="+1 Ayuno 24h">＋24</button>
-              <button type="button" class="btn-chip-inc" data-action="inc-ay-48" title="+1 Ayuno 48h">＋48</button>
+              <button type="button" class="btn-chip-inc" data-action="inc-ay-24" title="+1 Ayuno 24h">24</button>
+              <button type="button" class="btn-chip-inc" data-action="inc-ay-48" title="+1 Ayuno 48h">48</button>
+              <button type="button" class="btn-chip-inc danger" data-action="inc-ay-missed" title="Día sin ayuno">－</button>
             </div>
           ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
@@ -1313,6 +1317,7 @@ function renderHabitTrackerHTML(tData) {
             <div class="metric-chip-actions">
               <button type="button" class="btn-chip-inc" data-action="inc-lec-read" title="+1 Día de Lectura">＋Día</button>
               <button type="button" class="btn-chip-inc" data-action="inc-lec-pages" title="Modificar Páginas">＋Pág</button>
+              <button type="button" class="btn-chip-inc danger" data-action="inc-lec-missed" title="Día sin lectura">－</button>
             </div>
           ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
@@ -1324,7 +1329,8 @@ function renderHabitTrackerHTML(tData) {
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><path d="M12 2v4"></path><path d="m4.93 4.93 2.83 2.83"></path><path d="m16.24 7.76 2.83-2.83"></path><path d="M2 18h20"></path><path d="M20 18a8 8 0 0 0-16 0"></path></svg>
               <span class="metric-code">AM</span>
             </span>
-            <span class="metric-missed danger">-${activeData.am.missed}</span>
+            <span class="metric-streak success">+${(activeData.am.slot5to6 || 0) + (activeData.am.slot6to7 || 0)}</span>
+            <span class="metric-missed danger">-${activeData.am.missed || 0}</span>
           </div>
           <div class="metric-chip-body">
             <span class="metric-tag gold">5a: <strong>${activeData.am.slot5to6}</strong></span>
@@ -1334,6 +1340,7 @@ function renderHabitTrackerHTML(tData) {
             <div class="metric-chip-actions">
               <button type="button" class="btn-chip-inc" data-action="inc-am-5" title="+1 Madrugón 5 AM">＋5a</button>
               <button type="button" class="btn-chip-inc" data-action="inc-am-6" title="+1 Madrugón 6 AM">＋6a</button>
+              <button type="button" class="btn-chip-inc danger" data-action="inc-am-missed" title="Despertar tarde">－</button>
             </div>
           ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
@@ -1348,7 +1355,7 @@ function renderHabitTrackerHTML(tData) {
             <span class="metric-exp-display"><span class="exp-base">+${activeData.z.daysClean}</span><sup class="exp-sup">-${activeData.z.daysConsumed}</sup></span>
           </div>
           <div class="metric-chip-body">
-            <span class="metric-subval">${activeData.z.daysClean === 0 ? '⚠️ Reset reciente' : '🔥 Racha activa'}</span>
+            <span class="metric-subval">Azúcar</span>
           </div>
           ${!isHistorical ? `
             <div class="metric-chip-actions">
@@ -1359,24 +1366,22 @@ function renderHabitTrackerHTML(tData) {
         </div>
 
         <!-- 5. FRI (Agua Fría) -->
-        <div class="metric-chip chip-fri" data-metric="fri" title="Ducha Fría: ${activeData.fri.coldDays} frío / ${activeData.fri.missedDays} omitidos (${friPercent}%)">
+        <div class="metric-chip chip-fri" data-metric="fri" title="Ducha Fría: +${activeData.fri.coldDays} frío / -${activeData.fri.missedDays} omitidos">
           <div class="metric-chip-header">
             <span class="metric-code-wrap">
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><line x1="12" y1="2" x2="12" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line><line x1="19.07" y1="4.93" x2="4.93" y2="19.07"></line><circle cx="12" cy="12" r="2.5"></circle></svg>
               <span class="metric-code">FRI</span>
             </span>
-            <span class="metric-ratio">${activeData.fri.coldDays}/${friTotal}</span>
+            <span class="metric-streak success">+${activeData.fri.coldDays}</span>
+            <span class="metric-missed danger">-${activeData.fri.missedDays}</span>
           </div>
           <div class="metric-chip-body">
-            <div class="mini-progress-track">
-              <div class="mini-progress-fill cyan" style="width: ${friPercent}%;"></div>
-            </div>
-            <span class="metric-ratio-text">${friPercent}% (1 de ${friTotal > 0 && activeData.fri.coldDays > 0 ? (friTotal / activeData.fri.coldDays).toFixed(1) : '-'})</span>
+            <span class="metric-subval">Ducha Fría</span>
           </div>
           ${!isHistorical ? `
             <div class="metric-chip-actions">
               <button type="button" class="btn-chip-inc" data-action="inc-fri-cold" title="+1 Ducha Fría">＋🧊</button>
-              <button type="button" class="btn-chip-inc" data-action="inc-fri-missed" title="+1 Omitido">＋🔥</button>
+              <button type="button" class="btn-chip-inc danger" data-action="inc-fri-missed" title="Omitido">－</button>
             </div>
           ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
@@ -1427,36 +1432,38 @@ function renderHabitTrackerHTML(tData) {
         </div>
 
         <!-- 8. E (Energía Sexual / Retención) -->
-        <div class="metric-chip chip-e" data-metric="e" title="Energía Sexual: ${activeData.e.retentionDays}d Retención | ${activeData.e.pornFreeDays}d Sin Pornografía | ${activeData.e.ejaculations} Eyaculaciones">
+        <div class="metric-chip chip-e" data-metric="e" title="Retención: ${activeData.e.retentionDays}d limpio, ${activeData.e.ejaculations} caídas">
           <div class="metric-chip-header">
             <span class="metric-code-wrap">
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
               <span class="metric-code">E</span>
             </span>
-            <span class="metric-tag-dual">
-              <span class="ret-badge" title="Retención Seminal">⚡ ${activeData.e.retentionDays}d</span>
-              <span class="pmo-badge" title="No-Porn">🚫 ${activeData.e.pornFreeDays}d</span>
-            </span>
+            <span class="metric-streak success">+${activeData.e.retentionDays}d</span>
+            <span class="metric-missed danger">-${activeData.e.ejaculations}</span>
           </div>
           <div class="metric-chip-body">
-            <span class="metric-subval">${isHistorical ? 'Récord sin eyacular: <strong>20d</strong>' : `Eyaculaciones: <strong>-${activeData.e.ejaculations}</strong>`}</span>
+            <div class="mini-progress-track">
+              <div class="mini-progress-fill purple" style="width: ${ePercent}%;"></div>
+            </div>
+            <span class="metric-ratio-text">${ePercent}% (${activeData.e.retentionDays}/${eTargetDays}d)</span>
           </div>
           ${!isHistorical ? `
             <div class="metric-chip-actions">
-              <button type="button" class="btn-chip-inc" data-action="inc-e-ret" title="+1 Día Retención">＋⚡</button>
-              <button type="button" class="btn-chip-inc" data-action="inc-e-noporn" title="+1 Día No-Porn">＋🚫</button>
+              <button type="button" class="btn-chip-inc" data-action="inc-e-ret" title="+1 Día Retención">＋Día</button>
+              <button type="button" class="btn-chip-inc danger" data-action="inc-e-ejac" title="Registrar caída">－</button>
             </div>
           ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
 
         <!-- 9. S (Suplementos) -->
-        <div class="metric-chip chip-s" data-metric="s" title="Suplementos: ${activeData.s.days} días consistentes">
+        <div class="metric-chip chip-s" data-metric="s" title="Suplementos: +${activeData.s.days} consistentes / -${activeData.s.missedDays || 0} omitidos">
           <div class="metric-chip-header">
             <span class="metric-code-wrap">
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"></line></svg>
               <span class="metric-code">S</span>
             </span>
-            <span class="metric-streak success">💊 +${activeData.s.days}d</span>
+            <span class="metric-streak success">+${activeData.s.days}</span>
+            <span class="metric-missed danger">-${activeData.s.missedDays || 0}</span>
           </div>
           <div class="metric-chip-body">
             <span class="metric-subval">Adherencia activa</span>
@@ -1464,6 +1471,7 @@ function renderHabitTrackerHTML(tData) {
           ${!isHistorical ? `
             <div class="metric-chip-actions">
               <button type="button" class="btn-chip-inc" data-action="inc-s-day" title="+1 Día Suplementado">＋💊</button>
+              <button type="button" class="btn-chip-inc danger" data-action="inc-s-missed" title="Día sin suplementar">－</button>
             </div>
           ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
@@ -1609,9 +1617,14 @@ function setupHabitTrackerEvents(container) {
       const data = getHabitTrackerData();
 
       if (action === 'inc-ay-24') {
-        data.ay.h24 += 1;
+        data.ay.h24 = (data.ay.h24 || 0) + 1;
+        data.ay.daysSince = (data.ay.daysSince || 0) + 1;
       } else if (action === 'inc-ay-48') {
-        data.ay.h48 += 1;
+        data.ay.h48 = (data.ay.h48 || 0) + 1;
+        data.ay.daysSince = (data.ay.daysSince || 0) + 1;
+      } else if (action === 'inc-ay-missed') {
+        data.ay.missed = (data.ay.missed || 0) + 1;
+        data.ay.daysSince = (data.ay.daysSince || 0) + 1;
       } else if (action === 'inc-lec-read') {
         data.lec.daysRead += 1;
       } else if (action === 'inc-lec-pages') {
@@ -1619,10 +1632,14 @@ function setupHabitTrackerEvents(container) {
         if (p !== null && !isNaN(parseInt(p))) {
           data.lec.lastPages = parseInt(p);
         }
+      } else if (action === 'inc-lec-missed') {
+        data.lec.daysMissed = (data.lec.daysMissed || 0) + 1;
       } else if (action === 'inc-am-5') {
         data.am.slot5to6 += 1;
       } else if (action === 'inc-am-6') {
         data.am.slot6to7 += 1;
+      } else if (action === 'inc-am-missed') {
+        data.am.missed = (data.am.missed || 0) + 1;
       } else if (action === 'inc-z-clean') {
         data.z.daysClean += 1;
       } else if (action === 'inc-z-consumed') {
@@ -1639,11 +1656,14 @@ function setupHabitTrackerEvents(container) {
       } else if (action === 'inc-a-clean') {
         data.a.cleanDays += 1;
       } else if (action === 'inc-e-ret') {
-        data.e.retentionDays += 1;
-      } else if (action === 'inc-e-noporn') {
-        data.e.pornFreeDays += 1;
+        data.e.retentionDays = (data.e.retentionDays || 0) + 1;
+      } else if (action === 'inc-e-ejac') {
+        data.e.ejaculations = (data.e.ejaculations || 0) + 1;
+        data.e.retentionDays = 0;
       } else if (action === 'inc-s-day') {
         data.s.days += 1;
+      } else if (action === 'inc-s-missed') {
+        data.s.missedDays = (data.s.missedDays || 0) + 1;
       }
 
       saveHabitTrackerData(data);
@@ -1829,7 +1849,8 @@ function openHabitTrackerConfigModal(onSaveCallback) {
           ejaculations: getNum('cfg-e-ejac')
         },
         s: {
-          days: getNum('cfg-s-days')
+          days: getNum('cfg-s-days'),
+          missedDays: data.s.missedDays || 0
         }
       };
 

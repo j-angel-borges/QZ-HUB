@@ -6095,6 +6095,12 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   font-weight: 700;
 }
 
+.metric-badge.danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+  font-weight: 700;
+}
+
 .metric-exp-display {
   font-family: 'Space Mono', monospace;
   font-weight: 700;
