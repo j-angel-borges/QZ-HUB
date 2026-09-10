@@ -1088,15 +1088,15 @@ function saveProtocolsData(data) {
 
 function getDefaultHabitTrackerData() {
   return {
-    ay: { daysSince: 51, h24: 1, h48: 0, h72: 0 },
-    lec: { daysSince: 7, daysRead: 7, daysMissed: 0, lastPages: 25 },
-    am: { slot5to6: 1, slot6to7: 3, missed: 2 },
-    z: { daysClean: 0, daysConsumed: 1 },
-    fri: { coldDays: 15, missedDays: 31 },
-    ik: { doneDays: 11, missedDays: 15 },
-    a: { cleanDays: 77, targetDays: 90, missedDays: 0 },
-    e: { retentionDays: 8, ejaculations: 0, pornFreeDays: 36 },
-    s: { days: 12 }
+    ay: { daysSince: 0, h24: 0, h48: 0, h72: 0 },
+    lec: { daysSince: 0, daysRead: 0, daysMissed: 0, lastPages: 0 },
+    am: { slot5to6: 0, slot6to7: 0, missed: 0 },
+    z: { daysClean: 0, daysConsumed: 0 },
+    fri: { coldDays: 0, missedDays: 0 },
+    ik: { doneDays: 0, missedDays: 0 },
+    a: { cleanDays: 0, targetDays: 30, missedDays: 0 },
+    e: { retentionDays: 0, ejaculations: 0, pornFreeDays: 0 },
+    s: { days: 0 }
   };
 }
 
@@ -1104,12 +1104,21 @@ function getHabitTrackerData() {
   const stored = localStorage.getItem('qz_bio_tracker');
   if (stored) {
     try {
-      return { ...getDefaultHabitTrackerData(), ...JSON.parse(stored) };
+      const parsed = JSON.parse(stored);
+      // Reiniciar a 0 para el Protocolo Pre-Elrow si tenía métricas acumuladas de protocolos previos
+      if (parsed.ay && parsed.ay.daysSince > 30) {
+        const fresh = getDefaultHabitTrackerData();
+        saveHabitTrackerData(fresh);
+        return fresh;
+      }
+      return { ...getDefaultHabitTrackerData(), ...parsed };
     } catch (e) {
       return getDefaultHabitTrackerData();
     }
   }
-  return getDefaultHabitTrackerData();
+  const fresh = getDefaultHabitTrackerData();
+  saveHabitTrackerData(fresh);
+  return fresh;
 }
 
 function saveHabitTrackerData(data) {
@@ -1205,7 +1214,7 @@ function renderHabitTrackerHTML(tData) {
             <div class="tracker-title-group">
               <div class="tracker-icon-svg-wrap">
                 <!-- SVG INSIGNIA: TEMPLO ROMANO CLÁSICO CON COLUMNAS Y CORONA DE LAUREL -->
-                <svg viewBox="0 0 28 28" width="24" height="24" fill="none" class="tracker-svg-roman-insignia">
+                <svg viewBox="0 0 28 28" width="22" height="22" fill="none" class="tracker-svg-roman-insignia">
                   <polygon points="14 3, 4 8, 24 8" fill="#dfd5c7" stroke="#4a3e30" stroke-width="1.3" stroke-linejoin="round"/>
                   <circle cx="14" cy="6.2" r="1.1" fill="#756858"/>
                   <rect x="3.5" y="8" width="21" height="2" fill="#ece5d9" stroke="#4a3e30" stroke-width="1"/>
@@ -1226,30 +1235,25 @@ function renderHabitTrackerHTML(tData) {
                   <circle cx="23.8" cy="6.5" r="0.9" fill="#b89c50"/>
                 </svg>
               </div>
-              <div>
-                <h4 class="tracker-card-title">BIO-TRACKER GAMIFICADO</h4>
+              <div class="tracker-title-texts">
+                <h4 class="tracker-card-title">BIO-TRACKER</h4>
                 <span class="tracker-card-subtitle">${currentProto.name}</span>
               </div>
             </div>
 
             <div class="tracker-header-actions">
-              <!-- RECUADRO CON ICONO DE RELOJ: HISTORIAL DE PROTOCOLOS -->
-              <button type="button" class="btn-tracker-history-box" id="btn-open-protocol-history" title="Historial de Protocolos">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tracker-svg-clock">
+              <!-- BOTÓN COMPACTO DE HISTORIAL (UNA LÍNEA, SIN 'EN CURSO' EN VISTA PRINCIPAL) -->
+              <button type="button" class="btn-tracker-history-box" id="btn-open-protocol-history" title="Ver Historial de Protocolos">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tracker-svg-clock">
                   <circle cx="12" cy="12" r="10"></circle>
                   <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
-                <div class="history-box-meta">
-                  <span class="history-box-tag ${currentProto.status === 'completado' ? 'completed' : 'active'}">
-                    ${currentProto.status === 'completado' ? '🏁 Completado' : '🟢 En Curso'}
-                  </span>
-                  <span class="history-box-name">${currentProto.shortName || currentProto.name}</span>
-                </div>
+                <span class="history-box-label">Historial</span>
                 <span class="history-box-arrow">▼</span>
               </button>
 
               <button type="button" class="btn-tracker-config" id="btn-open-tracker-config" title="Configurar métricas y cifras">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tracker-svg-gear">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tracker-svg-gear">
                   <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
@@ -1488,17 +1492,45 @@ function renderHabitTrackerHTML(tData) {
         </svg>
       </div>
 
-      <!-- MODAL DE HISTORIAL DE PROTOCOLOS -->
+      <!-- MODAL DE HISTORIAL DE PROTOCOLOS (ESTILO ARQUITECTURA ROMANA) -->
       <div class="protocols-history-modal" id="protocols-history-modal" style="display: none;">
         <div class="proto-modal-backdrop" id="proto-modal-backdrop"></div>
-        <div class="proto-modal-card">
+        <div class="proto-modal-card roman-modal-card">
+          <!-- CORNISAMENTO ROMANO DEL MODAL -->
+          <div class="proto-modal-roman-cornice">
+            <svg viewBox="0 0 500 24" preserveAspectRatio="none" width="100%" height="24">
+              <rect x="0" y="0" width="500" height="5" fill="#e8dfd3" />
+              <line x1="0" y1="5" x2="500" y2="5" stroke="#786c5e" stroke-width="0.8" />
+              <rect x="4" y="6" width="492" height="12" fill="url(#dentil-pattern)" />
+              <line x1="0" y1="18" x2="500" y2="18" stroke="#5a4e3f" stroke-width="1" />
+              <rect x="0" y="18" width="500" height="6" fill="#ded5c6" />
+            </svg>
+          </div>
           <div class="proto-modal-header">
             <div class="proto-modal-title-group">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              <h4>HISTORIAL DE PROTOCOLOS</h4>
+              <!-- SVG INSIGNIA IMPERIAL ROMANA EN EL MODAL -->
+              <div class="modal-roman-icon-wrap">
+                <svg viewBox="0 0 28 28" width="22" height="22" fill="none">
+                  <polygon points="14 3, 4 8, 24 8" fill="#dfd5c7" stroke="#4a3e30" stroke-width="1.3" stroke-linejoin="round"/>
+                  <circle cx="14" cy="6.2" r="1.1" fill="#756858"/>
+                  <rect x="3.5" y="8" width="21" height="2" fill="#ece5d9" stroke="#4a3e30" stroke-width="1"/>
+                  <g stroke="#4a3e30" stroke-width="1" fill="#f5f0e8">
+                    <rect x="5.2" y="10" width="2.8" height="11" rx="0.4"/>
+                    <rect x="10.2" y="10" width="2.8" height="11" rx="0.4"/>
+                    <rect x="15" y="10" width="2.8" height="11" rx="0.4"/>
+                    <rect x="20" y="10" width="2.8" height="11" rx="0.4"/>
+                  </g>
+                  <path d="M6.6 11v9 M11.6 11v9 M16.4 11v9 M21.4 11v9" stroke="#8a7c6c" stroke-width="0.8"/>
+                  <rect x="3.5" y="21" width="21" height="1.8" fill="#dfd6c8" stroke="#4a3e30" stroke-width="1"/>
+                  <rect x="2" y="22.8" width="24" height="2.2" fill="#c4b8a7" stroke="#4a3e30" stroke-width="1"/>
+                  <path d="M3 16C2.2 12.5 3.5 7.5 7 4.5" stroke="#b89c50" stroke-width="1.3" stroke-linecap="round"/>
+                  <path d="M25 16C25.8 12.5 24.5 7.5 21 4.5" stroke="#b89c50" stroke-width="1.3" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="modal-roman-title">HISTORIAL DE PROTOCOLOS</h4>
+                <span class="modal-roman-sub">Registro Biológico & Estados de Disciplina</span>
+              </div>
             </div>
             <button type="button" class="btn-proto-modal-close" id="btn-close-proto-history">✕</button>
           </div>
@@ -1866,10 +1898,8 @@ const renderers = {
             <!-- TARJETA ÚNICA DE TABLEROS (DESPLEGABLE) -->
             <div class="consolidated-boards-card" id="consolidated-boards-card">
               <div class="consolidated-boards-header" id="btn-toggle-boards">
-                <div class="consolidated-icons-cluster">
-                  <img src="/assets/quarz/QUARZ_3D_Cuarzo_Vertical_QZ-removebg-preview.png" alt="QZ" class="cluster-logo-quarz" style="width: 24px; height: 24px; max-width: 24px; max-height: 24px; object-fit: contain;" />
-                  <span class="cluster-logo-zentry">Z</span>
-                  <span class="cluster-logo-personal">👤</span>
+                <div class="consolidated-single-icon-wrap">
+                  <span class="consolidated-single-icon">🗂️</span>
                 </div>
                 <div class="consolidated-header-text">
                   <h4 class="consolidated-title">TABLEROS DE TRABAJO</h4>
@@ -1950,14 +1980,24 @@ const renderers = {
         </div>
       `;
 
-      // Evento para desplegar/contraer menú de tableros
+      // Evento para desplegar/contraer menú de tableros (Acordeón con efecto bounce)
       const toggleBoardsBtn = container.querySelector('#btn-toggle-boards');
       const boardsDropdown = container.querySelector('#consolidated-boards-dropdown');
-      if (toggleBoardsBtn && boardsDropdown) {
+      const boardsCard = container.querySelector('#consolidated-boards-card');
+      if (toggleBoardsBtn && boardsDropdown && boardsCard) {
         toggleBoardsBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          const isOpen = boardsDropdown.style.display !== 'none';
-          boardsDropdown.style.display = isOpen ? 'none' : 'flex';
+          const isExpanded = boardsCard.classList.contains('is-expanded');
+          const chevron = toggleBoardsBtn.querySelector('.dropdown-chevron');
+          if (isExpanded) {
+            boardsCard.classList.remove('is-expanded');
+            boardsDropdown.style.display = 'none';
+            if (chevron) chevron.textContent = '▼';
+          } else {
+            boardsCard.classList.add('is-expanded');
+            boardsDropdown.style.display = 'flex';
+            if (chevron) chevron.textContent = '▲';
+          }
         });
       }
 
