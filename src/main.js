@@ -1140,49 +1140,122 @@ function renderHabitTrackerHTML(tData) {
   const aRemaining = Math.max(0, activeData.a.targetDays - activeData.a.cleanDays);
 
   return `
-    <div class="backlog-tracker-card ${isHistorical ? 'historical-mode' : ''}" id="backlog-tracker-widget">
-      <!-- HEADER CON PROTOCOL SELECTOR Y SVG ICONS -->
-      <div class="tracker-card-header">
-        <div class="tracker-title-group">
-          <div class="tracker-icon-svg-wrap">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tracker-svg-dna">
-              <path d="M2 15c6.667-6 13.333 0 20-6"></path>
-              <path d="M2 9c6.667 6 13.333 0 20 6"></path>
-              <path d="M7 11.5v1"></path>
-              <path d="M12 9v6"></path>
-              <path d="M17 11.5v1"></path>
-            </svg>
-          </div>
-          <div>
-            <h4 class="tracker-card-title">BIO-TRACKER GAMIFICADO</h4>
-            <span class="tracker-card-subtitle">${currentProto.name}</span>
-          </div>
-        </div>
-
-        <div class="tracker-header-actions">
-          <!-- RECUADRO CON ICONO DE RELOJ: HISTORIAL DE PROTOCOLOS -->
-          <button type="button" class="btn-tracker-history-box" id="btn-open-protocol-history" title="Historial de Protocolos">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tracker-svg-clock">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-            <div class="history-box-meta">
-              <span class="history-box-tag ${currentProto.status === 'completado' ? 'completed' : 'active'}">
-                ${currentProto.status === 'completado' ? '🏁 Completado' : '🟢 En Curso'}
-              </span>
-              <span class="history-box-name">${currentProto.shortName || currentProto.name}</span>
-            </div>
-            <span class="history-box-arrow">▼</span>
-          </button>
-
-          <button type="button" class="btn-tracker-config" id="btn-open-tracker-config" title="Configurar métricas y cifras">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tracker-svg-gear">
-              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </button>
-        </div>
+    <div class="backlog-tracker-card roman-temple-card ${isHistorical ? 'historical-mode' : ''}" id="backlog-tracker-widget">
+      <!-- 1. CORNISA / ENTABLAMENTO ROMANO SUPERIOR (ESTRUCTURA DE TEMPLO) -->
+      <div class="tracker-roman-entablature">
+        <svg class="entablature-svg" viewBox="0 0 400 38" preserveAspectRatio="none" width="100%" height="38">
+          <defs>
+            <pattern id="dentil-pattern" width="11" height="11" patternUnits="userSpaceOnUse">
+              <rect x="2" y="1" width="7" height="9" rx="0.5" fill="#e4dbcf" stroke="#75695a" stroke-width="0.7"/>
+              <line x1="2.5" y1="2" x2="8.5" y2="2" stroke="#ffffff" stroke-width="0.8"/>
+              <line x1="2" y1="9.5" x2="9" y2="9.5" stroke="#4a3e30" stroke-width="0.8"/>
+            </pattern>
+            <linearGradient id="pediment-shelf-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f8f4ed"/>
+              <stop offset="40%" stop-color="#dfd6c8"/>
+              <stop offset="100%" stop-color="#a89a87"/>
+            </linearGradient>
+            <linearGradient id="frieze-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#eee6db"/>
+              <stop offset="60%" stop-color="#dfd5c7"/>
+              <stop offset="100%" stop-color="#8c7e6c"/>
+            </linearGradient>
+          </defs>
+          <!-- Geison / Cornisa superior con moldura escalonada -->
+          <rect x="0" y="0" width="400" height="7" fill="url(#pediment-shelf-grad)"/>
+          <line x1="0" y1="7" x2="400" y2="7" stroke="#5a4e3f" stroke-width="1"/>
+          <rect x="4" y="7" width="392" height="4" fill="#cfc4b4"/>
+          <!-- Fila corrida de Dentículos Romanos -->
+          <rect x="8" y="11" width="384" height="11" fill="url(#dentil-pattern)"/>
+          <line x1="0" y1="22" x2="400" y2="22" stroke="#4a3d2e" stroke-width="1.2"/>
+          <!-- Arquitrabe con molduras de banda (fasciae) -->
+          <rect x="4" y="22" width="392" height="7" fill="url(#frieze-grad)"/>
+          <line x1="4" y1="29" x2="396" y2="29" stroke="#756756" stroke-width="0.8"/>
+          <rect x="0" y="29" width="400" height="8" fill="#ded5c6"/>
+          <line x1="0" y1="37" x2="400" y2="37" stroke="#4a3d2e" stroke-width="1.2"/>
+          <!-- Capitel Izquierdo con Voluta Jónica -->
+          <g transform="translate(0, 7)">
+            <rect x="0" y="0" width="24" height="30" fill="#cfc3b2" stroke="#524536" stroke-width="0.9"/>
+            <circle cx="7" cy="18" r="4.5" fill="#f0e8dc" stroke="#524536" stroke-width="1.1"/>
+            <circle cx="7" cy="18" r="2" fill="#8c7d6c"/>
+            <rect x="1" y="25" width="22" height="5" fill="#beb19f" stroke="#524536" stroke-width="0.8"/>
+          </g>
+          <!-- Capitel Derecho con Voluta Jónica -->
+          <g transform="translate(376, 7)">
+            <rect x="0" y="0" width="24" height="30" fill="#cfc3b2" stroke="#524536" stroke-width="0.9"/>
+            <circle cx="17" cy="18" r="4.5" fill="#f0e8dc" stroke="#524536" stroke-width="1.1"/>
+            <circle cx="17" cy="18" r="2" fill="#8c7d6c"/>
+            <rect x="1" y="25" width="22" height="5" fill="#beb19f" stroke="#524536" stroke-width="0.8"/>
+          </g>
+        </svg>
       </div>
+
+      <!-- 2. CUERPO DEL TEMPLO FLANQUEADO POR PILARES ESTRIADOS -->
+      <div class="tracker-roman-body">
+        <!-- PILAR ROMANO IZQUIERDO -->
+        <div class="tracker-roman-pillar tracker-pillar-left">
+          <div class="pillar-fluting"></div>
+          <div class="pillar-base-molding"></div>
+        </div>
+
+        <!-- CONTENIDO INTERNO DEL BIO-TRACKER -->
+        <div class="tracker-temple-content">
+          <!-- HEADER CON INSIGNIA ROMANA Y SELECTOR DE PROTOCOLO -->
+          <div class="tracker-card-header">
+            <div class="tracker-title-group">
+              <div class="tracker-icon-svg-wrap">
+                <!-- SVG INSIGNIA: TEMPLO ROMANO CLÁSICO CON COLUMNAS Y CORONA DE LAUREL -->
+                <svg viewBox="0 0 28 28" width="24" height="24" fill="none" class="tracker-svg-roman-insignia">
+                  <polygon points="14 3, 4 8, 24 8" fill="#dfd5c7" stroke="#4a3e30" stroke-width="1.3" stroke-linejoin="round"/>
+                  <circle cx="14" cy="6.2" r="1.1" fill="#756858"/>
+                  <rect x="3.5" y="8" width="21" height="2" fill="#ece5d9" stroke="#4a3e30" stroke-width="1"/>
+                  <g stroke="#4a3e30" stroke-width="1" fill="#f5f0e8">
+                    <rect x="5.2" y="10" width="2.8" height="11" rx="0.4"/>
+                    <rect x="10.2" y="10" width="2.8" height="11" rx="0.4"/>
+                    <rect x="15" y="10" width="2.8" height="11" rx="0.4"/>
+                    <rect x="20" y="10" width="2.8" height="11" rx="0.4"/>
+                  </g>
+                  <path d="M6.6 11v9 M11.6 11v9 M16.4 11v9 M21.4 11v9" stroke="#8a7c6c" stroke-width="0.8"/>
+                  <rect x="3.5" y="21" width="21" height="1.8" fill="#dfd6c8" stroke="#4a3e30" stroke-width="1"/>
+                  <rect x="2" y="22.8" width="24" height="2.2" fill="#c4b8a7" stroke="#4a3e30" stroke-width="1"/>
+                  <path d="M3 16C2.2 12.5 3.5 7.5 7 4.5" stroke="#b89c50" stroke-width="1.3" stroke-linecap="round"/>
+                  <path d="M25 16C25.8 12.5 24.5 7.5 21 4.5" stroke="#b89c50" stroke-width="1.3" stroke-linecap="round"/>
+                  <circle cx="2.2" cy="10.5" r="0.9" fill="#b89c50"/>
+                  <circle cx="4.2" cy="6.5" r="0.9" fill="#b89c50"/>
+                  <circle cx="25.8" cy="10.5" r="0.9" fill="#b89c50"/>
+                  <circle cx="23.8" cy="6.5" r="0.9" fill="#b89c50"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="tracker-card-title">BIO-TRACKER GAMIFICADO</h4>
+                <span class="tracker-card-subtitle">${currentProto.name}</span>
+              </div>
+            </div>
+
+            <div class="tracker-header-actions">
+              <!-- RECUADRO CON ICONO DE RELOJ: HISTORIAL DE PROTOCOLOS -->
+              <button type="button" class="btn-tracker-history-box" id="btn-open-protocol-history" title="Historial de Protocolos">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tracker-svg-clock">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <div class="history-box-meta">
+                  <span class="history-box-tag ${currentProto.status === 'completado' ? 'completed' : 'active'}">
+                    ${currentProto.status === 'completado' ? '🏁 Completado' : '🟢 En Curso'}
+                  </span>
+                  <span class="history-box-name">${currentProto.shortName || currentProto.name}</span>
+                </div>
+                <span class="history-box-arrow">▼</span>
+              </button>
+
+              <button type="button" class="btn-tracker-config" id="btn-open-tracker-config" title="Configurar métricas y cifras">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tracker-svg-gear">
+                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
 
       <!-- BANNER DE MODO HISTÓRICO SI SE ESTÁ VIENDO PROTOCOLO COMPLETADO -->
       ${isHistorical ? `
@@ -1390,6 +1463,29 @@ function renderHabitTrackerHTML(tData) {
             </div>
           ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
+      </div>
+        </div>
+
+        <!-- PILAR ROMANO DERECHO -->
+        <div class="tracker-roman-pillar tracker-pillar-right">
+          <div class="pillar-fluting"></div>
+          <div class="pillar-base-molding"></div>
+        </div>
+      </div>
+
+      <!-- 3. BASE ESCALONADA ROMANA (ESTILÓBATO) -->
+      <div class="tracker-roman-stylobate">
+        <svg class="stylobate-svg" viewBox="0 0 400 16" preserveAspectRatio="none" width="100%" height="16">
+          <defs>
+            <linearGradient id="stylobate-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#dfd6c8"/>
+              <stop offset="100%" stop-color="#a89a87"/>
+            </linearGradient>
+          </defs>
+          <rect x="6" y="0" width="388" height="5" fill="#ded5c6" stroke="#685c4e" stroke-width="0.8"/>
+          <rect x="0" y="5" width="400" height="11" fill="url(#stylobate-grad)" stroke="#4a3e30" stroke-width="1"/>
+          <line x1="0" y1="5" x2="400" y2="5" stroke="#f2ebe2" stroke-width="0.8"/>
+        </svg>
       </div>
 
       <!-- MODAL DE HISTORIAL DE PROTOCOLOS -->
@@ -1729,7 +1825,7 @@ const renderers = {
       document.getElementById('properties-block').style.display = 'none';
       document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #fee2e2 0%, #fef3c7 50%, #ecfdf5 100%)';
       document.getElementById('page-icon').textContent = '🔥';
-      document.getElementById('page-title').textContent = 'Protocolo Pre-Elrow (30 Días)';
+      document.getElementById('page-title').textContent = 'Protocolo Pre-Elrow';
       renderProtocolo30DiasFullPage(container);
       setupProtocoloEvents(container, true);
       return;

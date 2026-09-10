@@ -237,7 +237,7 @@ export function renderProtocoloPreviewHTML() {
             <span class="proto-badge-date">${dateFormatted}</span>
           </div>
           <h3 class="proto-title">PROTOCOLO PRE-ELROW</h3>
-          <p class="proto-subtitle">30 Días de Recomposición Biológica, Prospección y Disciplina</p>
+          <p class="proto-subtitle">Recomposición Biológica, Prospección y Disciplina</p>
         </div>
         <div class="proto-header-right">
           <a href="#backlog/protocolo-30dias" class="btn-proto-expand-full" title="Expandir a Pantalla Completa">
@@ -378,7 +378,7 @@ export function renderProtocolo30DiasFullPage(container) {
         <a href="#backlog" class="btn-proto-back" id="btn-back-to-backlog">
           ← Volver a Selección de Backlog
         </a>
-        <div class="proto-fullpage-tag">PROTOCOLO PRE-ELROW • 30 DÍAS (10 SEP - 10 OCT 2026)</div>
+        <div class="proto-fullpage-tag">PROTOCOLO PRE-ELROW (10 SEP - 10 OCT 2026)</div>
       </div>
 
       <!-- 30-DAY HORIZONTAL SLIDER -->
