@@ -1952,7 +1952,7 @@ const renderers = {
             </div>
 
             <!-- CONTENEDOR DE PREVIEW PROTOCOLO PRE-ELROW (30 DÍAS) -->
-            <div class="protocolo-preview-container">
+            <div class="protocolo-preview-container" id="protocolo-preview-mount">
               ${renderProtocoloPreviewHTML()}
             </div>
 

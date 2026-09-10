@@ -1,17 +1,17 @@
 // PROTOCOLO PRE-ELROW (10 SEP - 10 OCT 2026)
 // Arquitectura Modular de Bloques Individuales e Interactivos
 
-export const PROTOCOLO_STORAGE_KEY = 'qz_protocolo_pre_elrow_v2';
-export const PROTOCOLO_BLOCK_CHOICES_KEY = 'qz_protocolo_pre_elrow_choices_v1';
+export const PROTOCOLO_STORAGE_KEY = 'qz_protocolo_pre_elrow_v3';
+export const PROTOCOLO_BLOCK_CHOICES_KEY = 'qz_protocolo_pre_elrow_choices_v2';
 export const START_DATE_STR = '2026-09-10';
 export const END_DATE_STR = '2026-10-10';
 export const TOTAL_DAYS = 30;
 
-// Definición unificada de los bloques diarios con opciones individuales por bloque
+// Definición de bloques con rango de horas exacto
 export const PROTOCOLO_DAILY_BLOCKS = [
   {
     id: 'b1',
-    time: '06:00',
+    time: '06:00 - 06:30',
     title: 'Despertar & Shot Matutino',
     icon: '⚡',
     detailKey: 'shot',
@@ -19,7 +19,7 @@ export const PROTOCOLO_DAILY_BLOCKS = [
   },
   {
     id: 'b2',
-    time: '07:00',
+    time: '06:30 - 08:00',
     title: 'Entrada Colegios (Presencial)',
     icon: '🎒',
     desc: 'Contacto con padres en puerta',
@@ -27,7 +27,7 @@ export const PROTOCOLO_DAILY_BLOCKS = [
   },
   {
     id: 'b3',
-    time: '08:15',
+    time: '08:15 - 10:00',
     title: 'Llamadas & WSP a Leads',
     icon: '📞',
     desc: 'Marcación activa y seguimiento',
@@ -35,17 +35,17 @@ export const PROTOCOLO_DAILY_BLOCKS = [
   },
   {
     id: 'b4',
-    time: '10:15',
+    time: '10:15 - 11:15',
     title: 'Bloque Flexible 1',
     icon: '🔄',
     options: [
-      { id: 'opt_gym', label: '🏋️ Calistenia + Fría', detailKey: 'gym', desc: '45m Calistenia + 3m Ducha Fría en ayunas' },
+      { id: 'opt_gym', label: '🏋️ Calistenia + Fría', desc: '45m Calistenia + 3m Ducha Fría en ayunas' },
       { id: 'opt_dev', label: '💻 Dev ZentryOS', desc: 'Soporte, Kiosk Mode y mejoras rápidas' }
     ]
   },
   {
     id: 'b5',
-    time: '11:30',
+    time: '11:30 - 12:00',
     title: 'Comida 1: Carga Proteica',
     icon: '🍳',
     detailKey: 'comida',
@@ -54,7 +54,7 @@ export const PROTOCOLO_DAILY_BLOCKS = [
   },
   {
     id: 'b6',
-    time: '12:00',
+    time: '12:00 - 12:30',
     title: 'Donnie: Paseo Fijo',
     icon: '🐕',
     detailKey: 'donnie',
@@ -63,25 +63,25 @@ export const PROTOCOLO_DAILY_BLOCKS = [
   },
   {
     id: 'b7',
-    time: '13:00',
-    title: 'Prospección de Tarde & Demos',
+    time: '13:00 - 15:00',
+    title: 'Prospección Tarde & Demos',
     icon: '🚶',
     desc: 'Salida de colegios / citas agendadas',
     options: null
   },
   {
     id: 'b8',
-    time: '15:00',
+    time: '15:00 - 17:00',
     title: 'Bloque Flexible 2',
     icon: '🔄',
     options: [
       { id: 'opt_dev', label: '💻 Dev & Soporte', desc: 'Mesa de trabajo y código ZentryOS' },
-      { id: 'opt_lunch', label: '🥗 Almuerzo / Descanso', desc: 'Comida secundaria o desconexión mental' }
+      { id: 'opt_lunch', label: '🥗 Almuerzo / Break', desc: 'Comida secundaria o descanso mental' }
     ]
   },
   {
     id: 'b9',
-    time: '17:00',
+    time: '17:00 - 19:30',
     title: 'Seguimiento Comercial & CRM',
     icon: '📊',
     desc: 'Cierre de cotizaciones y respuestas WSP',
@@ -89,7 +89,7 @@ export const PROTOCOLO_DAILY_BLOCKS = [
   },
   {
     id: 'b10',
-    time: '19:30',
+    time: '19:30 - 21:00',
     title: 'Bloque Flexible 3',
     icon: '🔄',
     options: [
@@ -99,7 +99,7 @@ export const PROTOCOLO_DAILY_BLOCKS = [
   },
   {
     id: 'b11',
-    time: '21:00',
+    time: '21:00 - 22:00',
     title: 'Cierre: Gabapentina & Descanso',
     icon: '💊',
     detailKey: 'gaba',
@@ -211,7 +211,7 @@ export function getDayData(protoData, dateStr) {
   return protoData.days[dateStr];
 }
 
-// --- RENDER COMPACT PREVIEW (LOW TEXT, BLOCK-BY-BLOCK CHOICES) ---
+// --- RENDER COMPACT PREVIEW (SIN BOTONES DE FOOTER, HORAS EN BLOQUES, ELECCIÓN INDIVIDUAL) ---
 export function renderProtocoloPreviewHTML() {
   const proto = getProtocoloData();
   const todayStr = proto.activeDate || new Date().toISOString().split('T')[0];
@@ -221,7 +221,7 @@ export function renderProtocoloPreviewHTML() {
   const today = new Date(todayStr + 'T00:00:00');
   const dateFormatted = today.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
 
-  // Calcular progreso
+  // Progreso diario
   let totalBlocks = PROTOCOLO_DAILY_BLOCKS.length;
   let doneCount = 0;
   PROTOCOLO_DAILY_BLOCKS.forEach(b => {
@@ -233,17 +233,12 @@ export function renderProtocoloPreviewHTML() {
   const blocksHtml = PROTOCOLO_DAILY_BLOCKS.map(b => {
     const state = dayData.blocks[b.id] || {};
     const isCompleted = state.status === 'completed';
-    const isSkipped = state.status === 'skipped'; // vacio / hizo otra cosa
+    const isSkipped = state.status === 'skipped';
 
-    let activeTitle = b.title;
-    let optionsHtml = '';
-
+    let centerHtml = '';
     if (b.options) {
       const selectedOptId = blockChoices[b.id] || b.options[0].id;
-      const currentOpt = b.options.find(o => o.id === selectedOptId) || b.options[0];
-      activeTitle = currentOpt.label;
-
-      optionsHtml = `
+      centerHtml = `
         <div class="block-segmented-switcher">
           ${b.options.map(opt => `
             <button type="button" class="btn-opt-pill ${opt.id === selectedOptId ? 'is-active' : ''}" 
@@ -253,6 +248,8 @@ export function renderProtocoloPreviewHTML() {
           `).join('')}
         </div>
       `;
+    } else {
+      centerHtml = `<span class="block-row-title">${b.title}</span>`;
     }
 
     return `
@@ -260,14 +257,10 @@ export function renderProtocoloPreviewHTML() {
         <span class="block-time-pill">${b.time}</span>
         
         <div class="block-row-center">
-          <span class="block-row-title">${activeTitle}</span>
-          ${optionsHtml}
+          ${centerHtml}
         </div>
 
         <div class="block-row-actions">
-          ${b.detailKey ? `
-            <button type="button" class="btn-block-action btn-block-info" data-detail-key="${b.detailKey}" title="Ver Guía">🔍</button>
-          ` : ''}
           <button type="button" class="btn-block-action btn-block-skip ${isSkipped ? 'active' : ''}" data-block-id="${b.id}" title="Marcar Vacío (Hice otra cosa)">∅</button>
           <button type="button" class="btn-block-action btn-block-check ${isCompleted ? 'active' : ''}" data-block-id="${b.id}" title="Marcar Cumplido">✓</button>
         </div>
@@ -277,7 +270,7 @@ export function renderProtocoloPreviewHTML() {
 
   return `
     <div class="protocolo-compact-preview-card" id="protocolo-30d-preview-card">
-      <!-- HEADER COMPACTO CON POCO TEXTO -->
+      <!-- CABECERA ULTRA COMPACTA -->
       <div class="proto-preview-top-bar">
         <div class="proto-bar-left">
           <span class="proto-tag-flame">🔥 PRE-ELROW</span>
@@ -290,64 +283,43 @@ export function renderProtocoloPreviewHTML() {
         </div>
       </div>
 
-      <!-- MODAL DE DETALLES RÁPIDOS -->
-      <div class="proto-detail-modal" id="proto-detail-modal" style="display: none;">
-        <div class="proto-detail-modal-header">
-          <h4 id="proto-detail-title">⚡ Guía Rápida</h4>
-          <button type="button" class="btn-close-proto-detail" id="btn-close-proto-detail">✕</button>
-        </div>
-        <div class="proto-detail-modal-body" id="proto-detail-body"></div>
-      </div>
-
       <!-- LISTADO MODULAR DE BLOQUES -->
       <div class="proto-blocks-compact-list" id="proto-blocks-container">
         ${blocksHtml}
-      </div>
-
-      <!-- FOOTER DE ACCESOS RÁPIDOS -->
-      <div class="proto-preview-mini-footer">
-        <button type="button" class="btn-mini-guide" data-detail-key="shot">⚡ Shot</button>
-        <button type="button" class="btn-mini-guide" data-detail-key="comida">🍳 Comida</button>
-        <button type="button" class="btn-mini-guide" data-detail-key="donnie">🐕 Donnie</button>
-        <button type="button" class="btn-mini-guide" data-detail-key="gaba">💊 Gaba</button>
       </div>
     </div>
   `;
 }
 
-// --- RENDER FULL PAGE VIEW (#backlog/protocolo-30dias) ---
+// --- RENDER FULL PAGE VIEW (#backlog/protocolo-30dias) SIN LÍNEA DE TIEMPO Y CON BOTONES LIMPIOS ---
 export function renderProtocolo30DiasFullPage(container) {
   const proto = getProtocoloData();
   const todayStr = proto.activeDate || new Date().toISOString().split('T')[0];
   const dayData = getDayData(proto, todayStr);
   const blockChoices = getBlockChoices();
 
-  const start = new Date(START_DATE_STR + 'T00:00:00');
-  const daysBarHtml = Array.from({ length: TOTAL_DAYS }).map((_, idx) => {
-    const d = new Date(start);
-    d.setDate(start.getDate() + idx);
-    const dateIso = d.toISOString().split('T')[0];
-    const isCurrent = dateIso === todayStr;
-    const dayNum = idx + 1;
-
-    return `
-      <div class="timeline-day-pill ${isCurrent ? 'active' : ''}" data-date="${dateIso}">
-        <span class="day-num">D${dayNum}</span>
-        <span class="day-date">${d.getDate()}/${d.getMonth()+1}</span>
-      </div>
-    `;
-  }).join('');
-
   const blocksListHtml = PROTOCOLO_DAILY_BLOCKS.map(b => {
     const state = dayData.blocks[b.id] || {};
     const isCompleted = state.status === 'completed';
     const isSkipped = state.status === 'skipped';
-    let activeTitle = b.title;
+    
+    let titleHtml = b.title;
+    let optionsHtml = '';
 
     if (b.options) {
       const selOptId = blockChoices[b.id] || b.options[0].id;
       const curOpt = b.options.find(o => o.id === selOptId) || b.options[0];
-      activeTitle = `${b.title}: <strong>${curOpt.label}</strong>`;
+      titleHtml = `${b.title}: <strong>${curOpt.label}</strong>`;
+      optionsHtml = `
+        <div class="block-segmented-switcher" style="margin-top: 6px;">
+          ${b.options.map(opt => `
+            <button type="button" class="btn-opt-pill ${opt.id === selOptId ? 'is-active' : ''}" 
+              data-block-id="${b.id}" data-opt-id="${opt.id}">
+              ${opt.label}
+            </button>
+          `).join('')}
+        </div>
+      `;
     }
 
     return `
@@ -355,11 +327,18 @@ export function renderProtocolo30DiasFullPage(container) {
         <div class="fullpage-block-header">
           <div class="fullpage-block-left">
             <span class="fullpage-block-time">${b.time}</span>
-            <h4 class="fullpage-block-title">${activeTitle}</h4>
+            <div class="fullpage-block-title-wrap">
+              <h4 class="fullpage-block-title">${titleHtml}</h4>
+              ${optionsHtml}
+            </div>
           </div>
           <div class="fullpage-block-right">
-            <button type="button" class="btn-block-action btn-block-skip ${isSkipped ? 'active' : ''}" data-block-id="${b.id}">Marcar Vacío</button>
-            <button type="button" class="btn-block-action btn-block-check ${isCompleted ? 'active' : ''}" data-block-id="${b.id}">✓ Completado</button>
+            <button type="button" class="btn-fullpage-action btn-fullpage-skip ${isSkipped ? 'active' : ''}" data-block-id="${b.id}">
+              ${isSkipped ? '✓ Vacío' : '∅ Marcar Vacío'}
+            </button>
+            <button type="button" class="btn-fullpage-action btn-fullpage-check ${isCompleted ? 'active' : ''}" data-block-id="${b.id}">
+              ${isCompleted ? '✓ Cumplido' : 'Marcar Cumplido'}
+            </button>
           </div>
         </div>
         ${b.desc ? `<p class="fullpage-block-desc">${b.desc}</p>` : ''}
@@ -377,25 +356,8 @@ export function renderProtocolo30DiasFullPage(container) {
         <div class="proto-fullpage-tag">PROTOCOLO PRE-ELROW (10 SEP - 10 OCT 2026)</div>
       </div>
 
-      <!-- 30-DAY SLIDER -->
-      <div class="proto-timeline-container">
-        <div class="proto-timeline-header">
-          <div class="timeline-title-wrap">
-            <span class="timeline-icon">📅</span>
-            <div>
-              <h3 class="timeline-title">Línea de Tiempo: Protocolo Pre-Elrow</h3>
-              <p class="timeline-subtitle">Selecciona el día a consultar o registrar:</p>
-            </div>
-          </div>
-          <div class="timeline-target-badge">🎯 Meta: 30 de Septiembre (3 Ventas ZentryOS)</div>
-        </div>
-        <div class="proto-days-scroller">
-          ${daysBarHtml}
-        </div>
-      </div>
-
-      <!-- WORKSPACE GRID -->
-      <div class="proto-workspace-grid">
+      <!-- WORKSPACE GRID (SIN LÍNEA DE TIEMPO) -->
+      <div class="proto-workspace-grid" style="margin-top: 18px;">
         <div class="proto-grid-main">
           <h3 class="blocks-section-title">Bloques Diarios (Elección Individual por Bloque)</h3>
           <div class="proto-fullpage-blocks-list">
@@ -404,15 +366,19 @@ export function renderProtocolo30DiasFullPage(container) {
         </div>
         <div class="proto-grid-sidebar">
           <div class="sidebar-guide-card">
-            <h4>⚡ Micronutrientes</h4>
-            <p>Sal de Maras + Citrato Potasio + Tirosina + Vitamina C en ayunas.</p>
+            <h4>⚡ Micronutrientes (Shot)</h4>
+            <p>Sal de Maras (~1.5g) + Citrato Potasio + Tirosina (500-1000mg) + Vitamina C en ayunas. Sin estevia.</p>
           </div>
           <div class="sidebar-guide-card">
             <h4>🍳 Nutrición Densa</h4>
-            <p>4 huevos + corazón de res + arroz frío de refrigeradora normal.</p>
+            <p>4 huevos + corazón de res (150g diario) + arroz frío de refrigeradora normal (NO congelador) + NAC con comida.</p>
           </div>
           <div class="sidebar-guide-card">
-            <h4>💊 Gabapentina</h4>
+            <h4>🐕 Donnie (12:00 PM)</h4>
+            <p>Paseo fijo de 20 a 30 min innegociable con luz cenital directa.</p>
+          </div>
+          <div class="sidebar-guide-card">
+            <h4>💊 Gabapentina (21:30 PM)</h4>
             <p>1 cápsula antes de dormir. CERO alcohol estricto.</p>
           </div>
         </div>
@@ -435,7 +401,7 @@ export function setupProtocoloEvents(container, isFullPage = false) {
   });
 
   // 2. Check / Complete
-  container.querySelectorAll('.btn-block-check').forEach(btn => {
+  container.querySelectorAll('.btn-block-check, .btn-fullpage-check').forEach(btn => {
     btn.onclick = (e) => {
       e.stopPropagation();
       const blockId = btn.dataset.blockId;
@@ -452,7 +418,7 @@ export function setupProtocoloEvents(container, isFullPage = false) {
   });
 
   // 3. Skip / Vacío / Hice otra cosa
-  container.querySelectorAll('.btn-block-skip').forEach(btn => {
+  container.querySelectorAll('.btn-block-skip, .btn-fullpage-skip').forEach(btn => {
     btn.onclick = (e) => {
       e.stopPropagation();
       const blockId = btn.dataset.blockId;
@@ -468,55 +434,17 @@ export function setupProtocoloEvents(container, isFullPage = false) {
     };
   });
 
-  // 4. Modal de Guía Rápida
-  const detailModal = container.querySelector('#proto-detail-modal');
-  const detailTitle = container.querySelector('#proto-detail-title');
-  const detailBody = container.querySelector('#proto-detail-body');
-  const btnCloseModal = container.querySelector('#btn-close-proto-detail');
-
-  const showDetail = (key) => {
-    const item = PROTOCOLO_DETAILS[key];
-    if (item && detailModal && detailTitle && detailBody) {
-      detailTitle.textContent = item.title;
-      detailBody.innerHTML = item.content;
-      detailModal.style.display = 'block';
-    }
-  };
-
-  if (btnCloseModal && detailModal) {
-    btnCloseModal.onclick = () => { detailModal.style.display = 'none'; };
-  }
-
-  container.querySelectorAll('.btn-mini-guide, .btn-block-info').forEach(btn => {
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      const key = btn.dataset.detailKey;
-      if (key) showDetail(key);
-    };
-  });
-
-  // 5. Timeline day selector (Fullpage)
-  if (isFullPage) {
-    container.querySelectorAll('.timeline-day-pill').forEach(pill => {
-      pill.onclick = () => {
-        const dateIso = pill.dataset.date;
-        const proto = getProtocoloData();
-        proto.activeDate = dateIso;
-        saveProtocoloData(proto);
-        renderProtocolo30DiasFullPage(container);
-        setupProtocoloEvents(container, true);
-      };
-    });
-  }
-
   function refreshView() {
     if (isFullPage) {
       renderProtocolo30DiasFullPage(container);
       setupProtocoloEvents(container, true);
     } else {
-      const mount = container.querySelector('#protocolo-preview-mount') || container;
-      mount.innerHTML = renderProtocoloPreviewHTML();
-      setupProtocoloEvents(mount, false);
+      // Usar estrictamente el ID del mount sin tocar el resto del backlog
+      const mount = document.getElementById('protocolo-preview-mount');
+      if (mount) {
+        mount.innerHTML = renderProtocoloPreviewHTML();
+        setupProtocoloEvents(mount, false);
+      }
     }
   }
 }
