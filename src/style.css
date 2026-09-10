@@ -7400,6 +7400,18 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   height: 20px;
 }
 
+.dropdown-global-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: rgba(99, 102, 241, 0.12);
+  font-size: 13px;
+}
+
+
 .dropdown-item-info {
   flex: 1;
   display: flex;

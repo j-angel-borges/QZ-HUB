@@ -1903,7 +1903,7 @@ const renderers = {
                 </div>
                 <div class="consolidated-header-text">
                   <h4 class="consolidated-title">TABLEROS DE TRABAJO</h4>
-                  <p class="consolidated-subtitle">Quarz • Zentry • Personal • Diario</p>
+                  <p class="consolidated-subtitle">Quarz • Zentry • Personal • Global</p>
                 </div>
                 <button type="button" class="btn-toggle-boards">
                   <span>Ver Tableros</span>
@@ -1940,11 +1940,11 @@ const renderers = {
                   <span class="dropdown-arrow">➔</span>
                 </a>
 
-                <a href="#backlog/journal" class="dropdown-board-item journal-item">
-                  <span class="dropdown-journal-badge" style="font-size: 16px;">📖</span>
+                <a href="#backlog/global" class="dropdown-board-item global-item">
+                  <span class="dropdown-global-badge" style="font-size: 16px;">🌐</span>
                   <div class="dropdown-item-info">
-                    <strong>Diario Nocturno</strong>
-                    <small>Bitácora de pensamiento estratégico y reflexión nocturna</small>
+                    <strong>Tablero GLOBAL</strong>
+                    <small>Vista consolidada con todas las tareas y objetivos</small>
                   </div>
                   <span class="dropdown-arrow">➔</span>
                 </a>
@@ -1958,25 +1958,6 @@ const renderers = {
 
           </div>
 
-        </div>
-
-        <!-- BANNER INFERIOR: TABLERO GLOBAL -->
-        <div class="global-board-banner-wrapper" style="max-width: 1040px; margin: 0 auto 40px auto; padding: 0 4px;">
-          <a href="#backlog/global" class="global-board-card">
-            <div class="global-board-card-left">
-              <div class="unit-card-icon-box" style="margin-bottom: 0; width: 56px; height: 56px; flex-shrink: 0;">
-                <span class="unit-global-icon" style="font-size: 28px;">🌐</span>
-              </div>
-              <div class="global-board-card-text">
-                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                  <h4 class="unit-card-title" style="margin: 0; font-size: 14.5px;">TABLERO GLOBAL</h4>
-                  <span class="global-board-badge">Todas las Unidades</span>
-                </div>
-                <p class="unit-card-desc" style="margin: 4px 0 0 0; font-size: 12px;">Vista consolidada con todas las tareas y objetivos combinados de Quarz, Zentry, Personal y Ecosistema Creativo.</p>
-              </div>
-            </div>
-            <button type="button" class="btn-global-enter">Entrar a Global</button>
-          </a>
         </div>
       `;
 
