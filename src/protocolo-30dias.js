@@ -127,7 +127,7 @@ export const PROTOCOLO_DETAILS = {
       <div class="proto-detail-grid">
         <div class="proto-detail-item"><strong>📍 Acción:</strong> Contacto directo con padres de familia y directores en la puerta de colegios.</div>
         <div class="proto-detail-item"><strong>🎯 Objetivo:</strong> Agendamiento de demostraciones en vivo de ZentryOS (Kiosk & Control Parental).</div>
-        <div class="proto-detail-item" style="color: #64748b; font-style: italic;">📊 Métricas de producción: (Espacio reservado para métricas de producción).</div>
+        <div class="proto-detail-item" style="color: #0284c7; font-weight: 600;">📊 Métrica en Bio-Tracker: <strong>Prospecciones (PCC)</strong>. Registra cada institución abordada.</div>
       </div>
     `
   },
@@ -138,7 +138,7 @@ export const PROTOCOLO_DETAILS = {
       <div class="proto-detail-grid">
         <div class="proto-detail-item"><strong>🎯 Acción:</strong> Contactar directores de instituciones y prospectos interesados en horario matutino.</div>
         <div class="proto-detail-item"><strong>📱 Canal:</strong> WhatsApp Business y llamadas directas de seguimiento.</div>
-        <div class="proto-detail-item" style="color: #64748b; font-style: italic;">📊 Métricas de producción: (Espacio reservado para métricas de producción).</div>
+        <div class="proto-detail-item" style="color: #d97706; font-weight: 600;">📊 Métrica en Bio-Tracker: <strong>Llamadas (LL)</strong>. Registra cada llamada y contacto directo.</div>
       </div>
     `
   },
@@ -184,7 +184,7 @@ export const PROTOCOLO_DETAILS = {
       <div class="proto-detail-grid">
         <div class="proto-detail-item"><strong>📍 Acción:</strong> Visitas a colegios en horario de salida, demostraciones presenciales y entrega de material comercial.</div>
         <div class="proto-detail-item"><strong>💧 Hidratación:</strong> Termo con agua y sal de Maras para mantener energía sin fatiga.</div>
-        <div class="proto-detail-item" style="color: #64748b; font-style: italic;">📊 Métricas de producción: (Espacio reservado para métricas de producción).</div>
+        <div class="proto-detail-item" style="color: #7c3aed; font-weight: 600;">📊 Métrica en Bio-Tracker: <strong>Demostraciones (Demos)</strong>. Registra cada demo completada.</div>
       </div>
     `
   },
@@ -205,7 +205,7 @@ export const PROTOCOLO_DETAILS = {
       <div class="proto-detail-grid">
         <div class="proto-detail-item"><strong>🎯 Acción:</strong> Cierre de cotizaciones, respuestas a leads en WhatsApp y registro de avances en el CRM.</div>
         <div class="proto-detail-item"><strong>💼 Objetivo:</strong> Acuerdos concretados de ZentryOS.</div>
-        <div class="proto-detail-item" style="color: #64748b; font-style: italic;">📊 Métricas de producción: (Espacio reservado para métricas de producción).</div>
+        <div class="proto-detail-item" style="color: #059669; font-weight: 600;">📊 Métrica en Bio-Tracker: <strong>Ventas (WIN)</strong>. Registra cada cierre comercial concretado.</div>
       </div>
     `
   },

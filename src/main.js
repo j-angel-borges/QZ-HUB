@@ -1132,12 +1132,56 @@ function resetHabitTrackerDefaults() {
   return defaults;
 }
 
+// Helper para gestión de métricas comerciales productivas (PCC, LL, Demos, WIN)
+function getProductiveData(trackerData) {
+  const todayStr = new Date().toISOString().split('T')[0];
+  if (!trackerData.prod) {
+    trackerData.prod = {
+      todayDate: todayStr,
+      today: { pcc: 0, ll: 0, demos: 0, win: 0 },
+      history: {},
+      totals: { pcc: 0, ll: 0, demos: 0, win: 0 }
+    };
+  }
+  const prod = trackerData.prod;
+  if (!prod.history) prod.history = {};
+  if (!prod.today) prod.today = { pcc: 0, ll: 0, demos: 0, win: 0 };
+  
+  if (prod.todayDate && prod.todayDate !== todayStr) {
+    prod.history[prod.todayDate] = { ...prod.today };
+    prod.todayDate = todayStr;
+    prod.today = prod.history[todayStr] ? { ...prod.history[todayStr] } : { pcc: 0, ll: 0, demos: 0, win: 0 };
+  } else if (!prod.todayDate) {
+    prod.todayDate = todayStr;
+  }
+
+  const totals = { pcc: 0, ll: 0, demos: 0, win: 0 };
+  for (const date in prod.history) {
+    if (date !== todayStr) {
+      totals.pcc += prod.history[date].pcc || 0;
+      totals.ll += prod.history[date].ll || 0;
+      totals.demos += prod.history[date].demos || 0;
+      totals.win += prod.history[date].win || 0;
+    }
+  }
+  totals.pcc += prod.today.pcc || 0;
+  totals.ll += prod.today.ll || 0;
+  totals.demos += prod.today.demos || 0;
+  totals.win += prod.today.win || 0;
+  prod.totals = totals;
+
+  return prod;
+}
+
 function renderHabitTrackerHTML(tData) {
   const pData = getProtocolsData();
   const viewingId = pData.viewingId || 'pre-elrow';
   const currentProto = pData.protocols.find(p => p.id === viewingId) || pData.protocols[1];
   const isHistorical = currentProto.status === 'completado';
   const activeData = isHistorical ? currentProto.metrics : tData;
+  const prodData = isHistorical 
+    ? (currentProto.metrics?.prod || { todayDate: 'Histórico', today: { pcc: 0, ll: 0, demos: 0, win: 0 }, totals: { pcc: 45, ll: 180, demos: 24, win: 8 } })
+    : getProductiveData(tData);
 
   const friTotal = activeData.fri.coldDays + activeData.fri.missedDays;
   const friPercent = friTotal > 0 ? Math.round((activeData.fri.coldDays / friTotal) * 100) : 0;
@@ -1475,6 +1519,94 @@ function renderHabitTrackerHTML(tData) {
             </div>
           ` : '<div class="metric-chip-archived-label">Archivado</div>'}
         </div>
+
+        <!-- 10. ELEMENTO PRODUCTIVO COMERCIAL (PCC, LL, DEMOS, WIN) -->
+        <div class="metric-chip chip-prod" data-metric="prod">
+          <div class="prod-chip-top">
+            <div class="prod-title-group">
+              <span class="prod-badge-code">PROD</span>
+              <span class="prod-main-title">PRODUCTIVO</span>
+              <span class="prod-sub-tag">Comercial ZentryOS</span>
+            </div>
+            <div class="prod-date-info">
+              <span class="prod-date-pill">📅 ${prodData.todayDate}</span>
+            </div>
+          </div>
+
+          <div class="prod-columns-grid">
+            <!-- 1. PCC (Prospecciones) -->
+            <div class="prod-sub-col">
+              <div class="prod-sub-header">
+                <span class="prod-code-tag tag-pcc">PCC</span>
+                <span class="prod-sub-name" title="Prospección presencial en colegios">Prospección</span>
+              </div>
+              <div class="prod-sub-values">
+                <span class="prod-val-today" data-prod-key="pcc" title="Clic para ingresar cifra de hoy">+${prodData.today.pcc || 0}</span>
+                <span class="prod-val-total" title="Total acumulado en el protocolo">Acum: <strong>${prodData.totals.pcc || 0}</strong></span>
+              </div>
+              ${!isHistorical ? `
+                <div class="prod-sub-actions">
+                  <button type="button" class="btn-prod-ctrl btn-prod-add" data-action="prod-inc" data-prod="pcc" title="+1 Prospección">＋</button>
+                  <button type="button" class="btn-prod-ctrl btn-prod-sub" data-action="prod-dec" data-prod="pcc" title="-1 Prospección">－</button>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- 2. LL (Llamadas) -->
+            <div class="prod-sub-col">
+              <div class="prod-sub-header">
+                <span class="prod-code-tag tag-ll">LL</span>
+                <span class="prod-sub-name" title="Llamadas y WhatsApp a directores y prospectos">Llamadas</span>
+              </div>
+              <div class="prod-sub-values">
+                <span class="prod-val-today" data-prod-key="ll" title="Clic para ingresar cifra de hoy">+${prodData.today.ll || 0}</span>
+                <span class="prod-val-total" title="Total acumulado en el protocolo">Acum: <strong>${prodData.totals.ll || 0}</strong></span>
+              </div>
+              ${!isHistorical ? `
+                <div class="prod-sub-actions">
+                  <button type="button" class="btn-prod-ctrl btn-prod-add" data-action="prod-inc" data-prod="ll" title="+1 Llamada">＋</button>
+                  <button type="button" class="btn-prod-ctrl btn-prod-sub" data-action="prod-dec" data-prod="ll" title="-1 Llamada">－</button>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- 3. DEMOS (Demostraciones) -->
+            <div class="prod-sub-col">
+              <div class="prod-sub-header">
+                <span class="prod-code-tag tag-demos">DEMO</span>
+                <span class="prod-sub-name" title="Demostraciones de ZentryOS en vivo">Demos</span>
+              </div>
+              <div class="prod-sub-values">
+                <span class="prod-val-today" data-prod-key="demos" title="Clic para ingresar cifra de hoy">+${prodData.today.demos || 0}</span>
+                <span class="prod-val-total" title="Total acumulado en el protocolo">Acum: <strong>${prodData.totals.demos || 0}</strong></span>
+              </div>
+              ${!isHistorical ? `
+                <div class="prod-sub-actions">
+                  <button type="button" class="btn-prod-ctrl btn-prod-add" data-action="prod-inc" data-prod="demos" title="+1 Demo">＋</button>
+                  <button type="button" class="btn-prod-ctrl btn-prod-sub" data-action="prod-dec" data-prod="demos" title="-1 Demo">－</button>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- 4. WIN (Ventas / Cierres) -->
+            <div class="prod-sub-col">
+              <div class="prod-sub-header">
+                <span class="prod-code-tag tag-win">WIN</span>
+                <span class="prod-sub-name" title="Ventas y cierres de contratos concretados">Ventas</span>
+              </div>
+              <div class="prod-sub-values">
+                <span class="prod-val-today gold" data-prod-key="win" title="Clic para ingresar cifra de hoy">+${prodData.today.win || 0}</span>
+                <span class="prod-val-total gold" title="Total acumulado en el protocolo">Acum: <strong>${prodData.totals.win || 0}</strong></span>
+              </div>
+              ${!isHistorical ? `
+                <div class="prod-sub-actions">
+                  <button type="button" class="btn-prod-ctrl btn-prod-add gold" data-action="prod-inc" data-prod="win" title="+1 Venta">＋</button>
+                  <button type="button" class="btn-prod-ctrl btn-prod-sub" data-action="prod-dec" data-prod="win" title="-1 Venta">－</button>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        </div>
       </div>
         </div>
 
@@ -1668,6 +1800,62 @@ function setupHabitTrackerEvents(container) {
 
       saveHabitTrackerData(data);
       updateWidgetUI();
+    });
+  });
+
+  // 1.b Eventos de bloque productivo comercial (PCC, LL, Demos, WIN)
+  trackerWidget.querySelectorAll('[data-action="prod-inc"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const key = btn.getAttribute('data-prod');
+      const data = getHabitTrackerData();
+      const prod = getProductiveData(data);
+      prod.today[key] = (prod.today[key] || 0) + 1;
+      prod.history[prod.todayDate] = { ...prod.today };
+      saveHabitTrackerData(data);
+      updateWidgetUI();
+    });
+  });
+
+  trackerWidget.querySelectorAll('[data-action="prod-dec"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const key = btn.getAttribute('data-prod');
+      const data = getHabitTrackerData();
+      const prod = getProductiveData(data);
+      prod.today[key] = Math.max(0, (prod.today[key] || 0) - 1);
+      prod.history[prod.todayDate] = { ...prod.today };
+      saveHabitTrackerData(data);
+      updateWidgetUI();
+    });
+  });
+
+  trackerWidget.querySelectorAll('.prod-val-today').forEach(span => {
+    span.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const key = span.getAttribute('data-prod-key');
+      const labels = {
+        pcc: 'Prospecciones en colegios (PCC)',
+        ll: 'Llamadas a directores y prospectos (LL)',
+        demos: 'Demostraciones en vivo de ZentryOS (Demos)',
+        win: 'Ventas y cierres de contratos (WIN)'
+      };
+      const data = getHabitTrackerData();
+      const prod = getProductiveData(data);
+      const currentVal = prod.today[key] || 0;
+      const input = prompt(`Ingresar cifra de HOY para ${labels[key] || key}:`, currentVal);
+      if (input !== null) {
+        const parsed = parseInt(input);
+        if (!isNaN(parsed) && parsed >= 0) {
+          prod.today[key] = parsed;
+          prod.history[prod.todayDate] = { ...prod.today };
+          saveHabitTrackerData(data);
+          updateWidgetUI();
+        }
+      }
     });
   });
 
