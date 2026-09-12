@@ -2764,348 +2764,111 @@ const renderers = {
     document.getElementById('page-icon').textContent = '✨';
     document.getElementById('properties-block').style.display = 'none';
 
-    const demoFeaturesData = [
+    const features = [
       {
-        id: 'feat-isla-dinamica',
         name: 'Isla Dinámica Multimodal',
-        shortTitle: 'Vision & Voice Studio',
         icon: '🏝️',
-        category: 'IA Multimodal & Visión',
-        badge: '🟢 Gemini 2.5 Flash (<800ms)',
-        gcpProject: 'quarz-group',
-        gcpService: 'Firestore: island_telemetry & devices_live',
-        webAppUrl: 'https://zf-isla-dinamica.web.app',
-        localPath: 'demo-features/apps/zf-isla-dinamica',
-        summary: 'Isla interactiva flotante con física Liquid Glass. Streaming continuo a Gemini 2.5 Flash de ultra baja latencia, síntesis de voz en español y 3 Corner Tools: Landscape Enhancer, Touch-to-Explain Socratic Point y Scene Redesign.',
-        metrics: '<800ms Latencia • Cámara Dual/BeReal PiP',
-        commercialImpact: 'Demuestra al cliente o directivo escolar que el sistema comprende el entorno visual y responde en lenguaje natural al instante, sin latencia aparente.',
-        payloadPreview: {
-          deviceId: 'zentry_island_dev_01',
-          cameraMode: 'dual_bereal',
-          activeAction: 'touch_explain',
-          touchCoordinates: { x: 384, y: 240 },
-          aiPrompt: 'Explica qué objeto escolar estoy enfocando.',
-          aiResponse: 'Es un microscopio óptico con muestra biológica.',
-          latencyMs: 640,
-          status: 'STREAMING_ACTIVE'
-        }
+        url: 'https://zf-isla-dinamica.web.app',
+        displayUrl: 'zf-isla-dinamica.web.app',
+        tag: 'GEMINI 2.5',
+        desc: 'Isla multimodal con visión en vivo, cámara dual/BeReal y voz en tiempo real.',
+        badgeColor: 'rgba(83, 59, 135, 0.1)',
+        textColor: '#533B87'
       },
       {
-        id: 'feat-skinner-box',
-        name: 'Caja de Skinner (Doomscrolling Simulator)',
-        shortTitle: 'Operant Conditioning Engine',
+        name: 'Caja de Skinner',
         icon: '🎰',
-        category: 'Motor Conductual & Hábitos',
-        badge: '🟢 VR-7 Variable-Ratio',
-        gcpProject: 'quarz-group',
-        gcpService: 'Firestore: sessions_skinner',
-        webAppUrl: 'https://zf-skinner-box.web.app',
-        localPath: 'demo-features/apps/zf-skinner-box',
-        summary: 'Simulador de micro-videos que expone la arquitectura del condicionamiento operante. Modela matemáticamente el decaimiento de atención (de 45s a 5s), odómetro de scroll, velocidad de desplazamiento RPM y jackpots intermitentes de dopamina.',
-        metrics: 'Decaimiento 45s → 5s • Odómetro RPM',
-        commercialImpact: 'Hace tangible y visceral ante los padres el daño neurológico del scroll infinito tipo TikTok y justifica de inmediato la necesidad del escudo ZentryOS.',
-        payloadPreview: {
-          sessionId: 'session_skinner_demo_992',
-          targetProfile: 'child',
-          totalScrolls: 34,
-          scrollVelocityRPM: 82.5,
-          nominalDurationSeconds: 8.0,
-          dwellTimeSeconds: 2.8,
-          isJackpot: true,
-          status: 'VARIABLE_RATIO_TRIGGERED'
-        }
+        url: 'https://zf-skinner-box.web.app',
+        displayUrl: 'zf-skinner-box.web.app',
+        tag: 'VR-7 CONDICIONAMIENTO',
+        desc: 'Simulador de micro-videos que expone la degradación de atención y refuerzo variable.',
+        badgeColor: 'rgba(239, 68, 68, 0.1)',
+        textColor: '#dc2626'
       },
       {
-        id: 'feat-parental-dashboard',
-        name: 'Dashboard Parental Observador',
-        shortTitle: 'Live Cockpit & Casino WOW',
+        name: 'Dashboard Parental',
         icon: '🛡️',
-        category: 'Supervisión & Bienestar',
-        badge: '🟢 Firestore onSnapshot (<100ms)',
-        gcpProject: 'quarz-group',
-        gcpService: 'Firestore: sessions_skinner & island_telemetry',
-        webAppUrl: 'https://zf-parental-d.web.app',
-        localPath: 'demo-features/apps/zf-parental-dashboard',
-        summary: 'Centro de control en tiempo real para tutores. Incluye doble vista: Analítica avanzada (tacómetro de scroll, anillo de retención %, curva de decaimiento) y el Factor WOW: una máquina tragamonedas que reacciona con <100ms a los gestos del menor.',
-        metrics: 'Doble Vista • Latencia <100ms',
-        commercialImpact: 'El clímax de la venta: el padre experimenta cómo el scrolling que su hijo hace en su teléfono activa en tiempo real la palanca del casino en su pantalla.',
-        payloadPreview: {
-          childProfile: 'Mateo Quispe',
-          liveConnection: 'ESTABLISHED',
-          activeView: 'SLOT_MACHINE_WOW',
-          slotReels: ['7', '7', '7'],
-          alertTrigger: 'FALTA_DE_FOCO_JACKPOT',
-          firestoreSyncMs: 68
-        }
+        url: 'https://zf-parental-d.web.app',
+        displayUrl: 'zf-parental-d.web.app',
+        tag: 'COCKPIT & CASINO WOW',
+        desc: 'Supervisión en vivo para padres con vista analítica y máquina tragamonedas reactiva.',
+        badgeColor: 'rgba(59, 130, 246, 0.1)',
+        textColor: '#2563eb'
       },
       {
-        id: 'feat-creative-studio',
-        name: 'Z-Art Creative WOW Studio',
-        shortTitle: 'Multimodal Art & Mini-Apps',
+        name: 'Z-Art Creative Studio',
         icon: '🎨',
-        category: 'Expresión Creativa & Mini-Apps',
-        badge: '🟢 Canvas Generativo + Confetti 60fps',
-        gcpProject: 'quarz-group',
-        gcpService: 'Hosting: zf-creative-studio',
-        webAppUrl: 'https://zf-creative-studio.web.app',
-        localPath: 'demo-features/apps/zf-creative-studio',
-        summary: 'Estudio interactivo de ilustración, dibujo digital y mini-apps lúdicas con paleta de color Zentry DNA (#533B87, #D6C8FA, #C2F4E7). Diseñado para estimular la imaginación creativa y la motricidad fina sin recurrir a patrones adictivos.',
-        metrics: 'Lienzo Táctil 60fps • 0 Dark Patterns',
-        commercialImpact: 'Presenta el reemplazo constructivo que Zentry ofrece a los niños: no prohibir la pantalla, sino sustituir la pasividad por creación activa y gratificante.',
-        payloadPreview: {
-          canvasTool: 'brush_glow',
-          activePalette: ['#533B87', '#D6C8FA', '#C2F4E7'],
-          strokeCount: 168,
-          confettiEffect: 'ACTIVE',
-          sensoryTone: 'CONSTRUCTIVE_PLAY'
-        }
+        url: 'https://zf-creative-studio.web.app',
+        displayUrl: 'zf-creative-studio.web.app',
+        tag: 'CREATIVE AI',
+        desc: 'Lienzo de ilustración y mini-apps lúdicas con paleta Zentry sin patrones adictivos.',
+        badgeColor: 'rgba(16, 185, 129, 0.1)',
+        textColor: '#059669'
       },
       {
-        id: 'feat-vibe-coding',
-        name: 'Bio-Morph Canvas (Vibe Coding)',
-        shortTitle: 'Física Háptica Primera Infancia',
+        name: 'Bio-Morph Canvas',
         icon: '🧬',
-        category: 'Primera Infancia (2 a 5 años)',
-        badge: '🟢 Bio-Morphing Procedural Háptico',
-        gcpProject: 'quarz-group',
-        gcpService: 'Hosting: z-bio-morph',
-        webAppUrl: 'https://z-bio-morph.web.app',
-        localPath: 'demo-features/apps/vibe-coding',
-        summary: 'Entorno de interacción física y biológica adaptativa para niños de 2 a 5 años. Criaturas biomecánicas y formas orgánicas que reaccionan a los toques y gestos sin necesidad de menús complejos, lectura ni interfaces abstractas.',
-        metrics: 'Física Biológica • Sin Menús',
-        commercialImpact: 'Demuestra a directores de nidos y jardines de infancia la versatilidad de Zentry para proteger y estimular desde las etapas tempranas del desarrollo.',
-        payloadPreview: {
-          entityId: 'bio_organism_alpha',
-          touchElasticity: 0.88,
-          fluidViscosity: 0.42,
-          hapticPulse: true,
-          ageTarget: '2_to_5_years'
-        }
+        url: 'https://z-bio-morph.web.app',
+        displayUrl: 'z-bio-morph.web.app',
+        tag: 'INFANCIA (2-5 AÑOS)',
+        desc: 'Entorno háptico de física biomórfica adaptativa para estimulación sensorial temprana.',
+        badgeColor: 'rgba(217, 70, 239, 0.1)',
+        textColor: '#a21caf'
       },
       {
-        id: 'feat-admin',
-        name: 'Consola Administrativa Zentry Features',
-        shortTitle: 'Fleet Governance & Security Hub',
+        name: 'Consola Zentry Admin',
         icon: '⚡',
-        category: 'Gobernanza & Auditoría',
-        badge: '🟢 Monitor de Flota & Seguridad',
-        gcpProject: 'quarz-group',
-        gcpService: 'Firestore: devices_live & logs',
-        webAppUrl: 'https://zf-admin.web.app',
-        localPath: 'demo-features/apps/zf-admin',
-        summary: 'Consola técnica y administrativa para auditar el clúster de micro-PWAs en tiempo real. Permite inspeccionar latencias de Firestore, el estado en vivo de los dispositivos conectados (`devices_live`) y la verificación de reglas de seguridad.',
-        metrics: 'Latencia <50ms • Multi-Target Sync',
-        commercialImpact: 'Garantiza la credibilidad tecnológica institucional ante clientes B2B (colegios, directores de TI) evidenciando la seguridad estricta y el control centralizado en Google Cloud.',
-        payloadPreview: {
-          fleetHealth: '100% HEALTHY',
-          activeTargets: ['zf-isla-dinamica', 'zf-skinner-box', 'zf-parental-d', 'zf-creative-studio', 'z-bio-morph', 'zf-admin'],
-          firestoreHeartbeatMs: 38,
-          securityRules: 'ENFORCED'
-        }
+        url: 'https://zf-admin.web.app',
+        displayUrl: 'zf-admin.web.app',
+        tag: 'GOBERNANZA & FLOTA',
+        desc: 'Monitor de flota en tiempo real, latencias de Firestore y auditoría de seguridad.',
+        badgeColor: 'rgba(245, 158, 11, 0.1)',
+        textColor: '#d97706'
       }
     ];
 
     const container = document.getElementById('workspace-content');
     container.innerHTML = `
       <div class="demobook-minimal-container">
-        <!-- Navegación superior -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
           <a href="#demobook" class="btn btn-secondary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
             <span>← Volver a Recursos Comerciales</span>
           </a>
-          <div style="display: flex; gap: 8px;">
-            <a href="#accesos" class="btn btn-secondary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
-              <span>🔗 Portales Ecosistema</span>
-            </a>
-            <a href="#precierres" class="btn btn-secondary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
-              <span>🛡️ Pre-Cierres</span>
-            </a>
-          </div>
+          <span style="font-size: 11px; font-weight: 700; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span>
+            6 Micro-PWAs Online (GCP quarz-group)
+          </span>
         </div>
 
-        <div id="demofeatures-container" class="demofeatures-container">
-          <!-- Banner Principal de la Suite de Demos -->
-          <div class="demofeatures-banner-box">
-            <div>
-              <h2 class="demofeatures-banner-title">
-                <span>✨</span> Suite de Micro-PWAs Comerciales (Sandbox OS)
-              </h2>
-              <p class="demofeatures-banner-desc">
-                Microaplicaciones desacopladas de ZentryOS desplegadas en <strong>Google Cloud Platform (quarz-group)</strong> con Firebase Hosting multi-sitio y Firestore Live Telemetry. Diseñadas para presentaciones comerciales en vivo, validación de hipótesis pedagógicas y demostraciones del factor WOW sin alterar entornos de producción.
-              </p>
-            </div>
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-              <div class="isolation-pill-badge">
-                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
-                <span>6 Micro-PWAs Online (HTTP 200)</span>
-              </div>
-              <div class="isolation-pill-badge" style="border-color: rgba(99, 102, 241, 0.3); color: #4338ca;">
-                <span>⚡ Latencia &lt;100ms Firestore</span>
-              </div>
-            </div>
-          </div>
+        <div style="margin-bottom: 20px;">
+          <h2 style="font-family: var(--font-family-title); font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 4px 0;">Micro-PWAs Comerciales (DEMO Features)</h2>
+          <p style="font-size: 13px; color: #64748b; margin: 0;">Entornos web y piezas del sistema operativo aisladas para presentaciones comerciales en vivo.</p>
+        </div>
 
-          <!-- Grid de Tarjetas de las Micro-Apps -->
-          <div class="demofeatures-grid" id="demofeatures-list">
-            ${demoFeaturesData.map(feat => `
-              <div class="demofeature-card" id="${feat.id}">
-                <div>
-                  <div class="demofeature-top">
-                    <div class="demofeature-icon-box">${feat.icon}</div>
-                    <span class="demofeature-category">${feat.category}</span>
+        <div class="demobook-grid">
+          ${features.map(feat => `
+            <a href="${feat.url}" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
+              <div class="demobook-card-minimal glass-panel" style="padding: 20px 22px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff; height: 100%; box-sizing: border-box;">
+                <div class="demobook-card-content" style="gap: 16px; width: 100%;">
+                  <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(83, 59, 135, 0.08); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                    ${feat.icon}
                   </div>
-                  <h3 class="demofeature-title" style="display: flex; flex-direction: column; gap: 2px;">
-                    <span>${feat.name}</span>
-                    <span style="font-size: 12px; font-weight: 500; color: #6366f1; font-family: var(--font-family-body);">${feat.shortTitle}</span>
-                  </h3>
-                  <p class="demofeature-desc">${feat.summary}</p>
-                  
-                  <div class="demofeature-infra-box">
-                    <div class="demofeature-infra-row">
-                      <span class="demofeature-infra-label">🌐 Enlace Web App:</span>
-                      <a href="${feat.webAppUrl}" target="_blank" rel="noopener noreferrer" style="color: #533B87; font-weight: 700; font-family: var(--font-family-code); text-decoration: underline; font-size: 11px; word-break: break-all;">
-                        ${feat.webAppUrl.replace('https://', '')}
-                      </a>
+                  <div style="flex: 1; min-width: 0;">
+                    <div class="demobook-card-title" style="font-size: 15.5px; margin-bottom: 3px; color: #0f172a; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                      <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${feat.name}</span>
+                      <span style="font-size: 9.5px; font-weight: 700; background: ${feat.badgeColor}; color: ${feat.textColor}; padding: 2px 7px; border-radius: 6px; flex-shrink: 0;">${feat.tag}</span>
                     </div>
-                    <div class="demofeature-infra-row">
-                      <span class="demofeature-infra-label">☁️ Estado GCP:</span>
-                      <span style="color: #059669; font-weight: 600;">${feat.badge}</span>
-                    </div>
-                    <div class="demofeature-infra-row">
-                      <span class="demofeature-infra-label">⚡ Servicio / BD:</span>
-                      <span class="demofeature-infra-val" style="font-size: 11px;">${feat.gcpService}</span>
-                    </div>
-                    <div class="demofeature-infra-row">
-                      <span class="demofeature-infra-label">🎯 Métrica / Latencia:</span>
-                      <span style="color: #4338ca; font-weight: 600;">${feat.metrics}</span>
-                    </div>
+                    <div style="font-size: 11.5px; color: #533B87; font-family: monospace; font-weight: 600; margin-bottom: 3px;">${feat.displayUrl}</div>
+                    <div style="font-size: 12px; color: #64748b; line-height: 1.4;">${feat.desc}</div>
                   </div>
                 </div>
-
-                <div class="demofeature-actions">
-                  <a href="${feat.webAppUrl}" target="_blank" rel="noopener noreferrer" class="btn-open-microapp" title="Abrir micro-app en vivo">
-                    <span>Abrir App</span>
-                    <span style="font-size: 15px;">➔</span>
-                  </a>
-                  <button class="btn-test-microapp" data-feat-id="${feat.id}" title="Simular y ver telemetría GCP">
-                    <span>🧪 Simular</span>
-                  </button>
-                  <button class="btn-copy-microapp" data-url="${feat.webAppUrl}" title="Copiar enlace directo">
-                    <span>📋 Copiar</span>
-                  </button>
-                </div>
+                <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 12px; color: #533B87;">➔</span>
               </div>
-            `).join('')}
-          </div>
-
-          <!-- Modal de Simulación y Telemetría en Vivo -->
-          <div id="demo-sim-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
-            <div style="background: #ffffff; width: 100%; max-width: 620px; border-radius: 18px; padding: 26px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); border: 1px solid rgba(15,23,42,0.1); max-height: 90vh; overflow-y: auto;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
-                <h4 id="sim-modal-title" style="margin: 0; font-size: 17px; color: #0f172a; font-family: var(--font-family-title); display: flex; align-items: center; gap: 8px;">
-                  🧪 Simulación de Telemetría GCP
-                </h4>
-                <button id="btn-close-sim-modal" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #94a3b8; line-height: 1; padding: 4px;">✕</button>
-              </div>
-              <div id="sim-modal-body" style="font-size: 13px; color: #334155; margin-bottom: 22px; line-height: 1.6;">
-                <!-- Dynamic content -->
-              </div>
-              <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                <a id="sim-modal-open-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size: 12.5px; padding: 8px 18px; border-radius: 8px; background: #533B87; color: #ffffff; text-decoration: none; font-weight: 600;">
-                  Abrir App en Vivo ➔
-                </a>
-                <button id="btn-close-sim-modal-footer" class="btn btn-secondary" style="font-size: 12.5px; padding: 8px 16px; border-radius: 8px;">Cerrar</button>
-              </div>
-            </div>
-          </div>
+            </a>
+          `).join('')}
         </div>
       </div>
     `;
-
-    // Bind: Abrir Modal de Simulación
-    container.querySelectorAll('.btn-test-microapp').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const featId = e.currentTarget.getAttribute('data-feat-id');
-        const feat = demoFeaturesData.find(f => f.id === featId);
-        if (!feat) return;
-
-        const modal = document.getElementById('demo-sim-modal');
-        const modalTitle = document.getElementById('sim-modal-title');
-        const modalBody = document.getElementById('sim-modal-body');
-        const modalOpenBtn = document.getElementById('sim-modal-open-btn');
-
-        if (modalOpenBtn) {
-          modalOpenBtn.href = feat.webAppUrl;
-        }
-
-        modalTitle.innerHTML = `${feat.icon} Telemetría GCP: ${feat.name}`;
-        modalBody.innerHTML = `
-          <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
-            <span style="background: rgba(83, 59, 135, 0.1); color: #533B87; font-weight: 700; font-size: 11px; padding: 3px 10px; border-radius: 6px;">${feat.category}</span>
-            <span style="background: #ecfdf5; color: #065f46; font-weight: 600; font-size: 11px; padding: 3px 10px; border-radius: 6px; border: 1px solid #a7f3d0;">${feat.badge}</span>
-            <span style="background: #f8fafc; color: #475569; font-weight: 600; font-size: 11px; padding: 3px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-family: var(--font-family-code);">${feat.localPath}</span>
-          </div>
-
-          <div style="background: #0f172a; color: #e2e8f0; border-radius: 12px; padding: 14px 16px; font-family: var(--font-family-code); font-size: 12px; margin-bottom: 14px; overflow-x: auto; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);">
-            <div style="color: #38bdf8; margin-bottom: 8px; font-size: 11.5px; display: flex; justify-content: space-between;">
-              <span>// Payload de Telemetría Transmitido en Vivo (${feat.gcpProject})</span>
-              <span style="color: #4ade80;">● ONLINE</span>
-            </div>
-            <pre style="margin: 0; color: #a5f3fc; line-height: 1.5;">${JSON.stringify(feat.payloadPreview, null, 2)}</pre>
-          </div>
-
-          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 14px; color: #166534; font-size: 12.5px; margin-bottom: 14px; line-height: 1.5;">
-            ✅ <strong>Aislamiento Sandbox Verificado:</strong> Esta micro-app corre de forma desacoplada en el hosting target <code>${feat.webAppUrl}</code> sin interferir con las bases de producción de ZentryOS ni saturar las cuotas principales.
-          </div>
-
-          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; font-size: 12.5px; color: #334155; line-height: 1.5;">
-            <div style="font-weight: 700; color: #1e1b4b; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
-              <span>💡</span> Impacto Comercial en el Pitch:
-            </div>
-            <div>${feat.commercialImpact}</div>
-          </div>
-        `;
-
-        modal.style.display = 'flex';
-      });
-    });
-
-    // Bind: Copiar Enlace Directo
-    container.querySelectorAll('.btn-copy-microapp').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        const url = e.currentTarget.getAttribute('data-url');
-        if (!url) return;
-        try {
-          await navigator.clipboard.writeText(url);
-          const origHtml = e.currentTarget.innerHTML;
-          e.currentTarget.classList.add('copied');
-          e.currentTarget.innerHTML = '<span>✅ ¡Copiado!</span>';
-          setTimeout(() => {
-            e.currentTarget.classList.remove('copied');
-            e.currentTarget.innerHTML = origHtml;
-          }, 2000);
-        } catch (err) {
-          prompt('Copia el enlace de la micro-app:', url);
-        }
-      });
-    });
-
-    // Bind: Cerrar Modal
-    const modal = document.getElementById('demo-sim-modal');
-    const closeBtnHeader = document.getElementById('btn-close-sim-modal');
-    const closeBtnFooter = document.getElementById('btn-close-sim-modal-footer');
-
-    const closeModal = () => {
-      if (modal) modal.style.display = 'none';
-    };
-
-    if (closeBtnHeader) closeBtnHeader.addEventListener('click', closeModal);
-    if (closeBtnFooter) closeBtnFooter.addEventListener('click', closeModal);
-    if (modal) {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-      });
-    }
   },
 
   // 6.1. Accesos Directos a Ecosistema ZentryOS
