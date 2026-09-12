@@ -6935,6 +6935,46 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   color: #0f172a;
 }
 
+.btn-copy-microapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  color: #475569;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #cbd5e1;
+  transition: all 0.2s;
+}
+
+.btn-copy-microapp:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.btn-copy-microapp.copied {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+@media (max-width: 768px) {
+  .demofeatures-grid {
+    grid-template-columns: 1fr;
+  }
+  .demofeature-actions {
+    flex-wrap: wrap;
+  }
+  .btn-open-microapp {
+    width: 100%;
+  }
+}
+
 /* ==============================================================================
    QUARZ SECURITY LOCK SCREEN (PERSONAL BACKLOG PIN: 1212)
    ============================================================================== */
