@@ -3192,832 +3192,270 @@ const renderers = {
     }
   },
 
-  // 6. Tools View (QZ CLOUD REMOTE SESSION COMPANION & AGENT COCKPIT)
+  // 6. Tools View (QZ TERMINAL COCKPIT & AGY DAEMON REMOTE ACCESS)
   herramientas: () => {
     const workspace = document.querySelector('.workspace');
     if (workspace) {
       workspace.classList.add('full-width-view');
     }
 
-    document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)';
-    document.getElementById('page-icon').textContent = '🤖';
-    document.getElementById('page-title').textContent = 'QZ AGENT COCKPIT';
+    document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #0b0f19 0%, #1e293b 50%, #0b0f19 100%)';
+    document.getElementById('page-icon').textContent = '💻';
+    document.getElementById('page-title').textContent = 'QZ TERMINAL COCKPIT';
     document.getElementById('properties-block').style.display = 'none';
 
     const container = document.getElementById('workspace-content');
-    const todayStr = new Date().toISOString().split('T')[0];
+
+    const STORAGE_HOST_KEY = 'qz_terminal_host';
+    const STORAGE_PORT_KEY = 'qz_terminal_port';
+    const DEFAULT_HOST = '100.105.162.78';
+    const DEFAULT_PORT = '7681';
+
+    let currentHost = localStorage.getItem(STORAGE_HOST_KEY) || DEFAULT_HOST;
+    let currentPort = localStorage.getItem(STORAGE_PORT_KEY) || DEFAULT_PORT;
+
+    const buildTerminalUrl = () => `http://${currentHost}:${currentPort}`;
 
     container.innerHTML = `
-      <div class="cockpit-layout-grid">
+      <div class="terminal-cockpit-wrapper">
         
-        <!-- ============================================================== -->
-        <!-- COLUMNA PRINCIPAL (70%): CHATBOT DE SESIONES Y CONTROL REMOTO -->
-        <!-- ============================================================== -->
-        <div class="session-cockpit-container glass-panel">
-          
-          <!-- Top Telemetry Bar -->
-          <div class="session-top-header">
-            <div class="session-title-block">
-              <div class="session-icon">🤖</div>
-              <div>
-                <div class="session-main-title">
-                  <span id="current-session-title-display">Sesión Principal</span>
-                  <span id="current-session-id-pill" class="session-id-tag">#live</span>
-                </div>
-                <div class="session-subtitle">
-                  <span id="cockpit-bridge-badge" class="bridge-status-mini standby">
-                    <span class="status-dot"></span> Bridge PC: <strong id="bridge-status-text">Detectando...</strong>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div class="session-header-actions">
-              <select id="cockpit-model-select" class="cockpit-model-select" title="Motor de Inteligencia (Créditos GCP)">
-                <option value="gemini-2.5-flash">⚡ Gemini 2.5 Flash (GCP)</option>
-                <option value="gemini-2.5-pro">🧠 Gemini 2.5 Pro (GCP)</option>
-                <option value="ssot-local">📖 Motor SSOT Local</option>
-              </select>
-              <button type="button" id="btn-toggle-sessions-list" class="btn-cockpit-icon" title="Ver Historial de Sesiones">📋 Sesiones</button>
-              <button type="button" id="btn-new-session" class="btn-cockpit-primary">＋ Nueva Sesión</button>
-            </div>
+        <!-- Top Control Bar -->
+        <div class="terminal-control-bar">
+          <div class="terminal-status-group">
+            <span class="terminal-status-pill">
+              <span id="term-status-dot" class="terminal-status-dot"></span>
+              <span id="term-status-text">Terminal Daemon</span>
+            </span>
+            <span id="term-host-display" class="terminal-host-pill" title="Click para cambiar Host / IP">
+              📡 <span id="term-host-text">${currentHost}:${currentPort}</span>
+            </span>
           </div>
 
-          <!-- Main Split View: Sessions Sidebar (Collapsible) + Chat + Session Inspector -->
-          <div class="session-body-grid">
-            
-            <!-- 1. Sessions Drawer / List -->
-            <div id="sessions-drawer" class="sessions-drawer">
-              <div class="sessions-drawer-header">
-                <span style="font-weight: 700; font-size: 12px; color: #0f172a;">Historial de Sesiones</span>
-                <button type="button" id="btn-close-sessions-drawer" class="btn-drawer-close">&times;</button>
-              </div>
-              <div id="sessions-list-container" class="sessions-list-container">
-                <!-- Session items rendered dynamically -->
-              </div>
-            </div>
-
-            <!-- 2. Chat Stream & Conversation Feed -->
-            <div class="session-chat-section">
-              
-              <!-- Messages Feed -->
-              <div id="session-chat-feed" class="session-chat-feed">
-                <!-- Messages rendered dynamically -->
-              </div>
-
-              <!-- Chat Input Box & Action Controls -->
-              <div class="session-input-wrapper">
-                <form id="session-chat-form" class="session-chat-form">
-                  <div class="session-input-controls">
-                    <button type="button" id="btn-input-screenshot" class="btn-input-tool" title="Tomar Captura de PC y adjuntar a la sesión">📸 Captura PC</button>
-                    <button type="button" id="btn-input-terminal-cmd" class="btn-input-tool" title="Ejecutar comando en la terminal de tu PC">💻 Ejecutar Comando</button>
-                    <button type="button" id="btn-open-gcp-settings" class="btn-input-tool" title="Configuración de API Key GCP">⚙️ Config GCP</button>
-                  </div>
-                  <div class="session-input-row">
-                    <textarea id="session-chat-input" rows="1" placeholder="Escribe tu consulta, instrucción o comando para el agente..." autocomplete="off"></textarea>
-                    <button type="submit" id="btn-send-message" class="btn-send-message" title="Enviar mensaje">Enviar ⚡</button>
-                  </div>
-                </form>
-              </div>
-
-            </div>
-
-            <!-- 3. Session Inspector (Right Tabs: Artefactos, Media, To-Do) -->
-            <div class="session-inspector-panel">
-              <div class="inspector-tabs">
-                <button type="button" class="inspector-tab-btn active" data-tab="artifacts">📑 Artefactos (<span id="inspector-count-artifacts">0</span>)</button>
-                <button type="button" class="inspector-tab-btn" data-tab="media">📸 Media (<span id="inspector-count-media">0</span>)</button>
-                <button type="button" class="inspector-tab-btn" data-tab="todos">✅ To-Do (<span id="inspector-count-todos">0</span>)</button>
-              </div>
-
-              <div class="inspector-content">
-                <!-- Tab: Artefactos & Markdowns vinculados a esta sesión -->
-                <div id="inspector-panel-artifacts" class="inspector-tab-pane active">
-                  <div id="session-artifacts-list" class="inspector-items-list">
-                    <!-- Loaded dynamically -->
-                  </div>
-                </div>
-
-                <!-- Tab: Capturas & Visual Media vinculadas a esta sesión -->
-                <div id="inspector-panel-media" class="inspector-tab-pane">
-                  <div id="session-media-list" class="inspector-media-grid">
-                    <!-- Loaded dynamically -->
-                  </div>
-                </div>
-
-                <!-- Tab: Tareas y To-Dos vinculados a esta sesión -->
-                <div id="inspector-panel-todos" class="inspector-tab-pane">
-                  <div id="session-todos-list" class="inspector-todos-list">
-                    <!-- Loaded dynamically -->
-                  </div>
-                  <button type="button" id="btn-add-session-todo" class="btn-add-todo">＋ Agregar Tarea</button>
-                </div>
-              </div>
-            </div>
-
+          <div class="terminal-actions-group">
+            <button type="button" id="btn-term-popout" class="btn-terminal-primary" title="Abrir terminal en pestaña nueva o pantalla completa (Ideal para iPad)">
+              ⚡ Pantalla Completa / iPad Tab
+            </button>
+            <button type="button" id="btn-term-reload" class="btn-terminal-action" title="Recargar Terminal">
+              🔄 Recargar
+            </button>
+            <button type="button" id="btn-term-config" class="btn-terminal-action" title="Configurar Host y Puerto">
+              ⚙️ Red
+            </button>
+            <button type="button" id="btn-term-daemon-info" class="btn-terminal-action" title="Instrucciones para iniciar el Daemon">
+              🚀 Daemon PC
+            </button>
           </div>
+        </div>
 
+        <!-- Terminal Frame Container -->
+        <div class="terminal-frame-container">
+          <iframe 
+            id="qz-terminal-frame" 
+            class="terminal-iframe" 
+            src="${buildTerminalUrl()}" 
+            allow="clipboard-read; clipboard-write; fullscreen"
+            title="QZ AGY Terminal">
+          </iframe>
+        </div>
+
+        <!-- Quick Commands Bar -->
+        <div class="terminal-quick-bar">
+          <span class="terminal-quick-label">⚡ Atajos AGY:</span>
+          <div class="terminal-chip-list">
+            <button type="button" class="terminal-chip" data-cmd="agy"><span>🤖</span> agy</button>
+            <button type="button" class="terminal-chip" data-cmd="agy /goal "><span>🎯</span> agy /goal</button>
+            <button type="button" class="terminal-chip" data-cmd="git status"><span>🌿</span> git status</button>
+            <button type="button" class="terminal-chip" data-cmd="cd D:\\1_jose_angel\\1_GitHub\\Quarz\\QZ-HUB"><span>📁</span> cd QZ-HUB</button>
+            <button type="button" class="terminal-chip" data-cmd="npx vite build"><span>📦</span> npx vite build</button>
+            <button type="button" class="terminal-chip" data-cmd="clear"><span>🧹</span> clear</button>
+          </div>
         </div>
 
       </div>
 
-      <!-- Markdown Viewer Modal for Artifacts -->
-      <div id="artifact-viewer-modal" class="modal-overlay">
-        <div class="modal-content glass-modal" style="max-width: 720px; max-height: 85vh; display: flex; flex-direction: column;">
+      <!-- Network Config Modal -->
+      <div id="terminal-config-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content glass-modal" style="max-width: 480px;">
           <div class="modal-header">
-            <h2 id="artifact-modal-title" class="modal-task-id" style="font-size: 16px;">📑 Vista de Artefacto</h2>
-            <button id="artifact-modal-close" class="modal-close-btn">&times;</button>
+            <h2 class="modal-task-id" style="font-size: 16px;">⚙️ Configurar Conexión de Terminal</h2>
+            <button type="button" id="btn-close-term-config" class="modal-close-btn">&times;</button>
           </div>
-          <div id="artifact-modal-body" class="modal-body" style="overflow-y: auto; flex: 1; padding: 16px; font-size: 13px; line-height: 1.6;">
-            <!-- Rendered Markdown -->
-          </div>
-          <div class="modal-actions" style="margin-top: 10px; padding-top: 10px;">
-            <button type="button" id="btn-copy-artifact-content" class="btn btn-secondary" style="font-size: 12px;">Copiar Contenido</button>
-            <button type="button" id="btn-close-artifact-modal" class="btn btn-primary" style="font-size: 12px;">Cerrar</button>
+          <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px; padding: 16px 0;">
+            <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.5;">
+              Configura la IP y puerto de tu PC para transmitir la terminal mediante <strong>Tailscale</strong> o conexión local.
+            </p>
+
+            <div style="display: flex; gap: 8px;">
+              <button type="button" id="btn-preset-tailscale" class="btn btn-secondary" style="flex: 1; font-size: 11px; padding: 8px;">
+                📱 Tailscale (${DEFAULT_HOST})
+              </button>
+              <button type="button" id="btn-preset-local" class="btn btn-secondary" style="flex: 1; font-size: 11px; padding: 8px;">
+                💻 Localhost (127.0.0.1)
+              </button>
+            </div>
+
+            <div>
+              <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 4px;">Host / IP:</label>
+              <input type="text" id="input-term-host" value="${currentHost}" style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
+            </div>
+
+            <div>
+              <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 4px;">Puerto:</label>
+              <input type="text" id="input-term-port" value="${currentPort}" style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 6px;">
+              <button type="button" id="btn-save-term-config" class="btn btn-primary" style="flex: 1; padding: 10px; font-size: 12px; background: #0f172a; color: white; cursor: pointer; font-weight: 600; border-radius: 6px;">
+                Guardar y Conectar
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- GCP Settings Modal (QUARZ Group Vertex AI) -->
-      <div id="gcp-settings-modal" class="modal-overlay">
-        <div class="modal-content glass-modal" style="max-width: 500px;">
+      <!-- Daemon Instructions Modal -->
+      <div id="terminal-daemon-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content glass-modal" style="max-width: 560px;">
           <div class="modal-header">
-            <h2 class="modal-task-id" style="font-size: 16px;">⚙️ Configuración GCP (quarz-group)</h2>
-            <button id="gcp-modal-close" class="modal-close-btn">&times;</button>
+            <h2 class="modal-task-id" style="font-size: 16px;">🚀 Daemon de Terminal (ttyd + Tailscale)</h2>
+            <button type="button" id="btn-close-daemon-modal" class="modal-close-btn">&times;</button>
           </div>
-          <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 12px; border-radius: 8px; font-size: 12px; color: #334155;">
-              <strong style="color: #0f172a;">🏢 Facturación Empresarial QUARZ Group</strong>
-              <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b; line-height: 1.45;">
-                Conectado directamente a la infraestructura de <strong>Google Cloud Platform</strong> del proyecto <code>quarz-group</code> (Vertex AI nativo). Los modelos recomendados son <strong>Gemini 2.5 Flash</strong> y <strong>Gemini 2.5 Pro</strong>.
-              </p>
+          <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px; padding: 16px 0; font-size: 12.5px; line-height: 1.5; color: #334155;">
+            <p style="margin: 0;">
+              Para que la terminal responda desde tu iPad o navegador, el servidor <strong>ttyd</strong> debe estar ejecutándose en tu PC host.
+            </p>
+
+            <div style="background: #0b0f19; color: #f8fafc; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 12px; border: 1px solid rgba(245, 158, 11, 0.3);">
+              <div style="color: #94a3b8; font-size: 11px; margin-bottom: 6px;"># 1. En la carpeta de QZ-HUB, ejecuta:</div>
+              <div style="color: #fbbf24; font-weight: 600;">.\\scripts\\start_terminal.bat</div>
             </div>
-            <div>
-              <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px;">GCP Project ID:</label>
-              <input type="text" id="modal-gcp-project-id" value="quarz-group" style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px;">
+              <strong style="color: #0f172a; font-size: 12px;">💡 Ejecutar en segundo plano:</strong>
+              <div style="font-family: monospace; font-size: 11.5px; margin-top: 4px; color: #475569;">
+                wscript .\\scripts\\start_terminal_background.vbs
+              </div>
             </div>
-            <div>
-              <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px;">Google Cloud API Key (o Token Vertex AI):</label>
-              <input type="password" id="modal-gcp-api-key" placeholder="Pega tu clave AIzaSy..." style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
+
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 12px; font-size: 11.5px; color: #92400e;">
+              <strong>ℹ️ Nota para iPad / Móvil:</strong> Asegúrate de que la app <strong>Tailscale</strong> esté conectada (VPN activa) tanto en tu PC como en tu iPad.
             </div>
-            <div style="display: flex; gap: 8px; margin-top: 4px;">
-              <button type="button" id="btn-test-gcp-connection" class="btn btn-secondary" style="flex: 1; padding: 9px; font-size: 11.5px; border-radius: 6px; border: 1px solid #cbd5e1; background: #f1f5f9; color: #0f172a; cursor: pointer; font-weight: 600;">⚡ Probar Conexión</button>
-              <button type="button" id="btn-save-modal-gcp-settings" class="btn btn-primary" style="flex: 1; padding: 9px; font-size: 11.5px; border-radius: 6px; background: #0f172a; color: white; cursor: pointer; font-weight: 600;">Guardar y Conectar</button>
+
+            <div style="display: flex; gap: 8px; margin-top: 6px;">
+              <a href="${buildTerminalUrl()}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="flex: 1; text-align: center; text-decoration: none; padding: 10px; font-size: 12px; background: #0f172a; color: white; cursor: pointer; font-weight: 600; border-radius: 6px;">
+                ⚡ Probar Conexión Directa
+              </a>
             </div>
-            <div id="gcp-connection-status" style="font-size: 11.5px; display: none; padding: 8px 10px; border-radius: 6px; margin-top: 2px;"></div>
           </div>
         </div>
       </div>
     `;
 
-    // ==============================================================================
-    // SESSION MANAGER & CHATBOT ENGINE LOGIC
-    // ==============================================================================
+    // Elements
+    const iframe = document.getElementById('qz-terminal-frame');
+    const hostText = document.getElementById('term-host-text');
+    const popoutBtn = document.getElementById('btn-term-popout');
+    const reloadBtn = document.getElementById('btn-term-reload');
+    const configBtn = document.getElementById('btn-term-config');
+    const daemonBtn = document.getElementById('btn-term-daemon-info');
+    const configModal = document.getElementById('terminal-config-modal');
+    const daemonModal = document.getElementById('terminal-daemon-modal');
+    const closeConfigBtn = document.getElementById('btn-close-term-config');
+    const closeDaemonBtn = document.getElementById('btn-close-daemon-modal');
+    const saveConfigBtn = document.getElementById('btn-save-term-config');
+    const presetTailscaleBtn = document.getElementById('btn-preset-tailscale');
+    const presetLocalBtn = document.getElementById('btn-preset-local');
+    const inputHost = document.getElementById('input-term-host');
+    const inputPort = document.getElementById('input-term-port');
 
-    const SESSIONS_STORAGE_KEY = 'qz_agent_sessions_v1';
-    let sessionsState = JSON.parse(localStorage.getItem(SESSIONS_STORAGE_KEY) || '[]');
-    let currentSessionId = localStorage.getItem('qz_active_session_id') || '';
+    // Popout button
+    popoutBtn?.addEventListener('click', () => {
+      window.open(buildTerminalUrl(), '_blank');
+    });
 
-    // Initialize default session if none exists
-    if (!sessionsState || sessionsState.length === 0) {
-      const initSession = {
-        id: 'ses_' + Date.now().toString(36),
-        title: 'Sesión Principal (Laptop & Mobile)',
-        createdAt: new Date().toISOString(),
-        messages: [
-          {
-            id: 'msg_welcome',
-            sender: 'agent',
-            text: 'Hola Jose Angel. He inicializado tu sesión de orquestación en **QZ-Hub**.\n\nTodo lo que generes en esta sesión (archivos `.md`, capturas de pantalla, herramientas ejecutadas y tareas) quedará vinculado a este ID de sesión para que lo revises desde tu celular o laptop.',
-            timestamp: new Date().toISOString()
-          }
-        ],
-        artifacts: [
-          {
-            id: 'art_canon',
-            name: 'CANON.md',
-            title: 'CANON — Single Source of Truth',
-            content: `# 📜 CANON.md — Single Source of Truth\n\n### 🎯 Meta Financiera 31 de Agosto\n- **Meta Total:** S/ 4,000.00 PEN\n- **Caja Actual:** S/ 770.00 PEN\n- **Brecha a Generar:** S/ 3,230.00 PEN\n\n### 📊 Embudo Royal Prestige\n- **Llamadas Frías (12-2pm):** 40 diarias (SIM 933709385).\n- **Ratio:** 20 llamadas conversadas = 1 demo.\n- **Ratio de Cierre:** 4 demos = 1 venta (Comisión S/ 1,010.59).\n\n### ☄️ QUARZ Group / ZentryOS\n- **Licencias:** $1,000 USD por despliegue.\n- **Ganancia Personal (60%):** S/ 1,906.78.`
-          }
-        ],
-        media: [],
-        todos: []
-      };
-      sessionsState = [initSession];
-      currentSessionId = initSession.id;
-      saveSessions();
-    }
-
-    if (!currentSessionId || !sessionsState.find(s => s.id === currentSessionId)) {
-      currentSessionId = sessionsState[0].id;
-      localStorage.setItem('qz_active_session_id', currentSessionId);
-    }
-
-    function getActiveSession() {
-      return sessionsState.find(s => s.id === currentSessionId) || sessionsState[0];
-    }
-
-    function saveSessions() {
-      localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(sessionsState));
-      localStorage.setItem('qz_active_session_id', currentSessionId);
-    }
-
-    // UI Elements
-    const chatFeed = document.getElementById('session-chat-feed');
-    const chatForm = document.getElementById('session-chat-form');
-    const chatInput = document.getElementById('session-chat-input');
-    const modelSelect = document.getElementById('cockpit-model-select');
-    const titleDisplay = document.getElementById('current-session-title-display');
-    const idTag = document.getElementById('current-session-id-pill');
-    const sessionsList = document.getElementById('sessions-list-container');
-    const sessionsDrawer = document.getElementById('sessions-drawer');
-
-    function renderSessionsDrawer() {
-      if (!sessionsList) return;
-      sessionsList.innerHTML = '';
-
-      sessionsState.forEach(ses => {
-        const item = document.createElement('div');
-        const isActive = ses.id === currentSessionId;
-        item.className = `session-drawer-item${isActive ? ' active' : ''}`;
-        
-        const lastMsg = ses.messages && ses.messages.length > 0 ? ses.messages[ses.messages.length - 1].text : 'Nueva sesión';
-        const snippet = (lastMsg || '').replace(/\n/g, ' ').slice(0, 40);
-
-        item.innerHTML = `
-          <div class="session-item-header">
-            <span class="session-item-title">${ses.title || 'Sesión'}</span>
-            <span class="session-item-date">${ses.createdAt ? new Date(ses.createdAt).toLocaleDateString([], {month: 'short', day: 'numeric'}) : ''}</span>
-          </div>
-          <div class="session-item-snippet">${snippet}...</div>
-        `;
-
-        item.addEventListener('click', () => {
-          currentSessionId = ses.id;
-          saveSessions();
-          sessionsDrawer.classList.remove('open');
-          renderCurrentSession();
-        });
-
-        sessionsList.appendChild(item);
-      });
-    }
-
-    function renderCurrentSession() {
-      const session = getActiveSession();
-      if (!session) return;
-
-      if (titleDisplay) titleDisplay.textContent = session.title || 'Sesión';
-      if (idTag) idTag.textContent = `#${session.id.slice(0, 8)}`;
-
-      // Render Messages
-      if (chatFeed) {
-        chatFeed.innerHTML = '';
-        (session.messages || []).forEach(msg => {
-          appendMessageToDOM(msg);
-        });
-        chatFeed.scrollTop = chatFeed.scrollHeight;
+    // Reload iframe
+    reloadBtn?.addEventListener('click', () => {
+      if (iframe) {
+        iframe.src = buildTerminalUrl() + '?t=' + Date.now();
+        showToast('Terminal recargada 🔄');
       }
+    });
 
-      // Render Inspector (Artifacts, Media, Todos)
-      renderSessionInspector(session);
-      renderSessionsDrawer();
-    }
+    // Host Display Click -> Open Config
+    document.getElementById('term-host-display')?.addEventListener('click', () => {
+      if (configModal) configModal.style.display = 'flex';
+    });
 
-    function appendMessageToDOM(msg) {
-      if (!chatFeed) return;
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `chat-message-row ${msg.sender}`;
+    // Modals
+    configBtn?.addEventListener('click', () => {
+      if (configModal) configModal.style.display = 'flex';
+    });
 
-      const isUser = msg.sender === 'user';
-      const formattedContent = isUser 
-        ? msg.text.replace(/\n/g, '<br>')
-        : (typeof mdToHtml === 'function' ? mdToHtml(msg.text) : msg.text.replace(/\n/g, '<br>'));
+    closeConfigBtn?.addEventListener('click', () => {
+      if (configModal) configModal.style.display = 'none';
+    });
 
-      // Build inline tools execution badges if any
-      let toolsHtml = '';
-      if (msg.tools && Array.isArray(msg.tools) && msg.tools.length > 0) {
-        toolsHtml = `<div class="msg-tools-used">` + msg.tools.map(t => `
-          <span class="tool-tag">⚡ ${t.name}: <em>${t.summary || ''}</em></span>
-        `).join('') + `</div>`;
-      }
+    daemonBtn?.addEventListener('click', () => {
+      if (daemonModal) daemonModal.style.display = 'flex';
+    });
 
-      // Build inline artifact badge if any
-      let artifactHtml = '';
-      if (msg.artifact) {
-        artifactHtml = `
-          <div class="msg-inline-artifact" data-art-id="${msg.artifact.id || ''}">
-            <span>📑 Artefacto Generado: <strong>${msg.artifact.name || 'documento.md'}</strong></span>
-            <button type="button" class="btn-view-art-inline">Ver Artefacto ➔</button>
-          </div>
-        `;
-      }
+    closeDaemonBtn?.addEventListener('click', () => {
+      if (daemonModal) daemonModal.style.display = 'none';
+    });
 
-      msgDiv.innerHTML = `
-        <div class="chat-bubble ${isUser ? 'bubble-user' : 'bubble-agent'}">
-          <div class="bubble-sender">${isUser ? '👤 Tú' : '🤖 QZ Agent'}</div>
-          <div class="bubble-text">${formattedContent}</div>
-          ${toolsHtml}
-          ${artifactHtml}
-          <div class="bubble-time">${msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) : ''}</div>
-        </div>
-      `;
+    // Presets
+    presetTailscaleBtn?.addEventListener('click', () => {
+      if (inputHost) inputHost.value = DEFAULT_HOST;
+      if (inputPort) inputPort.value = DEFAULT_PORT;
+    });
 
-      msgDiv.querySelector('.btn-view-art-inline')?.addEventListener('click', () => {
-        openArtifactModal(msg.artifact);
-      });
+    presetLocalBtn?.addEventListener('click', () => {
+      if (inputHost) inputHost.value = 'localhost';
+      if (inputPort) inputPort.value = DEFAULT_PORT;
+    });
 
-      chatFeed.appendChild(msgDiv);
-      chatFeed.scrollTop = chatFeed.scrollHeight;
-    }
+    // Save Configuration
+    saveConfigBtn?.addEventListener('click', () => {
+      const newHost = inputHost.value.trim() || DEFAULT_HOST;
+      const newPort = inputPort.value.trim() || DEFAULT_PORT;
+      currentHost = newHost;
+      currentPort = newPort;
+      localStorage.setItem(STORAGE_HOST_KEY, currentHost);
+      localStorage.setItem(STORAGE_PORT_KEY, currentPort);
 
-    function renderSessionInspector(session) {
-      const artCount = document.getElementById('inspector-count-artifacts');
-      const medCount = document.getElementById('inspector-count-media');
-      const todoCount = document.getElementById('inspector-count-todos');
+      if (hostText) hostText.textContent = `${currentHost}:${currentPort}`;
+      if (iframe) iframe.src = buildTerminalUrl();
+      if (configModal) configModal.style.display = 'none';
+      showToast(`Conectando a http://${currentHost}:${currentPort} 🚀`);
+    });
 
-      const artList = document.getElementById('session-artifacts-list');
-      const medList = document.getElementById('session-media-list');
-      const todoList = document.getElementById('session-todos-list');
-
-      const artifacts = session.artifacts || [];
-      const media = session.media || [];
-      const todos = session.todos || [];
-
-      if (artCount) artCount.textContent = artifacts.length;
-      if (medCount) medCount.textContent = media.length;
-      if (todoCount) todoCount.textContent = todos.length;
-
-      // 1. Artifacts List
-      if (artList) {
-        if (artifacts.length === 0) {
-          artList.innerHTML = '<div class="inspector-empty-state">No hay artefactos en esta sesión aún.</div>';
-        } else {
-          artList.innerHTML = artifacts.map((art, idx) => `
-            <div class="artifact-card-item" data-index="${idx}">
-              <div class="art-card-left">
-                <span class="art-icon">📑</span>
-                <div>
-                  <div class="art-name">${art.name || 'documento.md'}</div>
-                  <div class="art-desc">${art.title || 'Documento Markdown'}</div>
-                </div>
-              </div>
-              <button type="button" class="btn-art-open">Ver ➔</button>
-            </div>
-          `).join('');
-
-          artList.querySelectorAll('.artifact-card-item').forEach(el => {
-            el.addEventListener('click', () => {
-              const idx = parseInt(el.dataset.index);
-              openArtifactModal(artifacts[idx]);
-            });
+    // Quick Command Chips
+    document.querySelectorAll('.terminal-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const cmd = chip.getAttribute('data-cmd');
+        if (cmd) {
+          navigator.clipboard?.writeText(cmd).then(() => {
+            showToast(`Copiado: ${cmd} 📋`);
+          }).catch(() => {
+            showToast(`Comando: ${cmd}`);
           });
         }
-      }
-
-      // 2. Media List
-      if (medList) {
-        if (media.length === 0) {
-          medList.innerHTML = '<div class="inspector-empty-state">Sin capturas de pantalla en esta sesión.</div>';
-        } else {
-          medList.innerHTML = media.map(m => `
-            <div class="media-thumb-card" onclick="window.open('${m.url}', '_blank')">
-              <img src="${m.url}" alt="Screenshot" />
-              <div class="media-thumb-label">${m.timestamp ? new Date(m.timestamp).toLocaleTimeString() : 'Captura'}</div>
-            </div>
-          `).join('');
-        }
-      }
-
-      // 3. Todos List
-      if (todoList) {
-        if (todos.length === 0) {
-          todoList.innerHTML = '<div class="inspector-empty-state">Sin tareas pendientes en esta sesión.</div>';
-        } else {
-          todoList.innerHTML = todos.map((t, idx) => `
-            <div class="session-todo-item">
-              <input type="checkbox" ${t.done ? 'checked' : ''} data-index="${idx}" class="todo-check" />
-              <span style="${t.done ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${t.text}</span>
-            </div>
-          `).join('');
-
-          todoList.querySelectorAll('.todo-check').forEach(chk => {
-            chk.addEventListener('change', (e) => {
-              const idx = parseInt(e.target.dataset.index);
-              session.todos[idx].done = e.target.checked;
-              saveSessions();
-              renderSessionInspector(session);
-            });
-          });
-        }
-      }
-    }
-
-    // Modal Artifact Viewer
-    let currentViewingArtifact = null;
-    function openArtifactModal(artifact) {
-      if (!artifact) return;
-      currentViewingArtifact = artifact;
-      const modal = document.getElementById('artifact-viewer-modal');
-      const title = document.getElementById('artifact-modal-title');
-      const body = document.getElementById('artifact-modal-body');
-
-      if (title) title.textContent = `📑 ${artifact.name || 'Artefacto'}`;
-      if (body) {
-        const content = artifact.content || '';
-        body.innerHTML = (typeof mdToHtml === 'function') ? mdToHtml(content) : content.replace(/\n/g, '<br>');
-      }
-      if (modal) modal.classList.add('show');
-    }
-
-    document.getElementById('artifact-modal-close')?.addEventListener('click', () => {
-      document.getElementById('artifact-viewer-modal')?.classList.remove('show');
-    });
-    document.getElementById('btn-close-artifact-modal')?.addEventListener('click', () => {
-      document.getElementById('artifact-viewer-modal')?.classList.remove('show');
-    });
-    document.getElementById('btn-copy-artifact-content')?.addEventListener('click', () => {
-      if (currentViewingArtifact && currentViewingArtifact.content) {
-        navigator.clipboard.writeText(currentViewingArtifact.content);
-        alert('Contenido copiado al portapapeles.');
-      }
-    });
-
-    // Inspector Tabs Switching
-    document.querySelectorAll('.inspector-tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tab = btn.dataset.tab;
-        document.querySelectorAll('.inspector-tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.inspector-tab-pane').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(`inspector-panel-${tab}`)?.classList.add('active');
       });
     });
 
-    // Sessions Drawer Toggle
-    document.getElementById('btn-toggle-sessions-list')?.addEventListener('click', () => {
-      sessionsDrawer?.classList.toggle('open');
-    });
-    document.getElementById('btn-close-sessions-drawer')?.addEventListener('click', () => {
-      sessionsDrawer?.classList.remove('open');
-    });
-
-    // New Session Creation
-    document.getElementById('btn-new-session')?.addEventListener('click', () => {
-      const sessionTitle = prompt('Nombre o tema de la nueva sesión:', `Sesión ${sessionsState.length + 1}`);
-      if (!sessionTitle) return;
-
-      const newSes = {
-        id: 'ses_' + Date.now().toString(36),
-        title: sessionTitle.trim(),
-        createdAt: new Date().toISOString(),
-        messages: [
-          {
-            id: 'msg_welcome_' + Date.now(),
-            sender: 'agent',
-            text: `Sesión **"${sessionTitle.trim()}"** iniciada. ¿En qué podemos avanzar hoy?`,
-            timestamp: new Date().toISOString()
-          }
-        ],
-        artifacts: [],
-        media: [],
-        todos: []
-      };
-
-      sessionsState.unshift(newSes);
-      currentSessionId = newSes.id;
-      saveSessions();
-      sessionsDrawer?.classList.remove('open');
-      renderCurrentSession();
-    });
-
-    // Add Session Todo Button
-    document.getElementById('btn-add-session-todo')?.addEventListener('click', () => {
-      const todoText = prompt('Nueva tarea o to-do para esta sesión:');
-      if (!todoText) return;
-      const session = getActiveSession();
-      if (!session.todos) session.todos = [];
-      session.todos.push({ id: 'todo_' + Date.now(), text: todoText.trim(), done: false });
-      saveSessions();
-      renderSessionInspector(session);
-    });
-
-    // GCP Settings Modal
-    const gcpModal = document.getElementById('gcp-settings-modal');
-    const modalApiKey = document.getElementById('modal-gcp-api-key');
-    const modalProjectId = document.getElementById('modal-gcp-project-id');
-
-    // Auto-migrate on view load
-    let activeGcpProj = localStorage.getItem('gemini_project_id') || '';
-    if (!activeGcpProj || activeGcpProj.startsWith('gen-lang-client') || activeGcpProj === 'qz-hub') {
-      localStorage.setItem('gemini_project_id', 'quarz-group');
+    // Toast helper
+    function showToast(msg) {
+      const existing = document.querySelector('.terminal-toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = 'terminal-toast';
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2500);
     }
-    let activeGcpKey = localStorage.getItem('gemini_api_key') || '';
-    if (!activeGcpKey) {
-      localStorage.setItem('gemini_api_key', 'AIzaSyBOyKk7awEgQba7L7j19VAU0pz-5xRxqI0');
-    }
-
-    document.getElementById('btn-open-gcp-settings')?.addEventListener('click', () => {
-      let storedKey = localStorage.getItem('gemini_api_key') || 'AIzaSyBOyKk7awEgQba7L7j19VAU0pz-5xRxqI0';
-      let storedProj = localStorage.getItem('gemini_project_id') || 'quarz-group';
-
-      if (!storedProj || storedProj.startsWith('gen-lang-client') || storedProj === 'qz-hub') {
-        storedProj = 'quarz-group';
-        localStorage.setItem('gemini_project_id', storedProj);
-      }
-
-      if (!storedKey) {
-        storedKey = 'AIzaSyBOyKk7awEgQba7L7j19VAU0pz-5xRxqI0';
-        localStorage.setItem('gemini_api_key', storedKey);
-      }
-
-      if (modalApiKey) modalApiKey.value = storedKey;
-      if (modalProjectId) modalProjectId.value = storedProj;
-      const statusDiv = document.getElementById('gcp-connection-status');
-      if (statusDiv) statusDiv.style.display = 'none';
-      if (gcpModal) gcpModal.classList.add('show');
-    });
-
-    document.getElementById('gcp-modal-close')?.addEventListener('click', () => {
-      gcpModal?.classList.remove('show');
-    });
-
-    document.getElementById('btn-test-gcp-connection')?.addEventListener('click', async () => {
-      const statusDiv = document.getElementById('gcp-connection-status');
-      const testKey = (modalApiKey ? modalApiKey.value : '').trim();
-      const testProj = (modalProjectId ? modalProjectId.value : '').trim() || 'quarz-group';
-      
-      if (statusDiv) {
-        statusDiv.style.display = 'block';
-        statusDiv.style.background = '#fef3c7';
-        statusDiv.style.color = '#92400e';
-        statusDiv.style.border = '1px solid #fde68a';
-        statusDiv.textContent = `⏳ Probando conexión con Vertex AI en proyecto GCP '${testProj}'...`;
-      }
-
-      try {
-        const reply = await callVertexGemini('Responde únicamente: "Conexión exitosa con Vertex AI en QUARZ Group."', '', 'gemini-2.5-flash', testKey);
-        if (statusDiv) {
-          statusDiv.style.background = '#d1fae5';
-          statusDiv.style.color = '#065f46';
-          statusDiv.style.border = '1px solid #a7f3d0';
-          statusDiv.textContent = `✅ ${reply}`;
-        }
-      } catch (err) {
-        if (statusDiv) {
-          statusDiv.style.background = '#fee2e2';
-          statusDiv.style.color = '#991b1b';
-          statusDiv.style.border = '1px solid #fecaca';
-          statusDiv.textContent = `⚠️ ${err.message}`;
-        }
-      }
-    });
-
-    document.getElementById('btn-save-modal-gcp-settings')?.addEventListener('click', () => {
-      const key = (modalApiKey ? modalApiKey.value : '').trim();
-      const proj = (modalProjectId ? modalProjectId.value : '').trim() || 'quarz-group';
-      localStorage.setItem('gemini_api_key', key);
-      localStorage.setItem('gemini_project_id', proj);
-      gcpModal?.classList.remove('show');
-      alert(`✅ Configuración de Google Cloud guardada para el proyecto '${proj}'.`);
-    });
-
-    // Tool: Remote Screenshot Button (Attaches to Active Session)
-    document.getElementById('btn-input-screenshot')?.addEventListener('click', async () => {
-      const session = getActiveSession();
-      const btn = document.getElementById('btn-input-screenshot');
-      if (btn) btn.disabled = true;
-
-      const userMsg = {
-        id: 'msg_' + Date.now(),
-        sender: 'user',
-        text: '📸 Solicitar captura de pantalla en tiempo real a mi PC.',
-        timestamp: new Date().toISOString()
-      };
-      session.messages.push(userMsg);
-      appendMessageToDOM(userMsg);
-      saveSessions();
-
-      try {
-        await sendRemoteTask('take_screenshot', {});
-        const unsub = listenToLatestScreenshot((mediaDoc) => {
-          if (mediaDoc && mediaDoc.data) {
-            const mediaItem = {
-              id: 'med_' + Date.now(),
-              type: 'screenshot',
-              url: mediaDoc.data,
-              timestamp: mediaDoc.timestamp || new Date().toISOString()
-            };
-            if (!session.media) session.media = [];
-            session.media.unshift(mediaItem);
-
-            const agentMsg = {
-              id: 'msg_' + Date.now() + '_res',
-              sender: 'agent',
-              text: '📸 **Captura de pantalla recibida de tu PC exitosamente.** Se ha guardado en la pestaña **Media** de esta sesión.',
-              timestamp: new Date().toISOString(),
-              tools: [{ name: 'take_screenshot', summary: 'Pantalla capturada en PC' }]
-            };
-            session.messages.push(agentMsg);
-            appendMessageToDOM(agentMsg);
-            saveSessions();
-            renderSessionInspector(session);
-            unsub();
-          }
-        });
-      } catch (err) {
-        alert('Error solicitando captura: ' + err.message);
-      } finally {
-        if (btn) btn.disabled = false;
-      }
-    });
-
-    // Tool: Remote Terminal Command Runner
-    document.getElementById('btn-input-terminal-cmd')?.addEventListener('click', async () => {
-      const cmd = prompt('Comando para ejecutar en tu PC remota (ej: git status, dir, python -V):');
-      if (!cmd) return;
-      const session = getActiveSession();
-
-      const userMsg = {
-        id: 'msg_' + Date.now(),
-        sender: 'user',
-        text: `💻 \`$ ${cmd.trim()}\``,
-        timestamp: new Date().toISOString()
-      };
-      session.messages.push(userMsg);
-      appendMessageToDOM(userMsg);
-      saveSessions();
-
-      try {
-        await sendRemoteTask('exec_command', { command: cmd.trim() });
-        const unsub = listenToRemoteTask((taskDoc) => {
-          if (taskDoc && taskDoc.status === 'completed' && taskDoc.action === 'exec_command') {
-            const out = (taskDoc.result?.stdout || '') + (taskDoc.result?.stderr || '');
-            const agentMsg = {
-              id: 'msg_' + Date.now() + '_res',
-              sender: 'agent',
-              text: `\`\`\`\n${out || 'Comando ejecutado sin salida.'}\n\`\`\``,
-              timestamp: new Date().toISOString(),
-              tools: [{ name: 'exec_command', summary: `Exit Code ${taskDoc.result?.exitCode || 0}` }]
-            };
-            session.messages.push(agentMsg);
-            appendMessageToDOM(agentMsg);
-            saveSessions();
-            unsub();
-          }
-        });
-      } catch (err) {
-        alert('Error ejecutando comando: ' + err.message);
-      }
-    });
-
-    // Chat Message Submission (Google Cloud Vertex AI with Session History)
-    if (chatForm) {
-      chatForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const text = chatInput.value.trim();
-        if (!text) return;
-        chatInput.value = '';
-
-        const session = getActiveSession();
-        const userMsg = {
-          id: 'msg_' + Date.now(),
-          sender: 'user',
-          text: text,
-          timestamp: new Date().toISOString()
-        };
-        session.messages.push(userMsg);
-        appendMessageToDOM(userMsg);
-        saveSessions();
-
-        // Thinking placeholder
-        const thinkingDiv = document.createElement('div');
-        thinkingDiv.id = 'session-thinking-indicator';
-        thinkingDiv.className = 'chat-message-row agent';
-        thinkingDiv.innerHTML = `
-          <div class="chat-bubble bubble-agent" style="opacity: 0.7;">
-            <div class="bubble-sender">🤖 QZ Agent</div>
-            <div class="bubble-text"><em>Pensando y procesando...</em></div>
-          </div>
-        `;
-        chatFeed.appendChild(thinkingDiv);
-        chatFeed.scrollTop = chatFeed.scrollHeight;
-
-        const selectedModel = modelSelect ? modelSelect.value : 'gemini-2.5-flash';
-
-        if (selectedModel === 'ssot-local') {
-          setTimeout(() => {
-            document.getElementById('session-thinking-indicator')?.remove();
-            const reply = processLocalSsotQuery(text);
-            const agentMsg = {
-              id: 'msg_' + Date.now(),
-              sender: 'agent',
-              text: reply,
-              timestamp: new Date().toISOString()
-            };
-            session.messages.push(agentMsg);
-            appendMessageToDOM(agentMsg);
-            saveSessions();
-          }, 300);
-        } else {
-          try {
-            // Build conversation history prompt
-            const historyPrompt = (session.messages || []).slice(-6).map(m => `${m.sender === 'user' ? 'Usuario' : 'Asistente'}: ${m.text}`).join('\n\n');
-            const systemPrompt = `Eres el Agente Orquestador Central de QZ-HUB y QUARZ Group (SSOT).
-Estás interactuando en la sesión: "${session.title}".
-Tienes acceso a todo el SSOT:
-- Metas de Caja al 31 de Agosto: S/ 4,000.00 PEN (partiendo de S/ 770.00).
-- Royal Prestige: 40 llamadas frías diarias de 12-2pm (SIM 933709385), ratio 20:1 a demo, 4:1 a venta (comisión S/ 1,010.59).
-- Quarz ZentryOS: $1,000 USD por licencia (S/ 1,906.78 ganancia personal + S/ 1,271.19 caja empresa).
-- Biohacking: Rutina 12-2pm, ayuno autofágico 48h, abastecimiento Yerbateros viernes 4:30am.
-
-Responde de forma concisa, ejecutiva y formateada en Markdown limpio.`;
-
-            const reply = await callVertexGemini(historyPrompt, systemPrompt, selectedModel);
-            document.getElementById('session-thinking-indicator')?.remove();
-
-            const agentMsg = {
-              id: 'msg_' + Date.now(),
-              sender: 'agent',
-              text: reply,
-              timestamp: new Date().toISOString()
-            };
-
-            // Detect if the agent generated an artifact / deliverable in markdown
-            if (reply.includes('# ') && reply.length > 300) {
-              const artName = `entregable_${Date.now().toString(36)}.md`;
-              const newArt = {
-                id: 'art_' + Date.now(),
-                name: artName,
-                title: 'Entregable de la Sesión',
-                content: reply
-              };
-              if (!session.artifacts) session.artifacts = [];
-              session.artifacts.unshift(newArt);
-              agentMsg.artifact = newArt;
-              renderSessionInspector(session);
-            }
-
-            session.messages.push(agentMsg);
-            appendMessageToDOM(agentMsg);
-            saveSessions();
-          } catch (err) {
-            document.getElementById('session-thinking-indicator')?.remove();
-            console.warn('Vertex AI error:', err);
-            const fallbackReply = processLocalSsotQuery(text);
-            const agentMsg = {
-              id: 'msg_' + Date.now(),
-              sender: 'agent',
-              text: `⚠️ *[Aviso GCP: ${err.message}]*\n\n${fallbackReply}`,
-              timestamp: new Date().toISOString()
-            };
-            session.messages.push(agentMsg);
-            appendMessageToDOM(agentMsg);
-            saveSessions();
-          }
-        }
-      });
-    }
-
-    // Telemetry Listener for Bridge Status
-    try {
-      listenToRemoteTelemetry((telemetry) => {
-        const bridgeBadge = document.getElementById('cockpit-bridge-badge');
-        const bridgeText = document.getElementById('bridge-status-text');
-
-        if (!bridgeBadge || !bridgeText) return;
-
-        if (telemetry && telemetry.status === 'online') {
-          const now = Date.now();
-          const lastSeenTime = telemetry.lastSeen ? new Date(telemetry.lastSeen).getTime() : now;
-          const diffSec = Math.round((now - lastSeenTime) / 1000);
-
-          if (diffSec < 35) {
-            bridgeBadge.className = 'bridge-status-mini online';
-            bridgeText.textContent = `En Línea (${telemetry.deviceName || 'PC'})`;
-          } else {
-            bridgeBadge.className = 'bridge-status-mini standby';
-            bridgeText.textContent = 'Standby';
-          }
-        } else {
-          bridgeBadge.className = 'bridge-status-mini offline';
-          bridgeText.textContent = 'Desconectado';
-        }
-      });
-    } catch(e) {}
-
-    // Auto-resize chat textarea as user types
-    chatInput?.addEventListener('input', () => {
-      chatInput.style.height = 'auto';
-      chatInput.style.height = Math.min(100, chatInput.scrollHeight) + 'px';
-    });
-
-    // Initial render of active session
-    renderCurrentSession();
-
   },
 
-  // 6.7. Plan Maestro 63 Días View
+    // 6.7. Plan Maestro 63 Días View
   plan63dias: () => {
     document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #2b5c8f 0%, #1c142e 50%, #0c0d10 100%)';
     document.getElementById('page-icon').textContent = '🗺️';
