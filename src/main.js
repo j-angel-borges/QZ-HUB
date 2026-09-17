@@ -2747,6 +2747,22 @@ const renderers = {
             </div>
           </a>
 
+          <!-- 5. Repertorio -->
+          <a href="#repertorio" class="demobook-card-link">
+            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff;">
+              <div class="demobook-card-content" style="gap: 16px;">
+                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(236, 72, 153, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                  🎭
+                </div>
+                <div>
+                  <div class="demobook-card-title" style="font-size: 16px; margin-bottom: 3px; color: #0f172a;">Repertorio</div>
+                  <div style="font-size: 12px; color: #64748b;">Módulo en preparación.</div>
+                </div>
+              </div>
+              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px;">➔</span>
+            </div>
+          </a>
+
         </div>
       </div>
     `;
@@ -3089,6 +3105,36 @@ const renderers = {
             </div>
           </div>
 
+        </div>
+      </div>
+    `;
+  },
+
+  // 6.3. Repertorio View
+  repertorio: () => {
+    const workspace = document.querySelector('.workspace');
+    if (workspace) workspace.classList.add('minimal-view');
+
+    document.getElementById('page-title').textContent = 'Repertorio';
+    document.getElementById('page-icon').textContent = '🎭';
+    document.getElementById('properties-block').style.display = 'none';
+
+    const container = document.getElementById('workspace-content');
+    container.innerHTML = `
+      <div class="demobook-minimal-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <a href="#demobook" class="btn btn-secondary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+            <span>← Volver a Recursos Comerciales</span>
+          </a>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <h2 style="font-family: var(--font-family-title); font-size: 22px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0; display: flex; align-items: center; gap: 10px;">
+            🎭 Repertorio
+          </h2>
+          <p style="font-size: 13.5px; color: #64748b; margin: 0; line-height: 1.5;">
+            Espacio en preparación.
+          </p>
         </div>
       </div>
     `;
@@ -5315,7 +5361,7 @@ function handleRouting() {
   const hash = window.location.hash || '#backlog';
   
   // Set data-module on body to preserve Zentry colorimetry when accessing Zentry views
-  const isZentryView = hash.includes('demobook') || hash.includes('demo') || hash.includes('accesos') || hash.includes('precierres') || hash.includes('demofeatures') || hash.includes('prospeccion') || hash.includes('gestion-comercial') || hash.includes('branding') || hash.includes('iacontext') || hash === '#backlog/zentry';
+  const isZentryView = hash.includes('demobook') || hash.includes('demo') || hash.includes('accesos') || hash.includes('precierres') || hash.includes('demofeatures') || hash.includes('repertorio') || hash.includes('prospeccion') || hash.includes('gestion-comercial') || hash.includes('branding') || hash.includes('iacontext') || hash === '#backlog/zentry';
   if (isZentryView) {
     document.body.setAttribute('data-module', 'zentry');
   } else {
@@ -5389,7 +5435,7 @@ function handleRouting() {
     lockPersonalAccess();
     state.activeView = hash.replace('#', '');
     let navLink = document.querySelector(`.nav-link[data-view="${state.activeView}"]`);
-    if (!navLink && (state.activeView === 'demo' || state.activeView === 'demobook' || state.activeView === 'precierres' || state.activeView === 'demofeatures')) {
+    if (!navLink && (state.activeView === 'demo' || state.activeView === 'demobook' || state.activeView === 'precierres' || state.activeView === 'demofeatures' || state.activeView === 'repertorio')) {
       navLink = document.querySelector(`.nav-link[data-view="demo"], .nav-link[data-view="demobook"]`);
     } else if (!navLink && (state.activeView === 'gestion-comercial' || state.activeView === 'prospeccion')) {
       navLink = document.querySelector(`.nav-link[data-view="prospeccion"], .nav-link[data-view="gestion-comercial"]`);
