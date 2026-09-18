@@ -694,6 +694,9 @@ body[data-module="zentry"] .workspace-banner {
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 4px 12px rgba(74, 81, 96, 0.05);
+  overflow: hidden;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .kanban-card:hover {
@@ -733,6 +736,8 @@ body[data-module="zentry"] .workspace-banner {
   font-weight: 500;
   line-height: 1.4;
   margin-bottom: 12px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .card-footer {
