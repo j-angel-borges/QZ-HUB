@@ -4732,18 +4732,20 @@ function renderEspacioPersonal(container) {
 
   container.innerHTML = `
     <div class="espacio-personal-header">
-      <a href="#backlog" class="btn-back-personal">⬅️ Volver a Selección</a>
-      <h2 style="font-family: 'Space Grotesk', sans-serif; color: #0f172a;">⏱️ Timeblocking</h2>
-      <div class="personal-header-actions" style="display: flex; gap: 8px; align-items: center;">
-        <a href="#backlog/journal" class="btn-open-journal" style="background: #ffffff; color: #0f172a; text-decoration: none; border: 1px solid rgba(15, 23, 42, 0.15); padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
-          <span>📖</span> Abrir Journal
-        </a>
-        <a href="#backlog/personal-board" class="btn-open-personal-board" style="background: #0f172a; color: #ffffff; text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
-          <span>📋</span> Abrir Tablero Personal
-        </a>
+      <div class="personal-header-top-row">
+        <a href="#backlog" class="btn-back-personal">⬅️ Volver a Selección</a>
         <button type="button" id="btn-lock-personal" class="btn-lock-personal" title="Bloquear Backlog Personal">
           <span>🔒</span> Bloquear
         </button>
+      </div>
+      <h2 class="personal-header-title" style="font-family: 'Space Grotesk', sans-serif; color: #0f172a; margin: 0;">⏱️ Timeblocking</h2>
+      <div class="personal-header-actions">
+        <a href="#backlog/journal" class="btn-open-journal">
+          <span>📖</span> Abrir Journal
+        </a>
+        <a href="#backlog/personal-board" class="btn-open-personal-board">
+          <span>📋</span> Tablero Personal
+        </a>
       </div>
     </div>
 

@@ -2299,14 +2299,69 @@ body[data-module="zentry"] .workspace-banner {
   justify-content: space-between;
   margin-bottom: 20px;
   padding: 0 8px;
+  gap: 16px;
 }
 
-.espacio-personal-header h2 {
+.personal-header-top-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.espacio-personal-header h2,
+.personal-header-title {
   font-family: 'Outfit', sans-serif;
   font-size: 1.75rem;
   font-weight: 700;
   color: var(--purple-zentry);
   margin: 0;
+}
+
+.personal-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-open-journal {
+  background: #ffffff;
+  color: #0f172a;
+  text-decoration: none;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  transition: all 0.2s;
+}
+
+.btn-open-journal:hover {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-open-personal-board {
+  background: #0f172a;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btn-open-personal-board:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
 }
 
 .btn-back-personal {
@@ -3574,42 +3629,44 @@ body:not([data-module="zentry"]) .btn-add-task:hover {
   /* Espacio Personal Header */
   .espacio-personal-header {
     display: flex !important;
-    flex-wrap: wrap !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 8px 0 12px 0 !important;
+  }
+
+  .personal-header-top-row {
+    display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    gap: 10px !important;
-    padding: 12px 0 16px 0 !important;
+    width: 100% !important;
   }
 
   .btn-back-personal, .btn-back-to-selector {
     width: auto !important;
     min-height: 38px !important;
-    padding: 6px 14px !important;
+    padding: 6px 12px !important;
     font-size: 12px !important;
-    order: 1 !important;
   }
 
   .btn-lock-personal {
     min-height: 38px !important;
-    padding: 6px 14px !important;
+    padding: 6px 12px !important;
     font-size: 12px !important;
-    order: 2 !important;
   }
 
-  .espacio-personal-header h2 {
+  .espacio-personal-header h2,
+  .personal-header-title {
     width: 100% !important;
     text-align: center !important;
-    font-size: 1.3rem !important;
-    margin: 4px 0 !important;
-    order: 3 !important;
+    font-size: 1.25rem !important;
+    margin: 2px 0 !important;
   }
 
   .personal-header-actions {
     width: 100% !important;
     display: flex !important;
-    flex-wrap: wrap !important;
     gap: 8px !important;
-    order: 4 !important;
   }
 
   .btn-open-journal, .btn-open-personal-board {
