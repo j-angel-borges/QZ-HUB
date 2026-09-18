@@ -17,7 +17,24 @@ import {
 
 // ─── CONFIGURATION ───────────────────────────────────────────────────────────
 const COLLECTION = 'qz_hub_users';
-const USER_DOC_ID = 'master';
+
+export function getActiveUserId() {
+  if (typeof window !== 'undefined') {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const u = params.get('user') || params.get('u');
+      if (u) return u.trim();
+      const stored = localStorage.getItem('qz_active_user_id');
+      if (stored) return stored.trim();
+    } catch (e) {}
+  }
+  return 'master';
+}
+
+export function setActiveUserId(userId) {
+  if (!userId) return;
+  localStorage.setItem('qz_active_user_id', userId.trim());
+}
 
 // ─── INTERNAL STATE & STATUS ────────────────────────────────────────────────
 let _isListening = false;
@@ -56,7 +73,7 @@ export function notifySyncStatus(state, message) {
 
 // ─── DOCUMENT REFERENCE ─────────────────────────────────────────────────────
 function masterDocRef() {
-  return doc(db, COLLECTION, USER_DOC_ID);
+  return doc(db, COLLECTION, getActiveUserId());
 }
 
 // ─── SERIALIZE ALL LOCALSTORAGE INTO A SINGLE OBJECT ─────────────────────────
@@ -186,7 +203,8 @@ function decodeFirestoreValue(val) {
 // ─── REST-BASED CLOUD DATA PULL (IMMUNE TO BROWSER SHIELDS / WEBSOCKET BLOCKS)
 export async function pullFromFirestoreREST() {
   try {
-    const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/${COLLECTION}/${USER_DOC_ID}?key=${firebaseConfig.apiKey}`;
+    const userId = getActiveUserId();
+    const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/${COLLECTION}/${userId}?key=${firebaseConfig.apiKey}`;
     const res = await fetch(url);
     if (!res.ok) {
       console.warn(`🔥 Firestore REST fetch returned HTTP ${res.status}`);

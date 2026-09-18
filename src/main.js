@@ -969,15 +969,26 @@ function checkTaskMatchesDate(task, dateStr) {
   return false;
 }
 
+function matchTaskUnit(task, mode) {
+  if (!mode || mode === 'global') return true;
+  const origin = (task.origin || task.unit || 'Quarz').toLowerCase();
+  if (mode === 'quarz') {
+    return origin.includes('quarz') || (!origin.includes('zentry') && !origin.includes('personal') && !task.id.startsWith('TEC') && !task.id.startsWith('PROD') && !task.id.startsWith('MKT'));
+  }
+  if (mode === 'zentry') {
+    return origin.includes('zentry') || task.id.startsWith('TEC') || task.id.startsWith('PROD') || task.id.startsWith('MKT');
+  }
+  if (mode === 'personal' || mode === 'personal-board') {
+    return origin.includes('personal');
+  }
+  return true;
+}
+
 function getTasksForDate(dateStr) {
   const mode = state.backlogMode || 'quarz';
   return state.tasks.filter(task => {
     // 1. Unit filtering
-    const taskUnit = (task.origin || 'Quarz').toLowerCase();
-    if (mode === 'quarz' && taskUnit !== 'quarz') return false;
-    if (mode === 'zentry' && taskUnit !== 'zentry') return false;
-    if ((mode === 'personal' || mode === 'personal-board') && taskUnit !== 'personal') return false;
-    // 'global' includes all units
+    if (!matchTaskUnit(task, mode)) return false;
     
     // 2. Date matching
     return checkTaskMatchesDate(task, dateStr);
@@ -5385,15 +5396,7 @@ function renderKanbanCards() {
   // Filter Tasks
   state.tasks.forEach(task => {
     // 0. Backlog mode unit filter (Quarz | Zentry | Personal | Global)
-    const taskUnit = (task.origin || 'Quarz').toLowerCase();
-    if (state.backlogMode === 'quarz') {
-      if (taskUnit !== 'quarz') return;
-    } else if (state.backlogMode === 'zentry') {
-      if (taskUnit !== 'zentry') return;
-    } else if (state.backlogMode === 'personal' || state.backlogMode === 'personal-board') {
-      if (taskUnit !== 'personal') return;
-    }
-    // 'global' mode shows ALL tasks from all units
+    if (!matchTaskUnit(task, state.backlogMode)) return;
 
     // 1. Vertical filter
     if (state.filters.vertical !== 'all') {
