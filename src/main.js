@@ -37,9 +37,13 @@ import {
   bootstrapFirestoreSync,
   pushToFirestoreDebounced,
   pushAllToFirestore,
+  forceSyncNow,
+  onSyncStatusChange,
+  getSyncStatus,
   syncTasks,
   syncMIT,
   syncHabitTracker,
+  syncProtocolsHistory,
   syncObjectives,
   syncTimeblock,
   syncTimeblockHistory,
@@ -90,7 +94,7 @@ function initTasks() {
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
-      state.tasks = (Array.isArray(parsed) && parsed.length >= db.tasks.length) ? parsed : JSON.parse(JSON.stringify(db.tasks));
+      state.tasks = (Array.isArray(parsed) && parsed.length > 0) ? parsed : JSON.parse(JSON.stringify(db.tasks));
     } catch (e) {
       state.tasks = JSON.parse(JSON.stringify(db.tasks));
     }
@@ -114,16 +118,137 @@ function pushCloudDataDebounced() {
 
 // Bootstrap Firestore on load (pull -> merge -> push -> listen)
 bootstrapFirestoreSync(state.tasks, (cloudData) => {
+  if (!cloudData) return;
+
   // Re-hydrate state from cloud updates received from other devices
-  if (cloudData && Array.isArray(cloudData.tasks) && cloudData.tasks.length > 0) {
+  if (Array.isArray(cloudData.tasks) && cloudData.tasks.length > 0) {
     state.tasks = cloudData.tasks;
     localStorage.setItem('zentry_tasks', JSON.stringify(cloudData.tasks));
   }
-  // Trigger re-render if on backlog or related view
-  if (state.activeView === 'backlog' || state.activeView === 'journal') {
+
+  // Avoid interrupting user typing
+  const isUserTyping = document.activeElement && 
+    (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
+  if (isUserTyping) return;
+
+  // Trigger smooth re-render on whichever view is active
+  if (state.activeView && state.activeView.startsWith('backlog')) {
     if (typeof renderers !== 'undefined' && renderers.backlog) renderers.backlog();
+  } else if (state.activeView === 'journal' && typeof renderers !== 'undefined' && renderers.journal) {
+    renderers.journal();
+  } else if (typeof renderers !== 'undefined' && renderers[state.activeView]) {
+    renderers[state.activeView]();
   }
 });
+
+// Setup GCP Sync Status UI (Badges + Modal)
+function initSyncUI() {
+  const sidebarBtn = document.getElementById('sidebar-sync-btn');
+  const sidebarText = document.getElementById('sidebar-sync-text');
+  const sidebarDot = document.getElementById('sidebar-sync-dot');
+  const mobileBtn = document.getElementById('mobile-sync-btn');
+  const mobileText = document.getElementById('mobile-sync-text');
+  const mobileDot = document.getElementById('mobile-sync-dot');
+  
+  const modal = document.getElementById('gcp-sync-modal');
+  const modalClose = document.getElementById('gcp-sync-modal-close');
+  const modalDot = document.getElementById('modal-sync-dot');
+  const modalTitle = document.getElementById('modal-sync-title');
+  const modalSubtitle = document.getElementById('modal-sync-subtitle');
+  const modalTime = document.getElementById('modal-sync-last-time');
+  const btnForce = document.getElementById('btn-force-sync');
+
+  function updateUI(status) {
+    if (!status) return;
+    const isSynced = status.state === 'synced';
+    const isSyncing = status.state === 'syncing';
+    const isOffline = status.state === 'offline';
+    const isError = status.state === 'error';
+
+    let dotClass = 'sync-indicator-dot';
+    if (isSyncing) dotClass += ' syncing';
+    else if (isOffline) dotClass += ' offline';
+    else if (isError) dotClass += ' error';
+
+    if (sidebarDot) sidebarDot.className = dotClass;
+    if (mobileDot) mobileDot.className = dotClass;
+    if (modalDot) modalDot.className = `modal-sync-dot ${dotClass}`;
+
+    if (sidebarText) {
+      if (isSynced) sidebarText.textContent = '☁️ GCP Sincronizado';
+      else if (isSyncing) sidebarText.textContent = '🔄 Guardando en GCP...';
+      else if (isOffline) sidebarText.textContent = '⚠️ Modo Local';
+      else if (isError) sidebarText.textContent = '❌ Error Sync GCP';
+      else sidebarText.textContent = '☁️ Conectando GCP...';
+    }
+
+    if (mobileText) {
+      if (isSynced) mobileText.textContent = 'GCP ✓';
+      else if (isSyncing) mobileText.textContent = 'Sync...';
+      else if (isOffline) mobileText.textContent = 'Offline';
+      else if (isError) mobileText.textContent = 'Error';
+      else mobileText.textContent = 'GCP';
+    }
+
+    if (modalTitle) {
+      if (isSynced) modalTitle.textContent = 'Sincronizado con GCP Firestore';
+      else if (isSyncing) modalTitle.textContent = 'Transmitiendo a GCP...';
+      else if (isOffline) modalTitle.textContent = 'Modo Local (Desconectado)';
+      else if (isError) modalTitle.textContent = 'Error de Sincronización';
+      else modalTitle.textContent = 'Conectando a GCP Firestore...';
+    }
+
+    if (modalSubtitle) {
+      modalSubtitle.textContent = status.message || 'Sincronización multi-dispositivo activa (PC ↔ Celular)';
+    }
+
+    if (modalTime) {
+      modalTime.textContent = status.lastSyncTime 
+        ? new Date(status.lastSyncTime).toLocaleTimeString() + ' (' + new Date(status.lastSyncTime).toLocaleDateString() + ')'
+        : 'Recién conectado';
+    }
+  }
+
+  onSyncStatusChange(updateUI);
+
+  const openModal = () => { if (modal) modal.classList.add('active'); };
+  const closeModal = () => { if (modal) modal.classList.remove('active'); };
+
+  if (sidebarBtn) sidebarBtn.addEventListener('click', openModal);
+  if (mobileBtn) mobileBtn.addEventListener('click', openModal);
+  if (modalClose) modalClose.addEventListener('click', closeModal);
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  if (btnForce) {
+    btnForce.addEventListener('click', async () => {
+      btnForce.disabled = true;
+      btnForce.innerHTML = '<span>🔄</span> Sincronizando con GCP...';
+      await forceSyncNow(state.tasks, (cloudData) => {
+        if (cloudData && Array.isArray(cloudData.tasks)) {
+          state.tasks = cloudData.tasks;
+        }
+        if (typeof renderers !== 'undefined' && renderers.backlog) {
+          renderers.backlog();
+        }
+      });
+      btnForce.innerHTML = '<span>✅</span> ¡Sincronizado!';
+      setTimeout(() => {
+        btnForce.disabled = false;
+        btnForce.innerHTML = '<span>🔄</span> Sincronizar Ahora con GCP';
+      }, 1800);
+    });
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initSyncUI);
+} else {
+  initSyncUI();
+}
 
 
 
@@ -1084,6 +1209,7 @@ function getProtocolsData() {
 
 function saveProtocolsData(data) {
   localStorage.setItem(PROTOCOLS_STORAGE_KEY, JSON.stringify(data));
+  syncProtocolsHistory(data);
 }
 
 function getDefaultHabitTrackerData() {

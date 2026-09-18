@@ -106,7 +106,10 @@
       </nav>
 
       <div class="sidebar-footer">
-        <span class="footer-status">⚡ QUARZ Sync</span>
+        <button type="button" id="sidebar-sync-btn" class="footer-sync-btn" title="Estado de sincronización GCP">
+          <span id="sidebar-sync-dot" class="sync-indicator-dot"></span>
+          <span class="footer-status" id="sidebar-sync-text">☁️ GCP Conectado</span>
+        </button>
         <span class="footer-version" id="db-generated-date">QZ-Hub v2.0</span>
       </div>
     </aside>
@@ -117,7 +120,13 @@
       <div class="mobile-header-bar">
         <button id="sidebar-toggle-mobile" class="mobile-hamburger-btn" title="Menú QZ-Hub">☰ Menú</button>
         <span class="mobile-app-title">QZ-Hub</span>
-        <button id="pwa-install-btn" class="pwa-install-btn" title="Instalar App QZ-Hub">📱 Instalar PWA</button>
+        <div class="mobile-header-right">
+          <button id="mobile-sync-btn" class="mobile-sync-status-btn" title="Sincronización GCP">
+            <span id="mobile-sync-dot" class="sync-indicator-dot"></span>
+            <span id="mobile-sync-text">GCP</span>
+          </button>
+          <button id="pwa-install-btn" class="pwa-install-btn" title="Instalar App QZ-Hub">📱 Instalar PWA</button>
+        </div>
       </div>
 
       <!-- Sidebar Toggle Button (Desktop) -->
@@ -675,6 +684,56 @@
             </div>
           </div>
         </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- GCP Cloud Sync Modal -->
+  <div id="gcp-sync-modal" class="modal-overlay">
+    <div class="modal-content glass-modal gcp-sync-modal-content">
+      <div class="modal-header">
+        <div class="gcp-sync-header-title">
+          <span class="gcp-cloud-icon">☁️</span>
+          <h2>Google Cloud Sync (GCP Firestore)</h2>
+        </div>
+        <button id="gcp-sync-modal-close" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="gcp-sync-status-card">
+          <div class="sync-status-indicator-box">
+            <div id="modal-sync-dot" class="modal-sync-dot"></div>
+            <div>
+              <div id="modal-sync-title" class="modal-sync-title">Sincronizado</div>
+              <div id="modal-sync-subtitle" class="modal-sync-subtitle">Todos los datos sincronizados en la nube</div>
+            </div>
+          </div>
+          <div class="sync-meta-grid">
+            <div class="sync-meta-item">
+              <span class="meta-label">Proyecto GCP:</span>
+              <span class="meta-val">quarz-group</span>
+            </div>
+            <div class="sync-meta-item">
+              <span class="meta-label">Base de Datos:</span>
+              <span class="meta-val">Cloud Firestore (nam5)</span>
+            </div>
+            <div class="sync-meta-item">
+              <span class="meta-label">Colección Central:</span>
+              <span class="meta-val">qz_hub_users/master</span>
+            </div>
+            <div class="sync-meta-item">
+              <span class="meta-label">Última Sincronización:</span>
+              <span id="modal-sync-last-time" class="meta-val">—</span>
+            </div>
+          </div>
+          <div class="sync-actions-box">
+            <button type="button" id="btn-force-sync" class="btn-sync-action">
+              <span>🔄</span> Sincronizar Ahora con GCP
+            </button>
+          </div>
+          <div class="sync-hint-text">
+            💡 Tus cambios en Timeblocking, Tableros Kanban, M.I.T., Bio-Tracker y Journal se transmiten instantáneamente entre tu PC y tu celular.
+          </div>
+        </div>
       </div>
     </div>
   </div>

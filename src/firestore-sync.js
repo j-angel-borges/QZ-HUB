@@ -19,12 +19,40 @@ import {
 const COLLECTION = 'qz_hub_users';
 const USER_DOC_ID = 'master';
 
-// ─── INTERNAL STATE ──────────────────────────────────────────────────────────
+// ─── INTERNAL STATE & STATUS ────────────────────────────────────────────────
 let _isListening = false;
 let _isSyncing = false;
 let _debounceTimer = null;
 let _onDataUpdateCallback = null;
 let _unsubscribe = null;
+
+let _syncStatus = {
+  state: 'idle', // 'idle' | 'connecting' | 'synced' | 'syncing' | 'offline' | 'error'
+  message: 'Iniciando conexión...',
+  lastSyncTime: null
+};
+const _statusListeners = new Set();
+
+export function onSyncStatusChange(fn) {
+  _statusListeners.add(fn);
+  try { fn(_syncStatus); } catch (e) {}
+  return () => _statusListeners.delete(fn);
+}
+
+export function getSyncStatus() {
+  return _syncStatus;
+}
+
+export function notifySyncStatus(state, message) {
+  _syncStatus = {
+    state,
+    message,
+    lastSyncTime: state === 'synced' ? new Date().toISOString() : _syncStatus.lastSyncTime
+  };
+  _statusListeners.forEach(fn => {
+    try { fn(_syncStatus); } catch (e) { console.error(e); }
+  });
+}
 
 // ─── DOCUMENT REFERENCE ─────────────────────────────────────────────────────
 function masterDocRef() {
@@ -67,7 +95,11 @@ export function gatherAllLocalData(stateTasks) {
   try { result.bioTracker = JSON.parse(localStorage.getItem('qz_bio_tracker') || '{}'); }
   catch (e) { result.bioTracker = {}; }
 
-  // 7. All individual timeblock date keys (zentry_timeblock_YYYY-MM-DD)
+  // 7. Protocols History (Protocolo Pre-Elrow / 30 Días)
+  try { result.protocolsHistory = JSON.parse(localStorage.getItem('qz_bio_protocols_history') || '[]'); }
+  catch (e) { result.protocolsHistory = []; }
+
+  // 8. All individual timeblock date keys (zentry_timeblock_YYYY-MM-DD)
   const timeblocks = {};
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -83,7 +115,7 @@ export function gatherAllLocalData(stateTasks) {
   }
   result.timeblocks = timeblocks;
 
-  // 8. Settings / preferences
+  // 9. Settings / preferences
   result.settings = {
     sidebar_collapsed: localStorage.getItem('sidebar_collapsed') || 'false',
     gcal_gas_url: localStorage.getItem('gcal_gas_url') || '',
@@ -99,6 +131,7 @@ export function gatherAllLocalData(stateTasks) {
 export async function pushAllToFirestore(stateTasks) {
   if (_isSyncing) return false;
   _isSyncing = true;
+  notifySyncStatus('syncing', 'Guardando cambios en GCP Firestore...');
 
   try {
     const allData = gatherAllLocalData(stateTasks);
@@ -111,9 +144,11 @@ export async function pushAllToFirestore(stateTasks) {
       timeblockDates: Object.keys(allData.timeblocks).length,
       journalEntries: allData.journalHistory.length
     });
+    notifySyncStatus('synced', `Guardado en GCP (${new Date().toLocaleTimeString()})`);
     return allData;
   } catch (err) {
     console.error('🔥 QZ Hub → Firestore push error:', err);
+    notifySyncStatus('error', 'Error al sincronizar con GCP');
     throw err;
   } finally {
     _isSyncing = false;
@@ -206,9 +241,13 @@ export async function pullFromFirestore() {
   // 3. Last resort: wait for SDK in case REST had network issues
   try {
     const snap = await sdkPromise;
-    if (snap && typeof snap === 'object') return snap;
+    if (snap && typeof snap === 'object') {
+      notifySyncStatus('synced', 'Conectado a GCP Firestore');
+      return snap;
+    }
   } catch(e) {}
 
+  notifySyncStatus('offline', 'Modo sin conexión');
   return null;
 }
 
@@ -243,6 +282,11 @@ export function hydrateLocalStorage(data) {
     localStorage.setItem('qz_bio_tracker', JSON.stringify(data.bioTracker));
   }
 
+  // Protocols History (Protocolo Pre-Elrow / 30 Días)
+  if (Array.isArray(data.protocolsHistory) && data.protocolsHistory.length > 0) {
+    localStorage.setItem('qz_bio_protocols_history', JSON.stringify(data.protocolsHistory));
+  }
+
   // Corkboard Objectives
   if (Array.isArray(data.objectives) && data.objectives.length > 0) {
     localStorage.setItem('zentry_objectives', JSON.stringify(data.objectives));
@@ -264,16 +308,11 @@ export function hydrateLocalStorage(data) {
     }
   }
 
-  // Individual Timeblocks per date
+  // Individual Timeblocks per date (Cloud authoritative hydration across devices)
   if (data.timeblocks && typeof data.timeblocks === 'object') {
     for (const [dateStr, blocks] of Object.entries(data.timeblocks)) {
       if (blocks && typeof blocks === 'object' && Object.keys(blocks).length > 0) {
-        let localBlocks = {};
-        try {
-          localBlocks = JSON.parse(localStorage.getItem(`zentry_timeblock_${dateStr}`) || '{}');
-        } catch (e) { localBlocks = {}; }
-        const merged = Object.assign({}, blocks, localBlocks);
-        localStorage.setItem(`zentry_timeblock_${dateStr}`, JSON.stringify(merged));
+        localStorage.setItem(`zentry_timeblock_${dateStr}`, JSON.stringify(blocks));
       }
     }
   }
@@ -303,17 +342,20 @@ export function startRealtimeSync(onDataUpdate) {
       }
 
       const data = snap.data();
-      console.log('🔥 QZ Hub ← Firestore Realtime: Synced from another device');
+      console.log('🔥 QZ Hub ← Firestore Realtime: Synced from GCP');
       hydrateLocalStorage(data);
+      notifySyncStatus('synced', `Actualizado desde GCP (${new Date().toLocaleTimeString()})`);
 
       if (_onDataUpdateCallback) {
         _onDataUpdateCallback(data);
       }
     }, (error) => {
       console.error('🔥 Firestore Realtime Listener Error:', error);
+      notifySyncStatus('error', 'Error en escucha en tiempo real');
     });
   } catch (e) {
     console.error('Failed to start Firestore Realtime listener:', e);
+    notifySyncStatus('offline', 'Modo local sin conexión en tiempo real');
   }
 }
 
@@ -326,29 +368,54 @@ export function stopRealtimeSync() {
   _isListening = false;
 }
 
-// ─── INITIAL BOOTSTRAP: PULL → MERGE → PUSH ─────────────────────────────────
+// ─── INITIAL BOOTSTRAP: PULL → HYDRATE → SYNC ──────────────────────────────
 export async function bootstrapFirestoreSync(stateTasks, onDataUpdate) {
   try {
     const cloudData = await pullFromFirestore();
 
-    if (!cloudData) {
-      console.log('🔥 QZ Hub: First-time sync — pushing all local data to Firestore...');
+    if (!cloudData || !cloudData.updatedAt) {
+      console.log('🔥 QZ Hub: Primer arranque sin datos en la nube — subiendo datos locales a GCP Firestore...');
+      notifySyncStatus('syncing', 'Subiendo datos iniciales a GCP Firestore...');
       await pushAllToFirestore(stateTasks);
+      notifySyncStatus('synced', 'Datos sincronizados con GCP Firestore');
     } else {
-      const localTasks = JSON.parse(localStorage.getItem('zentry_tasks') || '[]');
-      const cloudTasks = cloudData.tasks || [];
-      if (localTasks.length > cloudTasks.length) {
-        await pushAllToFirestore(stateTasks);
-      }
+      console.log('🔥 QZ Hub: Datos existentes en GCP Firestore — hidratando almacenamiento local...');
+      hydrateLocalStorage(cloudData);
+      notifySyncStatus('synced', `Sincronizado con GCP (${new Date(cloudData.updatedAt).toLocaleTimeString()})`);
     }
 
     startRealtimeSync(onDataUpdate);
-    console.log('🔥 QZ Hub Firestore: Bootstrap complete — realtime sync active.');
+    console.log('🔥 QZ Hub Firestore: Bootstrap completo — sincronización activa.');
     if (onDataUpdate && cloudData) {
       onDataUpdate(cloudData);
     }
+    return cloudData;
   } catch(e) {
     console.warn('Bootstrap Firestore sync completed with warning:', e);
+    notifySyncStatus('offline', 'Modo sin conexión GCP');
+    return null;
+  }
+}
+
+// ─── FORCE MANUAL SYNC ON DEMAND ─────────────────────────────────────────────
+export async function forceSyncNow(stateTasks, onDataUpdate) {
+  notifySyncStatus('syncing', 'Forzando sincronización con GCP...');
+  try {
+    const cloudData = await pullFromFirestore();
+    if (cloudData && cloudData.updatedAt) {
+      hydrateLocalStorage(cloudData);
+      if (onDataUpdate) onDataUpdate(cloudData);
+      notifySyncStatus('synced', `Sincronizado con éxito (${new Date().toLocaleTimeString()})`);
+      return true;
+    } else {
+      await pushAllToFirestore(stateTasks);
+      notifySyncStatus('synced', `Datos locales respaldados en GCP (${new Date().toLocaleTimeString()})`);
+      return true;
+    }
+  } catch (err) {
+    console.error('Manual force sync failed:', err);
+    notifySyncStatus('error', 'Fallo al sincronizar con GCP');
+    return false;
   }
 }
 
@@ -359,8 +426,10 @@ export async function syncTasks(tasks) {
       tasks: tasks,
       updatedAt: new Date().toISOString()
     });
+    notifySyncStatus('synced', 'Tareas guardadas en GCP');
   } catch (err) {
     await setDoc(masterDocRef(), { tasks, updatedAt: new Date().toISOString() }, { merge: true });
+    notifySyncStatus('synced', 'Tareas guardadas en GCP');
   }
 }
 
@@ -372,10 +441,12 @@ export async function syncMIT(mit, mode = 'quarz') {
     };
     if (mode) payload[`mit_${mode}`] = mit;
     await updateDoc(masterDocRef(), payload);
+    notifySyncStatus('synced', 'M.I.T. guardado en GCP');
   } catch (err) {
     const setPayload = { mit, updatedAt: new Date().toISOString() };
     if (mode) setPayload[`mit_${mode}`] = mit;
     await setDoc(masterDocRef(), setPayload, { merge: true });
+    notifySyncStatus('synced', 'M.I.T. guardado en GCP');
   }
 }
 
@@ -385,8 +456,23 @@ export async function syncHabitTracker(trackerData) {
       bioTracker: trackerData,
       updatedAt: new Date().toISOString()
     });
+    notifySyncStatus('synced', 'Bio-Tracker guardado en GCP');
   } catch (err) {
     await setDoc(masterDocRef(), { bioTracker: trackerData, updatedAt: new Date().toISOString() }, { merge: true });
+    notifySyncStatus('synced', 'Bio-Tracker guardado en GCP');
+  }
+}
+
+export async function syncProtocolsHistory(protocols) {
+  try {
+    await updateDoc(masterDocRef(), {
+      protocolsHistory: protocols,
+      updatedAt: new Date().toISOString()
+    });
+    notifySyncStatus('synced', 'Protocolo guardado en GCP');
+  } catch (err) {
+    await setDoc(masterDocRef(), { protocolsHistory: protocols, updatedAt: new Date().toISOString() }, { merge: true });
+    notifySyncStatus('synced', 'Protocolo guardado en GCP');
   }
 }
 
@@ -396,8 +482,10 @@ export async function syncObjectives(objectives) {
       objectives: objectives,
       updatedAt: new Date().toISOString()
     });
+    notifySyncStatus('synced', 'Objetivos guardados en GCP');
   } catch (err) {
     await setDoc(masterDocRef(), { objectives, updatedAt: new Date().toISOString() }, { merge: true });
+    notifySyncStatus('synced', 'Objetivos guardados en GCP');
   }
 }
 
@@ -407,10 +495,12 @@ export async function syncTimeblock(dateStr, blockData) {
     updatePayload[`timeblocks.${dateStr}`] = blockData;
     updatePayload.updatedAt = new Date().toISOString();
     await updateDoc(masterDocRef(), updatePayload);
+    notifySyncStatus('synced', `Timeblocking guardado en GCP (${dateStr})`);
   } catch (err) {
     const setPayload = { timeblocks: {}, updatedAt: new Date().toISOString() };
     setPayload.timeblocks[dateStr] = blockData;
     await setDoc(masterDocRef(), setPayload, { merge: true });
+    notifySyncStatus('synced', `Timeblocking guardado en GCP (${dateStr})`);
   }
 }
 
@@ -420,8 +510,10 @@ export async function syncTimeblockHistory(history) {
       timeblockHistory: history,
       updatedAt: new Date().toISOString()
     });
+    notifySyncStatus('synced', 'Historial Timeblock guardado en GCP');
   } catch (err) {
     await setDoc(masterDocRef(), { timeblockHistory: history, updatedAt: new Date().toISOString() }, { merge: true });
+    notifySyncStatus('synced', 'Historial Timeblock guardado en GCP');
   }
 }
 
@@ -431,8 +523,10 @@ export async function syncJournalHistory(journalHistory) {
       journalHistory: journalHistory,
       updatedAt: new Date().toISOString()
     });
+    notifySyncStatus('synced', 'Journal guardado en GCP');
   } catch (err) {
     await setDoc(masterDocRef(), { journalHistory, updatedAt: new Date().toISOString() }, { merge: true });
+    notifySyncStatus('synced', 'Journal guardado en GCP');
   }
 }
 

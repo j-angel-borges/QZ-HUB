@@ -1,0 +1,140 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions for data validation
+    function isValidStatus(status) {
+      return status in ['active', 'completed'];
+    }
+
+    function isValidProfile(profile) {
+      return profile in ['child', 'adult'];
+    }
+
+    function isValidCameraMode(mode) {
+      return mode in ['environment', 'user', 'dual_bereal'];
+    }
+
+    function isValidAppName(app) {
+      return app in ['isla-dinamica', 'skinner-box', 'parent-dashboard', 'creative-studio'];
+    }
+
+    function isValidDocCategory(cat) {
+      return cat in ['salud', 'identidad', 'educacion', 'legal'];
+    }
+
+    // 1. Skinner Box Session Records
+    match /sessions_skinner/{sessionId} {
+      allow read: if true;
+      allow write: if request.resource.data.sessionId is string
+                   && isValidProfile(request.resource.data.targetProfile)
+                   && isValidStatus(request.resource.data.status)
+                   && request.resource.data.totalScrolls >= 0
+                   && request.resource.data.startTime is number;
+    }
+
+    // 2. Dynamic Island Telemetry & Multimodal Event Stream
+    match /island_telemetry/{eventId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.eventId is string
+                            && request.resource.data.deviceId is string
+                            && isValidCameraMode(request.resource.data.cameraMode)
+                            && request.resource.data.timestamp is number;
+      allow delete: if false;
+    }
+
+    // 3. Live Connected Devices & Heartbeats
+    match /devices_live/{deviceId} {
+      allow read: if true;
+      allow write: if request.resource.data.deviceId is string
+                   && isValidAppName(request.resource.data.appName)
+                   && request.resource.data.isOnline is bool
+                   && request.resource.data.lastHeartbeat is number;
+    }
+
+    // 4. Parental Family Vault Documents
+    match /documents/{docId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.id is string
+                            && request.resource.data.title is string
+                            && isValidDocCategory(request.resource.data.category)
+                            && request.resource.data.uploadDate is number;
+      allow delete: if true;
+    }
+
+    // 5. Creative Studio (Z-Art WOW) Artworks and Mini-Apps
+    match /creative_creations/{creationId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.id is string
+                            && request.resource.data.childId is string
+                            && request.resource.data.category in ['character', 'landscape', 'object', 'personaje', 'paisaje', 'objeto']
+                            && request.resource.data.createdAt is number;
+      allow delete: if true;
+    }
+
+    // 6. System Configuration & Live Ecosystem Governance
+    match /system_config/{configId} {
+      allow read, write: if true;
+    }
+
+    // 7. Configuration Backups & Historical Snapshots
+    match /config_backups/{backupId} {
+      allow read, write: if true;
+    }
+
+    // 8. Skinner Box Real-time Command Bus & Remote Triggers
+    match /command_bus_skinner/{docId} {
+      allow read, write: if true;
+    }
+
+    // 9. Skinner Control & Master Command
+    match /skinner_control/{docId} {
+      allow read, write: if true;
+    }
+
+    // 10. Skinner Session Scientific Reports
+    match /sessions_skinner_reports/{reportId} {
+      allow read, write: if true;
+    }
+
+    // 11. Skinner Real-time Operant Lever Telemetry
+    match /skinner_lever_events/{eventId} {
+      allow read, write: if true;
+    }
+
+    // --- QZ-HUB ECOSYSTEM & REALTIME SYNCHRONIZATION ---
+    match /qz_hub_users/{userId} {
+      allow read, write: if true;
+    }
+    match /qz_hub_users/{userId}/{allPaths=**} {
+      allow read, write: if true;
+    }
+    match /qz_boards/{document=**} {
+      allow read, write: if true;
+    }
+    match /qz_remote_tasks/{document=**} {
+      allow read, write: if true;
+    }
+    match /qz_remote_telemetry/{document=**} {
+      allow read, write: if true;
+    }
+    match /qz_remote_media/{document=**} {
+      allow read, write: if true;
+    }
+    match /qz_remote_terminal_logs/{document=**} {
+      allow read, write: if true;
+    }
+    match /qz_remote_sessions/{document=**} {
+      allow read, write: if true;
+    }
+    match /qz_test/{document=**} {
+      allow read, write: if true;
+    }
+
+    // Deny all other unmatched paths by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

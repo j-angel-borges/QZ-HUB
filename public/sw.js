@@ -1,4 +1,7 @@
-const CACHE_NAME = 'qz-hub-v2.1.3-vault';
+// ==============================================================================
+// QZ-HUB SERVICE WORKER — v3.0.0 (GCP REALTIME SYNC SAFE)
+// ==============================================================================
+const CACHE_NAME = 'qz-hub-v3.0.0-gcp-sync';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -16,13 +19,14 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate Event
+// Activate Event: Purge old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME) {
+            console.log('🧹 Purging outdated service worker cache:', cache);
             return caches.delete(cache);
           }
         })
@@ -31,9 +35,18 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event (Network first, fallback to cache)
+// Fetch Event (Only cache same-origin static assets; NEVER cache Firestore/Google APIs)
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+
+  // CRITICAL: Bypass Service Worker for all external APIs (Firestore, Google, Vertex, etc.)
+  // and all dynamic /api/ endpoints to prevent stale data sync locks
+  if (url.origin !== self.location.origin || url.pathname.startsWith('/api/')) {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
