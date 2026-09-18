@@ -2795,97 +2795,73 @@ const renderers = {
     const container = document.getElementById('workspace-content');
     container.innerHTML = `
       <div class="demobook-minimal-container">
-        <div style="margin-bottom: 24px;">
-          <h2 style="font-family: var(--font-family-title); font-size: 22px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0; display: flex; align-items: center; gap: 10px;">
-            💼 Recursos Comerciales ZentryOS
-          </h2>
-          <p style="font-size: 13.5px; color: #64748b; margin: 0; line-height: 1.5;">
-            Arsenal de ventas, presentaciones interactivas, guías dialécticas de pre-cierre y microfunciones del sistema operativo para demostraciones de alto valor.
-          </p>
-        </div>
-
         <div class="demobook-grid">
           
           <!-- 1. Preguntas-Bienestar -->
           <a href="https://bienestar-chi.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff;">
-              <div class="demobook-card-content" style="gap: 16px;">
-                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+            <div class="demobook-card-minimal glass-panel">
+              <div class="demobook-card-content">
+                <div class="demobook-card-icon-wrapper" style="background: rgba(59, 130, 246, 0.1); color: #2563eb;">
                   📋
                 </div>
-                <div>
-                  <div class="demobook-card-title" style="font-size: 16px; margin-bottom: 3px; color: #0f172a;">Preguntas-Bienestar</div>
-                  <div style="font-size: 12px; color: #64748b;">Diagnóstico y formulario de evaluación de hábitos familiares.</div>
-                </div>
+                <div class="demobook-card-title">Preguntas-Bienestar</div>
               </div>
-              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px;">➔</span>
+              <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
 
-          <!-- 2. Slides - DEMO -->
-          <a href="https://demobook.quarz.online/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff;">
-              <div class="demobook-card-content" style="gap: 16px;">
-                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(16, 185, 129, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
-                  📊
-                </div>
-                <div>
-                  <div class="demobook-card-title" style="font-size: 16px; margin-bottom: 3px; color: #0f172a;">Slides - DEMO</div>
-                  <div style="font-size: 12px; color: #64748b;">Presentación visual ejecutiva y diapositivas de apoyo comercial.</div>
-                </div>
-              </div>
-              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px;">➔</span>
-            </div>
-          </a>
-
-          <!-- 3. Manual de Pre-Cierres -->
+          <!-- 2. Manual de Pre-Cierres -->
           <a href="#precierres" class="demobook-card-link">
-            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff;">
-              <div class="demobook-card-content" style="gap: 16px;">
-                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(245, 158, 11, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+            <div class="demobook-card-minimal glass-panel">
+              <div class="demobook-card-content">
+                <div class="demobook-card-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #d97706;">
                   📑
                 </div>
-                <div>
-                  <div class="demobook-card-title" style="font-size: 16px; margin-bottom: 3px; color: #0f172a;">Manual de Pre-Cierres</div>
-                  <div style="font-size: 12px; color: #64748b;">Arsenal dialéctico y remates de conversión (Remate de Horas).</div>
-                </div>
+                <div class="demobook-card-title">Manual de Pre-Cierres</div>
               </div>
-              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px;">➔</span>
+              <span class="demobook-card-arrow">➔</span>
+            </div>
+          </a>
+
+          <!-- 3. Slides - DEMO -->
+          <a href="https://demobook.quarz.online/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
+            <div class="demobook-card-minimal glass-panel">
+              <div class="demobook-card-content">
+                <div class="demobook-card-icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: #059669;">
+                  📊
+                </div>
+                <div class="demobook-card-title">Slides - DEMO</div>
+              </div>
+              <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
 
           <!-- 4. DEMO Features -->
           <a href="#demofeatures" class="demobook-card-link">
-            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(139, 92, 246, 0.2); background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);">
-              <div class="demobook-card-content" style="gap: 16px;">
-                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(139, 92, 246, 0.15); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+            <div class="demobook-card-minimal glass-panel">
+              <div class="demobook-card-content">
+                <div class="demobook-card-icon-wrapper" style="background: rgba(139, 92, 246, 0.12); color: #7c3aed;">
                   ✨
                 </div>
-                <div>
-                  <div class="demobook-card-title" style="font-size: 16px; margin-bottom: 3px; color: #5b21b6; display: flex; align-items: center; gap: 8px;">
-                    DEMO Features
-                    <span style="font-size: 10px; font-weight: 700; background: #8b5cf6; color: white; padding: 2px 8px; border-radius: 10px;">SANDBOX OS</span>
-                  </div>
-                  <div style="font-size: 12px; color: #64748b;">Microfunciones y piezas del SO aisladas para ventas en vivo.</div>
+                <div class="demobook-card-title" style="display: flex; align-items: center; gap: 8px;">
+                  DEMO Features
+                  <span style="font-size: 10px; font-weight: 700; background: rgba(139, 92, 246, 0.15); color: #6d28d9; padding: 2px 8px; border-radius: 6px;">SANDBOX</span>
                 </div>
               </div>
-              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px; color: #8b5cf6;">➔</span>
+              <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
 
           <!-- 5. Repertorio -->
           <a href="#repertorio" class="demobook-card-link">
-            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff;">
-              <div class="demobook-card-content" style="gap: 16px;">
-                <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(236, 72, 153, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+            <div class="demobook-card-minimal glass-panel">
+              <div class="demobook-card-content">
+                <div class="demobook-card-icon-wrapper" style="background: rgba(236, 72, 153, 0.1); color: #db2777;">
                   🎭
                 </div>
-                <div>
-                  <div class="demobook-card-title" style="font-size: 16px; margin-bottom: 3px; color: #0f172a;">Repertorio</div>
-                  <div style="font-size: 12px; color: #64748b;">Módulo en preparación.</div>
-                </div>
+                <div class="demobook-card-title">Repertorio</div>
               </div>
-              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px;">➔</span>
+              <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
 
