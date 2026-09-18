@@ -249,12 +249,19 @@ export function saveBlockChoice(blockId, optionId) {
   } catch (e) {}
 }
 
+function getLocalDateString(d = new Date()) {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function getProtocoloData() {
   const defaultData = {
     startDate: START_DATE_STR,
     endDate: END_DATE_STR,
     totalDays: TOTAL_DAYS,
-    activeDate: new Date().toISOString().split('T')[0],
+    activeDate: getLocalDateString(),
     days: {}
   };
   try {
@@ -285,7 +292,7 @@ export function getDayData(protoData, dateStr) {
 // --- RENDER COMPACT PREVIEW (CON LUPA 🔍 EN TODOS LOS BLOQUES) ---
 export function renderProtocoloPreviewHTML() {
   const proto = getProtocoloData();
-  const todayStr = proto.activeDate || new Date().toISOString().split('T')[0];
+  const todayStr = proto.activeDate || getLocalDateString();
   const dayData = getDayData(proto, todayStr);
   const blockChoices = getBlockChoices();
 
@@ -375,7 +382,7 @@ export function renderProtocoloPreviewHTML() {
 // --- RENDER FULL PAGE VIEW (#backlog/protocolo-30dias) ---
 export function renderProtocolo30DiasFullPage(container) {
   const proto = getProtocoloData();
-  const todayStr = proto.activeDate || new Date().toISOString().split('T')[0];
+  const todayStr = proto.activeDate || getLocalDateString();
   const dayData = getDayData(proto, todayStr);
   const blockChoices = getBlockChoices();
 
@@ -499,7 +506,7 @@ export function setupProtocoloEvents(container, isFullPage = false) {
       e.stopPropagation();
       const blockId = btn.dataset.blockId;
       const proto = getProtocoloData();
-      const todayStr = proto.activeDate || new Date().toISOString().split('T')[0];
+      const todayStr = proto.activeDate || getLocalDateString();
       const dayData = getDayData(proto, todayStr);
       
       const current = dayData.blocks[blockId] || {};
@@ -516,7 +523,7 @@ export function setupProtocoloEvents(container, isFullPage = false) {
       e.stopPropagation();
       const blockId = btn.dataset.blockId;
       const proto = getProtocoloData();
-      const todayStr = proto.activeDate || new Date().toISOString().split('T')[0];
+      const todayStr = proto.activeDate || getLocalDateString();
       const dayData = getDayData(proto, todayStr);
       
       const current = dayData.blocks[blockId] || {};

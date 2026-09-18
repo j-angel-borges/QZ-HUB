@@ -81,12 +81,20 @@ const state = {
   tasks: [],
   currentEditingTask: null,
   // Espacio Personal state
-  personalDate: new Date().toISOString().split('T')[0],
+  personalDate: getLocalDateString(),
   chatMessages: [],
   pendingSuggestions: null,
   calendarEvents: [],
   calendarConnected: !!localStorage.getItem('gcal_access_token') || !!localStorage.getItem('gcal_gas_url')
 };
+
+// Local Date Helper (prevents UTC timezone offset day-shift bugs in Peru / LatAm)
+function getLocalDateString(d = new Date()) {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 // Initialize Tasks from LocalStorage or DB
 function initTasks() {
@@ -406,8 +414,8 @@ function applyCalendarEventsToTimeblock() {
     const end = new Date(event.end);
     
     const dateStr = state.personalDate;
-    const startStr = start.toISOString().split('T')[0];
-    const endStr = end.toISOString().split('T')[0];
+    const startStr = getLocalDateString(start);
+    const endStr = getLocalDateString(end);
     
     if (startStr !== dateStr && endStr !== dateStr) return;
     
@@ -451,7 +459,7 @@ function formatDateLabel(dateStr) {
 function shiftDate(dateStr, days) {
   const d = new Date(dateStr + 'T12:00:00');
   d.setDate(d.getDate() + days);
-  return d.toISOString().split('T')[0];
+  return getLocalDateString(d);
 }
 
 function formatTime12h(time24) {
@@ -930,7 +938,7 @@ Responde con profesionalismo, concisión, estructura Markdown impecable y máxim
 
 // ─── INTERACTIVE BACKLOG CALENDAR LOGIC ───────────────────────────────────────
 let calCurrentDate = new Date();
-let calSelectedDateStr = new Date().toISOString().split('T')[0];
+let calSelectedDateStr = getLocalDateString();
 
 function checkTaskMatchesDate(task, dateStr) {
   if (!task || !task.deadline) return false;
@@ -999,7 +1007,7 @@ function renderBacklogCalendar() {
   const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
   const prevMonthTotalDays = new Date(year, month, 0).getDate();
   
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateString();
   
   daysGrid.innerHTML = '';
   
@@ -1139,7 +1147,7 @@ function renderBacklogCalendar() {
   
   document.getElementById('cal-today-btn')?.addEventListener('click', () => {
     calCurrentDate = new Date();
-    calSelectedDateStr = new Date().toISOString().split('T')[0];
+    calSelectedDateStr = getLocalDateString();
     renderBacklogCalendar();
   });
   
@@ -1224,7 +1232,7 @@ function getDefaultHabitTrackerData() {
     e: { retentionDays: 0, ejaculations: 0, pornFreeDays: 0 },
     s: { days: 0, missedDays: 0 },
     prod: {
-      todayDate: new Date().toISOString().split('T')[0],
+      todayDate: getLocalDateString(),
       today: { pcc: 0, ll: 0, demos: 0, win: 0 },
       history: {},
       totals: { pcc: 0, ll: 0, demos: 0, win: 0 }
@@ -1266,7 +1274,7 @@ function resetHabitTrackerDefaults() {
 
 // Helper para gestión de métricas comerciales productivas (PCC, LL, Demos, WIN)
 function getProductiveData(trackerData) {
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateString();
   if (!trackerData.prod) {
     trackerData.prod = {
       todayDate: todayStr,
@@ -3704,7 +3712,7 @@ const renderers = {
     // Logic to gather bricks
     let allBricks = [];
     const history = JSON.parse(localStorage.getItem('zentry_timeblock_history') || '[]');
-    const todayStr = state.personalDate || new Date().toISOString().split('T')[0];
+    const todayStr = state.personalDate || getLocalDateString();
     const todayBlocks = JSON.parse(localStorage.getItem(`zentry_timeblock_${todayStr}`)) || {};
     
     // Gather from history
@@ -3960,7 +3968,7 @@ function openJournalModal(initialDateStr) {
   const charCountSpan = document.getElementById('journal-char-count');
   const closeBtn = document.getElementById('journal-modal-close');
 
-  let currentDate = initialDateStr || state.personalDate || new Date().toISOString().split('T')[0];
+  let currentDate = initialDateStr || state.personalDate || getLocalDateString();
 
   const updateStats = () => {
     const text = contentTextarea ? contentTextarea.value.trim() : '';
@@ -4152,7 +4160,7 @@ function renderJournalFullPage(container) {
   const wsHeader = document.querySelector('.workspace-header');
   if (wsHeader) wsHeader.style.display = 'none';
 
-  let currentDate = state.personalDate || new Date().toISOString().split('T')[0];
+  let currentDate = state.personalDate || getLocalDateString();
 
   container.innerHTML = `
     <div class="journal-fullpage-container">
@@ -4645,7 +4653,7 @@ function renderEspacioPersonal(container) {
   const dateStr = state.personalDate;
   const timeblockData = getTimeblockData(dateStr);
   const slots = generateTimeSlots();
-  const isToday = dateStr === new Date().toISOString().split('T')[0];
+  const isToday = dateStr === getLocalDateString();
 
   // Build timeblock rows
   let slotsHtml = '';
@@ -4771,7 +4779,7 @@ function renderEspacioPersonal(container) {
     renderEspacioPersonal(container);
   });
   document.getElementById('date-today')?.addEventListener('click', () => {
-    state.personalDate = new Date().toISOString().split('T')[0];
+    state.personalDate = getLocalDateString();
     renderEspacioPersonal(container);
   });
 
@@ -5331,7 +5339,7 @@ function getDeadlineBadgeInfo(deadline) {
   const text = formatTaskDeadlineText(deadline);
   if (!text) return null;
   
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateString();
   let targetDate = null;
   
   if (typeof deadline === 'string') {
@@ -5841,7 +5849,7 @@ document.querySelectorAll('.deadline-mode-btn').forEach(btn => {
     const mode = e.currentTarget.dataset.mode;
     setDeadlineMode(mode);
     if (mode === 'multiple' && multipleSlotsState.length === 0) {
-      multipleSlotsState.push({ date: state.personalDate || new Date().toISOString().split('T')[0], startTime: '09:00', endTime: '10:00' });
+      multipleSlotsState.push({ date: state.personalDate || getLocalDateString(), startTime: '09:00', endTime: '10:00' });
       renderMultipleSlotsList();
     }
   });
@@ -5866,7 +5874,7 @@ document.getElementById('btn-clear-deadline')?.addEventListener('click', () => {
 });
 
 document.getElementById('btn-add-multiple-slot')?.addEventListener('click', () => {
-  multipleSlotsState.push({ date: state.personalDate || new Date().toISOString().split('T')[0], startTime: '09:00', endTime: '10:00' });
+  multipleSlotsState.push({ date: state.personalDate || getLocalDateString(), startTime: '09:00', endTime: '10:00' });
   renderMultipleSlotsList();
 });
 
