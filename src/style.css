@@ -1749,12 +1749,19 @@ body[data-module="zentry"] .workspace-banner {
   align-items: start;
 }
 
+.backlog-left-col,
+.backlog-center-col {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
 @media (max-width: 1300px) {
   .backlog-layout-grid {
     grid-template-columns: 1fr;
   }
-  .backlog-left-col, .backlog-right-col {
+  .backlog-left-col, .backlog-right-col, .backlog-center-col {
     max-width: 100%;
+    min-width: 0;
   }
 }
 
@@ -3500,14 +3507,46 @@ body:not([data-module="zentry"]) .btn-add-task:hover {
   }
 
   /* Kanban Board Vertical Stacking on Mobile */
+  .backlog-layout-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    gap: 16px !important;
+  }
+
+  .backlog-left-col,
+  .backlog-center-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
   .kanban-board {
+    display: grid !important;
     grid-template-columns: 1fr !important;
-    gap: 20px !important;
+    gap: 16px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .kanban-column {
     width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
     min-height: auto !important;
+    box-sizing: border-box !important;
+  }
+
+  .filter-bar {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .kanban-card {
