@@ -4678,6 +4678,9 @@ function renderEspacioPersonal(container) {
     if (currentHour) extraClass += ' is-current-hour';
     if (hasCalEvent) extraClass += ' has-calendar-event';
     if (data.completed) extraClass += ' is-completed';
+    if (data.text && data.text.trim()) extraClass += ' has-text';
+    if (data.type) extraClass += ' has-type';
+    if (data.isBrick) extraClass += ' is-brick';
 
     const timeLabel = slot.isHour ? formatTime12h(slot.time) : slot.time.split(':')[1];
     let badgeHtml = '';
@@ -4833,6 +4836,13 @@ function renderEspacioPersonal(container) {
 
   // Timeblock editing
   container.querySelectorAll('.timeblock-text').forEach(input => {
+    input.addEventListener('input', (e) => {
+      const slotDiv = e.target.closest('.timeblock-slot');
+      if (slotDiv) {
+        slotDiv.classList.toggle('has-text', !!e.target.value.trim());
+      }
+    });
+
     input.addEventListener('blur', (e) => {
       const time = e.target.dataset.time;
       const val = e.target.value.trim();
@@ -4923,13 +4933,16 @@ function renderEspacioPersonal(container) {
       const time = e.target.dataset.time;
       const detailsId = `details-${time.replace(':', '-')}`;
       const detailsEl = document.getElementById(detailsId);
+      const slotDiv = e.target.closest('.timeblock-slot');
       if (detailsEl) {
         if (detailsEl.style.display === 'none') {
           detailsEl.style.display = 'block';
           e.target.style.transform = 'rotate(180deg)';
+          if (slotDiv) slotDiv.classList.add('is-expanded');
         } else {
           detailsEl.style.display = 'none';
           e.target.style.transform = 'rotate(0deg)';
+          if (slotDiv) slotDiv.classList.remove('is-expanded');
         }
       }
     });
