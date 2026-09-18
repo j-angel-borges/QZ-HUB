@@ -2795,75 +2795,88 @@ const renderers = {
     const container = document.getElementById('workspace-content');
     container.innerHTML = `
       <div class="demobook-minimal-container">
-        <div class="demobook-grid">
+        <div class="demobook-columns-layout">
           
-          <!-- 1. Preguntas-Bienestar -->
-          <a href="https://bienestar-chi.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-            <div class="demobook-card-minimal glass-panel">
-              <div class="demobook-card-content">
-                <div class="demobook-card-icon-wrapper" style="background: rgba(59, 130, 246, 0.1); color: #2563eb;">
-                  📋
+          <!-- Columna Izquierda: Preguntas de Bienestar, Slides, Features, Repertorio -->
+          <div class="demobook-col-left">
+            
+            <!-- 1. Preguntas-Bienestar -->
+            <a href="https://bienestar-chi.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
+              <div class="demobook-card-minimal glass-panel">
+                <div class="demobook-card-content">
+                  <div class="demobook-card-icon-wrapper" style="background: rgba(59, 130, 246, 0.1); color: #2563eb;">
+                    📋
+                  </div>
+                  <div class="demobook-card-title">Preguntas-Bienestar</div>
                 </div>
-                <div class="demobook-card-title">Preguntas-Bienestar</div>
+                <span class="demobook-card-arrow">➔</span>
               </div>
-              <span class="demobook-card-arrow">➔</span>
-            </div>
-          </a>
+            </a>
 
-          <!-- 2. Manual de Pre-Cierres -->
-          <a href="#precierres" class="demobook-card-link">
-            <div class="demobook-card-minimal glass-panel">
-              <div class="demobook-card-content">
-                <div class="demobook-card-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #d97706;">
-                  📑
+            <!-- 2. Slides - DEMO -->
+            <a href="https://demobook.quarz.online/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
+              <div class="demobook-card-minimal glass-panel">
+                <div class="demobook-card-content">
+                  <div class="demobook-card-icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: #059669;">
+                    📊
+                  </div>
+                  <div class="demobook-card-title">Slides</div>
                 </div>
-                <div class="demobook-card-title">Manual de Pre-Cierres</div>
+                <span class="demobook-card-arrow">➔</span>
               </div>
-              <span class="demobook-card-arrow">➔</span>
-            </div>
-          </a>
+            </a>
 
-          <!-- 3. Slides - DEMO -->
-          <a href="https://demobook.quarz.online/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-            <div class="demobook-card-minimal glass-panel">
-              <div class="demobook-card-content">
-                <div class="demobook-card-icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: #059669;">
-                  📊
+            <!-- 3. DEMO Features -->
+            <a href="#demofeatures" class="demobook-card-link">
+              <div class="demobook-card-minimal glass-panel">
+                <div class="demobook-card-content">
+                  <div class="demobook-card-icon-wrapper" style="background: rgba(139, 92, 246, 0.12); color: #7c3aed;">
+                    ✨
+                  </div>
+                  <div class="demobook-card-title" style="display: flex; align-items: center; gap: 8px;">
+                    Features
+                    <span style="font-size: 10px; font-weight: 700; background: rgba(139, 92, 246, 0.15); color: #6d28d9; padding: 2px 8px; border-radius: 6px;">SANDBOX</span>
+                  </div>
                 </div>
-                <div class="demobook-card-title">Slides - DEMO</div>
+                <span class="demobook-card-arrow">➔</span>
               </div>
-              <span class="demobook-card-arrow">➔</span>
-            </div>
-          </a>
+            </a>
 
-          <!-- 4. DEMO Features -->
-          <a href="#demofeatures" class="demobook-card-link">
-            <div class="demobook-card-minimal glass-panel">
-              <div class="demobook-card-content">
-                <div class="demobook-card-icon-wrapper" style="background: rgba(139, 92, 246, 0.12); color: #7c3aed;">
-                  ✨
+            <!-- 4. Repertorio -->
+            <a href="#repertorio" class="demobook-card-link">
+              <div class="demobook-card-minimal glass-panel">
+                <div class="demobook-card-content">
+                  <div class="demobook-card-icon-wrapper" style="background: rgba(236, 72, 153, 0.1); color: #db2777;">
+                    🎭
+                  </div>
+                  <div class="demobook-card-title">Repertorio</div>
                 </div>
-                <div class="demobook-card-title" style="display: flex; align-items: center; gap: 8px;">
-                  DEMO Features
-                  <span style="font-size: 10px; font-weight: 700; background: rgba(139, 92, 246, 0.15); color: #6d28d9; padding: 2px 8px; border-radius: 6px;">SANDBOX</span>
-                </div>
+                <span class="demobook-card-arrow">➔</span>
               </div>
-              <span class="demobook-card-arrow">➔</span>
-            </div>
-          </a>
+            </a>
 
-          <!-- 5. Repertorio -->
-          <a href="#repertorio" class="demobook-card-link">
-            <div class="demobook-card-minimal glass-panel">
-              <div class="demobook-card-content">
-                <div class="demobook-card-icon-wrapper" style="background: rgba(236, 72, 153, 0.1); color: #db2777;">
-                  🎭
+          </div>
+
+          <!-- Línea Separadora Central Delgada -->
+          <div class="demobook-col-divider"></div>
+
+          <!-- Columna Derecha: Manual de Pre-Cierres -->
+          <div class="demobook-col-right">
+            
+            <!-- Manual de Pre-Cierres -->
+            <a href="#precierres" class="demobook-card-link">
+              <div class="demobook-card-minimal glass-panel">
+                <div class="demobook-card-content">
+                  <div class="demobook-card-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #d97706;">
+                    📑
+                  </div>
+                  <div class="demobook-card-title">Manual de Pre-Cierres</div>
                 </div>
-                <div class="demobook-card-title">Repertorio</div>
+                <span class="demobook-card-arrow">➔</span>
               </div>
-              <span class="demobook-card-arrow">➔</span>
-            </div>
-          </a>
+            </a>
+
+          </div>
 
         </div>
       </div>
