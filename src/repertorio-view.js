@@ -522,6 +522,7 @@ export function renderRepertorioView() {
   if (workspace) {
     workspace.classList.add('minimal-view');
     workspace.classList.add('full-width-view');
+    workspace.classList.add('repertorio-view-active');
   }
 
   document.getElementById('page-title').textContent = 'Repertorio & Presentación de Oferta';
@@ -1061,10 +1062,10 @@ function renderSpread06BenefitsAndCredits(family, pageLeftNum, pageRightNum) {
           <table class="referrals-table">
             <thead>
               <tr>
-                <th>Citas Concretadas</th>
+                <th>Citas</th>
                 <th>Créditos</th>
-                <th>Producto Físico Recompensa</th>
-                <th>Valor Comercial</th>
+                <th>Recompensa Física</th>
+                <th>Valor</th>
               </tr>
             </thead>
             <tbody>

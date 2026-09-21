@@ -5491,6 +5491,7 @@ function handleRouting() {
     workspace.classList.remove('minimal-view');
     workspace.classList.remove('backlog-view'); // Reset backlog view full width
     workspace.classList.remove('full-width-view');
+    workspace.classList.remove('repertorio-view-active');
   }
 
   // Restore elements that might be hidden by Espacio Personal
