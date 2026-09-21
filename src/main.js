@@ -33,6 +33,7 @@ import {
   renderProtocolo30DiasFullPage,
   setupProtocoloEvents
 } from './protocolo-30dias.js';
+import { renderRepertorioView } from './repertorio-view.js';
 import {
   bootstrapFirestoreSync,
   pushToFirestoreDebounced,
@@ -3244,34 +3245,9 @@ const renderers = {
     `;
   },
 
-  // 6.3. Repertorio View
+  // 6.3. Repertorio View (Catálogo Magazine & Presentación de Oferta)
   repertorio: () => {
-    const workspace = document.querySelector('.workspace');
-    if (workspace) workspace.classList.add('minimal-view');
-
-    document.getElementById('page-title').textContent = 'Repertorio';
-    document.getElementById('page-icon').textContent = '🎭';
-    document.getElementById('properties-block').style.display = 'none';
-
-    const container = document.getElementById('workspace-content');
-    container.innerHTML = `
-      <div class="demobook-minimal-container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
-          <a href="#demobook" class="btn btn-secondary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
-            <span>← Volver a Recursos Comerciales</span>
-          </a>
-        </div>
-
-        <div style="margin-bottom: 24px;">
-          <h2 style="font-family: var(--font-family-title); font-size: 22px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0; display: flex; align-items: center; gap: 10px;">
-            🎭 Repertorio
-          </h2>
-          <p style="font-size: 13.5px; color: #64748b; margin: 0; line-height: 1.5;">
-            Espacio en preparación.
-          </p>
-        </div>
-      </div>
-    `;
+    renderRepertorioView();
   },
 
   // 6.5. Gestión Comercial & Prospección View

@@ -9475,3 +9475,1374 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   border-left: 3px solid #b89c50;
   border-radius: 0 4px 4px 0;
 }
+
+/* ==========================================================================
+   REPERTORIO: MAGAZINE & PRESENTACIÓN DE OFERTA ZENTRYOS
+   ========================================================================== */
+
+.repertorio-app-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding-bottom: 50px;
+}
+
+/* Header superior */
+.repertorio-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px 20px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+}
+
+.repertorio-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.repertorio-back-btn {
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+.repertorio-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-family: var(--font-family-mono);
+  color: #64748b;
+}
+
+.crumb-brand {
+  font-weight: 700;
+  color: #533b87;
+  letter-spacing: 0.5px;
+}
+
+.crumb-family-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(83, 59, 135, 0.08);
+  color: #533b87;
+  border: 1px solid rgba(83, 59, 135, 0.2);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.crumb-family-tag:hover {
+  background: rgba(83, 59, 135, 0.15);
+}
+
+.repertorio-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Switcher de Moneda */
+.currency-toggle-group {
+  display: inline-flex;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.currency-btn {
+  background: transparent;
+  border: none;
+  font-family: var(--font-family-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #64748b;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.currency-btn.active {
+  background: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* --------------------------------------------------------------------------
+   Pantalla 1: Selector de Familia
+   -------------------------------------------------------------------------- */
+.repertorio-family-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.family-screen-hero {
+  text-align: center;
+  max-width: 780px;
+  margin: 10px auto 0;
+}
+
+.hero-kicker {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-family-mono);
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.08);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.hero-headline {
+  font-family: var(--font-family-title);
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.5px;
+}
+
+.hero-subtext {
+  font-size: 14.5px;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.family-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.family-select-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+}
+
+.family-select-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(83, 59, 135, 0.3);
+  box-shadow: 0 12px 28px rgba(83, 59, 135, 0.08);
+}
+
+.family-select-card.is-selected {
+  border: 2px solid #533b87;
+  background: linear-gradient(180deg, #ffffff 0%, rgba(214, 200, 250, 0.08) 100%);
+  box-shadow: 0 12px 30px rgba(83, 59, 135, 0.12);
+}
+
+.family-card-badge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  font-size: 10.5px;
+  font-weight: 700;
+  font-family: var(--font-family-mono);
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(83, 59, 135, 0.1);
+  color: #533b87;
+}
+
+.family-card-icon-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.family-icon-symbol {
+  font-size: 32px;
+}
+
+.family-subicon {
+  font-size: 20px;
+  background: rgba(241, 245, 249, 0.8);
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.family-card-name {
+  font-family: var(--font-family-title);
+  font-size: 19px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.family-card-members {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #533b87;
+  margin-bottom: 12px;
+}
+
+.family-card-desc {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+  flex-grow: 1;
+}
+
+.family-card-specs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+}
+
+.spec-chip {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: #334155;
+}
+
+.family-card-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-price-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.price-label {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.price-value {
+  font-family: var(--font-family-mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Tabla Matriz */
+.family-matrix-glance {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.matrix-glance-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 17px;
+  color: #0f172a;
+}
+
+.matrix-glance-header p {
+  margin: 0 0 16px 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.matrix-table-responsive {
+  overflow-x: auto;
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.matrix-table th {
+  background: #f8fafc;
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 700;
+  color: #334155;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.matrix-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+
+.matrix-table tr.row-active {
+  background: rgba(83, 59, 135, 0.04);
+}
+
+.badge-gold {
+  background: rgba(184, 156, 80, 0.12);
+  color: #947116;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Pantalla 2: MAGAZINE VIEWPORT (Flipbook / Spread)
+   -------------------------------------------------------------------------- */
+.repertorio-magazine-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+}
+
+/* Quicktabs de familia dentro del magazine */
+.magazine-family-quicktabs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 4px 0;
+}
+
+.quicktabs-label {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-family-mono);
+  color: #64748b;
+}
+
+.quicktabs-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.quicktab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quicktab-pill .pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #cbd5e1;
+}
+
+.quicktab-pill:hover {
+  background: #f8fafc;
+  border-color: #533b87;
+}
+
+.quicktab-pill.active {
+  background: #533b87;
+  color: #ffffff;
+  border-color: #533b87;
+  box-shadow: 0 2px 8px rgba(83, 59, 135, 0.25);
+}
+
+.quicktab-pill.active .pill-dot {
+  background: #C2F4E7;
+}
+
+.quicktab-pill .pill-members {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* Viewport & Spread Doble Página */
+.magazine-viewport {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 620px;
+}
+
+.magazine-nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  color: #0f172a;
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.magazine-nav-arrow:hover:not(:disabled) {
+  background: #533b87;
+  color: #ffffff;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.magazine-nav-arrow:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.magazine-nav-arrow.arrow-left {
+  left: -20px;
+}
+
+.magazine-nav-arrow.arrow-right {
+  right: -20px;
+}
+
+@media (max-width: 900px) {
+  .magazine-nav-arrow.arrow-left { left: 4px; }
+  .magazine-nav-arrow.arrow-right { right: 4px; }
+}
+
+/* El Spread (Doble Página) */
+.magazine-spread {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  position: relative;
+}
+
+@media (max-width: 860px) {
+  .magazine-spread {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Páginas Izquierda y Derecha */
+.spread-page {
+  padding: 34px 40px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: #ffffff;
+}
+
+.spread-page-left {
+  border-right: 1px solid rgba(15, 23, 42, 0.06);
+  background: #fdfdfd;
+}
+
+.page-number-top {
+  font-family: var(--font-family-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+
+/* Tipografía Editorial */
+.magazine-kicker {
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #7c3aed;
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+  display: inline-block;
+}
+
+.magazine-main-title {
+  font-family: var(--font-family-title);
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.15;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.5px;
+}
+
+.magazine-lead-paragraph {
+  font-family: 'Inter', Georgia, serif;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #334155;
+  font-style: italic;
+  padding-left: 14px;
+  border-left: 3px solid #533b87;
+  margin-bottom: 22px;
+}
+
+.magazine-quote-footer {
+  margin-top: auto;
+  padding-top: 18px;
+  font-size: 12px;
+  color: #64748b;
+  text-align: center;
+}
+
+/* Portada Spread 1 */
+.editorial-image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.editorial-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s ease;
+}
+
+.editorial-image-container:hover .editorial-img {
+  transform: scale(1.03);
+}
+
+.editorial-image-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.88) 100%);
+  padding: 24px;
+  color: #ffffff;
+}
+
+.caption-tag {
+  font-family: var(--font-family-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: #C2F4E7;
+  letter-spacing: 1px;
+}
+
+.overlay-caption h4 {
+  margin: 4px 0 6px 0;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
+.overlay-caption p {
+  margin: 0;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+/* Caja de Diagnóstico Familiar */
+.family-diagnosis-box {
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+}
+
+.diagnosis-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.diagnosis-icon {
+  font-size: 22px;
+}
+
+.diagnosis-body {
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.55;
+  margin: 0 0 14px 0;
+}
+
+.diagnosis-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 12px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.stat-num {
+  font-family: var(--font-family-mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: #533b87;
+}
+
+.stat-lbl {
+  font-size: 10.5px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Spreads de Sets (Essential, OMNI, Integral, Full House)
+   -------------------------------------------------------------------------- */
+.set-visual-showcase {
+  position: relative;
+  width: 100%;
+  min-height: 280px;
+  background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.set-badge-floating {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: #0f172a;
+  color: #ffffff;
+  font-family: var(--font-family-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.set-main-image {
+  max-width: 90%;
+  max-height: 240px;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.12));
+  transition: transform 0.3s ease;
+}
+
+.set-visual-showcase:hover .set-main-image {
+  transform: scale(1.04);
+}
+
+.set-items-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.breakdown-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+}
+
+.product-cards-carousel {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.product-mini-item {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 10px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.product-mini-item:hover {
+  border-color: #533b87;
+  transform: translateY(-2px);
+}
+
+.prod-thumb-wrapper {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 6px;
+}
+
+.prod-mini-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.prod-qty-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #533b87;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.prod-mini-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.prod-mini-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.prod-mini-price {
+  font-family: var(--font-family-mono);
+  font-size: 10.5px;
+  color: #64748b;
+}
+
+.set-inheritance-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: rgba(124, 58, 237, 0.06);
+  border: 1px solid rgba(124, 58, 237, 0.15);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11.5px;
+  color: #5b21b6;
+}
+
+/* Columna Derecha del Set */
+.set-header-editorial {
+  margin-bottom: 16px;
+}
+
+.set-eyebrow {
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 1px;
+}
+
+.set-title-headline {
+  font-family: var(--font-family-title);
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 2px 0 6px 0;
+}
+
+.set-tagline-text {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 0;
+}
+
+.set-experience-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border-left: 3px solid #533b87;
+}
+
+.exp-icon {
+  font-size: 20px;
+}
+
+.exp-content strong {
+  font-size: 12px;
+  color: #0f172a;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.exp-content p {
+  font-size: 12.5px;
+  color: #475569;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Caja de Precios del Set */
+.set-pricing-box {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+}
+
+.pricing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #334155;
+  margin-bottom: 10px;
+}
+
+.pricing-sublabel {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.pricing-val {
+  font-family: var(--font-family-mono);
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.pricing-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 12px 0;
+}
+
+.pricing-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.total-caption {
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #533b87;
+  letter-spacing: 0.5px;
+}
+
+.amount-number {
+  font-family: var(--font-family-mono);
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.amount-currency {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  margin-left: 4px;
+}
+
+.set-actions-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.referrals-hint-banner {
+  background: rgba(184, 156, 80, 0.08);
+  border: 1px dashed rgba(184, 156, 80, 0.4);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #785c18;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.referrals-hint-banner a {
+  color: #533b87;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* --------------------------------------------------------------------------
+   Spread 6: Beneficios y Créditos de Referidos
+   -------------------------------------------------------------------------- */
+.benefits-vertical-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.benefit-card-box {
+  display: flex;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.benefit-icon-badge {
+  font-size: 22px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(83, 59, 135, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.benefit-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+
+.benefit-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.benefit-worth {
+  font-family: var(--font-family-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #059669;
+}
+
+.benefit-tag-pill {
+  font-size: 10px;
+  font-weight: 600;
+  color: #533b87;
+  background: rgba(83, 59, 135, 0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.benefit-desc {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.benefit-rule-alert {
+  margin-top: 6px;
+  padding: 6px 8px;
+  background: #f8fafc;
+  border-left: 2px solid #7c3aed;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.golden-rule-box {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.golden-rule-box .rule-header {
+  font-weight: 700;
+  font-size: 12px;
+  color: #b45309;
+  margin-bottom: 4px;
+}
+
+.golden-rule-box p {
+  font-size: 11.5px;
+  color: #92400e;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Tabla de Referencias */
+.referrals-rewards-table-wrapper {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.referrals-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.referrals-table th {
+  background: #f8fafc;
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 700;
+  color: #475569;
+  font-size: 11px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.referrals-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+}
+
+.citas-badge {
+  display: flex;
+  flex-direction: column;
+}
+
+.citas-badge strong {
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.citas-badge span {
+  font-size: 10px;
+  color: #64748b;
+}
+
+.reward-prod-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reward-val {
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  color: #64748b;
+}
+
+.referrals-calculator-card {
+  background: linear-gradient(135deg, rgba(83, 59, 135, 0.04) 0%, rgba(214, 200, 250, 0.12) 100%);
+  border: 1px solid rgba(83, 59, 135, 0.15);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.referrals-calculator-card h4 {
+  margin: 0 0 4px 0;
+  font-size: 13.5px;
+  color: #533b87;
+}
+
+.sim-result-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(83, 59, 135, 0.15);
+}
+
+.sim-icon {
+  font-size: 24px;
+}
+
+.sim-text strong {
+  display: block;
+  font-size: 12.5px;
+  color: #0f172a;
+}
+
+.sim-text small {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* --------------------------------------------------------------------------
+   Barra Inferior & Thumbnails del Magazine
+   -------------------------------------------------------------------------- */
+.magazine-footer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 12px 20px;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.magazine-page-counter {
+  display: flex;
+  flex-direction: column;
+}
+
+.counter-label {
+  font-family: var(--font-family-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+.counter-numbers {
+  font-family: var(--font-family-mono);
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.magazine-thumbnails-strip {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.magazine-thumb-btn {
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.magazine-thumb-btn:hover {
+  background: #f1f5f9;
+  border-color: #533b87;
+}
+
+.magazine-thumb-btn.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* --------------------------------------------------------------------------
+   Modal de Cotización de Oferta
+   -------------------------------------------------------------------------- */
+.quote-modal-card {
+  max-width: 620px;
+  width: 92%;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.quote-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.quote-modal-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.quote-section-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  margin: 0 0 8px 0;
+  letter-spacing: 0.5px;
+}
+
+.quote-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+.quote-item-chip {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.item-chip-qty {
+  font-weight: 700;
+  color: #533b87;
+}
+
+.item-chip-subtotal {
+  font-family: var(--font-family-mono);
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.quote-impl-card {
+  background: rgba(83, 59, 135, 0.04);
+  border: 1px solid rgba(83, 59, 135, 0.15);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.impl-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13.5px;
+  color: #0f172a;
+}
+
+.impl-price {
+  font-family: var(--font-family-mono);
+  font-weight: 700;
+  color: #533b87;
+}
+
+.impl-tags-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.spec-tag {
+  font-size: 10.5px;
+  background: #ffffff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  color: #334155;
+}
+
+.quote-benefits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.quote-benefit-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #334155;
+  padding: 4px 0;
+}
+
+.worth-strike s {
+  color: #94a3b8;
+  margin-right: 6px;
+}
+
+.quote-summary-box {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.summary-total-final {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 2px solid #e2e8f0;
+  padding-top: 12px;
+  margin-top: 8px;
+}
+
+.quote-big-price {
+  font-family: var(--font-family-mono);
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.quote-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
