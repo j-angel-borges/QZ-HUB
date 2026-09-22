@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.4 (UNIFIED FIXED CANVAS & STANDARDIZED SETS)
+// QZ-HUB SERVICE WORKER — v3.3.5 (EXPANDED TO FULL AVAILABLE CANVAS SPACE)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.4-fixed-sets-canvas-unified';
+const CACHE_NAME = 'qz-hub-v3.3.5-fill-canvas-green-box';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
