@@ -9512,8 +9512,8 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .workspace.repertorio-view-active .workspace-content {
   max-width: 100% !important;
   width: 100% !important;
-  padding: 0 16px 40px 16px !important;
-  margin: 10px auto 30px auto !important;
+  padding: 0 16px 30px 16px !important;
+  margin: 10px 0 20px 0 !important;
   box-sizing: border-box !important;
   overflow-x: hidden !important;
   display: flex;
@@ -9523,11 +9523,11 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .repertorio-app-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   width: 100%;
-  max-width: 1600px;
-  margin: 0 auto;
-  padding-bottom: 24px;
+  max-width: 100%;
+  margin: 0;
+  padding-bottom: 20px;
   box-sizing: border-box;
   overflow-x: hidden;
 }
