@@ -873,12 +873,13 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
           <span class="breakdown-devices-count">${totals.totalItemsCount} dispositivos</span>
         </div>
 
-        <div class="product-cards-row">
+        <div class="product-cards-row items-count-${set.items.length}">
           ${set.items.map(item => {
             const prod = REPERTORIO_DATA.products[item.code];
             if (!prod) return '';
+            const isCompact = set.items.length > 4;
             return `
-              <div class="product-item-card">
+              <div class="product-item-card ${isCompact ? 'compact-item' : ''}">
                 <div class="prod-card-thumb-box">
                   <img src="${prod.image}" alt="${prod.name}" class="prod-card-img" onerror="this.src='/assets/repertorio/prod_smarttab.png'"/>
                   <span class="prod-qty-badge">x${item.qty}</span>
@@ -905,7 +906,16 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
         <p class="set-tagline-text">${set.tagline}</p>
       </div>
 
-      <!-- Desglose de Costes Directo y Elegante (Sin bloques redundantes) -->
+      <!-- Bloque Editorial de Valor Arquitectónico -->
+      <div class="set-value-card">
+        <div class="value-card-badge-row">
+          <span class="value-card-badge">✨ PROPUESTA DE VALOR</span>
+          <span class="value-card-highlight">${set.highlight}</span>
+        </div>
+        <p class="value-card-experience">${set.experience}</p>
+      </div>
+
+      <!-- Desglose de Costes Directo y Elegante -->
       <div class="costs-summary-card">
         <div class="cost-summary-item">
           <span class="cost-label">Hardware Físico:</span>
@@ -930,7 +940,7 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
         </div>
       </div>
 
-      <!-- Acciones Inferiores -->
+      <!-- Acciones Inferiores Pinned -->
       <div class="set-actions-toolbar">
         <button type="button" class="btn ${isSelectedTier ? 'btn-success' : 'btn-primary'} btn-choose-set" data-set-key="${setKey}">
           ✓ Set Seleccionado

@@ -10044,19 +10044,23 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   right: 0;
 }
 
-/* El Slide Card Principal (Grid 50% / 50% Contenido) */
+/* El Slide Card Principal (Grid 50% / 50% Contenido) - Lienzo Fijo Unificado */
 .magazine-spread {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 28px;
   width: 100%;
+  height: 570px;
+  min-height: 570px;
+  max-height: 570px;
   background: #ffffff;
   border-radius: 18px;
   border: 1px solid rgba(15, 23, 42, 0.08);
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
-  padding: 20px 24px;
+  padding: 18px 24px;
   box-sizing: border-box;
   align-items: stretch;
+  overflow: hidden;
 }
 
 /* Columnas Izquierda y Derecha del Slide */
@@ -10066,7 +10070,9 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   flex-direction: column;
   position: relative;
   min-width: 0;
+  height: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .spread-page-left {
@@ -10118,6 +10124,19 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   margin-bottom: 16px;
 }
 
+.magazine-content-col {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.magazine-cta-row {
+  margin-top: auto;
+  padding-top: 10px;
+}
+
 .magazine-quote-footer {
   margin-top: auto;
   padding-top: 14px;
@@ -10131,7 +10150,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 400px;
+  min-height: 0;
   border-radius: 12px;
   overflow: hidden;
 }
@@ -10256,16 +10275,17 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .set-visual-showcase {
   position: relative;
   width: 100%;
-  height: clamp(190px, 17vw, 260px);
+  height: 250px;
   border-radius: 12px;
   border: 1px solid rgba(15, 23, 42, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   overflow: hidden;
   box-sizing: border-box;
   background: #f8fafc;
+  flex-shrink: 0;
 }
 
 .set-main-image {
@@ -10282,7 +10302,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .set-items-breakdown {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
   box-sizing: border-box;
   margin-top: auto;
@@ -10293,11 +10313,11 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #f1f5f9;
-  padding-bottom: 6px;
+  padding-bottom: 5px;
 }
 
 .breakdown-title {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 700;
   color: #0f172a;
   display: flex;
@@ -10318,27 +10338,50 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   font-weight: 600;
 }
 
-/* Fila de 3 columnas para productos */
+/* Fila de Tarjetas de Hardware con Altura Fija Unificada (145px) */
 .product-cards-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 8px;
   width: 100%;
+  height: 145px;
   box-sizing: border-box;
 }
 
+/* 3 Items (Essential Set, OMNI Set) */
+.product-cards-row.items-count-3 {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr;
+}
+
+/* 4 Items (Integral Set) */
+.product-cards-row.items-count-4 {
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: 1fr;
+}
+
+/* 6 Items (Full House Set) - 2 filas de 3 compactas */
+.product-cards-row.items-count-6 {
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 6px;
+}
+
+/* Tarjeta de Producto Estándar */
 .product-item-card {
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 10px;
-  padding: 10px 8px;
+  padding: 8px 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   transition: all 0.2s ease;
   box-sizing: border-box;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  height: 100%;
+  min-width: 0;
 }
 
 .product-item-card:hover {
@@ -10349,20 +10392,45 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
 .prod-card-thumb-box {
   position: relative;
-  width: 58px;
-  height: 58px;
+  width: 52px;
+  height: 52px;
   background: #f8fafc;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  flex-shrink: 0;
+}
+
+.product-cards-row.items-count-4 .prod-card-thumb-box {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 4px;
 }
 
 .prod-card-img {
-  max-width: 48px;
-  max-height: 48px;
+  max-width: 42px;
+  max-height: 42px;
   object-fit: contain;
+}
+
+.product-cards-row.items-count-4 .prod-card-img {
+  max-width: 36px;
+  max-height: 36px;
+}
+
+.prod-qty-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #533b87;
+  color: #ffffff;
+  font-family: var(--font-family-mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 6px;
 }
 
 .prod-card-details {
@@ -10370,13 +10438,21 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   flex-direction: column;
   gap: 2px;
   width: 100%;
+  min-width: 0;
 }
 
 .prod-card-name {
   font-size: 11px;
   font-weight: 700;
   color: #0f172a;
-  line-height: 1.2;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-cards-row.items-count-4 .prod-card-name {
+  font-size: 10px;
 }
 
 .prod-card-price {
@@ -10386,29 +10462,55 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   font-weight: 600;
 }
 
-.set-inheritance-notice {
-  display: flex;
+.product-cards-row.items-count-4 .prod-card-price {
+  font-size: 9.5px;
+}
+
+/* Tarjeta Compacta (Horizontal para 6 items en Full House) */
+.product-item-card.compact-item {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 4px 8px;
+  gap: 8px;
+}
+
+.product-item-card.compact-item .prod-card-thumb-box {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.product-item-card.compact-item .prod-card-img {
+  max-width: 32px;
+  max-height: 32px;
+}
+
+.product-item-card.compact-item .prod-card-details {
   align-items: flex-start;
-  gap: 6px;
-  background: rgba(124, 58, 237, 0.06);
-  border: 1px solid rgba(124, 58, 237, 0.15);
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 11px;
-  color: #5b21b6;
-  line-height: 1.4;
+  gap: 1px;
+}
+
+.product-item-card.compact-item .prod-card-name {
+  font-size: 10.5px;
+}
+
+.product-item-card.compact-item .prod-card-price {
+  font-size: 9.5px;
 }
 
 /* --------------------------------------------------------------------------
-   Página Derecha: Propuesta de Valor, Grilla 2x2 y Precio Hero
+   Página Derecha: Propuesta de Valor, Desglose de Costes y Precio Hero
    -------------------------------------------------------------------------- */
 .set-header-editorial {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .set-eyebrow {
   font-family: var(--font-family-mono);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
   color: #7c3aed;
   letter-spacing: 0.8px;
@@ -10416,16 +10518,59 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
 .set-title-headline {
   font-family: var(--font-family-title);
-  font-size: clamp(22px, 2.4vw, 28px);
+  font-size: clamp(20px, 2.2vw, 25px);
   font-weight: 800;
   color: #0f172a;
-  margin: 2px 0 4px 0;
+  margin: 1px 0 2px 0;
   letter-spacing: -0.5px;
 }
 
 .set-tagline-text {
-  font-size: 13px;
+  font-size: 12px;
   color: #64748b;
+  margin: 0;
+}
+
+/* Bloque Editorial de Valor Arquitectónico */
+.set-value-card {
+  background: rgba(83, 59, 135, 0.04);
+  border: 1px solid rgba(83, 59, 135, 0.12);
+  border-radius: 10px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+.value-card-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.value-card-badge {
+  font-family: var(--font-family-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #533b87;
+  letter-spacing: 0.8px;
+}
+
+.value-card-highlight {
+  font-family: var(--font-family-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #0f172a;
+  background: #ffffff;
+  padding: 1px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.value-card-experience {
+  font-size: 11.5px;
+  color: #475569;
+  line-height: 1.4;
   margin: 0;
 }
 
@@ -10433,22 +10578,22 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .costs-summary-card {
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 14px;
-  padding: 16px 20px;
+  border-radius: 12px;
+  padding: 10px 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 18px;
+  gap: 6px;
+  margin-bottom: 10px;
   box-sizing: border-box;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .cost-summary-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
-  padding: 6px 0;
+  font-size: 12.5px;
+  padding: 3px 0;
   border-bottom: 1px dashed rgba(15, 23, 42, 0.08);
 }
 
@@ -10463,25 +10608,25 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
 .cost-sublabel {
   display: block;
-  font-size: 11px;
+  font-size: 10.5px;
   color: #64748b;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .cost-value {
   font-family: var(--font-family-mono);
   font-weight: 700;
   color: #0f172a;
-  font-size: 14.5px;
+  font-size: 13.5px;
 }
 
 .cost-tag-free {
   font-family: var(--font-family-mono);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 800;
   color: #059669;
   background: rgba(5, 150, 105, 0.1);
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: 4px;
 }
 
@@ -10492,10 +10637,10 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   justify-content: space-between;
   background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
   border: 2px solid rgba(83, 59, 135, 0.2);
-  border-radius: 14px;
-  padding: 18px 22px;
-  margin-bottom: 18px;
-  box-shadow: 0 4px 14px rgba(83, 59, 135, 0.07);
+  border-radius: 12px;
+  padding: 10px 18px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 12px rgba(83, 59, 135, 0.06);
   box-sizing: border-box;
 }
 
@@ -10506,7 +10651,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
 .total-label-kicker {
   font-family: var(--font-family-mono);
-  font-size: 11px;
+  font-size: 9.5px;
   font-weight: 700;
   color: #533b87;
   letter-spacing: 0.8px;
@@ -10519,13 +10664,13 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
 .price-big-number {
   font-family: var(--font-family-mono);
-  font-size: clamp(24px, 2.8vw, 30px);
+  font-size: clamp(22px, 2.4vw, 26px);
   font-weight: 800;
   color: #0f172a;
   letter-spacing: -0.5px;
 }
 
-/* Acciones del Set */
+/* Acciones del Set Pinned */
 .set-actions-toolbar {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
@@ -10536,8 +10681,8 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 }
 
 .set-actions-toolbar .btn {
-  padding: 10px 14px;
-  font-size: 12.5px;
+  padding: 9px 12px;
+  font-size: 12px;
   font-weight: 700;
   border-radius: 8px;
   justify-content: center;
@@ -10871,6 +11016,9 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
   .magazine-spread {
     grid-template-columns: 1fr;
+    height: auto;
+    min-height: auto;
+    max-height: none;
     border-radius: 14px;
   }
 

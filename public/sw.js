@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.3 (PURGED BENEFITS & INHERITANCE BADGES)
+// QZ-HUB SERVICE WORKER — v3.3.4 (UNIFIED FIXED CANVAS & STANDARDIZED SETS)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.3-clean-sets-no-benefits';
+const CACHE_NAME = 'qz-hub-v3.3.4-fixed-sets-canvas-unified';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
