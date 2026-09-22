@@ -553,7 +553,7 @@ function renderTopNavBar() {
   const currentFam = REPERTORIO_DATA.families[repertorioState.selectedFamily];
 
   return `
-    <header class="repertorio-header-bar glass-panel">
+    <header class="repertorio-header-bar">
       <div class="repertorio-header-left">
         <div class="repertorio-breadcrumbs">
           <a href="#demobook" class="crumb-nav-link">Demobook</a>
@@ -579,11 +579,6 @@ function renderTopNavBar() {
             PEN (S/)
           </button>
         </div>
-
-        <!-- Botón Selector de Familia -->
-        <button type="button" class="btn ${repertorioState.viewMode === 'family-picker' ? 'btn-primary' : 'btn-secondary'}" id="btn-toggle-family-picker">
-          👥 ${repertorioState.viewMode === 'family-picker' ? 'Ver Catálogo' : 'Cambiar Familia'}
-        </button>
 
         <!-- Botón Resumen de Oferta / Cotizador -->
         <button type="button" class="btn btn-primary btn-quote-action" id="btn-open-quote-modal">
@@ -702,20 +697,6 @@ function renderMagazineExperience() {
   return `
     <div class="repertorio-magazine-container animate-fade-in">
       
-      <!-- Barra Rápida de Pestañas de Familia -->
-      <div class="magazine-family-quicktabs">
-        <span class="quicktabs-label">CASO FAMILIAR:</span>
-        <div class="quicktabs-pills">
-          ${Object.values(REPERTORIO_DATA.families).map(fam => `
-            <button type="button" class="quicktab-pill ${fam.id === currentFam.id ? 'active' : ''}" data-family-id="${fam.id}">
-              <span class="pill-dot"></span>
-              <span class="pill-name">${fam.name}</span>
-              <span class="pill-members">(${fam.membersLabel})</span>
-            </button>
-          `).join('')}
-        </div>
-      </div>
-
       <!-- Contenedor del Libro Magazine (Doble Página) -->
       <div class="magazine-viewport" id="magazine-viewport">
         
@@ -725,7 +706,7 @@ function renderMagazineExperience() {
         </button>
 
         <!-- El Spread Activo -->
-        <div class="magazine-spread glass-panel" id="magazine-active-spread">
+        <div class="magazine-spread" id="magazine-active-spread">
           ${renderSpreadContent(activeSpread, currentFam)}
         </div>
 
@@ -736,7 +717,7 @@ function renderMagazineExperience() {
       </div>
 
       <!-- Barra Inferior de Navegación & Thumbnails del Magazine -->
-      <div class="magazine-footer-controls glass-panel">
+      <div class="magazine-footer-controls">
         <div class="magazine-page-counter">
           <span class="counter-label">SPREAD EDITORIAL</span>
           <span class="counter-numbers"><strong>0${activeSpread}</strong> / 06</span>
@@ -989,7 +970,7 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
               <span class="cost-label">${totals.implData.name}:</span>
               <small class="cost-sublabel">${family.childrenCount} hijo(s) • ${totals.implData.devicesIncluded} disp.</small>
             </div>
-            <span class="cost-value">${formatMoney(totals.implementationUSD, totals.implementationPEN)}</span>
+            <span class="cost-value">+${formatMoney(totals.implementationUSD, totals.implementationPEN)}</span>
           </div>
           <div class="cost-summary-item free-item">
             <span class="cost-label">Beneficios & Regalos:</span>

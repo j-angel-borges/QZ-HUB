@@ -9512,22 +9512,23 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .workspace.repertorio-view-active .workspace-content {
   max-width: 100% !important;
   width: 100% !important;
-  padding: 0 16px 30px 16px !important;
-  margin: 10px 0 20px 0 !important;
+  padding: 10px 24px 32px 24px !important;
+  margin: 0 !important;
   box-sizing: border-box !important;
   overflow-x: hidden !important;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .repertorio-app-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding-bottom: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-bottom: 24px;
   box-sizing: border-box;
   overflow-x: hidden;
 }
@@ -9906,86 +9907,6 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   overflow-x: hidden;
 }
 
-/* Quicktabs de familia dentro del magazine */
-.magazine-family-quicktabs {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  box-sizing: border-box;
-  overflow-x: auto;
-  padding: 4px 2px;
-  scrollbar-width: none;
-}
-.magazine-family-quicktabs::-webkit-scrollbar {
-  display: none;
-}
-
-.quicktabs-label {
-  font-size: 10.5px;
-  font-weight: 700;
-  font-family: var(--font-family-mono);
-  color: #64748b;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.quicktabs-pills {
-  display: flex;
-  gap: 8px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.quicktabs-pills::-webkit-scrollbar {
-  display: none;
-}
-
-.quicktab-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  padding: 5px 12px;
-  border-radius: 9999px;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #334155;
-  cursor: pointer;
-  transition: all 0.2s;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.quicktab-pill .pill-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #cbd5e1;
-}
-
-.quicktab-pill:hover {
-  background: #f8fafc;
-  border-color: #533b87;
-}
-
-.quicktab-pill.active {
-  background: #533b87;
-  color: #ffffff;
-  border-color: #533b87;
-  box-shadow: 0 2px 8px rgba(83, 59, 135, 0.25);
-}
-
-.quicktab-pill.active .pill-dot {
-  background: #C2F4E7;
-}
-
-.quicktab-pill .pill-members {
-  font-size: 10.5px;
-  opacity: 0.85;
-}
-
 /* Viewport Encapsulado del Magazine */
 .magazine-viewport {
   position: relative;
@@ -9994,33 +9915,34 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   justify-content: center;
   width: 100%;
   box-sizing: border-box;
-  padding: 0 44px; /* Margen interno para las flechas de navegación */
-  min-height: 560px;
+  padding: 0 52px; /* Margen para las flechas laterales de navegación */
 }
 
 .magazine-nav-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.14);
+  border: 1px solid rgba(15, 23, 42, 0.12);
   color: #0f172a;
-  font-size: 22px;
+  font-size: 24px;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 20;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
 }
 
 .magazine-nav-arrow:hover:not(:disabled) {
   background: #533b87;
   color: #ffffff;
+  border-color: #533b87;
   transform: translateY(-50%) scale(1.06);
 }
 
@@ -10030,48 +9952,44 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 }
 
 .magazine-nav-arrow.arrow-left {
-  left: 2px;
+  left: 0;
 }
 
 .magazine-nav-arrow.arrow-right {
-  right: 2px;
+  right: 0;
 }
 
-/* El Spread (Doble Página Encapsulado) */
+/* El Slide Card Principal (Grid 50% / 50% Contenido) */
 .magazine-spread {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px;
   width: 100%;
-  max-width: 100%;
   background: #ffffff;
-  border-radius: 18px;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06), 0 25px 50px -12px rgba(83, 59, 135, 0.09);
-  overflow: hidden;
-  position: relative;
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  padding: 28px 32px;
   box-sizing: border-box;
+  align-items: start;
 }
 
-/* Páginas Izquierda y Derecha */
+/* Columnas Izquierda y Derecha del Slide */
 .spread-page {
-  padding: clamp(18px, 2.4vw, 30px) clamp(16px, 2.2vw, 30px);
+  padding: 0;
   display: flex;
   flex-direction: column;
   position: relative;
-  background: #ffffff;
   min-width: 0;
   box-sizing: border-box;
 }
 
 .spread-page-left {
-  border-right: 1px solid rgba(15, 23, 42, 0.08);
-  background: #fdfdfd;
-  box-shadow: inset -16px 0 24px -16px rgba(0, 0, 0, 0.035);
+  background: transparent;
 }
 
 .spread-page-right {
-  background: #ffffff;
-  box-shadow: inset 16px 0 24px -16px rgba(0, 0, 0, 0.035);
+  background: transparent;
 }
 
 .page-number-top {
