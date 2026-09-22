@@ -779,7 +779,7 @@ function renderSpread01Cover(family) {
   return `
     <div class="spread-page spread-page-left cover-page-left">
       <div class="editorial-image-container">
-        <img src="${family.coverImg}" alt="Zentry Home Lifestyle" class="editorial-img" onerror="this.src='/assets/hero.png'"/>
+        <img src="${family.coverImg}" alt="Zentry Home Lifestyle" class="editorial-img" onerror="this.src='/assets/repertorio/magazine_cover.png'"/>
         <div class="editorial-image-overlay">
           <div class="overlay-caption">
             <span class="caption-tag">ARQUITECTURA DE HOGAR</span>
@@ -860,7 +860,7 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
 
       <!-- Imagen Panorámica del Workspace / Setup de Hardware -->
       <div class="set-visual-showcase">
-        <img src="/assets/repertorio/set_desk_workspace.png" alt="${set.name}" class="set-main-image" onerror="this.src='${set.image}'"/>
+        <img src="${set.image}" alt="${set.name}" class="set-main-image" onerror="this.src='/assets/repertorio/set_essential.png'"/>
       </div>
 
       <!-- Desglose de Componentes Físicos en 3 columnas -->
@@ -880,7 +880,7 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
             return `
               <div class="product-item-card">
                 <div class="prod-card-thumb-box">
-                  <img src="${prod.image}" alt="${prod.name}" class="prod-card-img" onerror="this.src='/assets/hero.png'"/>
+                  <img src="${prod.image}" alt="${prod.name}" class="prod-card-img" onerror="this.src='/assets/repertorio/prod_smarttab.png'"/>
                   <span class="prod-qty-badge">x${item.qty}</span>
                 </div>
                 <div class="prod-card-details">
