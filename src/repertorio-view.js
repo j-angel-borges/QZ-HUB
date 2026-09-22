@@ -192,12 +192,15 @@ export const REPERTORIO_DATA = {
       id: 'nuclear_1h',
       name: 'Familia Nuclear',
       membersLabel: '2 Padres + 1 Hijo',
-      badge: 'Estructura Clásica',
+      membersSubtitle: '2 Padres • 1 Hijo',
+      badge: 'Estructura Nuclear',
       description: 'Enfocada en proteger y potenciar al único hijo en el hogar, con sincronización total entre ambos padres.',
       defaultImpl: 'individual',
       childrenCount: 1,
       parentsCount: 2,
       grandparentsCount: 0,
+      totalMembers: 3,
+      familyPhotoImg: '/assets/repertorio/family_nuclear_1h.png',
       coverImg: '/assets/repertorio/magazine_cover.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'El hijo centraliza la atención formativa del hogar. Sus dos dispositivos de uso cotidiano se integran de forma simbiótica, mientras que papá y mamá monitorean hábitos desde sus teléfonos y computadoras.'
@@ -206,12 +209,15 @@ export const REPERTORIO_DATA = {
       id: 'extensa_1h',
       name: 'Familia Extensa',
       membersLabel: '2 Padres + 1 Hijo + 3 Abuelos',
+      membersSubtitle: '2 Padres • 1 Hijo • 3 Abuelos',
       badge: 'Multigeneracional',
       description: 'Cuidado integral que une el desarrollo pedagógico del niño con el monitoreo de bienestar y salud de los abuelos.',
       defaultImpl: 'individual',
       childrenCount: 1,
       parentsCount: 2,
       grandparentsCount: 3,
+      totalMembers: 6,
+      familyPhotoImg: '/assets/repertorio/family_extensa_1h.png',
       coverImg: '/assets/repertorio/magazine_cover.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'La coexistencia de tres generaciones en el hogar exige armonía acústica y cuidado médico silencioso. Los anillos y pulseras inteligentes velan por el descanso de los abuelos y la concentración del menor.'
@@ -220,12 +226,15 @@ export const REPERTORIO_DATA = {
       id: 'nuclear_2h',
       name: 'Familia Nuclear x2',
       membersLabel: '2 Padres + 2 Hijos',
+      membersSubtitle: '2 Padres • 2 Hijos',
       badge: 'Hermanos & Rutinas',
       description: 'Equilibrio de pantallas entre hermanos con límites y cronogramas pedagógicos personalizados para cada uno.',
       defaultImpl: 'dual',
       childrenCount: 2,
       parentsCount: 2,
       grandparentsCount: 0,
+      totalMembers: 4,
+      familyPhotoImg: '/assets/repertorio/family_nuclear_2h.png',
       coverImg: '/assets/repertorio/magazine_cover.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'Dos hijos representan mundos cognitivos diferentes. Cada uno dispone de su tablet y wearable calibrados individualmente, evitando disputas y garantizando que el tiempo de ocio no canibalice el estudio.'
@@ -234,12 +243,15 @@ export const REPERTORIO_DATA = {
       id: 'extensa_2h',
       name: 'Familia Extensa x2',
       membersLabel: '2 Padres + 2 Hijos + 3 Abuelos',
+      membersSubtitle: '2 Padres • 2 Hijos • 3 Abuelos',
       badge: 'Dinastía Integral',
       description: 'Máxima cobertura tecnológica y biométrica para una casa viva y activa con múltiples generaciones.',
       defaultImpl: 'dual',
       childrenCount: 2,
       parentsCount: 2,
       grandparentsCount: 3,
+      totalMembers: 7,
+      familyPhotoImg: '/assets/repertorio/family_extensa_2h.png',
       coverImg: '/assets/repertorio/magazine_cover.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'El hogar en su máxima expresión. Múltiples zonas acústicas, monitoreo biométrico preventivo para los adultos mayores y un ecosistema pedagógico robusto para ambos hermanos.'
@@ -612,80 +624,72 @@ function renderFamilySelectorScreen() {
         ${Object.values(REPERTORIO_DATA.families).map(fam => {
           const isSelected = fam.id === repertorioState.selectedFamily;
           const totals = calculateSetTotals(fam.id, 'essential');
+          const membersSubtitle = fam.membersSubtitle || fam.membersLabel;
+
           return `
             <div class="family-select-card ${isSelected ? 'is-selected' : ''}" data-family-id="${fam.id}">
-              <div class="family-card-badge">${fam.badge}</div>
-              <div class="family-card-icon-row">
-                <span class="family-icon-symbol">
-                  ${fam.childrenCount === 1 ? '👨‍👩‍👧' : '👨‍👩‍👧‍👦'}
-                </span>
-                ${fam.grandparentsCount > 0 ? '<span class="family-subicon" title="Incluye 3 Abuelos">👴👵</span>' : ''}
+              <div class="family-card-pill-tag">${fam.badge}</div>
+
+              <div class="family-card-header">
+                <div class="family-card-icon-row">
+                  <span class="family-icon-symbol">
+                    ${fam.childrenCount === 1 ? '👨‍👩‍👧' : '👨‍👩‍👧‍👦'}
+                  </span>
+                  ${fam.grandparentsCount > 0 ? '<span class="family-subicon" title="Incluye 3 Abuelos">👴👵</span>' : ''}
+                </div>
+                <h3 class="family-card-name">${fam.name}</h3>
+                <div class="family-card-members">${membersSubtitle}</div>
               </div>
-              <h3 class="family-card-name">${fam.name}</h3>
-              <div class="family-card-members">${fam.membersLabel}</div>
+
               <p class="family-card-desc">${fam.description}</p>
               
-              <div class="family-card-specs">
-                <div class="spec-chip">
-                  <strong>${fam.childrenCount} ${fam.childrenCount === 1 ? 'Hijo' : 'Hijos'}</strong>
-                  <span>${fam.childrenCount * 2} Dispositivos</span>
+              <div class="family-card-specs-grid">
+                <div class="spec-cell">
+                  <span class="spec-cell-bold">${fam.childrenCount} ${fam.childrenCount === 1 ? 'Hijo' : 'Hijos'}</span>
+                  <span class="spec-cell-sub">${fam.childrenCount * 2} Dispositivos</span>
                 </div>
-                <div class="spec-chip">
-                  <strong>Parental Dashboard</strong>
-                  <span>2 Vistas (Padre & Madre)</span>
+                <div class="spec-cell">
+                  <span class="spec-cell-bold">Parental Dashboard</span>
+                  <span class="spec-cell-sub">2 Vistas (Padre & Madre)</span>
                 </div>
               </div>
 
-              <div class="family-card-footer">
-                <div class="footer-price-preview">
-                  <span class="price-label">Desde (Essential):</span>
-                  <span class="price-value">${formatMoney(totals.totalUSD, totals.totalPEN)}</span>
+              <!-- Placeholder / Fotografía Familiar de la cantidad de integrantes -->
+              <div class="family-card-photo-box" title="Retrato Familiar: ${fam.name} (${fam.totalMembers} Integrantes)">
+                <img 
+                  src="${fam.familyPhotoImg}" 
+                  alt="Retrato Familiar ${fam.name} (${fam.totalMembers} Integrantes)" 
+                  class="family-card-photo-img" 
+                  loading="lazy"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                />
+                <div class="family-card-photo-placeholder-frame" style="display: none;">
+                  <div class="placeholder-cam-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                      <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                      <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                  </div>
+                  <span class="placeholder-label">Retrato Familiar</span>
                 </div>
-                <button type="button" class="btn ${isSelected ? 'btn-primary' : 'btn-secondary'} btn-select-family-action" data-family-id="${fam.id}">
-                  ${isSelected ? '✓ Seleccionada (Abrir Magazine)' : 'Seleccionar Esta Familia'}
-                </button>
+                <div class="family-photo-members-pill">
+                  <span class="members-pill-icon">👥</span>
+                  <span>${fam.totalMembers} Integrantes</span>
+                </div>
               </div>
+
+              <div class="family-card-price-row">
+                <span class="price-kicker">DESDE ESSENTIAL:</span>
+                <span class="price-amount">${formatMoney(totals.totalUSD, totals.totalPEN)}</span>
+              </div>
+
+              <button type="button" class="btn btn-select-family-action ${isSelected ? 'is-selected' : ''}" data-family-id="${fam.id}">
+                ${isSelected ? '✓ Seleccionada (Abrir Magazine)' : 'Seleccionar Esta Familia'}
+              </button>
             </div>
           `;
         }).join('')}
-      </div>
-
-      <!-- Tabla Comparativa Rápida de la Matriz -->
-      <div class="family-matrix-glance glass-panel">
-        <div class="matrix-glance-header">
-          <h3>📋 Matriz Oficial de Sets por Familia</h3>
-          <p>Visión consolidada de productos por nivel de set y composición del hogar:</p>
-        </div>
-        <div class="matrix-table-responsive">
-          <table class="matrix-table">
-            <thead>
-              <tr>
-                <th>Estructura Familiar</th>
-                <th>Essential</th>
-                <th>OMNI</th>
-                <th>Integral</th>
-                <th>Full House</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${Object.values(REPERTORIO_DATA.families).map(fam => {
-                const matrix = REPERTORIO_DATA.setsMatrix[fam.id];
-                return `
-                  <tr class="${fam.id === repertorioState.selectedFamily ? 'row-active' : ''}">
-                    <td>
-                      <strong>${fam.name}</strong><br>
-                      <small style="color: #64748b;">${fam.membersLabel}</small>
-                    </td>
-                    <td>${matrix.essential.highlight}</td>
-                    <td>${matrix.omni.highlight}</td>
-                    <td>${matrix.integral.highlight}</td>
-                    <td><span class="badge-gold">${matrix.fullhouse.highlight}</span></td>
-                  </tr>
-                `;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>
       </div>
     </div>
   `;

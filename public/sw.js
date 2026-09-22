@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.2.0 (REPERTORIO FULLSCREEN & SPREAD SYNC)
+// QZ-HUB SERVICE WORKER — v3.3.0 (SIDEBAR BOUNCE & EXPANDED FAMILY CARDS)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.2.0-repertorio-fullscreen';
+const CACHE_NAME = 'qz-hub-v3.3.0-bounce-cards-refresh';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

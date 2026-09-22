@@ -89,7 +89,7 @@ body[data-module="zentry"] .sidebar-nav .nav-link.active {
   flex-direction: column;
   height: 100%;
   z-index: 1050;
-  transition: margin-left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease;
+  transition: margin-left 0.48s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
   margin-left: 0;
   overflow: hidden;
 }
@@ -1318,7 +1318,7 @@ body[data-module="zentry"] .workspace-banner {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 4px 12px rgba(74, 81, 96, 0.08);
-  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.2s, box-shadow 0.2s, left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: left 0.48s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s, box-shadow 0.2s;
 }
 
 .sidebar-toggle-btn:hover {
@@ -9547,7 +9547,8 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 10px 16px;
+  min-height: 54px;
+  padding: 8px 18px 8px 60px; /* 60px left padding prevents sidebar toggle button overlap completely */
   border-radius: 12px;
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.08);
@@ -9712,64 +9713,83 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
 .family-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
   width: 100%;
   box-sizing: border-box;
+  align-items: stretch;
+}
+
+@media (max-width: 1260px) {
+  .family-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+}
+
+@media (max-width: 680px) {
+  .family-cards-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .family-select-card {
   position: relative;
   background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 14px;
-  padding: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 16px;
+  padding: 24px 20px;
   display: flex;
   flex-direction: column;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+  transition: all 0.28s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
   cursor: pointer;
   box-sizing: border-box;
 }
 
 .family-select-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(83, 59, 135, 0.3);
-  box-shadow: 0 12px 28px rgba(83, 59, 135, 0.08);
+  transform: translateY(-4px);
+  border-color: rgba(83, 59, 135, 0.35);
+  box-shadow: 0 14px 34px rgba(83, 59, 135, 0.1);
 }
 
 .family-select-card.is-selected {
   border: 2px solid #533b87;
-  background: linear-gradient(180deg, #ffffff 0%, rgba(214, 200, 250, 0.08) 100%);
-  box-shadow: 0 12px 30px rgba(83, 59, 135, 0.12);
+  background: linear-gradient(180deg, #ffffff 0%, rgba(214, 200, 250, 0.06) 100%);
+  box-shadow: 0 12px 32px rgba(83, 59, 135, 0.14);
 }
 
-.family-card-badge {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  font-size: 10px;
+.family-card-pill-tag {
+  align-self: flex-start;
+  font-size: 11px;
   font-weight: 700;
-  font-family: var(--font-family-mono);
-  padding: 2px 7px;
-  border-radius: 6px;
-  background: rgba(83, 59, 135, 0.1);
+  letter-spacing: 0.3px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: rgba(83, 59, 135, 0.08);
   color: #533b87;
+  margin-bottom: 14px;
+}
+
+.family-card-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
 }
 
 .family-card-icon-row {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .family-icon-symbol {
-  font-size: 28px;
+  font-size: 26px;
 }
 
 .family-subicon {
-  font-size: 18px;
+  font-size: 16px;
   background: rgba(241, 245, 249, 0.8);
   padding: 2px 6px;
   border-radius: 6px;
@@ -9777,128 +9797,184 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
 .family-card-name {
   font-family: var(--font-family-title);
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 3px 0;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.2px;
 }
 
 .family-card-members {
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #533b87;
   margin-bottom: 10px;
 }
 
 .family-card-desc {
-  font-size: 12.5px;
+  font-size: 12px;
   color: #64748b;
   line-height: 1.45;
   margin: 0 0 14px 0;
-  flex-grow: 1;
+  min-height: 48px;
 }
 
-.family-card-specs {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.family-card-specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 10px;
   background: #f8fafc;
-  padding: 8px 10px;
-  border-radius: 8px;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  padding: 10px 12px;
+  border-radius: 10px;
   margin-bottom: 14px;
 }
 
-.spec-chip {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  color: #334155;
-}
-
-.family-card-footer {
+.spec-cell {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
 }
 
-.footer-price-preview {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+.spec-cell-bold {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #1e293b;
 }
 
-.price-label {
+.spec-cell-sub {
   font-size: 10.5px;
+  font-weight: 500;
   color: #64748b;
+}
+
+/* Photo Box / Placeholder con cantidad de integrantes */
+.family-card-photo-box {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.family-card-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  transition: transform 0.4s ease;
+}
+
+.family-select-card:hover .family-card-photo-img {
+  transform: scale(1.05);
+}
+
+.family-card-photo-placeholder-frame {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #f8fafc;
+  color: #94a3b8;
+}
+
+.placeholder-cam-icon {
+  opacity: 0.7;
+}
+
+.placeholder-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.family-photo-members-pill {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.family-card-price-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: auto;
+  margin-bottom: 14px;
+  padding-top: 8px;
+}
+
+.price-kicker {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
   text-transform: uppercase;
 }
 
-.price-value {
+.price-amount {
   font-family: var(--font-family-mono);
-  font-size: 15px;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: -0.3px;
 }
 
-/* Tabla Matriz */
-.family-matrix-glance {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 20px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+.btn-select-family-action {
   width: 100%;
-  box-sizing: border-box;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: #7c4dff;
+  color: #ffffff;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(124, 77, 255, 0.25);
 }
 
-.matrix-glance-header h3 {
-  margin: 0 0 4px 0;
-  font-size: 16px;
-  color: #0f172a;
+.btn-select-family-action:hover {
+  background: #6e40ea;
+  box-shadow: 0 6px 16px rgba(124, 77, 255, 0.35);
+  transform: translateY(-1px);
 }
 
-.matrix-glance-header p {
-  margin: 0 0 14px 0;
-  font-size: 12.5px;
-  color: #64748b;
-}
-
-.matrix-table-responsive {
-  overflow-x: auto;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.matrix-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-
-.matrix-table th {
-  background: #f8fafc;
-  padding: 9px 12px;
-  text-align: left;
+.btn-select-family-action.is-selected {
+  background: #432a68;
+  color: #ffffff;
   font-weight: 700;
-  color: #334155;
-  border-bottom: 2px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(67, 42, 104, 0.28);
 }
 
-.matrix-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid #f1f5f9;
-  color: #334155;
-}
-
-.matrix-table tr.row-active {
-  background: rgba(83, 59, 135, 0.04);
-}
-
-.badge-gold {
-  background: rgba(184, 156, 80, 0.12);
-  color: #947116;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
+.btn-select-family-action.is-selected:hover {
+  background: #362153;
 }
 
 /* --------------------------------------------------------------------------
