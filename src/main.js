@@ -5629,7 +5629,7 @@ function closeSidebarMobile() {
   app.classList.remove('sidebar-mobile-open');
 }
 
-document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
+const handleToggleSidebar = () => {
   const app = document.getElementById('app');
   if (window.innerWidth <= 768) {
     toggleSidebarMobile();
@@ -5638,8 +5638,10 @@ document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
     const isCollapsed = app.classList.contains('sidebar-collapsed');
     localStorage.setItem('sidebar_collapsed', isCollapsed ? 'true' : 'false');
   }
-});
+};
 
+document.getElementById('sidebar-toggle')?.addEventListener('click', handleToggleSidebar);
+document.getElementById('sidebar-header-toggle')?.addEventListener('click', handleToggleSidebar);
 document.getElementById('sidebar-toggle-mobile')?.addEventListener('click', toggleSidebarMobile);
 
 // Sidebar Backdrop Click Event Handler

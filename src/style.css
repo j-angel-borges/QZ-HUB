@@ -95,8 +95,32 @@ body[data-module="zentry"] .sidebar-nav .nav-link.active {
 }
 
 .sidebar-header {
-  padding: 18px 16px;
+  padding: 16px 14px;
   border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-header-toggle-btn {
+  background: transparent;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  color: var(--text-muted);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sidebar-header-toggle-btn:hover {
+  background: rgba(83, 59, 135, 0.08);
+  color: #533b87;
+  border-color: rgba(83, 59, 135, 0.3);
 }
 
 .workspace-brand-logo {
@@ -9483,20 +9507,13 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 /* Reglas maestras para la vista repertorio en el workspace */
 .workspace.repertorio-view-active {
   overflow-x: hidden !important;
-  background: #f8fafc;
-}
-
-.workspace.repertorio-view-active .workspace-banner,
-.workspace.repertorio-view-active .workspace-header,
-.workspace.repertorio-view-active #properties-block {
-  display: none !important;
 }
 
 .workspace.repertorio-view-active .workspace-content {
   max-width: 100% !important;
   width: 100% !important;
-  padding: 12px 20px 24px 20px !important;
-  margin: 0 auto !important;
+  padding: 0 16px 40px 16px !important;
+  margin: 10px auto 30px auto !important;
   box-sizing: border-box !important;
   overflow-x: hidden !important;
   display: flex;
@@ -9506,11 +9523,11 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .repertorio-app-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding-bottom: 16px;
+  padding-bottom: 24px;
   box-sizing: border-box;
   overflow-x: hidden;
 }
@@ -9553,6 +9570,17 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   flex-wrap: wrap;
 }
 
+.crumb-nav-link {
+  color: #64748b;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.crumb-nav-link:hover {
+  color: #533b87;
+}
+
 .crumb-brand {
   font-weight: 700;
   color: #533b87;
@@ -9566,9 +9594,9 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   background: rgba(83, 59, 135, 0.08);
   color: #533b87;
   border: 1px solid rgba(83, 59, 135, 0.2);
-  padding: 3px 9px;
+  padding: 4px 12px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -9583,6 +9611,20 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.btn-quote-action {
+  background: #533b87 !important;
+  color: #ffffff !important;
+  border: 1px solid #533b87 !important;
+  box-shadow: 0 2px 8px rgba(83, 59, 135, 0.25);
+  font-weight: 700;
+}
+
+.btn-quote-action:hover {
+  background: #6b4fad !important;
+  border-color: #6b4fad !important;
+  transform: translateY(-1px);
 }
 
 /* Switcher de Moneda */

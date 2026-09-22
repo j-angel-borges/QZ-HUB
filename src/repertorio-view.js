@@ -444,7 +444,7 @@ export const REPERTORIO_DATA = {
 export const repertorioState = {
   selectedFamily: 'nuclear_1h', // 'nuclear_1h', 'extensa_1h', 'nuclear_2h', 'extensa_2h'
   currency: 'USD', // 'USD' | 'PEN'
-  currentSpread: 2, // Inicia directamente en el Spread del Set (Páginas 03-04) como en la referencia
+  currentSpread: 2, // 1 to 6 (Por defecto Spread 2: Essential Set)
   selectedSetTier: 'essential', // 'essential', 'omni', 'integral', 'fullhouse'
   additionalChildren: 0,
   includeImplementation: true,
@@ -555,17 +555,15 @@ function renderTopNavBar() {
   return `
     <header class="repertorio-header-bar glass-panel">
       <div class="repertorio-header-left">
-        <a href="#demobook" class="btn btn-secondary repertorio-back-btn">
-          <span>← Demobook</span>
-        </a>
         <div class="repertorio-breadcrumbs">
+          <a href="#demobook" class="crumb-nav-link">Demobook</a>
+          <span class="crumb-separator">/</span>
           <span class="crumb-brand">ZENTRYOS</span>
           <span class="crumb-separator">/</span>
           <span class="crumb-category">OFERTA COMERCIAL</span>
           <span class="crumb-separator">/</span>
-          <button type="button" class="crumb-family-tag" id="btn-switch-family-modal">
-            <span>${currentFam.membersLabel}</span>
-            <span class="badge-pill">${currentFam.name}</span>
+          <button type="button" class="crumb-family-tag" id="btn-switch-family-modal" title="Cambiar Familia">
+            <span>${currentFam.membersLabel} ${currentFam.name}</span>
             <span class="crumb-arrow-down">▾</span>
           </button>
         </div>
@@ -589,7 +587,7 @@ function renderTopNavBar() {
 
         <!-- Botón Resumen de Oferta / Cotizador -->
         <button type="button" class="btn btn-primary btn-quote-action" id="btn-open-quote-modal">
-          💎 Cotización de Oferta
+          + Cotización de Oferta
         </button>
       </div>
     </header>
@@ -748,7 +746,7 @@ function renderMagazineExperience() {
           ${[
             { num: 1, title: 'Portada & Filosofía', icon: '📖' },
             { num: 2, title: 'Essential Set', icon: '🥉' },
-            { num: 3, title: 'OMNI Set', icon: '🥈' },
+            { num: 3, title: 'OVNI Set', icon: '🥈' },
             { num: 4, title: 'Integral Set', icon: '🥇' },
             { num: 5, title: 'Full House Set', icon: '👑' },
             { num: 6, title: 'Beneficios & Créditos', icon: '🎁' }
@@ -925,7 +923,7 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
     </div>
 
     <div class="spread-page spread-page-right set-page-right">
-      <div class="page-number-top">PÁG. 0${pageRightNum} // PROPUESTA DE VALOR & CIERRE</div>
+      <div class="page-number-top">PÁG. 0${pageRightNum} // PROPUESTA DE VALOR A CLIENTES</div>
 
       <!-- Encabezado Editorial -->
       <div class="set-header-editorial">
@@ -934,23 +932,23 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
         <p class="set-tagline-text">${set.tagline}</p>
       </div>
 
-      <!-- Tarjeta Destacada Superior (Dinámica en este hogar) -->
+      <!-- Tarjeta Destacada Superior (Contexto/Destino en este hogar) -->
       <div class="set-destacado-card">
         <div class="destacado-icon-circle">🏠</div>
         <div class="destacado-body">
-          <h4 class="destacado-title">Dinámica en este hogar</h4>
+          <h4 class="destacado-title">Destino en este hogar</h4>
           <p class="destacado-desc">${set.experience}</p>
         </div>
       </div>
 
       <!-- Grilla 2 Columnas de Beneficios y Bloque de Precios -->
       <div class="set-value-pricing-grid">
-        <!-- Tarjetas de Beneficios y Servicios (2x2) -->
+        <!-- Grid de Beneficios (2x2) -->
         <div class="benefits-mini-grid">
           <div class="benefit-mini-card">
             <div class="mini-card-icon">🛡️</div>
             <div class="mini-card-info">
-              <strong>Soporte Seguro</strong>
+              <strong>Support Share</strong>
               <small>Parental Dashboard 24/7</small>
             </div>
           </div>
@@ -964,18 +962,18 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
           </div>
 
           <div class="benefit-mini-card">
-            <div class="mini-card-icon">🎓</div>
+            <div class="mini-card-icon">🎁</div>
             <div class="mini-card-info">
-              <strong>3 Clases IA</strong>
-              <small>Padres e hijos</small>
+              <strong>Beneficio & Regalos</strong>
+              <small>Soporte continuo</small>
             </div>
           </div>
 
           <div class="benefit-mini-card">
-            <div class="mini-card-icon">🎟️</div>
+            <div class="mini-card-icon">🎁</div>
             <div class="mini-card-info">
-              <strong>Pase Experience</strong>
-              <small>Ticket Zentry Club</small>
+              <strong>Beneficio & Regalos</strong>
+              <small>Créditos incluidos</small>
             </div>
           </div>
         </div>
@@ -1014,7 +1012,7 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
       <!-- Acciones Inferiores -->
       <div class="set-actions-toolbar">
         <button type="button" class="btn ${isSelectedTier ? 'btn-success' : 'btn-primary'} btn-choose-set" data-set-key="${setKey}">
-          ${isSelectedTier ? '✓ Set Seleccionado' : 'Elegir este Set para Cotizar'}
+          ✓ Set Seleccionado
         </button>
         <button type="button" class="btn btn-secondary btn-share-quote" data-set-key="${setKey}">
           📋 Copiar Propuesta
