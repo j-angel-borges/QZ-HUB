@@ -863,9 +863,6 @@ function renderSpread01Cover(family) {
 
 /**
  * Spreads 2 a 5: Sets de Productos (Essential, OMNI, Integral, Full House)
- * Diseñado y estructurado fielmente con base en la imagen referencial de alta fidelidad:
- * - Columna Izquierda: Paginador "PÁG. 0X // CATÁLOGO OFICIAL DE HARDWARE", Showcase con badge flotante, carrusel de tarjetas individuales de producto con flechas < > y contador.
- * - Columna Derecha: Paginador "PÁG. 0Y // PROPUESTA DE VALOR A CLIENTES", Kicker y título del set, bloque destacado de propósito en el hogar, grid 2x2 de beneficios y servicios, desglose transparente de precios con total prominente, y botones de confirmación/copia.
  */
 function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
   const totals = calculateSetTotals(family.id, setKey);
@@ -874,40 +871,42 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
 
   return `
     <div class="spread-page spread-page-left set-page-left">
+      <!-- Paginación superior exacta -->
       <div class="page-number-top">PÁG. 0${pageLeftNum} // CATÁLOGO OFICIAL DE HARDWARE</div>
 
-      <!-- Imagen Editorial de Set Publicitario -->
-      <div class="set-visual-showcase">
-        <div class="set-badge-floating">${set.tierName.toUpperCase()}</div>
-        <img src="${set.image}" alt="${set.name}" class="set-main-image" onerror="this.src='/assets/repertorio/prod_smarttab.png'"/>
+      <!-- Badge de Set -->
+      <div class="set-badge-header">
+        <span class="set-badge-tag">${set.tierName.toUpperCase()}</span>
       </div>
 
-      <!-- Desglose de Componentes Físicos en Carrusel con Controles -->
+      <!-- Imagen Panorámica del Workspace / Setup de Hardware -->
+      <div class="set-visual-showcase">
+        <img src="/assets/repertorio/set_desk_workspace.png" alt="${set.name}" class="set-main-image" onerror="this.src='${set.image}'"/>
+      </div>
+
+      <!-- Desglose de Componentes Físicos en 3 columnas -->
       <div class="set-items-breakdown">
         <div class="breakdown-header-row">
-          <div class="breakdown-header-titles">
-            <h4 class="breakdown-title">Hardware incluido en ${set.name}</h4>
-            <span class="breakdown-counter-badge">${totals.totalItemsCount} dispositivos</span>
-          </div>
-          <div class="carousel-nav-arrows">
-            <button type="button" class="btn-carousel-arrow carousel-arrow-prev" data-target="carousel-${setKey}" aria-label="Anterior">‹</button>
-            <button type="button" class="btn-carousel-arrow carousel-arrow-next" data-target="carousel-${setKey}" aria-label="Siguiente">›</button>
-          </div>
+          <h4 class="breakdown-title">
+            <span class="bullet-dot">●</span>
+            Hardware Incluido en ${set.name}
+          </h4>
+          <span class="breakdown-devices-count">${totals.totalItemsCount} dispositivos</span>
         </div>
 
-        <div class="product-cards-carousel" id="carousel-${setKey}">
+        <div class="product-cards-row">
           ${set.items.map(item => {
             const prod = REPERTORIO_DATA.products[item.code];
             if (!prod) return '';
             return `
-              <div class="product-mini-item">
-                <div class="prod-thumb-wrapper">
-                  <img src="${prod.image}" alt="${prod.name}" class="prod-mini-img" onerror="this.src='/assets/hero.png'"/>
+              <div class="product-item-card">
+                <div class="prod-card-thumb-box">
+                  <img src="${prod.image}" alt="${prod.name}" class="prod-card-img" onerror="this.src='/assets/hero.png'"/>
                   <span class="prod-qty-badge">x${item.qty}</span>
                 </div>
-                <div class="prod-mini-info">
-                  <span class="prod-mini-name">${prod.name}</span>
-                  <span class="prod-mini-price">${formatMoney(prod.priceUSD * item.qty, prod.pricePEN * item.qty)}</span>
+                <div class="prod-card-details">
+                  <span class="prod-card-name">${prod.name}</span>
+                  <span class="prod-card-price">${formatMoney(prod.priceUSD * item.qty, prod.pricePEN * item.qty)}</span>
                 </div>
               </div>
             `;
@@ -917,8 +916,8 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
         ${set.inheritedFrom ? `
           <div class="set-inheritance-notice">
             <span class="notice-icon">✨</span>
-            <div class="notice-text">
-              <strong>Evolución de Ecosistema:</strong> Incluye la arquitectura completa de <em>${set.inheritedFrom.toUpperCase()}</em> más ${set.addedItems.map(ai => `<strong>x${ai.qty} ${REPERTORIO_DATA.products[ai.code]?.name}</strong>`).join(', ')}.
+            <div>
+              <strong>Evolución de Ecosistema:</strong> Incluye todo lo de <em>${set.inheritedFrom.toUpperCase()}</em> más ${set.addedItems.map(ai => `<strong>x${ai.qty} ${REPERTORIO_DATA.products[ai.code]?.name}</strong>`).join(', ')}.
             </div>
           </div>
         ` : ''}
@@ -926,120 +925,100 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
     </div>
 
     <div class="spread-page spread-page-right set-page-right">
-      <div class="magazine-content-col">
-        <div class="page-number-top">PÁG. 0${pageRightNum} // PROPUESTA DE VALOR A CLIENTES</div>
+      <div class="page-number-top">PÁG. 0${pageRightNum} // PROPUESTA DE VALOR & CIERRE</div>
 
-        <div class="set-header-editorial">
-          <span class="set-eyebrow">SET PARA ${family.name.toUpperCase()}</span>
-          <h2 class="set-title-headline">${set.name}</h2>
-          <p class="set-tagline-text">${set.tagline}</p>
+      <!-- Encabezado Editorial -->
+      <div class="set-header-editorial">
+        <span class="set-eyebrow">SET PARA ${family.name.toUpperCase()}</span>
+        <h2 class="set-title-headline">${set.name}</h2>
+        <p class="set-tagline-text">${set.tagline}</p>
+      </div>
+
+      <!-- Tarjeta Destacada Superior (Dinámica en este hogar) -->
+      <div class="set-destacado-card">
+        <div class="destacado-icon-circle">🏠</div>
+        <div class="destacado-body">
+          <h4 class="destacado-title">Dinámica en este hogar</h4>
+          <p class="destacado-desc">${set.experience}</p>
         </div>
+      </div>
 
-        <!-- Bloque de Propuesta de Valor Destacado (Fondo Lila Tecnológico) -->
-        <div class="set-experience-card">
-          <div class="exp-icon-wrapper">
-            <span class="exp-icon">🎯</span>
-          </div>
-          <div class="exp-content">
-            <h5 class="exp-title">Dinámica en este hogar:</h5>
-            <p class="exp-description">${set.experience}</p>
-          </div>
-        </div>
-
-        <!-- Grid 2x2 de Beneficios y Servicios Asociados a la Oferta -->
-        <div class="benefits-grid-2x2">
-          <div class="benefit-grid-item">
-            <div class="bgi-header">
-              <span class="bgi-icon">🛡️</span>
-              <span class="bgi-tag">Soporte Continuo</span>
+      <!-- Grilla 2 Columnas de Beneficios y Bloque de Precios -->
+      <div class="set-value-pricing-grid">
+        <!-- Tarjetas de Beneficios y Servicios (2x2) -->
+        <div class="benefits-mini-grid">
+          <div class="benefit-mini-card">
+            <div class="mini-card-icon">🛡️</div>
+            <div class="mini-card-info">
+              <strong>Soporte Seguro</strong>
+              <small>Parental Dashboard 24/7</small>
             </div>
-            <strong class="bgi-title">Parental Shield</strong>
-            <p class="bgi-desc">Monitoreo y calibración remota para dispositivos de los hijos.</p>
           </div>
 
-          <div class="benefit-grid-item">
-            <div class="bgi-header">
-              <span class="bgi-icon">✨</span>
-              <span class="bgi-tag">Studio Zentry</span>
+          <div class="benefit-mini-card">
+            <div class="mini-card-icon">⚡</div>
+            <div class="mini-card-info">
+              <strong>Zentry Credits</strong>
+              <small>100 Créditos Studio</small>
             </div>
-            <strong class="bgi-title">100 Créditos IA</strong>
-            <p class="bgi-desc">Para generación de microapps, videos educativos y avatares.</p>
           </div>
 
-          <div class="benefit-grid-item">
-            <div class="bgi-header">
-              <span class="bgi-icon">🧠</span>
-              <span class="bgi-tag">Padres de Familia</span>
+          <div class="benefit-mini-card">
+            <div class="mini-card-icon">🎓</div>
+            <div class="mini-card-info">
+              <strong>3 Clases IA</strong>
+              <small>Padres e hijos</small>
             </div>
-            <strong class="bgi-title">3 Clases de IA</strong>
-            <p class="bgi-desc">Sesiones 1 a 1 para dominar IA aplicada al hogar inteligente.</p>
           </div>
 
-          <div class="benefit-grid-item bonus-highlight">
-            <div class="bgi-header">
-              <span class="bgi-icon">🎟️</span>
-              <span class="bgi-tag bgi-tag-free">GRATIS</span>
+          <div class="benefit-mini-card">
+            <div class="mini-card-icon">🎟️</div>
+            <div class="mini-card-info">
+              <strong>Pase Experience</strong>
+              <small>Ticket Zentry Club</small>
             </div>
-            <strong class="bgi-title">Zentry Experience</strong>
-            <p class="bgi-desc">Pase familiar presencial o convertible a 100 créditos extra.</p>
           </div>
         </div>
 
-        <!-- Bloque de Resumen de Precios y Totalización Destacada -->
-        <div class="set-pricing-box glass-panel">
-          <div class="pricing-row">
-            <span class="pricing-label">Hardware Físico (${totals.totalItemsCount} dispositivos):</span>
-            <span class="pricing-val">${formatMoney(totals.hardwareUSD, totals.hardwarePEN)}</span>
+        <!-- Columna de Desglose de Costes -->
+        <div class="costs-summary-column">
+          <div class="cost-summary-item">
+            <span class="cost-label">Hardware Físico:</span>
+            <span class="cost-value">${formatMoney(totals.hardwareUSD, totals.hardwarePEN)}</span>
           </div>
-
-          <div class="pricing-row highlight-impl">
+          <div class="cost-summary-item highlight-item">
             <div>
-              <span class="pricing-label">${totals.implData.name}</span>
-              <small class="pricing-sublabel">${family.childrenCount} hijo(s) • ${totals.implData.devicesIncluded} dispositivos • 2 vistas parentales</small>
+              <span class="cost-label">${totals.implData.name}:</span>
+              <small class="cost-sublabel">${family.childrenCount} hijo(s) • ${totals.implData.devicesIncluded} disp.</small>
             </div>
-            <span class="pricing-val">${formatMoney(totals.implementationUSD, totals.implementationPEN)}</span>
+            <span class="cost-value">${formatMoney(totals.implementationUSD, totals.implementationPEN)}</span>
           </div>
-
-          <div class="pricing-row benefits-bonus">
-            <div>
-              <span class="pricing-label">🎁 Beneficios & Regalos:</span>
-              <small class="pricing-sublabel">3 Clases IA + 100 Créditos Studio + Pase Zentry Experience</small>
-            </div>
-            <span class="pricing-val-free">
-              <s style="color: #94a3b8; font-size: 11px;">${formatMoney(totals.benefitsValueUSD, totals.benefitsValuePEN)}</s>
-              <strong class="badge-free-green">GRATIS</strong>
-            </span>
-          </div>
-
-          <div class="pricing-divider"></div>
-
-          <div class="pricing-total-row">
-            <div class="total-header-group">
-              <span class="total-caption">VALOR TOTAL DE LA OFERTA</span>
-              <small class="total-subtext">Hardware Físico + Licencia ZentryOS + Regalos</small>
-            </div>
-            <div class="total-amount-display">
-              <span class="amount-number">${formatMoney(totals.totalUSD, totals.totalPEN)}</span>
-            </div>
+          <div class="cost-summary-item free-item">
+            <span class="cost-label">Beneficios & Regalos:</span>
+            <span class="cost-tag-free">GRATIS</span>
           </div>
         </div>
+      </div>
 
-        <!-- Acciones del Set (Botón Primario y Botón Secundario Fieles a la Referencia) -->
-        <div class="set-actions-toolbar">
-          <button type="button" class="btn ${isSelectedTier ? 'btn-success' : 'btn-primary'} btn-choose-set" data-set-key="${setKey}">
-            ${isSelectedTier ? '✓ Set Seleccionado' : '✓ Seleccionar este Set'}
-          </button>
-          <button type="button" class="btn btn-secondary btn-share-quote" data-set-key="${setKey}">
-            📋 Copiar Propuesta
-          </button>
+      <!-- Tarjeta Prominente de Precio Total -->
+      <div class="hero-total-price-card">
+        <div class="total-caption-group">
+          <span class="total-label-kicker">VALOR TOTAL DE LA OFERTA</span>
+          <small class="total-sub-note">Hardware + Implementación OS + Paquete de Bienvenida</small>
         </div>
-
-        <!-- Tip Referidos -->
-        <div class="referrals-hint-banner">
-          <span class="hint-icon">💡</span>
-          <span>¿Financiar este costo? Con <strong>7 a 20 recomendaciones</strong> obtienes hardware sin costo. <a href="javascript:void(0)" class="link-to-credits">Ver Economía de Créditos ➔</a></span>
+        <div class="total-price-large">
+          <span class="price-big-number">${formatMoney(totals.totalUSD, totals.totalPEN)}</span>
         </div>
+      </div>
 
+      <!-- Acciones Inferiores -->
+      <div class="set-actions-toolbar">
+        <button type="button" class="btn ${isSelectedTier ? 'btn-success' : 'btn-primary'} btn-choose-set" data-set-key="${setKey}">
+          ${isSelectedTier ? '✓ Set Seleccionado' : 'Elegir este Set para Cotizar'}
+        </button>
+        <button type="button" class="btn btn-secondary btn-share-quote" data-set-key="${setKey}">
+          📋 Copiar Propuesta
+        </button>
       </div>
     </div>
   `;
@@ -1448,20 +1427,5 @@ function attachRepertorioEvents() {
   document.getElementById('btn-quick-overview')?.addEventListener('click', () => {
     repertorioState.viewMode = 'family-picker';
     renderRepertorioView();
-  });
-
-  // Navegación de carrusel de productos individuales dentro del set
-  root.querySelectorAll('.btn-carousel-arrow').forEach(arrowBtn => {
-    arrowBtn.addEventListener('click', (e) => {
-      const targetId = e.currentTarget.dataset.target;
-      const carousel = document.getElementById(targetId);
-      if (!carousel) return;
-      const isPrev = e.currentTarget.classList.contains('carousel-arrow-prev');
-      const scrollAmount = carousel.clientWidth * 0.75;
-      carousel.scrollBy({
-        left: isPrev ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    });
   });
 }
