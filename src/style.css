@@ -9483,13 +9483,20 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 /* Reglas maestras para la vista repertorio en el workspace */
 .workspace.repertorio-view-active {
   overflow-x: hidden !important;
+  background: #f8fafc;
+}
+
+.workspace.repertorio-view-active .workspace-banner,
+.workspace.repertorio-view-active .workspace-header,
+.workspace.repertorio-view-active #properties-block {
+  display: none !important;
 }
 
 .workspace.repertorio-view-active .workspace-content {
   max-width: 100% !important;
   width: 100% !important;
-  padding: 0 16px 40px 16px !important;
-  margin: 10px auto 30px auto !important;
+  padding: 12px 20px 24px 20px !important;
+  margin: 0 auto !important;
   box-sizing: border-box !important;
   overflow-x: hidden !important;
   display: flex;
@@ -9499,11 +9506,11 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .repertorio-app-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding-bottom: 24px;
+  padding-bottom: 16px;
   box-sizing: border-box;
   overflow-x: hidden;
 }

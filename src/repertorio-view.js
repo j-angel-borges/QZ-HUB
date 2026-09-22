@@ -444,7 +444,7 @@ export const REPERTORIO_DATA = {
 export const repertorioState = {
   selectedFamily: 'nuclear_1h', // 'nuclear_1h', 'extensa_1h', 'nuclear_2h', 'extensa_2h'
   currency: 'USD', // 'USD' | 'PEN'
-  currentSpread: 1, // 1 to 6 (Spreads del magazine)
+  currentSpread: 2, // Inicia directamente en el Spread del Set (Páginas 03-04) como en la referencia
   selectedSetTier: 'essential', // 'essential', 'omni', 'integral', 'fullhouse'
   additionalChildren: 0,
   includeImplementation: true,
