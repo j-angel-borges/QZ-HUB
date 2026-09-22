@@ -9518,7 +9518,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .workspace.repertorio-view-active .workspace-content {
   max-width: 100% !important;
   width: 100% !important;
-  padding: 10px 16px 28px 16px !important;
+  padding: 8px 16px 8px 16px !important;
   margin: 0 !important;
   box-sizing: border-box !important;
   overflow-x: hidden !important;
@@ -9530,11 +9530,11 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .repertorio-app-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
   width: 100% !important;
   max-width: 100% !important;
   margin: 0 !important;
-  padding-bottom: 24px;
+  padding-bottom: 0 !important;
   box-sizing: border-box;
   overflow-x: hidden;
   flex: 1 1 auto;
@@ -9983,9 +9983,10 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .repertorio-magazine-container {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   position: relative;
   width: 100%;
+  flex: 1 1 auto;
   box-sizing: border-box;
   overflow-x: hidden;
 }
@@ -9997,21 +9998,22 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   align-items: center;
   justify-content: center;
   width: 100%;
+  flex: 1 1 auto;
   box-sizing: border-box;
-  padding: 0 52px; /* Margen para las flechas laterales de navegación */
+  padding: 0 48px; /* Margen para las flechas laterales de navegación */
 }
 
 .magazine-nav-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.12);
   color: #0f172a;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -10046,15 +10048,15 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .magazine-spread {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 32px;
+  gap: 28px;
   width: 100%;
   background: #ffffff;
-  border-radius: 20px;
+  border-radius: 18px;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
-  padding: 28px 32px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  padding: 20px 24px;
   box-sizing: border-box;
-  align-items: start;
+  align-items: stretch;
 }
 
 /* Columnas Izquierda y Derecha del Slide */
@@ -10254,13 +10256,13 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .set-visual-showcase {
   position: relative;
   width: 100%;
-  height: clamp(260px, 25vw, 420px);
-  border-radius: 14px;
+  height: clamp(190px, 17vw, 260px);
+  border-radius: 12px;
   border: 1px solid rgba(15, 23, 42, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
   overflow: hidden;
   box-sizing: border-box;
   background: #f8fafc;
@@ -10773,20 +10775,28 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 }
 
 /* --------------------------------------------------------------------------
-   Barra Inferior & Thumbnails del Magazine
+   Barra Inferior & Thumbnails del Magazine - FIJA Y VISIBLE
    -------------------------------------------------------------------------- */
 .magazine-footer-controls {
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 10px;
-  padding: 8px 14px;
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.09);
   width: 100%;
   box-sizing: border-box;
+  box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.06);
+  flex-shrink: 0;
+  margin-top: auto;
 }
 
 .magazine-page-counter {

@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.1 (STREAMLINED SETS & REDUCED TEXT)
+// QZ-HUB SERVICE WORKER — v3.3.2 (FIXED FOOTER BAR & SPACE OPTIMIZATION)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.1-streamlined-sets';
+const CACHE_NAME = 'qz-hub-v3.3.2-fixed-footer-bar';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

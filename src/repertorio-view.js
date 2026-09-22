@@ -735,7 +735,7 @@ function renderMagazineExperience() {
           ${[
             { num: 1, title: 'Portada & Filosofía', icon: '📖' },
             { num: 2, title: 'Essential Set', icon: '🥉' },
-            { num: 3, title: 'OVNI Set', icon: '🥈' },
+            { num: 3, title: 'OMNI Set', icon: '🥈' },
             { num: 4, title: 'Integral Set', icon: '🥇' },
             { num: 5, title: 'Full House Set', icon: '👑' },
             { num: 6, title: 'Beneficios & Créditos', icon: '🎁' }
