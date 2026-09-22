@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.0.0 (GCP REALTIME SYNC SAFE)
+// QZ-HUB SERVICE WORKER — v3.2.0 (REPERTORIO FULLSCREEN & SPREAD SYNC)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.0.0-gcp-sync';
+const CACHE_NAME = 'qz-hub-v3.2.0-repertorio-fullscreen';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

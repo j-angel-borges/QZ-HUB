@@ -9509,27 +9509,35 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   overflow-x: hidden !important;
 }
 
+.workspace.repertorio-view-active .workspace-header,
+.workspace.repertorio-view-active .workspace-banner,
+.workspace.repertorio-view-active .properties-container {
+  display: none !important;
+}
+
 .workspace.repertorio-view-active .workspace-content {
   max-width: 100% !important;
   width: 100% !important;
-  padding: 10px 20px 28px 20px !important;
+  padding: 10px 16px 28px 16px !important;
   margin: 0 !important;
   box-sizing: border-box !important;
   overflow-x: hidden !important;
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
 }
 
 .repertorio-app-wrapper {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
   padding-bottom: 24px;
   box-sizing: border-box;
   overflow-x: hidden;
+  flex: 1 1 auto;
 }
 
 /* Header superior */
@@ -10170,14 +10178,13 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .set-visual-showcase {
   position: relative;
   width: 100%;
-  height: 240px;
-  max-height: 260px;
-  border-radius: 12px;
+  height: clamp(260px, 25vw, 420px);
+  border-radius: 14px;
   border: 1px solid rgba(15, 23, 42, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   overflow: hidden;
   box-sizing: border-box;
   background: #f8fafc;

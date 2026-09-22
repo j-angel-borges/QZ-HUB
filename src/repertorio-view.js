@@ -529,6 +529,10 @@ export function renderRepertorioView() {
   document.getElementById('page-icon').textContent = '🎭';
   const propBlock = document.getElementById('properties-block');
   if (propBlock) propBlock.style.display = 'none';
+  const wsHeader = document.querySelector('.workspace-header');
+  if (wsHeader) wsHeader.style.display = 'none';
+  const wsBanner = document.querySelector('.workspace-banner');
+  if (wsBanner) wsBanner.style.display = 'none';
 
   const container = document.getElementById('workspace-content');
   if (!container) return;
