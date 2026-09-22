@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.2 (FIXED FOOTER BAR & SPACE OPTIMIZATION)
+// QZ-HUB SERVICE WORKER — v3.3.3 (PURGED BENEFITS & INHERITANCE BADGES)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.2-fixed-footer-bar';
+const CACHE_NAME = 'qz-hub-v3.3.3-clean-sets-no-benefits';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

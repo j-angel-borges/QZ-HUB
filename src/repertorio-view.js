@@ -719,7 +719,7 @@ function renderMagazineExperience() {
         </div>
 
         <!-- Flecha Navegación Derecha -->
-        <button type="button" class="magazine-nav-arrow arrow-right" id="btn-spread-next" ${activeSpread >= 6 ? 'disabled' : ''} aria-label="Página siguiente">
+        <button type="button" class="magazine-nav-arrow arrow-right" id="btn-spread-next" ${activeSpread >= 5 ? 'disabled' : ''} aria-label="Página siguiente">
           ›
         </button>
       </div>
@@ -728,7 +728,7 @@ function renderMagazineExperience() {
       <div class="magazine-footer-controls">
         <div class="magazine-page-counter">
           <span class="counter-label">SPREAD EDITORIAL</span>
-          <span class="counter-numbers"><strong>0${activeSpread}</strong> / 06</span>
+          <span class="counter-numbers"><strong>0${activeSpread}</strong> / 05</span>
         </div>
 
         <div class="magazine-thumbnails-strip">
@@ -737,8 +737,7 @@ function renderMagazineExperience() {
             { num: 2, title: 'Essential Set', icon: '🥉' },
             { num: 3, title: 'OMNI Set', icon: '🥈' },
             { num: 4, title: 'Integral Set', icon: '🥇' },
-            { num: 5, title: 'Full House Set', icon: '👑' },
-            { num: 6, title: 'Beneficios & Créditos', icon: '🎁' }
+            { num: 5, title: 'Full House Set', icon: '👑' }
           ].map(thumb => `
             <button type="button" class="magazine-thumb-btn ${thumb.num === activeSpread ? 'active' : ''}" data-spread-num="${thumb.num}">
               <span class="thumb-icon">${thumb.icon}</span>
@@ -773,8 +772,6 @@ function renderSpreadContent(spreadNum, family) {
       return renderSpreadSet(family, 'integral', 7, 8);
     case 5:
       return renderSpreadSet(family, 'fullhouse', 9, 10);
-    case 6:
-      return renderSpread06BenefitsAndCredits(family, 11, 12);
     default:
       return renderSpread01Cover(family);
   }
@@ -895,12 +892,6 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
           }).join('')}
         </div>
 
-        ${set.inheritedFrom ? `
-          <div class="set-inheritance-notice">
-            <span class="notice-icon">✨</span>
-            <span>Incluye base <strong>${set.inheritedFrom.toUpperCase()}</strong> + ${set.addedItems.map(ai => `<strong>x${ai.qty} ${REPERTORIO_DATA.products[ai.code]?.name}</strong>`).join(', ')}.</span>
-          </div>
-        ` : ''}
       </div>
     </div>
 
@@ -927,10 +918,6 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
           </div>
           <span class="cost-value">+${formatMoney(totals.implementationUSD, totals.implementationPEN)}</span>
         </div>
-        <div class="cost-summary-item free-item">
-          <span class="cost-label">Beneficios & Regalos:</span>
-          <span class="cost-tag-free">GRATIS</span>
-        </div>
       </div>
 
       <!-- Tarjeta Prominente de Precio Total -->
@@ -956,121 +943,6 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
   `;
 }
 
-/**
- * Spread 6: Beneficios, Regalos y Economía de Referencias (Págs 11-12)
- */
-function renderSpread06BenefitsAndCredits(family, pageLeftNum, pageRightNum) {
-  const totals = calculateSetTotals(family.id, repertorioState.selectedSetTier);
-
-  return `
-    <div class="spread-page spread-page-left benefits-page-left">
-      <div class="page-number-top">PÁG. ${pageLeftNum} // BENEFICIOS & REGALOS INCLUIDOS</div>
-
-      <div class="magazine-content-col">
-        <span class="magazine-kicker">PAQUETE DE BIENVENIDA FAMILIAR</span>
-        <h2 class="magazine-main-title">VALOR AGREGADO SIN COSTO ADICIONAL</h2>
-        <p style="font-size: 13px; color: #475569; line-height: 1.45; margin-bottom: 12px;">
-          Paquete formativo y de acompañamiento valorizado en <strong>${formatMoney(totals.benefitsValueUSD, totals.benefitsValuePEN)}</strong> incluido sin costo.
-        </p>
-
-        <div class="benefits-vertical-list">
-          ${REPERTORIO_DATA.benefits.map(b => `
-            <div class="benefit-card-box glass-panel">
-              <div class="benefit-icon-badge">${b.icon}</div>
-              <div class="benefit-content">
-                <div class="benefit-title-row">
-                  <h4 class="benefit-title">${b.title}</h4>
-                  <span class="benefit-worth">Valor: ${formatMoney(b.valueUSD, b.valuePEN)}</span>
-                </div>
-                <span class="benefit-tag-pill">${b.tag}</span>
-                <p class="benefit-desc">${b.description}</p>
-                ${b.conversionNote ? `
-                  <div class="benefit-rule-alert">
-                    <span class="rule-icon">🔄</span>
-                    <span><strong>Flexibilidad:</strong> ${b.conversionNote}</span>
-                  </div>
-                ` : ''}
-              </div>
-            </div>
-          `).join('')}
-        </div>
-
-        <div class="golden-rule-box">
-          <span>💡 <strong>Regla Canónica:</strong> Los créditos de IA potencian el software; el hardware físico se obtiene mediante el Programa de Referencias.</span>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="spread-page spread-page-right credits-page-right">
-      <div class="magazine-content-col">
-        <div class="page-number-top">PÁG. ${pageRightNum} // ECONOMÍA CIRCULAR & REFERIDOS</div>
-
-        <span class="magazine-kicker">PROGRAMA DE RECOMENDACIÓN</span>
-        <h2 class="magazine-main-title">EL CÍRCULO VIRTUOSO DE CRÉDITOS</h2>
-        <p style="font-size: 13px; color: #475569; line-height: 1.45; margin-bottom: 12px;">
-          Acumula créditos canjeables por hardware físico recomendando ZentryOS a otras familias.
-        </p>
-
-        <!-- Tabla de Recompensas por Referencias -->
-        <div class="referrals-rewards-table-wrapper glass-panel">
-          <table class="referrals-table">
-            <thead>
-              <tr>
-                <th>Citas</th>
-                <th>Créditos</th>
-                <th>Recompensa Física</th>
-                <th>Valor</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${REPERTORIO_DATA.referralsProgram.map(ref => `
-                <tr>
-                  <td>
-                    <div class="citas-badge">
-                      <strong>${ref.citas}</strong>
-                      <span>personas</span>
-                    </div>
-                  </td>
-                  <td>
-                    <strong style="color: #7c3aed; font-size: 14px;">+${ref.credits}</strong> cr
-                  </td>
-                  <td>
-                    <div class="reward-prod-cell">
-                      <span class="prod-icon">${ref.rewardIcon}</span>
-                      <strong>${ref.rewardName}</strong>
-                    </div>
-                  </td>
-                  <td>
-                    <span class="reward-val">${formatMoney(ref.commercialValueUSD, ref.commercialValuePEN)}</span>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Simulador Rápido de Referidos -->
-        <div class="referrals-calculator-card glass-panel">
-          <div class="sim-result-pill">
-            <span class="sim-icon">🎁</span>
-            <div class="sim-text">
-              <strong>Recomienda 10 familias: 1 Smart Ring GRATIS</strong>
-              <small>Equivalente a 650 créditos o ${formatMoney(450, 1530)} en hardware directo.</small>
-            </div>
-          </div>
-        </div>
-
-        <div class="magazine-cta-row" style="margin-top: 14px;">
-          <button type="button" class="btn btn-primary btn-block btn-quote-action">
-            Finalizar & Generar Cotización Oficial 💎
-          </button>
-        </div>
-
-      </div>
-    </div>
-  `;
-}
 
 /**
  * Modal de Cotización y Cierre Comercial
@@ -1140,19 +1012,6 @@ export function openQuoteModal() {
           </div>
         </div>
 
-        <!-- Beneficios de Regalo -->
-        <div class="quote-section">
-          <h4 class="quote-section-title">3. Beneficios & Regalos de Bienvenida (100% Bonificados)</h4>
-          <div class="quote-benefits-list">
-            ${REPERTORIO_DATA.benefits.map(b => `
-              <div class="quote-benefit-row">
-                <span>${b.icon} ${b.title}</span>
-                <span class="worth-strike"><s>${formatMoney(b.valueUSD, b.valuePEN)}</s> <strong>GRATIS</strong></span>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-
         <!-- Totalización -->
         <div class="quote-summary-box">
           <div class="summary-line">
@@ -1162,10 +1021,6 @@ export function openQuoteModal() {
           <div class="summary-line">
             <span>Implementación ZentryOS:</span>
             <span>${formatMoney(totals.implementationUSD, totals.implementationPEN)}</span>
-          </div>
-          <div class="summary-line" style="color: #059669;">
-            <span>Valor Obsequios Zentry:</span>
-            <span>+${formatMoney(totals.benefitsValueUSD, totals.benefitsValuePEN)} (INCLUIDO)</span>
           </div>
           <div class="summary-total-final">
             <div>
@@ -1219,13 +1074,8 @@ function copyQuoteToWhatsApp(totals) {
     `*2. Implementación de Software:*\n` +
     `  • ${totals.implData.name} (${totals.implData.devicesIncluded} dispositivos)\n` +
     `  • Parental Dashboard Multidispositivo (2 vistas: Padre y Madre en celular, tablet y PC)\n\n` +
-    `*3. Regalos y Beneficios Incluidos:*\n` +
-    `  • 3 Clases de Inteligencia Artificial para Padres\n` +
-    `  • 100 Créditos de Generación para Studio Parental Dashboard\n` +
-    `  • Pase Gratis al evento familiar "Zentry Experience"\n\n` +
     `💰 *Inversión Total:* ${formatMoney(totals.totalUSD, totals.totalPEN, currency)}\n` +
-    `*(Hardware completo + Despliegue de software + Ecosistema de beneficios)*\n\n` +
-    `💡 *Programa de Referidos:* Con 7 a 20 familias referidas puedes obtener Smart Bands, Smart Rings o Smart Sound sin costo.\n\n` +
+    `*(Hardware completo + Despliegue de software ZentryOS)*\n\n` +
     `_Generado desde QZ-Hub Operativo_`;
 
   navigator.clipboard.writeText(text).then(() => {
@@ -1291,7 +1141,7 @@ function attachRepertorioEvents() {
   });
 
   document.getElementById('btn-spread-next')?.addEventListener('click', () => {
-    if (repertorioState.currentSpread < 6) {
+    if (repertorioState.currentSpread < 5) {
       repertorioState.currentSpread++;
       renderRepertorioView();
     }
@@ -1330,14 +1180,6 @@ function attachRepertorioEvents() {
       repertorioState.selectedSetTier = e.currentTarget.dataset.setKey;
       const totals = calculateSetTotals(repertorioState.selectedFamily, repertorioState.selectedSetTier);
       copyQuoteToWhatsApp(totals);
-    });
-  });
-
-  // Enlace a créditos desde tips
-  root.querySelectorAll('.link-to-credits').forEach(link => {
-    link.addEventListener('click', () => {
-      repertorioState.currentSpread = 6;
-      renderRepertorioView();
     });
   });
 
