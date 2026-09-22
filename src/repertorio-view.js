@@ -122,26 +122,26 @@ export const REPERTORIO_DATA = {
       tag: 'Formación Parental',
       valuePEN: 385,
       valueUSD: 113.24,
-      description: 'Sesiones personalizadas 1 a 1 para que los padres dominen herramientas de IA aplicada, automatización del hogar y supervisión ética de la tecnología.',
+      description: 'Sesiones personalizadas 1 a 1 para dominar IA, automatización y supervisión parental ética.',
       icon: '🧠'
     },
     {
       id: 'studio_credits',
       title: '100 Créditos de Generación Studio',
-      tag: 'Lanzamiento 15 de Noviembre',
+      tag: 'Lanzamiento 15 Nov',
       valuePEN: 200,
       valueUSD: 58.82,
-      description: 'Créditos para el Studio Parental Dashboard: creación guiada de microaplicaciones educativas personalizadas, imágenes hiperrealistas y videos para los hijos.',
+      description: 'Creación asistida de microapps educativas, imágenes y contenido multimedia para los hijos.',
       icon: '✨'
     },
     {
       id: 'zentry_experience',
-      title: 'Pase Gratis Familiar "Zentry Experience"',
+      title: 'Pase Familiar "Zentry Experience"',
       tag: 'Evento Presencial / Virtual',
       valuePEN: 200,
       valueUSD: 58.82,
-      description: 'Jornada inmersiva para padres e hijos donde mentores asisten y calibran en vivo el uso armónico de Zentry, con dinámicas lúdicas de enfoque.',
-      conversionNote: 'Si no asistes o no canjeas la entrada, los S/ 200 de valor se convierten automáticamente en 100 créditos adicionales de generación.',
+      description: 'Jornada inmersiva para padres e hijos con mentores en vivo y dinámicas lúdicas de enfoque.',
+      conversionNote: 'Convertible automáticamente en 100 créditos adicionales si no asistes al evento.',
       icon: '🎟️'
     }
   ],
@@ -806,7 +806,7 @@ function renderSpread01Cover(family) {
         <h1 class="magazine-main-title">EL VALOR SAGRADO DEL TIEMPO EN FAMILIA</h1>
         
         <div class="magazine-lead-paragraph">
-          "No compramos tecnología para entretener el silencio de nuestros hijos; diseñamos un entorno donde su atención neuronal y su curiosidad creadora sigan siendo soberanas."
+          "Diseñamos un entorno donde la atención y curiosidad creadora de tus hijos sigan siendo soberanas."
         </div>
 
         <div class="family-diagnosis-box">
@@ -817,7 +817,6 @@ function renderSpread01Cover(family) {
               <span style="font-size: 12px; color: #533b87; font-weight: 600;">${family.membersLabel}</span>
             </div>
           </div>
-          <p class="diagnosis-body">${family.story}</p>
           <div class="diagnosis-stats-row">
             <div class="stat-item">
               <span class="stat-num">${family.childrenCount * 2}</span>
@@ -838,10 +837,6 @@ function renderSpread01Cover(family) {
           <button type="button" class="btn btn-primary btn-next-spread-action" data-target-spread="2">
             Explorar Sets de Hardware & Implementación ➔
           </button>
-        </div>
-
-        <div class="magazine-quote-footer">
-          <em>«Quien recupera el control del tiempo en su hogar, recupera el destino de sus hijos.»</em>
         </div>
       </div>
     </div>
@@ -871,7 +866,7 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
         <img src="${set.image}" alt="${set.name}" class="set-main-image" onerror="this.src='/assets/repertorio/set_essential.png'"/>
       </div>
 
-      <!-- Desglose de Componentes Físicos en 3 columnas -->
+      <!-- Desglose de Componentes Físicos -->
       <div class="set-items-breakdown">
         <div class="breakdown-header-row">
           <h4 class="breakdown-title">
@@ -903,9 +898,7 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
         ${set.inheritedFrom ? `
           <div class="set-inheritance-notice">
             <span class="notice-icon">✨</span>
-            <div>
-              <strong>Evolución de Ecosistema:</strong> Incluye todo lo de <em>${set.inheritedFrom.toUpperCase()}</em> más ${set.addedItems.map(ai => `<strong>x${ai.qty} ${REPERTORIO_DATA.products[ai.code]?.name}</strong>`).join(', ')}.
-            </div>
+            <span>Incluye base <strong>${set.inheritedFrom.toUpperCase()}</strong> + ${set.addedItems.map(ai => `<strong>x${ai.qty} ${REPERTORIO_DATA.products[ai.code]?.name}</strong>`).join(', ')}.</span>
           </div>
         ` : ''}
       </div>
@@ -921,69 +914,22 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
         <p class="set-tagline-text">${set.tagline}</p>
       </div>
 
-      <!-- Tarjeta Destacada Superior (Contexto/Destino en este hogar) -->
-      <div class="set-destacado-card">
-        <div class="destacado-icon-circle">🏠</div>
-        <div class="destacado-body">
-          <h4 class="destacado-title">Destino en este hogar</h4>
-          <p class="destacado-desc">${set.experience}</p>
+      <!-- Desglose de Costes Directo y Elegante (Sin bloques redundantes) -->
+      <div class="costs-summary-card">
+        <div class="cost-summary-item">
+          <span class="cost-label">Hardware Físico:</span>
+          <span class="cost-value">${formatMoney(totals.hardwareUSD, totals.hardwarePEN)}</span>
         </div>
-      </div>
-
-      <!-- Grilla 2 Columnas de Beneficios y Bloque de Precios -->
-      <div class="set-value-pricing-grid">
-        <!-- Grid de Beneficios (2x2) -->
-        <div class="benefits-mini-grid">
-          <div class="benefit-mini-card">
-            <div class="mini-card-icon">🛡️</div>
-            <div class="mini-card-info">
-              <strong>Support Share</strong>
-              <small>Parental Dashboard 24/7</small>
-            </div>
+        <div class="cost-summary-item highlight-item">
+          <div>
+            <span class="cost-label">${totals.implData.name}:</span>
+            <small class="cost-sublabel">${family.childrenCount} hijo(s) • ${totals.implData.devicesIncluded} disp.</small>
           </div>
-
-          <div class="benefit-mini-card">
-            <div class="mini-card-icon">⚡</div>
-            <div class="mini-card-info">
-              <strong>Zentry Credits</strong>
-              <small>100 Créditos Studio</small>
-            </div>
-          </div>
-
-          <div class="benefit-mini-card">
-            <div class="mini-card-icon">🎁</div>
-            <div class="mini-card-info">
-              <strong>Beneficio & Regalos</strong>
-              <small>Soporte continuo</small>
-            </div>
-          </div>
-
-          <div class="benefit-mini-card">
-            <div class="mini-card-icon">🎁</div>
-            <div class="mini-card-info">
-              <strong>Beneficio & Regalos</strong>
-              <small>Créditos incluidos</small>
-            </div>
-          </div>
+          <span class="cost-value">+${formatMoney(totals.implementationUSD, totals.implementationPEN)}</span>
         </div>
-
-        <!-- Columna de Desglose de Costes -->
-        <div class="costs-summary-column">
-          <div class="cost-summary-item">
-            <span class="cost-label">Hardware Físico:</span>
-            <span class="cost-value">${formatMoney(totals.hardwareUSD, totals.hardwarePEN)}</span>
-          </div>
-          <div class="cost-summary-item highlight-item">
-            <div>
-              <span class="cost-label">${totals.implData.name}:</span>
-              <small class="cost-sublabel">${family.childrenCount} hijo(s) • ${totals.implData.devicesIncluded} disp.</small>
-            </div>
-            <span class="cost-value">+${formatMoney(totals.implementationUSD, totals.implementationPEN)}</span>
-          </div>
-          <div class="cost-summary-item free-item">
-            <span class="cost-label">Beneficios & Regalos:</span>
-            <span class="cost-tag-free">GRATIS</span>
-          </div>
+        <div class="cost-summary-item free-item">
+          <span class="cost-label">Beneficios & Regalos:</span>
+          <span class="cost-tag-free">GRATIS</span>
         </div>
       </div>
 
@@ -991,7 +937,6 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
       <div class="hero-total-price-card">
         <div class="total-caption-group">
           <span class="total-label-kicker">VALOR TOTAL DE LA OFERTA</span>
-          <small class="total-sub-note">Hardware + Implementación OS + Paquete de Bienvenida</small>
         </div>
         <div class="total-price-large">
           <span class="price-big-number">${formatMoney(totals.totalUSD, totals.totalPEN)}</span>
@@ -1024,8 +969,8 @@ function renderSpread06BenefitsAndCredits(family, pageLeftNum, pageRightNum) {
       <div class="magazine-content-col">
         <span class="magazine-kicker">PAQUETE DE BIENVENIDA FAMILIAR</span>
         <h2 class="magazine-main-title">VALOR AGREGADO SIN COSTO ADICIONAL</h2>
-        <p style="font-size: 13.5px; color: #475569; line-height: 1.5; margin-bottom: 16px;">
-          Cada despliegue de ZentryOS no termina en la instalación del software; incluye un ecosistema de capacitación parental y acompañamiento valorizado en <strong>${formatMoney(totals.benefitsValueUSD, totals.benefitsValuePEN)}</strong>.
+        <p style="font-size: 13px; color: #475569; line-height: 1.45; margin-bottom: 12px;">
+          Paquete formativo y de acompañamiento valorizado en <strong>${formatMoney(totals.benefitsValueUSD, totals.benefitsValuePEN)}</strong> incluido sin costo.
         </p>
 
         <div class="benefits-vertical-list">
@@ -1042,7 +987,7 @@ function renderSpread06BenefitsAndCredits(family, pageLeftNum, pageRightNum) {
                 ${b.conversionNote ? `
                   <div class="benefit-rule-alert">
                     <span class="rule-icon">🔄</span>
-                    <span><strong>Flexibilidad Zentry:</strong> ${b.conversionNote}</span>
+                    <span><strong>Flexibilidad:</strong> ${b.conversionNote}</span>
                   </div>
                 ` : ''}
               </div>
@@ -1051,12 +996,7 @@ function renderSpread06BenefitsAndCredits(family, pageLeftNum, pageRightNum) {
         </div>
 
         <div class="golden-rule-box">
-          <div class="rule-header">
-            <span>⚖️ Regla Canónica de Créditos:</span>
-          </div>
-          <p>
-            Los <strong>Créditos de Generación</strong> (usados en clases, studio y videos) pertenecen al ámbito del software y la IA; <em>no son canjeables por productos físicos</em>. Los productos físicos de hardware se obtienen exclusivamente mediante el <strong>Programa de Referencias</strong>.
-          </p>
+          <span>💡 <strong>Regla Canónica:</strong> Los créditos de IA potencian el software; el hardware físico se obtiene mediante el Programa de Referencias.</span>
         </div>
 
       </div>
@@ -1068,8 +1008,8 @@ function renderSpread06BenefitsAndCredits(family, pageLeftNum, pageRightNum) {
 
         <span class="magazine-kicker">PROGRAMA DE RECOMENDACIÓN</span>
         <h2 class="magazine-main-title">EL CÍRCULO VIRTUOSO DE CRÉDITOS</h2>
-        <p style="font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 14px;">
-          Nuestra mejor inversión publicitaria son los propios padres. Al ayudarnos a agendar citas con otras familias, acumulas créditos canjeables por hardware físico de alta gama.
+        <p style="font-size: 13px; color: #475569; line-height: 1.45; margin-bottom: 12px;">
+          Acumula créditos canjeables por hardware físico recomendando ZentryOS a otras familias.
         </p>
 
         <!-- Tabla de Recompensas por Referencias -->
@@ -1112,15 +1052,11 @@ function renderSpread06BenefitsAndCredits(family, pageLeftNum, pageRightNum) {
 
         <!-- Simulador Rápido de Referidos -->
         <div class="referrals-calculator-card glass-panel">
-          <h4>🧮 Simulador de Retorno por Recomendación</h4>
-          <p style="font-size: 12px; color: #64748b; margin-bottom: 10px;">
-            Si recomiendas a <strong>10 familias amigas</strong> que nos reciban para una demo de 40 minutos:
-          </p>
           <div class="sim-result-pill">
             <span class="sim-icon">🎁</span>
             <div class="sim-text">
-              <strong>Te llevas 1 Smart Ring totalmente gratis</strong>
-              <small>Equivalente a 650 créditos o ${formatMoney(450, 1530)} en ahorro directo.</small>
+              <strong>Recomienda 10 familias: 1 Smart Ring GRATIS</strong>
+              <small>Equivalente a 650 créditos o ${formatMoney(450, 1530)} en hardware directo.</small>
             </div>
           </div>
         </div>

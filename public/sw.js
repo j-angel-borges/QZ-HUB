@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.0 (SIDEBAR BOUNCE & EXPANDED FAMILY CARDS)
+// QZ-HUB SERVICE WORKER — v3.3.1 (STREAMLINED SETS & REDUCED TEXT)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.0-bounce-cards-refresh';
+const CACHE_NAME = 'qz-hub-v3.3.1-streamlined-sets';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
