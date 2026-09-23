@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.15 (4K STOCK-CONDITIONED PORTADAS: ZERO HALLUCINATIONS / OFFICIAL ADN)
+// QZ-HUB SERVICE WORKER — v3.3.16 (SMARTBAND WHITE STOCK ALIGNMENT)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.15-stock-conditioned-portadas-4k';
+const CACHE_NAME = 'qz-hub-v3.3.16-smartband-white-stock-fix';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
