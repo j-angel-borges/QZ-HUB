@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.7 (VERTICAL FAMILY CARDS & CLEAN TEXT)
+// QZ-HUB SERVICE WORKER — v3.3.8 (ZERO EMOJIS - PURE SVG FAMILY CARDS)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.7-family-cards-vertical-clean';
+const CACHE_NAME = 'qz-hub-v3.3.8-zero-emojis-svg-family-cards';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

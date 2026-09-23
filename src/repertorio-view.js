@@ -606,6 +606,56 @@ function renderTopNavBar() {
 }
 
 /**
+ * Retorna el icono SVG vectorial para cada estructura familiar (Zero Emojis)
+ */
+function getFamilyIconSvg(famId) {
+  switch (famId) {
+    case 'nuclear_1h':
+      // Icono Usuarios / Núcleo Familiar
+      return `
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      `;
+    case 'extensa_1h':
+      // Icono Hogar Multigeneracional
+      return `
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+      `;
+    case 'nuclear_2h':
+      // Icono Múltiples Usuarios / Hermanos
+      return `
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 21a8 8 0 0 0-16 0"></path>
+          <circle cx="10" cy="8" r="5"></circle>
+          <path d="M22 20c0-3.37-2-6.5-5-7.5"></path>
+          <circle cx="19" cy="8" r="3"></circle>
+        </svg>
+      `;
+    case 'extensa_2h':
+      // Icono Corona / Gran Dinastía Integral
+      return `
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path>
+        </svg>
+      `;
+    default:
+      return `
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+        </svg>
+      `;
+  }
+}
+
+/**
  * Pantalla 1: Selector Visual de Estructura Familiar (Onboarding)
  */
 function renderFamilySelectorScreen() {
@@ -620,21 +670,16 @@ function renderFamilySelectorScreen() {
         ${Object.values(REPERTORIO_DATA.families).map(fam => {
           const isSelected = fam.id === repertorioState.selectedFamily;
           const totals = calculateSetTotals(fam.id, 'essential');
-          const membersSubtitle = fam.membersSubtitle || fam.membersLabel;
 
           return `
             <div class="family-select-card ${isSelected ? 'is-selected' : ''}" data-family-id="${fam.id}">
               <div class="family-card-pill-tag">${fam.badge}</div>
 
               <div class="family-card-header">
-                <div class="family-card-icon-row">
-                  <span class="family-icon-symbol">
-                    ${fam.childrenCount === 1 ? '👨‍👩‍👧' : '👨‍👩‍👧‍👦'}
-                  </span>
-                  ${fam.grandparentsCount > 0 ? '<span class="family-subicon" title="Incluye 3 Abuelos">👴👵</span>' : ''}
+                <div class="family-card-icon-badge">
+                  ${getFamilyIconSvg(fam.id)}
                 </div>
                 <h3 class="family-card-name">${fam.name}</h3>
-                <div class="family-card-members">${membersSubtitle}</div>
               </div>
 
               <div class="family-card-specs-grid">
@@ -668,7 +713,12 @@ function renderFamilySelectorScreen() {
                   <span class="placeholder-label">Retrato Familiar</span>
                 </div>
                 <div class="family-photo-members-pill">
-                  <span class="members-pill-icon">👥</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
                   <span>${fam.totalMembers} Integrantes</span>
                 </div>
               </div>
