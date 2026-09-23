@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.12 (TABLETOP PRODUCT-SHOT COVERS: NUCLEAR 1H/2H, EXTENSA 1H/2H)
+// QZ-HUB SERVICE WORKER — v3.3.13 (GEN-Z-PRODUCTS: ALL 16 SETS REPLACED ACROSS FAMILIES)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.12-tabletop-product-shot-covers';
+const CACHE_NAME = 'qz-hub-v3.3.13-gen-z-products-all-sets';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

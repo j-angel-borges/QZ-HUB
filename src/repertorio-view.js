@@ -267,7 +267,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Esencial',
         tagline: 'El umbral de autonomía y protección digital para el hijo.',
         items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 1 }],
-        image: '/assets/repertorio/set_essential.png',
+        image: '/assets/repertorio/set_nuclear_1h_essential.png',
         highlight: '1 Tab + 1 Band + 1 Ring',
         experience: 'El hijo cuenta con su Smart Tab para estudio activo y su Smart Band para el biorritmo del sueño. Se añade un Smart Ring para uno de los padres o monitoreo biométrico fino.'
       },
@@ -277,7 +277,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Omnipresente',
         tagline: 'Sincronización biométrica para padre, madre e hijo.',
         items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }],
-        image: '/assets/repertorio/set_omni.png',
+        image: '/assets/repertorio/set_nuclear_1h_omni.png',
         highlight: '1 Tab + 1 Band + 2 Rings',
         experience: 'Ambos padres portan el Smart Ring para supervisar salud y estrés en tiempo real, mientras el hijo mantiene su entorno de estudio y monitoreo activo.'
       },
@@ -289,7 +289,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'omni',
         addedItems: [{ code: 'ss', qty: 1 }],
         items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }],
-        image: '/assets/repertorio/set_integral.png',
+        image: '/assets/repertorio/set_nuclear_1h_integral.png',
         highlight: 'OMNI + 1 Smart Sound',
         experience: 'La integración de Smart Sound en la sala o estudio transforma los hábitos: alarmas circadianas, música de alta fidelidad para el foco y rutinas habladas sin pantallas que distraigan.'
       },
@@ -301,7 +301,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'integral',
         addedItems: [{ code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
         items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }, { code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
-        image: '/assets/repertorio/set_fullhouse.png',
+        image: '/assets/repertorio/set_nuclear_1h_fullhouse.png',
         highlight: 'Integral + 1 Smart Watch + 1 Smart Phone',
         experience: 'Control absoluto dentro y fuera de casa. El teléfono seguro con ZentryOS y el Smart Watch permiten comunicación directa protegida ante cualquier estímulo adictivo exterior.'
       }
@@ -314,7 +314,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Esencial',
         tagline: 'Protección infantil y cuidado biométrico para abuelos.',
         items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }],
-        image: '/assets/repertorio/set_essential.png',
+        image: '/assets/repertorio/set_extensa_1h_essential.png',
         highlight: '1 Tab + 1 Band + 2 Rings',
         experience: 'El Smart Tab y Smart Band atienden al niño, mientras dos Smart Rings salvaguardan los signos vitales clave de los abuelos.'
       },
@@ -324,7 +324,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Omnipresente',
         tagline: 'Doble pantalla y doble anillo para el hogar extendido.',
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
-        image: '/assets/repertorio/set_omni.png',
+        image: '/assets/repertorio/set_extensa_1h_omni.png',
         highlight: '2 Tabs + 2 Bands + 2 Rings',
         experience: 'Dos estaciones de tablet para lectura de adultos mayores y deberes escolares, con anillos y bandas repartidas entre la familia.'
       },
@@ -336,7 +336,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'omni',
         addedItems: [{ code: 'ss', qty: 1 }],
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }],
-        image: '/assets/repertorio/set_integral.png',
+        image: '/assets/repertorio/set_extensa_1h_integral.png',
         highlight: 'OMNI + 1 Smart Sound',
         experience: 'Smart Sound centralizado para ambientar el living familiar con sonido sin estridencias, ideal para la convivencia intergeneracional.'
       },
@@ -348,7 +348,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'integral',
         addedItems: [{ code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }, { code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
-        image: '/assets/repertorio/set_fullhouse.png',
+        image: '/assets/repertorio/set_extensa_1h_fullhouse.png',
         highlight: 'Integral + 1 Smart Watch + 1 Smart Phone',
         experience: 'Máxima capacidad: un Smart Phone seguro para el joven o tutor y Smart Watch con monitoreo inmediato en cualquier rincón del hogar.'
       }
@@ -361,7 +361,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Esencial',
         tagline: 'Paridad pedagógica para 2 hermanos.',
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
-        image: '/assets/repertorio/set_essential.png',
+        image: '/assets/repertorio/set_nuclear_2h_essential.png',
         highlight: '2 Tabs + 2 Bands + 2 Rings',
         experience: 'Cada hijo recibe su Smart Tab y su Smart Band para erradicar comparaciones y disputas, respaldados por los Smart Rings para ambos padres.'
       },
@@ -371,7 +371,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Omnipresente',
         tagline: 'Doble pantalla y doble pulsera de hábitos consolidados.',
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
-        image: '/assets/repertorio/set_omni.png',
+        image: '/assets/repertorio/set_nuclear_2h_omni.png',
         highlight: '2 Tabs + 2 Bands + 2 Rings',
         experience: 'Configuración equilibrada para dos hijos con supervisión parental activa y dashboards segmentados por edad escolar.'
       },
@@ -383,7 +383,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'omni',
         addedItems: [{ code: 'ss', qty: 2 }],
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 2 }],
-        image: '/assets/repertorio/set_integral.png',
+        image: '/assets/repertorio/set_nuclear_2h_integral.png',
         highlight: 'OMNI + 2 Smart Sounds',
         experience: 'Dos altavoces Smart Sound para dos dormitorios o zonas de estudio independientes: cada hermano tiene su propio ecosistema de audio para concentrarse.'
       },
@@ -395,7 +395,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'integral',
         addedItems: [{ code: 'sw', qty: 2 }, { code: 'sp', qty: 2 }],
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 2 }, { code: 'sw', qty: 2 }, { code: 'sp', qty: 2 }],
-        image: '/assets/repertorio/set_fullhouse.png',
+        image: '/assets/repertorio/set_nuclear_2h_fullhouse.png',
         highlight: 'Integral + 2 Smart Watches + 2 Smart Phones',
         experience: 'El pináculo del catálogo Zentry: ambos hijos disponen de su smartwatch de seguridad y su smartphone ZentryOS para salidas, escuela y deportes.'
       }
@@ -408,7 +408,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Esencial',
         tagline: 'Equipamiento dual escolar y biométrico.',
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
-        image: '/assets/repertorio/set_essential.png',
+        image: '/assets/repertorio/set_extensa_2h_essential.png',
         highlight: '2 Tabs + 2 Bands + 2 Rings',
         experience: 'Herramientas equitativas para ambos hermanos en edad escolar, con anillos para el monitoreo de los adultos mayores.'
       },
@@ -418,7 +418,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Omnipresente',
         tagline: 'Armonía y paridad para todo el clan.',
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
-        image: '/assets/repertorio/set_omni.png',
+        image: '/assets/repertorio/set_extensa_2h_omni.png',
         highlight: '2 Tabs + 2 Bands + 2 Rings',
         experience: 'Doble terminal de trabajo con sincronización cloud instantánea hacia el Parental Dashboard.'
       },
@@ -430,7 +430,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'omni',
         addedItems: [{ code: 'ss', qty: 2 }],
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 2 }],
-        image: '/assets/repertorio/set_integral.png',
+        image: '/assets/repertorio/set_extensa_2h_integral.png',
         highlight: 'OMNI + 2 Smart Sounds',
         experience: 'Dos Smart Sound estratégicamente colocados (área social y área de dormitorios) para guiar los ritmos circadianos de toda la familia.'
       },
@@ -442,7 +442,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'integral',
         addedItems: [{ code: 'sw', qty: 2 }, { code: 'sp', qty: 2 }],
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 2 }, { code: 'sw', qty: 2 }, { code: 'sp', qty: 2 }],
-        image: '/assets/repertorio/set_fullhouse.png',
+        image: '/assets/repertorio/set_extensa_2h_fullhouse.png',
         highlight: 'Integral + 2 Smart Watches + 2 Smart Phones',
         experience: 'Ningún miembro queda desatendido. Sincronización absoluta de software y hardware con cobertura total.'
       }
