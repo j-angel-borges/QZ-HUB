@@ -582,7 +582,7 @@ function getFamilySlideSuffix(famId) {
 
 /**
  * Barra superior de navegación y controles de presentación
- * Estructura de directorio: Recursos Comerciales / Repertorio / Familias / Slides [SUFIJO]
+ * Estructura de directorio: Recursos Comerciales / Repertorio / Slides [SUFIJO]
  */
 function renderTopNavBar() {
   const isFamilyPicker = repertorioState.viewMode === 'family-picker';
@@ -596,22 +596,18 @@ function renderTopNavBar() {
           <a href="#demobook" class="crumb-nav-link" title="Ir a Recursos Comerciales">Recursos Comerciales</a>
           <span class="crumb-separator">/</span>
 
-          <!-- 2. Repertorio -->
-          <a href="#repertorio" class="crumb-nav-link" id="crumb-nav-repertorio" title="Módulo Repertorio">Repertorio</a>
-          <span class="crumb-separator">/</span>
-
-          <!-- 3. Familias -->
+          <!-- 2. Repertorio (Redirección a selección de familias) -->
           <button 
             type="button" 
             class="crumb-nav-btn ${isFamilyPicker ? 'crumb-active-pill' : 'crumb-nav-link'}" 
-            id="crumb-link-familias" 
-            title="Selector de Familias"
+            id="crumb-nav-repertorio" 
+            title="Selector de Familias y Repertorio"
           >
-            Familias
+            Repertorio
           </button>
           <span class="crumb-separator">/</span>
 
-          <!-- 4. Slides con sufijo de familia (FN, FE, FNx2, FEx2) -->
+          <!-- 3. Slides con sufijo de familia (FN, FE, FNx2, FEx2) -->
           <button 
             type="button" 
             class="crumb-nav-btn ${!isFamilyPicker ? 'crumb-active-pill' : 'crumb-nav-link'}" 
@@ -1185,15 +1181,9 @@ function attachRepertorioEvents() {
     });
   });
 
-  // Breadcrumb: Navegación a Repertorio
+  // Breadcrumb: Navegación a Repertorio (Redirección al selector de familias)
   document.getElementById('crumb-nav-repertorio')?.addEventListener('click', (e) => {
     e.preventDefault();
-    repertorioState.viewMode = 'family-picker';
-    renderRepertorioView();
-  });
-
-  // Breadcrumb: Navegación a Familias
-  document.getElementById('crumb-link-familias')?.addEventListener('click', () => {
     repertorioState.viewMode = 'family-picker';
     renderRepertorioView();
   });

@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.10 (BREADCRUMB RECURSOS COMERCIALES / REPERTORIO / FAMILIAS / SLIDES)
+// QZ-HUB SERVICE WORKER — v3.3.11 (CLEAN BREADCRUMB: RECURSOS COMERCIALES / REPERTORIO / SLIDES)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.10-breadcrumb-hierarchy-commercial-repertorio';
+const CACHE_NAME = 'qz-hub-v3.3.11-clean-breadcrumb-repertorio-redirection';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
