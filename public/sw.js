@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.8 (ZERO EMOJIS - PURE SVG FAMILY CARDS)
+// QZ-HUB SERVICE WORKER — v3.3.9 (ISOLATED SPREADS, KEYBOARD/SWIPE, EDITORIAL COVER)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.8-zero-emojis-svg-family-cards';
+const CACHE_NAME = 'qz-hub-v3.3.9-isolated-spreads-touch-pc-editorial-cover';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

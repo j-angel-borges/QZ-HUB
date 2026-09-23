@@ -201,7 +201,7 @@ export const REPERTORIO_DATA = {
       grandparentsCount: 0,
       totalMembers: 3,
       familyPhotoImg: '/assets/repertorio/family_nuclear_1h.png',
-      coverImg: '/assets/repertorio/magazine_cover.png',
+      coverImg: '/assets/repertorio/portada_zentry_magazine.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'El hijo centraliza la atención formativa del hogar. Sus dos dispositivos de uso cotidiano se integran de forma simbiótica, mientras que papá y mamá monitorean hábitos desde sus teléfonos y computadoras.'
     },
@@ -218,7 +218,7 @@ export const REPERTORIO_DATA = {
       grandparentsCount: 3,
       totalMembers: 6,
       familyPhotoImg: '/assets/repertorio/family_extensa_1h.png',
-      coverImg: '/assets/repertorio/magazine_cover.png',
+      coverImg: '/assets/repertorio/portada_zentry_magazine.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'La coexistencia de tres generaciones en el hogar exige armonía acústica y cuidado médico silencioso. Los anillos y pulseras inteligentes velan por el descanso de los abuelos y la concentración del menor.'
     },
@@ -235,7 +235,7 @@ export const REPERTORIO_DATA = {
       grandparentsCount: 0,
       totalMembers: 4,
       familyPhotoImg: '/assets/repertorio/family_nuclear_2h.png',
-      coverImg: '/assets/repertorio/magazine_cover.png',
+      coverImg: '/assets/repertorio/portada_zentry_magazine.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'Dos hijos representan mundos cognitivos diferentes. Cada uno dispone de su tablet y wearable calibrados individualmente, evitando disputas y garantizando que el tiempo de ocio no canibalice el estudio.'
     },
@@ -252,7 +252,7 @@ export const REPERTORIO_DATA = {
       grandparentsCount: 3,
       totalMembers: 7,
       familyPhotoImg: '/assets/repertorio/family_extensa_2h.png',
-      coverImg: '/assets/repertorio/magazine_cover.png',
+      coverImg: '/assets/repertorio/portada_zentry_magazine.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'El hogar en su máxima expresión. Múltiples zonas acústicas, monitoreo biométrico preventivo para los adultos mayores y un ecosistema pedagógico robusto para ambos hermanos.'
     }
@@ -751,21 +751,10 @@ function renderMagazineExperience() {
       
       <!-- Contenedor del Libro Magazine (Doble Página) -->
       <div class="magazine-viewport" id="magazine-viewport">
-        
-        <!-- Flecha Navegación Izquierda -->
-        <button type="button" class="magazine-nav-arrow arrow-left" id="btn-spread-prev" ${activeSpread <= 1 ? 'disabled' : ''} aria-label="Página anterior">
-          ‹
-        </button>
-
-        <!-- El Spread Activo -->
+        <!-- El Spread Activo (Fijo y aislado) -->
         <div class="magazine-spread" id="magazine-active-spread">
           ${renderSpreadContent(activeSpread, currentFam)}
         </div>
-
-        <!-- Flecha Navegación Derecha -->
-        <button type="button" class="magazine-nav-arrow arrow-right" id="btn-spread-next" ${activeSpread >= 5 ? 'disabled' : ''} aria-label="Página siguiente">
-          ›
-        </button>
       </div>
 
       <!-- Barra Inferior de Navegación & Thumbnails del Magazine -->
@@ -822,18 +811,18 @@ function renderSpreadContent(spreadNum, family) {
 }
 
 /**
- * Spread 1: Portada & Manifiesto Familiar (Págs 01-02)
+ * Spread 1: Portada & Diagnóstico de Implementación (Págs 01-02)
  */
 function renderSpread01Cover(family) {
   return `
     <div class="spread-page spread-page-left cover-page-left">
       <div class="editorial-image-container">
-        <img src="${family.coverImg}" alt="Zentry Home Lifestyle" class="editorial-img" onerror="this.src='/assets/repertorio/magazine_cover.png'"/>
+        <img src="${family.coverImg || '/assets/repertorio/portada_zentry_magazine.png'}" alt="Zentry Home Architecture" class="editorial-img" onerror="this.src='/assets/repertorio/portada_zentry_magazine.png'"/>
         <div class="editorial-image-overlay">
           <div class="overlay-caption">
-            <span class="caption-tag">ARQUITECTURA DE HOGAR</span>
-            <h4>ZENTRY HABITATS • VOL. 2026</h4>
-            <p>Espacios libres de fricción algorítmica para la evolución del clan.</p>
+            <span class="caption-tag">EDICIÓN EJECUTIVA</span>
+            <h4>ZENTRY HABITATS</h4>
+            <p>Ecosistema tecnológico y parental para el hogar moderno.</p>
           </div>
         </div>
       </div>
@@ -841,24 +830,27 @@ function renderSpread01Cover(family) {
 
     <div class="spread-page spread-page-right cover-page-right">
       <div class="magazine-content-col">
-        <div class="page-number-top">PÁG. 02 // CASO FAMILIAR: ${family.badge.toUpperCase()}</div>
+        <div class="page-number-top">PÁG. 02 // CONFIGURACIÓN: ${family.name.toUpperCase()}</div>
         
-        <span class="magazine-kicker">MANIFIESTO EDITORIAL</span>
-        <h1 class="magazine-main-title">EL VALOR SAGRADO DEL TIEMPO EN FAMILIA</h1>
-        
-        <div class="magazine-lead-paragraph">
-          "Diseñamos un entorno donde la atención y curiosidad creadora de tus hijos sigan siendo soberanas."
-        </div>
+        <h1 class="magazine-main-title">ARQUITECTURA DE ECOSISTEMA EN EL HOGAR</h1>
 
         <div class="family-diagnosis-box">
           <div class="diagnosis-header">
-            <span class="diagnosis-icon">🧬</span>
+            <span class="diagnosis-icon-svg" style="color: #533b87; display: flex; align-items: center;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </span>
             <div>
-              <h4 style="margin: 0; color: #0f172a; font-size: 15px;">Diagnóstico: ${family.name}</h4>
-              <span style="font-size: 12px; color: #533b87; font-weight: 600;">${family.membersLabel}</span>
+              <h4 style="margin: 0; color: #0f172a; font-size: 15px;">Diagnóstico de Implementación</h4>
+              <span style="font-size: 12px; color: #533b87; font-weight: 700;">${family.name}</span>
             </div>
           </div>
           <div class="diagnosis-stats-row">
+            <div class="stat-item">
+              <span class="stat-num">${family.childrenCount === 1 ? '1' : '2'}</span>
+              <span class="stat-lbl">Usuario(s) Principal(es)</span>
+            </div>
             <div class="stat-item">
               <span class="stat-num">${family.childrenCount * 2}</span>
               <span class="stat-lbl">Dispositivos a Implementar</span>
@@ -1186,56 +1178,139 @@ function attachRepertorioEvents() {
     });
   });
 
-  // Navegación de Spreads (Prev / Next)
-  document.getElementById('btn-spread-prev')?.addEventListener('click', () => {
-    if (repertorioState.currentSpread > 1) {
-      repertorioState.currentSpread--;
-      renderRepertorioView();
-    }
-  });
+  // Navegación aislada de Spreads (Solo actualiza el recuadro central de la presentación)
+  function navigateToSpread(targetSpread) {
+    if (targetSpread < 1 || targetSpread > 5) return;
+    repertorioState.currentSpread = targetSpread;
 
-  document.getElementById('btn-spread-next')?.addEventListener('click', () => {
-    if (repertorioState.currentSpread < 5) {
-      repertorioState.currentSpread++;
+    const currentFam = REPERTORIO_DATA.families[repertorioState.selectedFamily];
+    const activeSpreadEl = document.getElementById('magazine-active-spread');
+    if (activeSpreadEl) {
+      activeSpreadEl.style.opacity = '0';
+      activeSpreadEl.style.transform = 'translateY(4px)';
+      setTimeout(() => {
+        activeSpreadEl.innerHTML = renderSpreadContent(targetSpread, currentFam);
+        activeSpreadEl.style.opacity = '1';
+        activeSpreadEl.style.transform = 'translateY(0)';
+        attachSpreadInnerEvents(activeSpreadEl);
+      }, 90);
+    } else {
       renderRepertorioView();
+      return;
     }
-  });
 
-  // Botones de acción directa en spreads
-  root.querySelectorAll('.btn-next-spread-action').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const target = parseInt(e.currentTarget.dataset.targetSpread, 10);
-      if (target) {
-        repertorioState.currentSpread = target;
-        renderRepertorioView();
+    // Actualizar indicador de página en el footer
+    const counterNumbersEl = root.querySelector('.magazine-page-counter .counter-numbers');
+    if (counterNumbersEl) {
+      counterNumbersEl.innerHTML = `<strong>0${targetSpread}</strong> / 05`;
+    }
+
+    // Actualizar thumbnails activos en el footer
+    root.querySelectorAll('.magazine-thumb-btn').forEach(btn => {
+      const num = parseInt(btn.dataset.spreadNum, 10);
+      if (num === targetSpread) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
       }
     });
-  });
+  }
 
-  // Thumbnails de spreads
+  function attachSpreadInnerEvents(container) {
+    if (!container) return;
+
+    // Botones de acción directa para avanzar de spread (ej. en la portada)
+    container.querySelectorAll('.btn-next-spread-action').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = parseInt(e.currentTarget.dataset.targetSpread, 10);
+        if (target) navigateToSpread(target);
+      });
+    });
+
+    // Elegir Set para Cotización
+    container.querySelectorAll('.btn-choose-set').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        repertorioState.selectedSetTier = e.currentTarget.dataset.setKey;
+        openQuoteModal();
+      });
+    });
+
+    // Compartir Propuesta rápida
+    container.querySelectorAll('.btn-share-quote').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        repertorioState.selectedSetTier = e.currentTarget.dataset.setKey;
+        const totals = calculateSetTotals(repertorioState.selectedFamily, repertorioState.selectedSetTier);
+        copyQuoteToWhatsApp(totals);
+      });
+    });
+  }
+
+  // Vincular eventos internos del spread inicial
+  const activeSpreadEl = document.getElementById('magazine-active-spread');
+  if (activeSpreadEl) {
+    attachSpreadInnerEvents(activeSpreadEl);
+  }
+
+  // Thumbnails de spreads usan navigateToSpread
   root.querySelectorAll('.magazine-thumb-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      repertorioState.currentSpread = parseInt(e.currentTarget.dataset.spreadNum, 10);
-      renderRepertorioView();
+      const target = parseInt(e.currentTarget.dataset.spreadNum, 10);
+      if (target) navigateToSpread(target);
     });
   });
 
-  // Elegir Set para Cotización
-  root.querySelectorAll('.btn-choose-set').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      repertorioState.selectedSetTier = e.currentTarget.dataset.setKey;
-      openQuoteModal();
-    });
-  });
+  // Navegación por teclado en PC (Flechas Izquierda / Derecha / Arriba / Abajo)
+  if (!window._repertorioKeyHandlerAttached) {
+    window.addEventListener('keydown', (e) => {
+      if (repertorioState.viewMode !== 'magazine') return;
+      if (document.getElementById('repertorio-quote-modal')) return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
-  // Compartir Propuesta rápida
-  root.querySelectorAll('.btn-share-quote').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      repertorioState.selectedSetTier = e.currentTarget.dataset.setKey;
-      const totals = calculateSetTotals(repertorioState.selectedFamily, repertorioState.selectedSetTier);
-      copyQuoteToWhatsApp(totals);
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        navigateToSpread(repertorioState.currentSpread + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        navigateToSpread(repertorioState.currentSpread - 1);
+      }
     });
-  });
+    window._repertorioKeyHandlerAttached = true;
+  }
+
+  // Gestos de Deslizar (Swipe) para Tablets y Smartphones
+  const viewport = document.getElementById('magazine-viewport');
+  if (viewport) {
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    viewport.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', (e) => {
+      if (!touchStartX || !e.changedTouches || e.changedTouches.length === 0) return;
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+      const diffX = touchEndX - touchStartX;
+      const diffY = touchEndY - touchStartY;
+
+      // Umbral mínimo de 40px y predominancia horizontal
+      if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX < 0) {
+          // Deslizar hacia la izquierda -> avanzar spread siguiente
+          navigateToSpread(repertorioState.currentSpread + 1);
+        } else {
+          // Deslizar hacia la derecha -> volver al spread anterior
+          navigateToSpread(repertorioState.currentSpread - 1);
+        }
+      }
+      touchStartX = 0;
+      touchStartY = 0;
+    }, { passive: true });
+  }
 
   // Botón Abrir Modal Cotización
   document.getElementById('btn-open-quote-modal')?.addEventListener('click', () => {

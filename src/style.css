@@ -9998,7 +9998,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   overflow: hidden;
 }
 
-/* Viewport Encapsulado del Magazine */
+/* Viewport Encapsulado del Magazine (Sin flechas laterales, lienzo 100% aprovechado) */
 .magazine-viewport {
   position: relative;
   display: flex;
@@ -10008,48 +10008,12 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   flex: 1 1 auto;
   min-height: 0;
   box-sizing: border-box;
-  padding: 0 48px; /* Margen para las flechas laterales de navegación */
+  padding: 0;
+  touch-action: pan-y;
 }
 
 .magazine-nav-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  color: #0f172a;
-  font-size: 22px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 20;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
-}
-
-.magazine-nav-arrow:hover:not(:disabled) {
-  background: #533b87;
-  color: #ffffff;
-  border-color: #533b87;
-  transform: translateY(-50%) scale(1.06);
-}
-
-.magazine-nav-arrow:disabled {
-  opacity: 0.2;
-  cursor: not-allowed;
-}
-
-.magazine-nav-arrow.arrow-left {
-  left: 0;
-}
-
-.magazine-nav-arrow.arrow-right {
-  right: 0;
+  display: none !important;
 }
 
 /* El Slide Card Principal (Grid 50% / 50% Contenido) - Ocupa el 100% del Lienzo Vertical (Recuadro Verde) */
@@ -10063,6 +10027,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   max-height: 100%;
   background: #ffffff;
   border-radius: 18px;
+  transition: opacity 0.15s ease, transform 0.15s ease;
   border: 1px solid rgba(15, 23, 42, 0.08);
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
   padding: 16px 24px;
