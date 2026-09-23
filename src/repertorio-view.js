@@ -201,7 +201,7 @@ export const REPERTORIO_DATA = {
       grandparentsCount: 0,
       totalMembers: 3,
       familyPhotoImg: '/assets/repertorio/family_nuclear_1h.png',
-      coverImg: '/assets/repertorio/portada_zentry_magazine.png',
+      coverImg: '/assets/repertorio/portada_nuclear_1h.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'El hijo centraliza la atención formativa del hogar. Sus dos dispositivos de uso cotidiano se integran de forma simbiótica, mientras que papá y mamá monitorean hábitos desde sus teléfonos y computadoras.'
     },
@@ -218,7 +218,7 @@ export const REPERTORIO_DATA = {
       grandparentsCount: 3,
       totalMembers: 6,
       familyPhotoImg: '/assets/repertorio/family_extensa_1h.png',
-      coverImg: '/assets/repertorio/portada_zentry_magazine.png',
+      coverImg: '/assets/repertorio/portada_extensa_1h.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'La coexistencia de tres generaciones en el hogar exige armonía acústica y cuidado médico silencioso. Los anillos y pulseras inteligentes velan por el descanso de los abuelos y la concentración del menor.'
     },
@@ -235,7 +235,7 @@ export const REPERTORIO_DATA = {
       grandparentsCount: 0,
       totalMembers: 4,
       familyPhotoImg: '/assets/repertorio/family_nuclear_2h.png',
-      coverImg: '/assets/repertorio/portada_zentry_magazine.png',
+      coverImg: '/assets/repertorio/portada_nuclear_2h.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'Dos hijos representan mundos cognitivos diferentes. Cada uno dispone de su tablet y wearable calibrados individualmente, evitando disputas y garantizando que el tiempo de ocio no canibalice el estudio.'
     },
@@ -252,7 +252,7 @@ export const REPERTORIO_DATA = {
       grandparentsCount: 3,
       totalMembers: 7,
       familyPhotoImg: '/assets/repertorio/family_extensa_2h.png',
-      coverImg: '/assets/repertorio/portada_zentry_magazine.png',
+      coverImg: '/assets/repertorio/portada_extensa_2h.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'El hogar en su máxima expresión. Múltiples zonas acústicas, monitoreo biométrico preventivo para los adultos mayores y un ecosistema pedagógico robusto para ambos hermanos.'
     }
@@ -852,7 +852,7 @@ function renderSpread01Cover(family) {
   return `
     <div class="spread-page spread-page-left cover-page-left">
       <div class="editorial-image-container">
-        <img src="${family.coverImg || '/assets/repertorio/portada_zentry_magazine.png'}" alt="Zentry Home Architecture" class="editorial-img" onerror="this.src='/assets/repertorio/portada_zentry_magazine.png'"/>
+        <img src="${family.coverImg || '/assets/repertorio/portada_nuclear_1h.png'}" alt="Zentry Product Architecture" class="editorial-img" onerror="this.src='/assets/repertorio/portada_nuclear_1h.png'"/>
         <div class="editorial-image-overlay">
           <div class="overlay-caption">
             <span class="caption-tag">EDICIÓN EJECUTIVA</span>

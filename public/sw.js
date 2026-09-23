@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.11 (CLEAN BREADCRUMB: RECURSOS COMERCIALES / REPERTORIO / SLIDES)
+// QZ-HUB SERVICE WORKER — v3.3.12 (TABLETOP PRODUCT-SHOT COVERS: NUCLEAR 1H/2H, EXTENSA 1H/2H)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.11-clean-breadcrumb-repertorio-redirection';
+const CACHE_NAME = 'qz-hub-v3.3.12-tabletop-product-shot-covers';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
