@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.13 (GEN-Z-PRODUCTS: ALL 16 SETS REPLACED ACROSS FAMILIES)
+// QZ-HUB SERVICE WORKER — v3.3.14 (STOCK-CONDITIONED SETS: ZERO HALLUCINATIONS / OFFICIAL ADN)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.13-gen-z-products-all-sets';
+const CACHE_NAME = 'qz-hub-v3.3.14-stock-conditioned-sets';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
