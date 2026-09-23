@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.5 (EXPANDED TO FULL AVAILABLE CANVAS SPACE)
+// QZ-HUB SERVICE WORKER — v3.3.7 (VERTICAL FAMILY CARDS & CLEAN TEXT)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.5-fill-canvas-green-box';
+const CACHE_NAME = 'qz-hub-v3.3.7-family-cards-vertical-clean';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

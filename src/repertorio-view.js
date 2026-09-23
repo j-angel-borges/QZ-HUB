@@ -614,10 +614,6 @@ function renderFamilySelectorScreen() {
       <div class="family-screen-hero">
         <span class="hero-kicker">FASE 1: DIAGNÓSTICO FAMILIAR</span>
         <h1 class="hero-headline">Selecciona la Estructura de tu Hogar</h1>
-        <p class="hero-subtext">
-          Cada arquitectura familiar requiere un balance preciso de dispositivos, control parental y cuidado biométrico. 
-          Elige la composición para calibrar el catálogo de sets y la estrategia de implementación a la medida.
-        </p>
       </div>
 
       <div class="family-cards-grid">
@@ -641,12 +637,10 @@ function renderFamilySelectorScreen() {
                 <div class="family-card-members">${membersSubtitle}</div>
               </div>
 
-              <p class="family-card-desc">${fam.description}</p>
-              
               <div class="family-card-specs-grid">
                 <div class="spec-cell">
-                  <span class="spec-cell-bold">${fam.childrenCount} ${fam.childrenCount === 1 ? 'Hijo' : 'Hijos'}</span>
-                  <span class="spec-cell-sub">${fam.childrenCount * 2} Dispositivos</span>
+                  <span class="spec-cell-bold">${fam.childrenCount === 1 ? 'Desde 1 usuario' : 'Desde 2 usuarios'}</span>
+                  <span class="spec-cell-sub">${fam.childrenCount === 1 ? 'Desde 2 dispositivos' : 'Desde 4 dispositivos'}</span>
                 </div>
                 <div class="spec-cell">
                   <span class="spec-cell-bold">Parental Dashboard</span>
@@ -680,12 +674,12 @@ function renderFamilySelectorScreen() {
               </div>
 
               <div class="family-card-price-row">
-                <span class="price-kicker">DESDE ESSENTIAL:</span>
+                <span class="price-kicker">DESDE:</span>
                 <span class="price-amount">${formatMoney(totals.totalUSD, totals.totalPEN)}</span>
               </div>
 
               <button type="button" class="btn btn-select-family-action ${isSelected ? 'is-selected' : ''}" data-family-id="${fam.id}">
-                ${isSelected ? '✓ Seleccionada (Abrir Magazine)' : 'Seleccionar Esta Familia'}
+                ${isSelected ? '✓ Seleccionado' : 'Seleccionar'}
               </button>
             </div>
           `;

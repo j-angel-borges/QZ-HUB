@@ -9753,6 +9753,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
   cursor: pointer;
   box-sizing: border-box;
+  height: 100%;
 }
 
 .family-select-card:hover {
@@ -9856,11 +9857,11 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   color: #64748b;
 }
 
-/* Photo Box / Placeholder con cantidad de integrantes */
+/* Photo Box / Placeholder con cantidad de integrantes (Proporción 1:1 sin recortes) */
 .family-card-photo-box {
   position: relative;
   width: 100%;
-  height: 160px;
+  aspect-ratio: 1 / 1;
   border-radius: 12px;
   overflow: hidden;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
@@ -9876,7 +9877,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 25%;
+  object-position: center center;
   transition: transform 0.4s ease;
 }
 
