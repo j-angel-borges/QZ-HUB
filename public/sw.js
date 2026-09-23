@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.9 (ISOLATED SPREADS, KEYBOARD/SWIPE, EDITORIAL COVER)
+// QZ-HUB SERVICE WORKER — v3.3.10 (BREADCRUMB RECURSOS COMERCIALES / REPERTORIO / FAMILIAS / SLIDES)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.9-isolated-spreads-touch-pc-editorial-cover';
+const CACHE_NAME = 'qz-hub-v3.3.10-breadcrumb-hierarchy-commercial-repertorio';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

@@ -563,26 +563,65 @@ export function renderRepertorioView() {
 }
 
 /**
+ * Retorna el sufijo abreviado oficial para las slides de cada familia (FN, FE, FNx2, FEx2)
+ */
+function getFamilySlideSuffix(famId) {
+  switch (famId) {
+    case 'nuclear_1h':
+      return 'FN';
+    case 'extensa_1h':
+      return 'FE';
+    case 'nuclear_2h':
+      return 'FNx2';
+    case 'extensa_2h':
+      return 'FEx2';
+    default:
+      return 'FN';
+  }
+}
+
+/**
  * Barra superior de navegación y controles de presentación
+ * Estructura de directorio: Recursos Comerciales / Repertorio / Familias / Slides [SUFIJO]
  */
 function renderTopNavBar() {
-  const currentFam = REPERTORIO_DATA.families[repertorioState.selectedFamily];
+  const isFamilyPicker = repertorioState.viewMode === 'family-picker';
+  const slideSuffix = getFamilySlideSuffix(repertorioState.selectedFamily);
 
   return `
     <header class="repertorio-header-bar">
       <div class="repertorio-header-left">
-        <div class="repertorio-breadcrumbs">
-          <a href="#demobook" class="crumb-nav-link">Demobook</a>
+        <nav class="repertorio-breadcrumbs" aria-label="Ruta de navegación">
+          <!-- 1. Recursos Comerciales -->
+          <a href="#demobook" class="crumb-nav-link" title="Ir a Recursos Comerciales">Recursos Comerciales</a>
           <span class="crumb-separator">/</span>
-          <span class="crumb-brand">ZENTRYOS</span>
+
+          <!-- 2. Repertorio -->
+          <a href="#repertorio" class="crumb-nav-link" id="crumb-nav-repertorio" title="Módulo Repertorio">Repertorio</a>
           <span class="crumb-separator">/</span>
-          <span class="crumb-category">OFERTA COMERCIAL</span>
-          <span class="crumb-separator">/</span>
-          <button type="button" class="crumb-family-tag" id="btn-switch-family-modal" title="Cambiar Familia">
-            <span>${currentFam.membersLabel} ${currentFam.name}</span>
-            <span class="crumb-arrow-down">▾</span>
+
+          <!-- 3. Familias -->
+          <button 
+            type="button" 
+            class="crumb-nav-btn ${isFamilyPicker ? 'crumb-active-pill' : 'crumb-nav-link'}" 
+            id="crumb-link-familias" 
+            title="Selector de Familias"
+          >
+            Familias
           </button>
-        </div>
+          <span class="crumb-separator">/</span>
+
+          <!-- 4. Slides con sufijo de familia (FN, FE, FNx2, FEx2) -->
+          <button 
+            type="button" 
+            class="crumb-nav-btn ${!isFamilyPicker ? 'crumb-active-pill' : 'crumb-nav-link'}" 
+            id="crumb-link-slides" 
+            title="Presentación de Slides (${slideSuffix})"
+          >
+            <span>Slides ${slideSuffix}</span>
+            ${!isFamilyPicker ? '<span class="crumb-arrow-down" style="font-size: 10px; margin-left: 2px;">▾</span>' : ''}
+          </button>
+        </nav>
       </div>
 
       <div class="repertorio-header-controls">
@@ -1144,6 +1183,31 @@ function attachRepertorioEvents() {
       repertorioState.currency = e.currentTarget.dataset.currency;
       renderRepertorioView();
     });
+  });
+
+  // Breadcrumb: Navegación a Repertorio
+  document.getElementById('crumb-nav-repertorio')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    repertorioState.viewMode = 'family-picker';
+    renderRepertorioView();
+  });
+
+  // Breadcrumb: Navegación a Familias
+  document.getElementById('crumb-link-familias')?.addEventListener('click', () => {
+    repertorioState.viewMode = 'family-picker';
+    renderRepertorioView();
+  });
+
+  // Breadcrumb: Navegación a Slides [SUFIJO]
+  document.getElementById('crumb-link-slides')?.addEventListener('click', () => {
+    if (repertorioState.viewMode === 'family-picker') {
+      repertorioState.viewMode = 'magazine';
+      repertorioState.currentSpread = 1;
+      renderRepertorioView();
+    } else {
+      repertorioState.viewMode = 'family-picker';
+      renderRepertorioView();
+    }
   });
 
   // Toggle Selector de Familia / Catálogo

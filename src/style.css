@@ -9580,8 +9580,8 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .repertorio-breadcrumbs {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11.5px;
+  gap: 8px;
+  font-size: 12px;
   font-family: var(--font-family-mono);
   color: #64748b;
   flex-wrap: wrap;
@@ -9591,36 +9591,64 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   color: #64748b;
   text-decoration: none;
   font-weight: 600;
-  transition: color 0.2s;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  transition: all 0.2s;
 }
 
 .crumb-nav-link:hover {
   color: #533b87;
+  text-decoration: underline;
 }
 
-.crumb-brand {
-  font-weight: 700;
-  color: #533b87;
-  letter-spacing: 0.5px;
+.crumb-separator {
+  color: #cbd5e1;
+  font-weight: 400;
+  font-size: 11px;
 }
 
-.crumb-family-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(83, 59, 135, 0.08);
-  color: #533b87;
-  border: 1px solid rgba(83, 59, 135, 0.2);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 11.5px;
+.crumb-nav-btn {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
   font-weight: 600;
+  color: #64748b;
   cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
   transition: all 0.2s;
 }
 
-.crumb-family-tag:hover {
-  background: rgba(83, 59, 135, 0.15);
+.crumb-nav-btn:hover {
+  color: #533b87;
+  background: rgba(83, 59, 135, 0.05);
+}
+
+.crumb-active-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #533b87 !important;
+  color: #ffffff !important;
+  border: 1px solid #533b87 !important;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(83, 59, 135, 0.25);
+  transition: all 0.2s;
+}
+
+.crumb-active-pill:hover {
+  background: #6b4fad !important;
+  border-color: #6b4fad !important;
+  transform: translateY(-1px);
 }
 
 .repertorio-header-controls {
