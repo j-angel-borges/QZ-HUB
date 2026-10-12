@@ -107,6 +107,68 @@ initTasks();
 function pushCloudDataDebounced() {
   pushToFirestoreDebounced(state.tasks);
 }
+window.pushCloudDataDebounced = pushCloudDataDebounced;
+
+// Puente bidireccional: Conectar recordatorios de Google Keep con Tablero Personal y Calendario
+window.syncKeepReminderToPersonal = (note) => {
+  if (!note || !note.reminder || !note.reminder.date) return;
+  const taskId = `KEEP-${note.id}`;
+  const existingIdx = state.tasks.findIndex(t => t.id === taskId || t.keepNoteId === note.id);
+  const cleanTitle = (note.title || 'Recordatorio Keep').replace(/\s*\(\d+\)$/, '').trim();
+  const taskDesc = cleanTitle + (note.body ? ` — ${note.body.slice(0, 100)}` : '');
+  const taskData = {
+    id: taskId,
+    keepNoteId: note.id,
+    description: taskDesc,
+    priority: 'Alta',
+    status: 'Pendiente',
+    assignedTo: 'Jose Angel',
+    origin: 'Personal',
+    deadline: {
+      type: 'single',
+      singleDate: note.reminder.date,
+      singleTime: note.reminder.time || '09:00'
+    }
+  };
+
+  if (existingIdx >= 0) {
+    state.tasks[existingIdx] = Object.assign(state.tasks[existingIdx], taskData);
+  } else {
+    state.tasks.push(taskData);
+  }
+  localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks));
+  syncTasks(state.tasks);
+
+  // Timeblocking en Espacio Personal
+  const dateStr = note.reminder.date;
+  const timeKey = note.reminder.time || '09:00';
+  const tbData = getTimeblockData(dateStr);
+  if (!tbData[timeKey]) {
+    tbData[timeKey] = {
+      text: `[Keep] ${cleanTitle}`,
+      details: note.body || '',
+      source: 'keep',
+      completed: false
+    };
+    saveTimeblockData(dateStr, tbData);
+  }
+
+  pushCloudDataDebounced();
+  if (typeof renderBacklogCalendar === 'function') {
+    try { renderBacklogCalendar(); } catch (e) {}
+  }
+};
+
+window.removeKeepReminderFromPersonal = (noteId) => {
+  const taskId = `KEEP-${noteId}`;
+  state.tasks = state.tasks.filter(t => t.id !== taskId && t.keepNoteId !== noteId);
+  localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks));
+  syncTasks(state.tasks);
+  pushCloudDataDebounced();
+  if (typeof renderBacklogCalendar === 'function') {
+    try { renderBacklogCalendar(); } catch (e) {}
+  }
+};
 
 // Bootstrap Firestore on load (pull -> merge -> push -> listen)
 bootstrapFirestoreSync(state.tasks, (cloudData) => {
@@ -4214,8 +4276,8 @@ function renderKanbanCards() {
     }
     // 'global' mode shows ALL tasks from all units
 
-    // 1. Vertical filter
-    if (state.filters.vertical !== 'all') {
+    // 1. Vertical filter (Bypass for personal tasks so Keep reminders always display)
+    if (state.filters.vertical !== 'all' && taskUnit !== 'personal') {
       const v = state.filters.vertical; // 'tec', 'prod', 'mkt'
       if (v === 'tec' && !task.id.startsWith('TEC')) return;
       if (v === 'prod' && !task.id.startsWith('PROD')) return;

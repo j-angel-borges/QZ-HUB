@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.6.0 (KEEP RIGHT SIDEBAR + WORKFLOW NOTE)
+// QZ-HUB SERVICE WORKER — v3.7.0 (KEEP REMINDERS + EDIT LABELS + DUP TITLES)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.6.0-keep-right-sidebar';
+const CACHE_NAME = 'qz-hub-v3.7.0-keep-reminders-labels';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

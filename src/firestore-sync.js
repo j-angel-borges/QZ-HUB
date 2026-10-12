@@ -96,6 +96,10 @@ export function gatherAllLocalData(stateTasks) {
   try { result.keepNotes = JSON.parse(localStorage.getItem('qz_keep_notes') || '[]'); }
   catch (e) { result.keepNotes = []; }
 
+  // 11. Banco de Ideas (Keep Labels)
+  try { result.keepLabels = JSON.parse(localStorage.getItem('qz_keep_labels') || '[]'); }
+  catch (e) { result.keepLabels = []; }
+
   return result;
 }
 
@@ -219,6 +223,11 @@ export function hydrateLocalStorage(data) {
   // Keep Notes
   if (Array.isArray(data.keepNotes) && data.keepNotes.length > 0) {
     localStorage.setItem('qz_keep_notes', JSON.stringify(data.keepNotes));
+  }
+
+  // Keep Labels
+  if (Array.isArray(data.keepLabels) && data.keepLabels.length > 0) {
+    localStorage.setItem('qz_keep_labels', JSON.stringify(data.keepLabels));
   }
 }
 

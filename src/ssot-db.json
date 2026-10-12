@@ -595,7 +595,7 @@
     {
       "assignedTo": "UX/Dev Lead",
       "status": "En curso",
-      "origin": "ZENTRY SPOT (1)",
+      "origin": "Zentry",
       "description": "Diseñar barra de tiempo superpuesta (Timer UI Overlay) en Jetpack Compose",
       "priority": "Alta",
       "id": "TEC-01"
@@ -604,12 +604,12 @@
       "priority": "Alta",
       "status": "En curso",
       "description": "Implementar lógica de límites de tiempo dinámicos basados en ciclo circadiano",
-      "origin": "ZENTRY SPOT (1)",
+      "origin": "Zentry",
       "assignedTo": "Backend Dev",
       "id": "TEC-02"
     },
     {
-      "origin": "ZENTRY SPOT (1)",
+      "origin": "Zentry",
       "id": "TEC-03",
       "priority": "Media",
       "description": "Configurar activaciones automáticas del sistema (Luz Nocturna / Night Mode automático)",
@@ -680,7 +680,7 @@
       "id": "PROD-04"
     },
     {
-      "origin": "ZENTRY Spot (2)",
+      "origin": "Zentry",
       "priority": "Alta",
       "description": "Redactar sección comparativa detallada: \"ZentryOS vs. Control Parental Tradicional\"",
       "id": "MKT-01",
@@ -945,7 +945,7 @@
   "ideas": [
     {
       "title": "ZENTRY SPOT",
-      "fullTitle": "ZENTRY SPOT (1)",
+      "fullTitle": "ZENTRY SPOT",
       "body": "Una idea que tengo de cómo comunicarle al niño o al joven el tiempo en pantalla para entretenimiento y la manera de quizás ilustrárselo podría ser que siempre haya una barra superpuesta que sea un timer y que ese timer le vaya mostrando cuánto tiempo de uso le queda puede ser un timer diario o podría quizá ser un timer en base a etapas del día en la mañana en la tarde y en la noche quizás en la mañana tiene menos tiempo que en la tarde y en la noche tiene un poquito más de tiempo que en la mañana La idea es que esto esté basado en ciencia basado en el ciclo circadiano esa es una cuestión la de la barra superpuesta tipo timer luego también hablando del ciclo circadiano algo súper importante es poder hacer que el sistema operativo de manera automática tenga ciertas activaciones dependiendo del ciclo circadiano Como por ejemplo la luz nocturna que a partir de una hora se aplica la luz nocturna al dispositivo y se quede hasta la noche o mejor dicho hasta las 6 o 7 de la mañana este tipo de configuraciones son solamente dos que se me han ocurrido en el momento sin embargo me gustaría poder ampliar este tipo de configuraciones automáticas muy basadas en el ciclo circadiano y basadas en ciencia basadas en psicología pedagógica y pediátrica",
       "category": "02-arquitectura-tecnica y 01-vision-y-producto",
       "tasks": [
@@ -956,8 +956,8 @@
       ]
     },
     {
-      "title": "ZENTRY Spot",
-      "fullTitle": "ZENTRY Spot (2)",
+      "title": "ZENTRY SPOT",
+      "fullTitle": "ZENTRY SPOT",
       "body": "En cuanto a feedback o a otras hipótesis a validar están la información que puede tener el nicho al que apuntamos sobre herramientas de control parental Y lograr hacer que se extinga notoriamente un control parental convencional a un sistema operativo como ZENTRY y a la gente me ha hablado de controles parentales que le permiten apagar el celular a distancia limitar el uso las horas, entonces hay que aterrizar enormemente la distinción entre uno y otro",
       "category": "03-marketing-y-ventas (Manejo de Objeciones)",
       "tasks": [
@@ -967,7 +967,7 @@
     },
     {
       "title": "ZENTRY SPOT",
-      "fullTitle": "ZENTRY SPOT (3)",
+      "fullTitle": "ZENTRY SPOT",
       "body": "Una cuestión que hay que mapear es la posibilidad de crear algún producto para bebés con un ticket menor No sabría específicamente cuál sería la solución pero que esté como parte de la oferta",
       "category": "01-vision-y-producto y 03-marketing-y-ventas (Estructura de Precios)",
       "tasks": [
@@ -976,7 +976,7 @@
     },
     {
       "title": "ZENTRY SPOT",
-      "fullTitle": "ZENTRY SPOT (4)",
+      "fullTitle": "ZENTRY SPOT",
       "body": "Una mamá me dijo que el YouTube se puede configurar para la edad del niño dependiendo de su edad lo que aparece Entonces el sistema operativo también debería ser capaz de configurarse y adaptarse a la edad e intereses iniciales del niño y eso también es una buena excusa como para dar un espacio de tiempo de implementación y que se vaya rellenando el formulario como para que cuando lo instalen sea mucho más fiel a la personalidad del niño",
       "category": "02-arquitectura-tecnica (Compose / Onboarding) y 01-vision-y-producto",
       "tasks": [
@@ -987,7 +987,7 @@
     },
     {
       "title": "ZENTRY PRECIERRE",
-      "fullTitle": "ZENTRY PRECIERRE (1)",
+      "fullTitle": "ZENTRY PRECIERRE",
       "body": "Entonces esto lo podemos llevar a cuánto cuesta personalizar o adaptar algo a tus necesidades Entonces los sistemas operativos que hay están diseñados para retener tu atención si tú no quieres que sea así tienes que comprar otro o mejorar el que tienes, de la misma manera que si tienes un carro Qué cuesta $10,000 pero te da más problemas Qué beneficios, te toca comprarte un carro del doble o gastar  más en mejorarlo, aterrizando lo más al software si una empresa quiere llevar sus sistemas administrativos en excel y en el entorno de Office a lo mucho le costará $300 al año si lo quiere hacer con un sistema administrativo más avanzado le puede costar hasta $10,000 pero ya siquiera algo ultrapersonalizado y adaptado a sus necesidades le puede costar entre 50k y $100,000",
       "category": "03-marketing-y-ventas (Guiones de Precierre)",
       "tasks": [
@@ -997,7 +997,7 @@
     },
     {
       "title": "ZENTRY PRECIERRE",
-      "fullTitle": "ZENTRY PRECIERRE (2)",
+      "fullTitle": "ZENTRY PRECIERRE",
       "body": "Entonces este precierre es un precierre de construcción de precio basado en el costo de un sistema operativo a largo plazo en la compra de un dispositivo móvil para una familia, Entonces ese costo lo sacamos a través de un juego matemático donde planteamos un escenario que puede ser utilizando el costo de los celulares que usan en casa pueden ser Android o ios en el caso que sea un celular de 2000 soles el juego matemático es decir que el valor de ese dispositivo es 60% está en el hardware y 40% está en el software argumentando que por ejemplo cuál es la diferencia entre un dispositivo ios versus uno Android y en la mayoría de ocasiones lo que hace que la gente compre estos dispositivos no son los materiales físicos sino por el contrario el ecosistema de iOS que es cerrado Entonces el juego matemático en este caso funcionaría así 800 soles corresponderían al costo del celular y hacemos preguntas: ¿Señor (a) __ usted utiliza el mismo celular de hace 10 años? ¿No verdad? ¿Porque iría mucho mas lento verdad? Entonces en los últimos 10 años cuántas veces ha cambiado de celular ? 4-5 veces. Eso quiere decir que si calculamos solo el valor del sistema operativo de esos celulares ¿Estaríamos hablando de que ha destinado más 3000 soles? Y cuántas personas son en casa ? 3-5 (incluyendo hijos) suponiendo eso quiere decir que el dinero que destinan solo in esto puede ascender a más 10000 soles ? Para simplificarlo lo que estaríamos haciendo es hablar en términos generales tanto de lo que han gastado en el pasado como lo que están gastando en el presente y lo que gastarán en el futuro cercano. Pero ojo ! Le recuerdo que eso es solo el sistema operativo incluyendo el celular podríamos estar hablando de más de 20000 soles. Sin embargo ese sistema operativo que usted está utilizando todos los días todos estos estos años está diseñado para dañar cognitivamente, ese sistema y sus algoritmos consideran ustedes que ha sido una inversión O un gasto ? Entonces si por ese mismo valor 10 000 usted pudiera tener un sistema operativo que potencie el desarrollo cognitivo de su hijo le permita mejorar su atención y le ayude a tener las herramientas más pertinentes actuales sería una buena inversión para ustedes y para su hijo ? Por la salud y el futuro de su hijo ?\n\nLuego está relación la compramos con el cuerpo humano donde posicionamos el cuerpo como una máquina y el cerebro como la parte inteligente",
       "category": "03-marketing-y-ventas (Venta Directa / Construcción de Precio)",
       "tasks": [
