@@ -6,7 +6,7 @@
 // is synced in realtime across all devices.
 // ==============================================================================
 
-import { db } from './firebase-config.js';
+import { db, firebaseConfig } from './firebase-config.js';
 import {
   doc,
   getDoc,
@@ -17,18 +17,63 @@ import {
 
 // ─── CONFIGURATION ───────────────────────────────────────────────────────────
 const COLLECTION = 'qz_hub_users';
-const USER_DOC_ID = 'master';
 
-// ─── INTERNAL STATE ──────────────────────────────────────────────────────────
+export function getActiveUserId() {
+  if (typeof window !== 'undefined') {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const u = params.get('user') || params.get('u');
+      if (u) return u.trim();
+      const stored = localStorage.getItem('qz_active_user_id');
+      if (stored) return stored.trim();
+    } catch (e) {}
+  }
+  return 'master';
+}
+
+export function setActiveUserId(userId) {
+  if (!userId) return;
+  localStorage.setItem('qz_active_user_id', userId.trim());
+}
+
+// ─── INTERNAL STATE & STATUS ────────────────────────────────────────────────
 let _isListening = false;
 let _isSyncing = false;
 let _debounceTimer = null;
 let _onDataUpdateCallback = null;
 let _unsubscribe = null;
 
+let _syncStatus = {
+  state: 'idle', // 'idle' | 'connecting' | 'synced' | 'syncing' | 'offline' | 'error'
+  message: 'Iniciando conexión...',
+  lastSyncTime: null
+};
+const _statusListeners = new Set();
+
+export function onSyncStatusChange(fn) {
+  _statusListeners.add(fn);
+  try { fn(_syncStatus); } catch (e) {}
+  return () => _statusListeners.delete(fn);
+}
+
+export function getSyncStatus() {
+  return _syncStatus;
+}
+
+export function notifySyncStatus(state, message) {
+  _syncStatus = {
+    state,
+    message,
+    lastSyncTime: state === 'synced' ? new Date().toISOString() : _syncStatus.lastSyncTime
+  };
+  _statusListeners.forEach(fn => {
+    try { fn(_syncStatus); } catch (e) { console.error(e); }
+  });
+}
+
 // ─── DOCUMENT REFERENCE ─────────────────────────────────────────────────────
 function masterDocRef() {
-  return doc(db, COLLECTION, USER_DOC_ID);
+  return doc(db, COLLECTION, getActiveUserId());
 }
 
 // ─── SERIALIZE ALL LOCALSTORAGE INTO A SINGLE OBJECT ─────────────────────────
@@ -44,9 +89,12 @@ export function gatherAllLocalData(stateTasks) {
       })();
   result.tasks = tasks;
 
-  // 2. M.I.T.
-  try { result.mit = JSON.parse(localStorage.getItem('zentry_mit') || '[]'); }
-  catch (e) { result.mit = []; }
+  // 2. M.I.T. (General and by Mode)
+  try { result.mit = JSON.parse(localStorage.getItem('zentry_mit') || '[]'); } catch (e) { result.mit = []; }
+  try { result.mit_personal = JSON.parse(localStorage.getItem('zentry_mit_personal') || 'null'); } catch (e) {}
+  try { result.mit_quarz = JSON.parse(localStorage.getItem('zentry_mit_quarz') || 'null'); } catch (e) {}
+  try { result.mit_zentry = JSON.parse(localStorage.getItem('zentry_mit_zentry') || 'null'); } catch (e) {}
+  try { result.mit_global = JSON.parse(localStorage.getItem('zentry_mit_global') || 'null'); } catch (e) {}
 
   // 3. Corkboard Objectives
   try { result.objectives = JSON.parse(localStorage.getItem('zentry_objectives') || '[]'); }
@@ -60,7 +108,15 @@ export function gatherAllLocalData(stateTasks) {
   try { result.journalHistory = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]'); }
   catch (e) { result.journalHistory = []; }
 
-  // 6. All individual timeblock date keys (zentry_timeblock_YYYY-MM-DD)
+  // 6. Bio-Tracker Gamificado (9 métricas)
+  try { result.bioTracker = JSON.parse(localStorage.getItem('qz_bio_tracker') || '{}'); }
+  catch (e) { result.bioTracker = {}; }
+
+  // 7. Protocols History (Protocolo Pre-Elrow / 30 Días)
+  try { result.protocolsHistory = JSON.parse(localStorage.getItem('qz_bio_protocols_history') || '[]'); }
+  catch (e) { result.protocolsHistory = []; }
+
+  // 8. All individual timeblock date keys (zentry_timeblock_YYYY-MM-DD)
   const timeblocks = {};
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -76,29 +132,14 @@ export function gatherAllLocalData(stateTasks) {
   }
   result.timeblocks = timeblocks;
 
-  // 7. Settings / preferences
+  // 9. Settings / preferences
   result.settings = {
     sidebar_collapsed: localStorage.getItem('sidebar_collapsed') || 'false',
     gcal_gas_url: localStorage.getItem('gcal_gas_url') || '',
     gemini_api_key: localStorage.getItem('gemini_api_key') || '',
-    gemini_model: localStorage.getItem('gemini_model') || 'gemini-2.0-flash',
+    gemini_model: localStorage.getItem('gemini_model') || 'gemini-2.5-flash',
+    gemini_project_id: localStorage.getItem('gemini_project_id') || 'quarz-group'
   };
-
-  // 8. Bio-Tracker
-  try { result.bioTracker = JSON.parse(localStorage.getItem('qz_bio_tracker') || '{}'); }
-  catch (e) { result.bioTracker = {}; }
-
-  // 9. Sprint 3 Días
-  try { result.sprint3Dias = JSON.parse(localStorage.getItem('qz_sprint_3dias') || '{}'); }
-  catch (e) { result.sprint3Dias = {}; }
-
-  // 10. Banco de Ideas (Keep Notes)
-  try { result.keepNotes = JSON.parse(localStorage.getItem('qz_keep_notes') || '[]'); }
-  catch (e) { result.keepNotes = []; }
-
-  // 11. Banco de Ideas (Keep Labels)
-  try { result.keepLabels = JSON.parse(localStorage.getItem('qz_keep_labels') || '[]'); }
-  catch (e) { result.keepLabels = []; }
 
   return result;
 }
@@ -107,6 +148,7 @@ export function gatherAllLocalData(stateTasks) {
 export async function pushAllToFirestore(stateTasks) {
   if (_isSyncing) return false;
   _isSyncing = true;
+  notifySyncStatus('syncing', 'Guardando cambios en GCP Firestore...');
 
   try {
     const allData = gatherAllLocalData(stateTasks);
@@ -119,9 +161,11 @@ export async function pushAllToFirestore(stateTasks) {
       timeblockDates: Object.keys(allData.timeblocks).length,
       journalEntries: allData.journalHistory.length
     });
+    notifySyncStatus('synced', `Guardado en GCP (${new Date().toLocaleTimeString()})`);
     return allData;
   } catch (err) {
     console.error('🔥 QZ Hub → Firestore push error:', err);
+    notifySyncStatus('error', 'Error al sincronizar con GCP');
     throw err;
   } finally {
     _isSyncing = false;
@@ -136,22 +180,93 @@ export function pushToFirestoreDebounced(stateTasks) {
   }, 800);
 }
 
-// ─── PULL FROM FIRESTORE AND HYDRATE LOCALSTORAGE ────────────────────────────
-export async function pullFromFirestore() {
+// ─── DECODE FIRESTORE REST FORMAT TO PLAIN JAVASCRIPT OBJECT ────────────────
+function decodeFirestoreValue(val) {
+  if (!val) return null;
+  if ('stringValue' in val) return val.stringValue;
+  if ('booleanValue' in val) return val.booleanValue;
+  if ('integerValue' in val) return parseInt(val.integerValue, 10);
+  if ('doubleValue' in val) return parseFloat(val.doubleValue);
+  if ('timestampValue' in val) return val.timestampValue;
+  if ('nullValue' in val) return null;
+  if ('arrayValue' in val) return (val.arrayValue.values || []).map(decodeFirestoreValue);
+  if ('mapValue' in val) {
+    const res = {};
+    for (const [k, v] of Object.entries(val.mapValue.fields || {})) {
+      res[k] = decodeFirestoreValue(v);
+    }
+    return res;
+  }
+  return val;
+}
+
+// ─── REST-BASED CLOUD DATA PULL (IMMUNE TO BROWSER SHIELDS / WEBSOCKET BLOCKS)
+export async function pullFromFirestoreREST() {
   try {
-    const snap = await getDoc(masterDocRef());
-    if (!snap.exists()) {
-      console.log('🔥 QZ Hub ← Firestore: No cloud data yet.');
+    const userId = getActiveUserId();
+    const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/${COLLECTION}/${userId}?key=${firebaseConfig.apiKey}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      console.warn(`🔥 Firestore REST fetch returned HTTP ${res.status}`);
       return null;
     }
+    const json = await res.json();
+    if (!json.fields) return null;
 
-    const data = snap.data();
+    const data = {};
+    for (const [k, v] of Object.entries(json.fields)) {
+      data[k] = decodeFirestoreValue(v);
+    }
+    console.log('⚡ QZ Hub ← Firestore REST: Ultra-fast sync successful', {
+      tasks: data.tasks?.length || 0,
+      timeblockDates: Object.keys(data.timeblocks || {}).length
+    });
     hydrateLocalStorage(data);
     return data;
   } catch (err) {
-    console.error('🔥 QZ Hub ← Firestore pull error:', err);
-    throw err;
+    console.warn('🔥 Firestore REST pull fallback caught error:', err);
+    return null;
   }
+}
+
+// ─── HYBRID CLOUD DATA PULL: SDK WITH FAST REST FALLBACK ─────────────────────
+export async function pullFromFirestore() {
+  // 1. Race Firestore SDK against a 2000ms timeout
+  const sdkPromise = getDoc(masterDocRef()).then(snap => {
+    if (!snap.exists()) return null;
+    const data = snap.data();
+    hydrateLocalStorage(data);
+    return data;
+  });
+
+  const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve('__TIMEOUT__'), 2000));
+
+  try {
+    const result = await Promise.race([sdkPromise, timeoutPromise]);
+    if (result !== '__TIMEOUT__' && result !== null) {
+      return result;
+    }
+  } catch (err) {
+    console.warn('Firestore SDK pull delayed or offline, activating REST fast engine...', err);
+  }
+
+  // 2. Fast REST fallback
+  const restData = await pullFromFirestoreREST();
+  if (restData) {
+    return restData;
+  }
+
+  // 3. Last resort: wait for SDK in case REST had network issues
+  try {
+    const snap = await sdkPromise;
+    if (snap && typeof snap === 'object') {
+      notifySyncStatus('synced', 'Conectado a GCP Firestore');
+      return snap;
+    }
+  } catch(e) {}
+
+  notifySyncStatus('offline', 'Modo sin conexión');
+  return null;
 }
 
 // ─── HYDRATE LOCALSTORAGE FROM FIRESTORE DATA ────────────────────────────────
@@ -166,6 +281,28 @@ export function hydrateLocalStorage(data) {
   // M.I.T.
   if (Array.isArray(data.mit) && data.mit.length > 0) {
     localStorage.setItem('zentry_mit', JSON.stringify(data.mit));
+  }
+  if (Array.isArray(data.mit_personal)) {
+    localStorage.setItem('zentry_mit_personal', JSON.stringify(data.mit_personal));
+  }
+  if (Array.isArray(data.mit_quarz)) {
+    localStorage.setItem('zentry_mit_quarz', JSON.stringify(data.mit_quarz));
+  }
+  if (Array.isArray(data.mit_zentry)) {
+    localStorage.setItem('zentry_mit_zentry', JSON.stringify(data.mit_zentry));
+  }
+  if (Array.isArray(data.mit_global)) {
+    localStorage.setItem('zentry_mit_global', JSON.stringify(data.mit_global));
+  }
+
+  // Bio-Tracker
+  if (data.bioTracker && typeof data.bioTracker === 'object' && Object.keys(data.bioTracker).length > 0) {
+    localStorage.setItem('qz_bio_tracker', JSON.stringify(data.bioTracker));
+  }
+
+  // Protocols History (Protocolo Pre-Elrow / 30 Días)
+  if (Array.isArray(data.protocolsHistory) && data.protocolsHistory.length > 0) {
+    localStorage.setItem('qz_bio_protocols_history', JSON.stringify(data.protocolsHistory));
   }
 
   // Corkboard Objectives
@@ -189,13 +326,11 @@ export function hydrateLocalStorage(data) {
     }
   }
 
-  // Individual Timeblocks per date
+  // Individual Timeblocks per date (Cloud authoritative hydration across devices)
   if (data.timeblocks && typeof data.timeblocks === 'object') {
     for (const [dateStr, blocks] of Object.entries(data.timeblocks)) {
-      if (blocks && Object.keys(blocks).length > 0) {
-        const localBlocks = JSON.parse(localStorage.getItem(`zentry_timeblock_${dateStr}`) || '{}');
-        const merged = Object.assign({}, blocks, localBlocks);
-        localStorage.setItem(`zentry_timeblock_${dateStr}`, JSON.stringify(merged));
+      if (blocks && typeof blocks === 'object' && Object.keys(blocks).length > 0) {
+        localStorage.setItem(`zentry_timeblock_${dateStr}`, JSON.stringify(blocks));
       }
     }
   }
@@ -206,28 +341,7 @@ export function hydrateLocalStorage(data) {
     if (data.settings.gcal_gas_url) localStorage.setItem('gcal_gas_url', data.settings.gcal_gas_url);
     if (data.settings.gemini_api_key) localStorage.setItem('gemini_api_key', data.settings.gemini_api_key);
     if (data.settings.gemini_model) localStorage.setItem('gemini_model', data.settings.gemini_model);
-  }
-
-  // Bio-Tracker
-  if (data.bioTracker && typeof data.bioTracker === 'object' && Object.keys(data.bioTracker).length > 0) {
-    const localBt = JSON.parse(localStorage.getItem('qz_bio_tracker') || '{}');
-    const mergedBt = Object.assign({}, data.bioTracker, localBt);
-    localStorage.setItem('qz_bio_tracker', JSON.stringify(mergedBt));
-  }
-
-  // Sprint 3 Días
-  if (data.sprint3Dias && typeof data.sprint3Dias === 'object' && Object.keys(data.sprint3Dias).length > 0) {
-    localStorage.setItem('qz_sprint_3dias', JSON.stringify(data.sprint3Dias));
-  }
-
-  // Keep Notes
-  if (Array.isArray(data.keepNotes) && data.keepNotes.length > 0) {
-    localStorage.setItem('qz_keep_notes', JSON.stringify(data.keepNotes));
-  }
-
-  // Keep Labels
-  if (Array.isArray(data.keepLabels) && data.keepLabels.length > 0) {
-    localStorage.setItem('qz_keep_labels', JSON.stringify(data.keepLabels));
+    if (data.settings.gemini_project_id) localStorage.setItem('gemini_project_id', data.settings.gemini_project_id);
   }
 }
 
@@ -246,17 +360,20 @@ export function startRealtimeSync(onDataUpdate) {
       }
 
       const data = snap.data();
-      console.log('🔥 QZ Hub ← Firestore Realtime: Synced from another device');
+      console.log('🔥 QZ Hub ← Firestore Realtime: Synced from GCP');
       hydrateLocalStorage(data);
+      notifySyncStatus('synced', `Actualizado desde GCP (${new Date().toLocaleTimeString()})`);
 
       if (_onDataUpdateCallback) {
         _onDataUpdateCallback(data);
       }
     }, (error) => {
       console.error('🔥 Firestore Realtime Listener Error:', error);
+      notifySyncStatus('error', 'Error en escucha en tiempo real');
     });
   } catch (e) {
     console.error('Failed to start Firestore Realtime listener:', e);
+    notifySyncStatus('offline', 'Modo local sin conexión en tiempo real');
   }
 }
 
@@ -269,26 +386,54 @@ export function stopRealtimeSync() {
   _isListening = false;
 }
 
-// ─── INITIAL BOOTSTRAP: PULL → MERGE → PUSH ─────────────────────────────────
+// ─── INITIAL BOOTSTRAP: PULL → HYDRATE → SYNC ──────────────────────────────
 export async function bootstrapFirestoreSync(stateTasks, onDataUpdate) {
   try {
     const cloudData = await pullFromFirestore();
 
-    if (!cloudData) {
-      console.log('🔥 QZ Hub: First-time sync — pushing all local data to Firestore...');
+    if (!cloudData || !cloudData.updatedAt) {
+      console.log('🔥 QZ Hub: Primer arranque sin datos en la nube — subiendo datos locales a GCP Firestore...');
+      notifySyncStatus('syncing', 'Subiendo datos iniciales a GCP Firestore...');
       await pushAllToFirestore(stateTasks);
+      notifySyncStatus('synced', 'Datos sincronizados con GCP Firestore');
     } else {
-      const localTasks = JSON.parse(localStorage.getItem('zentry_tasks') || '[]');
-      const cloudTasks = cloudData.tasks || [];
-      if (localTasks.length > cloudTasks.length) {
-        await pushAllToFirestore(stateTasks);
-      }
+      console.log('🔥 QZ Hub: Datos existentes en GCP Firestore — hidratando almacenamiento local...');
+      hydrateLocalStorage(cloudData);
+      notifySyncStatus('synced', `Sincronizado con GCP (${new Date(cloudData.updatedAt).toLocaleTimeString()})`);
     }
 
     startRealtimeSync(onDataUpdate);
-    console.log('🔥 QZ Hub Firestore: Bootstrap complete — realtime sync active.');
+    console.log('🔥 QZ Hub Firestore: Bootstrap completo — sincronización activa.');
+    if (onDataUpdate && cloudData) {
+      onDataUpdate(cloudData);
+    }
+    return cloudData;
   } catch(e) {
     console.warn('Bootstrap Firestore sync completed with warning:', e);
+    notifySyncStatus('offline', 'Modo sin conexión GCP');
+    return null;
+  }
+}
+
+// ─── FORCE MANUAL SYNC ON DEMAND ─────────────────────────────────────────────
+export async function forceSyncNow(stateTasks, onDataUpdate) {
+  notifySyncStatus('syncing', 'Forzando sincronización con GCP...');
+  try {
+    const cloudData = await pullFromFirestore();
+    if (cloudData && cloudData.updatedAt) {
+      hydrateLocalStorage(cloudData);
+      if (onDataUpdate) onDataUpdate(cloudData);
+      notifySyncStatus('synced', `Sincronizado con éxito (${new Date().toLocaleTimeString()})`);
+      return true;
+    } else {
+      await pushAllToFirestore(stateTasks);
+      notifySyncStatus('synced', `Datos locales respaldados en GCP (${new Date().toLocaleTimeString()})`);
+      return true;
+    }
+  } catch (err) {
+    console.error('Manual force sync failed:', err);
+    notifySyncStatus('error', 'Fallo al sincronizar con GCP');
+    return false;
   }
 }
 
@@ -299,19 +444,53 @@ export async function syncTasks(tasks) {
       tasks: tasks,
       updatedAt: new Date().toISOString()
     });
+    notifySyncStatus('synced', 'Tareas guardadas en GCP');
   } catch (err) {
     await setDoc(masterDocRef(), { tasks, updatedAt: new Date().toISOString() }, { merge: true });
+    notifySyncStatus('synced', 'Tareas guardadas en GCP');
   }
 }
 
-export async function syncMIT(mit) {
+export async function syncMIT(mit, mode = 'quarz') {
   try {
-    await updateDoc(masterDocRef(), {
+    const payload = {
       mit: mit,
       updatedAt: new Date().toISOString()
-    });
+    };
+    if (mode) payload[`mit_${mode}`] = mit;
+    await updateDoc(masterDocRef(), payload);
+    notifySyncStatus('synced', 'M.I.T. guardado en GCP');
   } catch (err) {
-    await setDoc(masterDocRef(), { mit, updatedAt: new Date().toISOString() }, { merge: true });
+    const setPayload = { mit, updatedAt: new Date().toISOString() };
+    if (mode) setPayload[`mit_${mode}`] = mit;
+    await setDoc(masterDocRef(), setPayload, { merge: true });
+    notifySyncStatus('synced', 'M.I.T. guardado en GCP');
+  }
+}
+
+export async function syncHabitTracker(trackerData) {
+  try {
+    await updateDoc(masterDocRef(), {
+      bioTracker: trackerData,
+      updatedAt: new Date().toISOString()
+    });
+    notifySyncStatus('synced', 'Bio-Tracker guardado en GCP');
+  } catch (err) {
+    await setDoc(masterDocRef(), { bioTracker: trackerData, updatedAt: new Date().toISOString() }, { merge: true });
+    notifySyncStatus('synced', 'Bio-Tracker guardado en GCP');
+  }
+}
+
+export async function syncProtocolsHistory(protocols) {
+  try {
+    await updateDoc(masterDocRef(), {
+      protocolsHistory: protocols,
+      updatedAt: new Date().toISOString()
+    });
+    notifySyncStatus('synced', 'Protocolo guardado en GCP');
+  } catch (err) {
+    await setDoc(masterDocRef(), { protocolsHistory: protocols, updatedAt: new Date().toISOString() }, { merge: true });
+    notifySyncStatus('synced', 'Protocolo guardado en GCP');
   }
 }
 
@@ -321,8 +500,10 @@ export async function syncObjectives(objectives) {
       objectives: objectives,
       updatedAt: new Date().toISOString()
     });
+    notifySyncStatus('synced', 'Objetivos guardados en GCP');
   } catch (err) {
     await setDoc(masterDocRef(), { objectives, updatedAt: new Date().toISOString() }, { merge: true });
+    notifySyncStatus('synced', 'Objetivos guardados en GCP');
   }
 }
 
@@ -332,10 +513,12 @@ export async function syncTimeblock(dateStr, blockData) {
     updatePayload[`timeblocks.${dateStr}`] = blockData;
     updatePayload.updatedAt = new Date().toISOString();
     await updateDoc(masterDocRef(), updatePayload);
+    notifySyncStatus('synced', `Timeblocking guardado en GCP (${dateStr})`);
   } catch (err) {
     const setPayload = { timeblocks: {}, updatedAt: new Date().toISOString() };
     setPayload.timeblocks[dateStr] = blockData;
     await setDoc(masterDocRef(), setPayload, { merge: true });
+    notifySyncStatus('synced', `Timeblocking guardado en GCP (${dateStr})`);
   }
 }
 
@@ -345,8 +528,10 @@ export async function syncTimeblockHistory(history) {
       timeblockHistory: history,
       updatedAt: new Date().toISOString()
     });
+    notifySyncStatus('synced', 'Historial Timeblock guardado en GCP');
   } catch (err) {
     await setDoc(masterDocRef(), { timeblockHistory: history, updatedAt: new Date().toISOString() }, { merge: true });
+    notifySyncStatus('synced', 'Historial Timeblock guardado en GCP');
   }
 }
 
@@ -356,8 +541,10 @@ export async function syncJournalHistory(journalHistory) {
       journalHistory: journalHistory,
       updatedAt: new Date().toISOString()
     });
+    notifySyncStatus('synced', 'Journal guardado en GCP');
   } catch (err) {
     await setDoc(masterDocRef(), { journalHistory, updatedAt: new Date().toISOString() }, { merge: true });
+    notifySyncStatus('synced', 'Journal guardado en GCP');
   }
 }
 
@@ -450,14 +637,69 @@ export async function readRemoteArtifact(sessionId, filename) {
 
 
 // ─── GOOGLE CLOUD VERTEX AI / GEMINI DIRECT ENGINE ───────────────────────────
+export const DEFAULT_GCP_PROJECT_ID = 'quarz-group';
+export const DEFAULT_GCP_API_KEY = 'AIzaSyBOyKk7awEgQba7L7j19VAU0pz-5xRxqI0';
+
 export async function callVertexGemini(prompt, systemInstruction = '', model = 'gemini-2.5-flash', apiKey = '') {
-  const key = (apiKey || localStorage.getItem('gemini_api_key') || '').trim();
-  if (!key) {
-    throw new Error("No hay API Key de Google Cloud configurada. Ingresa tu API Key de GCP en la pestaña 'Configuración GCP & Bridge'.");
+  let key = (apiKey || localStorage.getItem('gemini_api_key') || '').trim();
+  let projectId = (localStorage.getItem('gemini_project_id') || '').trim();
+
+  // Auto-migrate legacy or empty project
+  if (!projectId || projectId.startsWith('gen-lang-client') || projectId === 'qz-hub') {
+    projectId = DEFAULT_GCP_PROJECT_ID;
+    localStorage.setItem('gemini_project_id', projectId);
   }
-  
+
+  // Auto-fill default GCP API key if empty
+  if (!key) {
+    key = DEFAULT_GCP_API_KEY;
+    localStorage.setItem('gemini_api_key', key);
+  }
+
   const cleanModel = model || 'gemini-2.5-flash';
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${key}`;
+
+  // 1. First attempt: Serverless backend /api/chat (with server-side GCP Vertex AI & environment keys)
+  try {
+    const backendRes = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(key ? { 'x-api-key': key } : {})
+      },
+      body: JSON.stringify({
+        message: prompt,
+        systemInstruction,
+        model: cleanModel,
+        projectId,
+        apiKey: key
+      })
+    });
+
+    if (backendRes.ok) {
+      const data = await backendRes.json();
+      if (data && data.reply && !data.isConfigWarning) {
+        return data.reply;
+      }
+    }
+  } catch (e) {
+    // Continue to direct call
+  }
+
+  // 2. Direct call: Determine whether it's a Bearer Token (ya29...) or API Key (AIzaSy...)
+  if (!key) {
+    throw new Error("No hay credenciales de Google Cloud configuradas. Ingresa tu Clave o Token en '⚙️ Config GCP' o selecciona '📖 Motor SSOT Local'.");
+  }
+
+  const isBearerToken = key.startsWith('ya29.') || key.length > 80;
+  let endpoint = '';
+  let headers = { 'Content-Type': 'application/json' };
+
+  if (isBearerToken) {
+    endpoint = `https://us-central1-aiplatform.googleapis.com/v1/projects/${projectId}/locations/us-central1/publishers/google/models/${cleanModel}:generateContent`;
+    headers['Authorization'] = `Bearer ${key}`;
+  } else {
+    endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${key}`;
+  }
   
   const payload = {
     contents: [
@@ -476,13 +718,18 @@ export async function callVertexGemini(prompt, systemInstruction = '', model = '
 
   const response = await fetch(endpoint, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: headers,
     body: JSON.stringify(payload)
   });
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error?.message || `HTTP ${response.status}: Error de Google Cloud Vertex AI`);
+    const errMsg = errorData.error?.message || `HTTP ${response.status}: Error en Vertex AI / Google Cloud`;
+    
+    if (errMsg.includes('prepayment') || errorData.error?.code === 429) {
+      throw new Error(`Los créditos de prepago están agotados. Usa el proyecto empresarial 'quarz-group' con Vertex AI o selecciona '📖 Motor SSOT Local'.`);
+    }
+    throw new Error(errMsg);
   }
 
   const data = await response.json();

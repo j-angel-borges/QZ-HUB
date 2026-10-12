@@ -20,7 +20,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
-  <title>QZ-Hub — Operational Cockpit & Second Brain | QUARZ GROUP</title>
+  <title>QZ-Hub</title>
 </head>
 
 <body>
@@ -35,9 +35,9 @@
           <img src="/assets/quarz/QUARZ_3D_Cuarzo_Vertical_QZ-removebg-preview.png" alt="QUARZ GROUP" class="workspace-brand-logo" />
           <div class="workspace-info">
             <span class="workspace-name">QZ-Hub</span>
-            <span class="workspace-role">QUARZ Operational Cockpit</span>
           </div>
         </div>
+        <button id="sidebar-header-toggle" class="sidebar-header-toggle-btn" title="Contraer/Desplegar Barra Lateral">◨</button>
       </div>
 
       <nav class="sidebar-nav">
@@ -53,8 +53,8 @@
             <span class="link-text">Construcciones</span>
           </a>
           <a href="#herramientas" class="nav-link" data-view="herramientas">
-            <span class="link-icon">⚡</span>
-            <span class="link-text">Tools</span>
+            <span class="link-icon">💻</span>
+            <span class="link-text">Terminal AGY</span>
           </a>
         </div>
 
@@ -69,18 +69,18 @@
           </div>
 
           <div class="nav-subsection">
-            <div class="nav-subsection-title">Recursos de Ventas</div>
+            <div class="nav-subsection-title">Recursos</div>
             <a href="#demobook" class="nav-link" data-view="demobook" data-module="zentry">
-              <span class="link-icon">📖</span>
-              <span class="link-text">Demobook</span>
+              <span class="link-icon">💼</span>
+              <span class="link-text">Recursos comerciales</span>
             </a>
-            <a href="#precierres" class="nav-link" data-view="precierres" data-module="zentry">
-              <span class="link-icon">📑</span>
-              <span class="link-text">Pre-Cierres</span>
+            <a href="#accesos" class="nav-link" data-view="accesos" data-module="zentry">
+              <span class="link-icon">🔗</span>
+              <span class="link-text">Accesos</span>
             </a>
             <a href="#prospeccion" class="nav-link" data-view="prospeccion" data-module="zentry">
               <span class="link-icon">🎯</span>
-              <span class="link-text">Prospección</span>
+              <span class="link-text">Gestión comercial</span>
             </a>
           </div>
 
@@ -107,7 +107,10 @@
       </nav>
 
       <div class="sidebar-footer">
-        <span class="footer-status">⚡ QUARZ Sync</span>
+        <button type="button" id="sidebar-sync-btn" class="footer-sync-btn" title="Estado de sincronización GCP">
+          <span id="sidebar-sync-dot" class="sync-indicator-dot"></span>
+          <span class="footer-status" id="sidebar-sync-text">☁️ GCP Conectado</span>
+        </button>
         <span class="footer-version" id="db-generated-date">QZ-Hub v2.0</span>
       </div>
     </aside>
@@ -118,7 +121,13 @@
       <div class="mobile-header-bar">
         <button id="sidebar-toggle-mobile" class="mobile-hamburger-btn" title="Menú QZ-Hub">☰ Menú</button>
         <span class="mobile-app-title">QZ-Hub</span>
-        <button id="pwa-install-btn" class="pwa-install-btn" title="Instalar App QZ-Hub">📱 Instalar PWA</button>
+        <div class="mobile-header-right">
+          <button id="mobile-sync-btn" class="mobile-sync-status-btn" title="Sincronización GCP">
+            <span id="mobile-sync-dot" class="sync-indicator-dot"></span>
+            <span id="mobile-sync-text">GCP</span>
+          </button>
+          <button id="pwa-install-btn" class="pwa-install-btn" title="Instalar App QZ-Hub">📱 Instalar PWA</button>
+        </div>
       </div>
 
       <!-- Sidebar Toggle Button (Desktop) -->
@@ -544,6 +553,54 @@
               </div>
             </div>
 
+            <!-- PROD (Productivo Comercial) -->
+            <div class="tracker-form-card" style="grid-column: 1 / -1;">
+              <div class="t-card-header">
+                <span class="t-badge-code" style="background: #0f172a; color: #fff;">PROD</span>
+                <strong>Métricas Productivas / Comerciales (ZentryOS)</strong>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-prod-pcc-today">Prospecciones Hoy (PCC)</label>
+                  <input type="number" id="cfg-prod-pcc-today" min="0" value="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cfg-prod-pcc-total">Prospecciones Acumuladas</label>
+                  <input type="number" id="cfg-prod-pcc-total" min="0" value="0" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-prod-ll-today">Llamadas Hoy (LL)</label>
+                  <input type="number" id="cfg-prod-ll-today" min="0" value="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cfg-prod-ll-total">Llamadas Acumuladas</label>
+                  <input type="number" id="cfg-prod-ll-total" min="0" value="0" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-prod-demos-today">Demos Hoy (DEMO)</label>
+                  <input type="number" id="cfg-prod-demos-today" min="0" value="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cfg-prod-demos-total">Demos Acumuladas</label>
+                  <input type="number" id="cfg-prod-demos-total" min="0" value="0" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cfg-prod-win-today">Ventas Hoy (WIN)</label>
+                  <input type="number" id="cfg-prod-win-today" min="0" value="0" />
+                </div>
+                <div class="form-group">
+                  <label for="cfg-prod-win-total">Ventas Acumuladas</label>
+                  <input type="number" id="cfg-prod-win-total" min="0" value="0" />
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <div class="modal-actions" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(0,0,0,0.06);">
@@ -554,6 +611,130 @@
             </div>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Premium Journal & Diario Nocturno Modal -->
+  <div id="journal-modal" class="modal-overlay">
+    <div class="modal-content glass-modal journal-modal-content">
+      <div class="modal-header journal-modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 24px;">📖</span>
+          <div>
+            <h2 class="modal-task-id" style="font-size: 18px; margin: 0; color: #0f172a; font-family: 'Space Grotesk', sans-serif;">DIARIO & REFLEXIÓN NOCTURNA</h2>
+            <span style="font-size: 11px; color: #64748b; font-family: 'Inter', sans-serif;">Bitácora de Pensamiento Estratégico y Avances Diarios | QUARZ Sync</span>
+          </div>
+        </div>
+        <button id="journal-modal-close" class="modal-close-btn">&times;</button>
+      </div>
+
+      <div class="journal-modal-body">
+        <!-- Sidebar: Historial & Fechas -->
+        <aside class="journal-sidebar">
+          <div class="journal-sidebar-top">
+            <div class="journal-date-selector-box">
+              <label for="modal-journal-date" class="journal-input-label">📅 Seleccionar Fecha:</label>
+              <input type="date" id="modal-journal-date" class="journal-date-input" />
+            </div>
+            <div class="journal-search-box">
+              <input type="text" id="journal-search-input" placeholder="🔍 Buscar en el historial..." class="journal-search-input" />
+            </div>
+          </div>
+
+          <div class="journal-entries-heading">
+            <span>📚 Entradas Guardadas</span>
+            <span id="journal-total-count" class="journal-count-badge">0</span>
+          </div>
+
+          <div id="modal-journal-history-list" class="journal-history-scroll">
+            <!-- Dynamic entries loaded here -->
+          </div>
+        </aside>
+
+        <!-- Main Content: Editor de Journal -->
+        <main class="journal-editor-main">
+          <div class="journal-editor-header">
+            <div class="journal-current-date-info">
+              <span id="journal-active-date-label" class="journal-active-date">Miércoles, 26 de Agosto de 2026</span>
+              <span id="journal-sync-status" class="journal-sync-status">⚡ Sincronizado en la nube</span>
+            </div>
+            
+            <!-- Quick prompt chips -->
+            <div class="journal-prompt-pills">
+              <button type="button" class="btn-prompt-pill" data-prompt="🎯 Logros del día:&#10;- ">🎯 Logros</button>
+              <button type="button" class="btn-prompt-pill" data-prompt="🧠 Aprendizajes:&#10;- ">🧠 Aprendizajes</button>
+              <button type="button" class="btn-prompt-pill" data-prompt="⚠️ Obstáculos & Soluciones:&#10;- ">⚠️ Obstáculos</button>
+              <button type="button" class="btn-prompt-pill" data-prompt="⚡ Prioridades de mañana:&#10;1. &#10;2. &#10;3. ">⚡ Plan Mañana</button>
+            </div>
+          </div>
+
+          <div class="journal-textarea-container">
+            <textarea id="modal-journal-content" class="journal-textarea" placeholder="Escribe libremente tus reflexiones, decisiones estratégicas, aprendizajes o avances del día..."></textarea>
+          </div>
+
+          <div class="journal-editor-footer">
+            <div class="journal-stats-info">
+              <span id="journal-word-count">0 palabras</span> • <span id="journal-char-count">0 caracteres</span>
+            </div>
+            <div class="journal-actions-group">
+              <button type="button" id="modal-journal-delete-btn" class="btn btn-danger" style="display: none; font-size: 11.5px; padding: 6px 12px;">🗑️ Borrar Día</button>
+              <button type="button" id="modal-journal-save-btn" class="btn btn-primary" style="background: #0f172a; color: white; padding: 7px 18px; font-weight: 600; font-size: 12px; border-radius: 6px; display: flex; align-items: center; gap: 6px;">
+                <span>💾 Guardar Registro</span>
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- GCP Cloud Sync Modal -->
+  <div id="gcp-sync-modal" class="modal-overlay">
+    <div class="modal-content glass-modal gcp-sync-modal-content">
+      <div class="modal-header">
+        <div class="gcp-sync-header-title">
+          <span class="gcp-cloud-icon">☁️</span>
+          <h2>Google Cloud Sync (GCP Firestore)</h2>
+        </div>
+        <button id="gcp-sync-modal-close" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="gcp-sync-status-card">
+          <div class="sync-status-indicator-box">
+            <div id="modal-sync-dot" class="modal-sync-dot"></div>
+            <div>
+              <div id="modal-sync-title" class="modal-sync-title">Sincronizado</div>
+              <div id="modal-sync-subtitle" class="modal-sync-subtitle">Todos los datos sincronizados en la nube</div>
+            </div>
+          </div>
+          <div class="sync-meta-grid">
+            <div class="sync-meta-item">
+              <span class="meta-label">Proyecto GCP:</span>
+              <span class="meta-val">quarz-group</span>
+            </div>
+            <div class="sync-meta-item">
+              <span class="meta-label">Base de Datos:</span>
+              <span class="meta-val">Cloud Firestore (nam5)</span>
+            </div>
+            <div class="sync-meta-item">
+              <span class="meta-label">Colección Central:</span>
+              <span class="meta-val">qz_hub_users/master</span>
+            </div>
+            <div class="sync-meta-item">
+              <span class="meta-label">Última Sincronización:</span>
+              <span id="modal-sync-last-time" class="meta-val">—</span>
+            </div>
+          </div>
+          <div class="sync-actions-box">
+            <button type="button" id="btn-force-sync" class="btn-sync-action">
+              <span>🔄</span> Sincronizar Ahora con GCP
+            </button>
+          </div>
+          <div class="sync-hint-text">
+            💡 Tus cambios en Timeblocking, Tableros Kanban, M.I.T., Bio-Tracker y Journal se transmiten instantáneamente entre tu PC y tu celular.
+          </div>
+        </div>
       </div>
     </div>
   </div>

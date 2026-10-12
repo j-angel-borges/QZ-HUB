@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.8.0 (KEEP FULLWIDTH + COMPLETE ANNOTATIONS TRANSFERRED)
+// QZ-HUB SERVICE WORKER — v3.9.0 (RESTORE ADVANCED BIOTRACKER + PROD + KEEP INTEGRATION)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.8.0-keep-fullwidth-sync';
+const CACHE_NAME = 'qz-hub-v3.9.0-restore-biotracker-keep';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

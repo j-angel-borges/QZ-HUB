@@ -122,26 +122,26 @@ export const REPERTORIO_DATA = {
       tag: 'Formación Parental',
       valuePEN: 385,
       valueUSD: 113.24,
-      description: 'Sesiones personalizadas 1 a 1 para que los padres dominen herramientas de IA aplicada, automatización del hogar y supervisión ética de la tecnología.',
+      description: 'Sesiones personalizadas 1 a 1 para dominar IA, automatización y supervisión parental ética.',
       icon: '🧠'
     },
     {
       id: 'studio_credits',
       title: '100 Créditos de Generación Studio',
-      tag: 'Lanzamiento 15 de Noviembre',
+      tag: 'Lanzamiento 15 Nov',
       valuePEN: 200,
       valueUSD: 58.82,
-      description: 'Créditos para el Studio Parental Dashboard: creación guiada de microaplicaciones educativas personalizadas, imágenes hiperrealistas y videos para los hijos.',
+      description: 'Creación asistida de microapps educativas, imágenes y contenido multimedia para los hijos.',
       icon: '✨'
     },
     {
       id: 'zentry_experience',
-      title: 'Pase Gratis Familiar "Zentry Experience"',
+      title: 'Pase Familiar "Zentry Experience"',
       tag: 'Evento Presencial / Virtual',
       valuePEN: 200,
       valueUSD: 58.82,
-      description: 'Jornada inmersiva para padres e hijos donde mentores asisten y calibran en vivo el uso armónico de Zentry, con dinámicas lúdicas de enfoque.',
-      conversionNote: 'Si no asistes o no canjeas la entrada, los S/ 200 de valor se convierten automáticamente en 100 créditos adicionales de generación.',
+      description: 'Jornada inmersiva para padres e hijos con mentores en vivo y dinámicas lúdicas de enfoque.',
+      conversionNote: 'Convertible automáticamente en 100 créditos adicionales si no asistes al evento.',
       icon: '🎟️'
     }
   ],
@@ -192,13 +192,16 @@ export const REPERTORIO_DATA = {
       id: 'nuclear_1h',
       name: 'Familia Nuclear',
       membersLabel: '2 Padres + 1 Hijo',
-      badge: 'Estructura Clásica',
+      membersSubtitle: '2 Padres • 1 Hijo',
+      badge: 'Estructura Nuclear',
       description: 'Enfocada en proteger y potenciar al único hijo en el hogar, con sincronización total entre ambos padres.',
       defaultImpl: 'individual',
       childrenCount: 1,
       parentsCount: 2,
       grandparentsCount: 0,
-      coverImg: '/assets/repertorio/magazine_cover.png',
+      totalMembers: 3,
+      familyPhotoImg: '/assets/repertorio/family_nuclear_1h.png',
+      coverImg: '/assets/repertorio/portada_nuclear_1h.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'El hijo centraliza la atención formativa del hogar. Sus dos dispositivos de uso cotidiano se integran de forma simbiótica, mientras que papá y mamá monitorean hábitos desde sus teléfonos y computadoras.'
     },
@@ -206,13 +209,16 @@ export const REPERTORIO_DATA = {
       id: 'extensa_1h',
       name: 'Familia Extensa',
       membersLabel: '2 Padres + 1 Hijo + 3 Abuelos',
+      membersSubtitle: '2 Padres • 1 Hijo • 3 Abuelos',
       badge: 'Multigeneracional',
       description: 'Cuidado integral que une el desarrollo pedagógico del niño con el monitoreo de bienestar y salud de los abuelos.',
       defaultImpl: 'individual',
       childrenCount: 1,
       parentsCount: 2,
       grandparentsCount: 3,
-      coverImg: '/assets/repertorio/magazine_cover.png',
+      totalMembers: 6,
+      familyPhotoImg: '/assets/repertorio/family_extensa_1h.png',
+      coverImg: '/assets/repertorio/portada_extensa_1h.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'La coexistencia de tres generaciones en el hogar exige armonía acústica y cuidado médico silencioso. Los anillos y pulseras inteligentes velan por el descanso de los abuelos y la concentración del menor.'
     },
@@ -220,13 +226,16 @@ export const REPERTORIO_DATA = {
       id: 'nuclear_2h',
       name: 'Familia Nuclear x2',
       membersLabel: '2 Padres + 2 Hijos',
+      membersSubtitle: '2 Padres • 2 Hijos',
       badge: 'Hermanos & Rutinas',
       description: 'Equilibrio de pantallas entre hermanos con límites y cronogramas pedagógicos personalizados para cada uno.',
       defaultImpl: 'dual',
       childrenCount: 2,
       parentsCount: 2,
       grandparentsCount: 0,
-      coverImg: '/assets/repertorio/magazine_cover.png',
+      totalMembers: 4,
+      familyPhotoImg: '/assets/repertorio/family_nuclear_2h.png',
+      coverImg: '/assets/repertorio/portada_nuclear_2h.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'Dos hijos representan mundos cognitivos diferentes. Cada uno dispone de su tablet y wearable calibrados individualmente, evitando disputas y garantizando que el tiempo de ocio no canibalice el estudio.'
     },
@@ -234,13 +243,16 @@ export const REPERTORIO_DATA = {
       id: 'extensa_2h',
       name: 'Familia Extensa x2',
       membersLabel: '2 Padres + 2 Hijos + 3 Abuelos',
+      membersSubtitle: '2 Padres • 2 Hijos • 3 Abuelos',
       badge: 'Dinastía Integral',
       description: 'Máxima cobertura tecnológica y biométrica para una casa viva y activa con múltiples generaciones.',
       defaultImpl: 'dual',
       childrenCount: 2,
       parentsCount: 2,
       grandparentsCount: 3,
-      coverImg: '/assets/repertorio/magazine_cover.png',
+      totalMembers: 7,
+      familyPhotoImg: '/assets/repertorio/family_extensa_2h.png',
+      coverImg: '/assets/repertorio/portada_extensa_2h.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'El hogar en su máxima expresión. Múltiples zonas acústicas, monitoreo biométrico preventivo para los adultos mayores y un ecosistema pedagógico robusto para ambos hermanos.'
     }
@@ -255,7 +267,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Esencial',
         tagline: 'El umbral de autonomía y protección digital para el hijo.',
         items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 1 }],
-        image: '/assets/repertorio/set_essential.png',
+        image: '/assets/repertorio/set_nuclear_1h_essential.png',
         highlight: '1 Tab + 1 Band + 1 Ring',
         experience: 'El hijo cuenta con su Smart Tab para estudio activo y su Smart Band para el biorritmo del sueño. Se añade un Smart Ring para uno de los padres o monitoreo biométrico fino.'
       },
@@ -265,7 +277,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Omnipresente',
         tagline: 'Sincronización biométrica para padre, madre e hijo.',
         items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }],
-        image: '/assets/repertorio/set_omni.png',
+        image: '/assets/repertorio/set_nuclear_1h_omni.png',
         highlight: '1 Tab + 1 Band + 2 Rings',
         experience: 'Ambos padres portan el Smart Ring para supervisar salud y estrés en tiempo real, mientras el hijo mantiene su entorno de estudio y monitoreo activo.'
       },
@@ -277,7 +289,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'omni',
         addedItems: [{ code: 'ss', qty: 1 }],
         items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }],
-        image: '/assets/repertorio/set_integral.png',
+        image: '/assets/repertorio/set_nuclear_1h_integral.png',
         highlight: 'OMNI + 1 Smart Sound',
         experience: 'La integración de Smart Sound en la sala o estudio transforma los hábitos: alarmas circadianas, música de alta fidelidad para el foco y rutinas habladas sin pantallas que distraigan.'
       },
@@ -289,7 +301,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'integral',
         addedItems: [{ code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
         items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }, { code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
-        image: '/assets/repertorio/set_fullhouse.png',
+        image: '/assets/repertorio/set_nuclear_1h_fullhouse.png',
         highlight: 'Integral + 1 Smart Watch + 1 Smart Phone',
         experience: 'Control absoluto dentro y fuera de casa. El teléfono seguro con ZentryOS y el Smart Watch permiten comunicación directa protegida ante cualquier estímulo adictivo exterior.'
       }
@@ -302,7 +314,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Esencial',
         tagline: 'Protección infantil y cuidado biométrico para abuelos.',
         items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }],
-        image: '/assets/repertorio/set_essential.png',
+        image: '/assets/repertorio/set_extensa_1h_essential.png',
         highlight: '1 Tab + 1 Band + 2 Rings',
         experience: 'El Smart Tab y Smart Band atienden al niño, mientras dos Smart Rings salvaguardan los signos vitales clave de los abuelos.'
       },
@@ -312,7 +324,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Omnipresente',
         tagline: 'Doble pantalla y doble anillo para el hogar extendido.',
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
-        image: '/assets/repertorio/set_omni.png',
+        image: '/assets/repertorio/set_extensa_1h_omni.png',
         highlight: '2 Tabs + 2 Bands + 2 Rings',
         experience: 'Dos estaciones de tablet para lectura de adultos mayores y deberes escolares, con anillos y bandas repartidas entre la familia.'
       },
@@ -324,7 +336,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'omni',
         addedItems: [{ code: 'ss', qty: 1 }],
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }],
-        image: '/assets/repertorio/set_integral.png',
+        image: '/assets/repertorio/set_extensa_1h_integral.png',
         highlight: 'OMNI + 1 Smart Sound',
         experience: 'Smart Sound centralizado para ambientar el living familiar con sonido sin estridencias, ideal para la convivencia intergeneracional.'
       },
@@ -336,7 +348,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'integral',
         addedItems: [{ code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }, { code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
-        image: '/assets/repertorio/set_fullhouse.png',
+        image: '/assets/repertorio/set_extensa_1h_fullhouse.png',
         highlight: 'Integral + 1 Smart Watch + 1 Smart Phone',
         experience: 'Máxima capacidad: un Smart Phone seguro para el joven o tutor y Smart Watch con monitoreo inmediato en cualquier rincón del hogar.'
       }
@@ -349,7 +361,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Esencial',
         tagline: 'Paridad pedagógica para 2 hermanos.',
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
-        image: '/assets/repertorio/set_essential.png',
+        image: '/assets/repertorio/set_nuclear_2h_essential.png',
         highlight: '2 Tabs + 2 Bands + 2 Rings',
         experience: 'Cada hijo recibe su Smart Tab y su Smart Band para erradicar comparaciones y disputas, respaldados por los Smart Rings para ambos padres.'
       },
@@ -359,7 +371,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Omnipresente',
         tagline: 'Doble pantalla y doble pulsera de hábitos consolidados.',
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
-        image: '/assets/repertorio/set_omni.png',
+        image: '/assets/repertorio/set_nuclear_2h_omni.png',
         highlight: '2 Tabs + 2 Bands + 2 Rings',
         experience: 'Configuración equilibrada para dos hijos con supervisión parental activa y dashboards segmentados por edad escolar.'
       },
@@ -371,7 +383,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'omni',
         addedItems: [{ code: 'ss', qty: 2 }],
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 2 }],
-        image: '/assets/repertorio/set_integral.png',
+        image: '/assets/repertorio/set_nuclear_2h_integral.png',
         highlight: 'OMNI + 2 Smart Sounds',
         experience: 'Dos altavoces Smart Sound para dos dormitorios o zonas de estudio independientes: cada hermano tiene su propio ecosistema de audio para concentrarse.'
       },
@@ -383,7 +395,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'integral',
         addedItems: [{ code: 'sw', qty: 2 }, { code: 'sp', qty: 2 }],
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 2 }, { code: 'sw', qty: 2 }, { code: 'sp', qty: 2 }],
-        image: '/assets/repertorio/set_fullhouse.png',
+        image: '/assets/repertorio/set_nuclear_2h_fullhouse.png',
         highlight: 'Integral + 2 Smart Watches + 2 Smart Phones',
         experience: 'El pináculo del catálogo Zentry: ambos hijos disponen de su smartwatch de seguridad y su smartphone ZentryOS para salidas, escuela y deportes.'
       }
@@ -396,7 +408,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Esencial',
         tagline: 'Equipamiento dual escolar y biométrico.',
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
-        image: '/assets/repertorio/set_essential.png',
+        image: '/assets/repertorio/set_extensa_2h_essential.png',
         highlight: '2 Tabs + 2 Bands + 2 Rings',
         experience: 'Herramientas equitativas para ambos hermanos en edad escolar, con anillos para el monitoreo de los adultos mayores.'
       },
@@ -406,7 +418,7 @@ export const REPERTORIO_DATA = {
         tierName: 'Omnipresente',
         tagline: 'Armonía y paridad para todo el clan.',
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
-        image: '/assets/repertorio/set_omni.png',
+        image: '/assets/repertorio/set_extensa_2h_omni.png',
         highlight: '2 Tabs + 2 Bands + 2 Rings',
         experience: 'Doble terminal de trabajo con sincronización cloud instantánea hacia el Parental Dashboard.'
       },
@@ -418,7 +430,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'omni',
         addedItems: [{ code: 'ss', qty: 2 }],
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 2 }],
-        image: '/assets/repertorio/set_integral.png',
+        image: '/assets/repertorio/set_extensa_2h_integral.png',
         highlight: 'OMNI + 2 Smart Sounds',
         experience: 'Dos Smart Sound estratégicamente colocados (área social y área de dormitorios) para guiar los ritmos circadianos de toda la familia.'
       },
@@ -430,7 +442,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'integral',
         addedItems: [{ code: 'sw', qty: 2 }, { code: 'sp', qty: 2 }],
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 2 }, { code: 'sw', qty: 2 }, { code: 'sp', qty: 2 }],
-        image: '/assets/repertorio/set_fullhouse.png',
+        image: '/assets/repertorio/set_extensa_2h_fullhouse.png',
         highlight: 'Integral + 2 Smart Watches + 2 Smart Phones',
         experience: 'Ningún miembro queda desatendido. Sincronización absoluta de software y hardware con cobertura total.'
       }
@@ -444,7 +456,7 @@ export const REPERTORIO_DATA = {
 export const repertorioState = {
   selectedFamily: 'nuclear_1h', // 'nuclear_1h', 'extensa_1h', 'nuclear_2h', 'extensa_2h'
   currency: 'USD', // 'USD' | 'PEN'
-  currentSpread: 1, // 1 to 6 (Spreads del magazine)
+  currentSpread: 2, // 1 to 6 (Por defecto Spread 2: Essential Set)
   selectedSetTier: 'essential', // 'essential', 'omni', 'integral', 'fullhouse'
   additionalChildren: 0,
   includeImplementation: true,
@@ -529,6 +541,10 @@ export function renderRepertorioView() {
   document.getElementById('page-icon').textContent = '🎭';
   const propBlock = document.getElementById('properties-block');
   if (propBlock) propBlock.style.display = 'none';
+  const wsHeader = document.querySelector('.workspace-header');
+  if (wsHeader) wsHeader.style.display = 'none';
+  const wsBanner = document.querySelector('.workspace-banner');
+  if (wsBanner) wsBanner.style.display = 'none';
 
   const container = document.getElementById('workspace-content');
   if (!container) return;
@@ -547,28 +563,61 @@ export function renderRepertorioView() {
 }
 
 /**
+ * Retorna el sufijo abreviado oficial para las slides de cada familia (FN, FE, FNx2, FEx2)
+ */
+function getFamilySlideSuffix(famId) {
+  switch (famId) {
+    case 'nuclear_1h':
+      return 'FN';
+    case 'extensa_1h':
+      return 'FE';
+    case 'nuclear_2h':
+      return 'FNx2';
+    case 'extensa_2h':
+      return 'FEx2';
+    default:
+      return 'FN';
+  }
+}
+
+/**
  * Barra superior de navegación y controles de presentación
+ * Estructura de directorio: Recursos Comerciales / Repertorio / Slides [SUFIJO]
  */
 function renderTopNavBar() {
-  const currentFam = REPERTORIO_DATA.families[repertorioState.selectedFamily];
+  const isFamilyPicker = repertorioState.viewMode === 'family-picker';
+  const slideSuffix = getFamilySlideSuffix(repertorioState.selectedFamily);
 
   return `
-    <header class="repertorio-header-bar glass-panel">
+    <header class="repertorio-header-bar">
       <div class="repertorio-header-left">
-        <a href="#demobook" class="btn btn-secondary repertorio-back-btn">
-          <span>← Demobook</span>
-        </a>
-        <div class="repertorio-breadcrumbs">
-          <span class="crumb-brand">ZENTRYOS</span>
+        <nav class="repertorio-breadcrumbs" aria-label="Ruta de navegación">
+          <!-- 1. Recursos Comerciales -->
+          <a href="#demobook" class="crumb-nav-link" title="Ir a Recursos Comerciales">Recursos Comerciales</a>
           <span class="crumb-separator">/</span>
-          <span class="crumb-category">OFERTA COMERCIAL</span>
-          <span class="crumb-separator">/</span>
-          <button type="button" class="crumb-family-tag" id="btn-switch-family-modal">
-            <span>${currentFam.membersLabel}</span>
-            <span class="badge-pill">${currentFam.name}</span>
-            <span class="crumb-arrow-down">▾</span>
+
+          <!-- 2. Repertorio (Redirección a selección de familias) -->
+          <button 
+            type="button" 
+            class="crumb-nav-btn ${isFamilyPicker ? 'crumb-active-pill' : 'crumb-nav-link'}" 
+            id="crumb-nav-repertorio" 
+            title="Selector de Familias y Repertorio"
+          >
+            Repertorio
           </button>
-        </div>
+          <span class="crumb-separator">/</span>
+
+          <!-- 3. Slides con sufijo de familia (FN, FE, FNx2, FEx2) -->
+          <button 
+            type="button" 
+            class="crumb-nav-btn ${!isFamilyPicker ? 'crumb-active-pill' : 'crumb-nav-link'}" 
+            id="crumb-link-slides" 
+            title="Presentación de Slides (${slideSuffix})"
+          >
+            <span>Slides ${slideSuffix}</span>
+            ${!isFamilyPicker ? '<span class="crumb-arrow-down" style="font-size: 10px; margin-left: 2px;">▾</span>' : ''}
+          </button>
+        </nav>
       </div>
 
       <div class="repertorio-header-controls">
@@ -582,18 +631,63 @@ function renderTopNavBar() {
           </button>
         </div>
 
-        <!-- Botón Selector de Familia -->
-        <button type="button" class="btn ${repertorioState.viewMode === 'family-picker' ? 'btn-primary' : 'btn-secondary'}" id="btn-toggle-family-picker">
-          👥 ${repertorioState.viewMode === 'family-picker' ? 'Ver Catálogo' : 'Cambiar Familia'}
-        </button>
-
         <!-- Botón Resumen de Oferta / Cotizador -->
         <button type="button" class="btn btn-primary btn-quote-action" id="btn-open-quote-modal">
-          💎 Cotización de Oferta
+          + Cotización de Oferta
         </button>
       </div>
     </header>
   `;
+}
+
+/**
+ * Retorna el icono SVG vectorial para cada estructura familiar (Zero Emojis)
+ */
+function getFamilyIconSvg(famId) {
+  switch (famId) {
+    case 'nuclear_1h':
+      // Icono Usuarios / Núcleo Familiar
+      return `
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      `;
+    case 'extensa_1h':
+      // Icono Hogar Multigeneracional
+      return `
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+      `;
+    case 'nuclear_2h':
+      // Icono Múltiples Usuarios / Hermanos
+      return `
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 21a8 8 0 0 0-16 0"></path>
+          <circle cx="10" cy="8" r="5"></circle>
+          <path d="M22 20c0-3.37-2-6.5-5-7.5"></path>
+          <circle cx="19" cy="8" r="3"></circle>
+        </svg>
+      `;
+    case 'extensa_2h':
+      // Icono Corona / Gran Dinastía Integral
+      return `
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path>
+        </svg>
+      `;
+    default:
+      return `
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+        </svg>
+      `;
+  }
 }
 
 /**
@@ -605,90 +699,76 @@ function renderFamilySelectorScreen() {
       <div class="family-screen-hero">
         <span class="hero-kicker">FASE 1: DIAGNÓSTICO FAMILIAR</span>
         <h1 class="hero-headline">Selecciona la Estructura de tu Hogar</h1>
-        <p class="hero-subtext">
-          Cada arquitectura familiar requiere un balance preciso de dispositivos, control parental y cuidado biométrico. 
-          Elige la composición para calibrar el catálogo de sets y la estrategia de implementación a la medida.
-        </p>
       </div>
 
       <div class="family-cards-grid">
         ${Object.values(REPERTORIO_DATA.families).map(fam => {
           const isSelected = fam.id === repertorioState.selectedFamily;
           const totals = calculateSetTotals(fam.id, 'essential');
+
           return `
             <div class="family-select-card ${isSelected ? 'is-selected' : ''}" data-family-id="${fam.id}">
-              <div class="family-card-badge">${fam.badge}</div>
-              <div class="family-card-icon-row">
-                <span class="family-icon-symbol">
-                  ${fam.childrenCount === 1 ? '👨‍👩‍👧' : '👨‍👩‍👧‍👦'}
-                </span>
-                ${fam.grandparentsCount > 0 ? '<span class="family-subicon" title="Incluye 3 Abuelos">👴👵</span>' : ''}
-              </div>
-              <h3 class="family-card-name">${fam.name}</h3>
-              <div class="family-card-members">${fam.membersLabel}</div>
-              <p class="family-card-desc">${fam.description}</p>
-              
-              <div class="family-card-specs">
-                <div class="spec-chip">
-                  <strong>${fam.childrenCount} ${fam.childrenCount === 1 ? 'Hijo' : 'Hijos'}</strong>
-                  <span>${fam.childrenCount * 2} Dispositivos</span>
+              <div class="family-card-pill-tag">${fam.badge}</div>
+
+              <div class="family-card-header">
+                <div class="family-card-icon-badge">
+                  ${getFamilyIconSvg(fam.id)}
                 </div>
-                <div class="spec-chip">
-                  <strong>Parental Dashboard</strong>
-                  <span>2 Vistas (Padre & Madre)</span>
+                <h3 class="family-card-name">${fam.name}</h3>
+              </div>
+
+              <div class="family-card-specs-grid">
+                <div class="spec-cell">
+                  <span class="spec-cell-bold">${fam.childrenCount === 1 ? 'Desde 1 usuario' : 'Desde 2 usuarios'}</span>
+                  <span class="spec-cell-sub">${fam.childrenCount === 1 ? 'Desde 2 dispositivos' : 'Desde 4 dispositivos'}</span>
+                </div>
+                <div class="spec-cell">
+                  <span class="spec-cell-bold">Parental Dashboard</span>
+                  <span class="spec-cell-sub">2 Vistas (Padre & Madre)</span>
                 </div>
               </div>
 
-              <div class="family-card-footer">
-                <div class="footer-price-preview">
-                  <span class="price-label">Desde (Essential):</span>
-                  <span class="price-value">${formatMoney(totals.totalUSD, totals.totalPEN)}</span>
+              <!-- Placeholder / Fotografía Familiar de la cantidad de integrantes -->
+              <div class="family-card-photo-box" title="Retrato Familiar: ${fam.name} (${fam.totalMembers} Integrantes)">
+                <img 
+                  src="${fam.familyPhotoImg}" 
+                  alt="Retrato Familiar ${fam.name} (${fam.totalMembers} Integrantes)" 
+                  class="family-card-photo-img" 
+                  loading="lazy"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                />
+                <div class="family-card-photo-placeholder-frame" style="display: none;">
+                  <div class="placeholder-cam-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                      <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                      <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                  </div>
+                  <span class="placeholder-label">Retrato Familiar</span>
                 </div>
-                <button type="button" class="btn ${isSelected ? 'btn-primary' : 'btn-secondary'} btn-select-family-action" data-family-id="${fam.id}">
-                  ${isSelected ? '✓ Seleccionada (Abrir Magazine)' : 'Seleccionar Esta Familia'}
-                </button>
+                <div class="family-photo-members-pill">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  <span>${fam.totalMembers} Integrantes</span>
+                </div>
               </div>
+
+              <div class="family-card-price-row">
+                <span class="price-kicker">DESDE:</span>
+                <span class="price-amount">${formatMoney(totals.totalUSD, totals.totalPEN)}</span>
+              </div>
+
+              <button type="button" class="btn btn-select-family-action ${isSelected ? 'is-selected' : ''}" data-family-id="${fam.id}">
+                ${isSelected ? '✓ Seleccionado' : 'Seleccionar'}
+              </button>
             </div>
           `;
         }).join('')}
-      </div>
-
-      <!-- Tabla Comparativa Rápida de la Matriz -->
-      <div class="family-matrix-glance glass-panel">
-        <div class="matrix-glance-header">
-          <h3>📋 Matriz Oficial de Sets por Familia</h3>
-          <p>Visión consolidada de productos por nivel de set y composición del hogar:</p>
-        </div>
-        <div class="matrix-table-responsive">
-          <table class="matrix-table">
-            <thead>
-              <tr>
-                <th>Estructura Familiar</th>
-                <th>Essential</th>
-                <th>OMNI</th>
-                <th>Integral</th>
-                <th>Full House</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${Object.values(REPERTORIO_DATA.families).map(fam => {
-                const matrix = REPERTORIO_DATA.setsMatrix[fam.id];
-                return `
-                  <tr class="${fam.id === repertorioState.selectedFamily ? 'row-active' : ''}">
-                    <td>
-                      <strong>${fam.name}</strong><br>
-                      <small style="color: #64748b;">${fam.membersLabel}</small>
-                    </td>
-                    <td>${matrix.essential.highlight}</td>
-                    <td>${matrix.omni.highlight}</td>
-                    <td>${matrix.integral.highlight}</td>
-                    <td><span class="badge-gold">${matrix.fullhouse.highlight}</span></td>
-                  </tr>
-                `;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>
       </div>
     </div>
   `;
@@ -704,54 +784,28 @@ function renderMagazineExperience() {
   return `
     <div class="repertorio-magazine-container animate-fade-in">
       
-      <!-- Barra Rápida de Pestañas de Familia -->
-      <div class="magazine-family-quicktabs">
-        <span class="quicktabs-label">CASO FAMILIAR:</span>
-        <div class="quicktabs-pills">
-          ${Object.values(REPERTORIO_DATA.families).map(fam => `
-            <button type="button" class="quicktab-pill ${fam.id === currentFam.id ? 'active' : ''}" data-family-id="${fam.id}">
-              <span class="pill-dot"></span>
-              <span class="pill-name">${fam.name}</span>
-              <span class="pill-members">(${fam.membersLabel})</span>
-            </button>
-          `).join('')}
-        </div>
-      </div>
-
       <!-- Contenedor del Libro Magazine (Doble Página) -->
       <div class="magazine-viewport" id="magazine-viewport">
-        
-        <!-- Flecha Navegación Izquierda -->
-        <button type="button" class="magazine-nav-arrow arrow-left" id="btn-spread-prev" ${activeSpread <= 1 ? 'disabled' : ''} aria-label="Página anterior">
-          ‹
-        </button>
-
-        <!-- El Spread Activo -->
-        <div class="magazine-spread glass-panel" id="magazine-active-spread">
+        <!-- El Spread Activo (Fijo y aislado) -->
+        <div class="magazine-spread" id="magazine-active-spread">
           ${renderSpreadContent(activeSpread, currentFam)}
         </div>
-
-        <!-- Flecha Navegación Derecha -->
-        <button type="button" class="magazine-nav-arrow arrow-right" id="btn-spread-next" ${activeSpread >= 6 ? 'disabled' : ''} aria-label="Página siguiente">
-          ›
-        </button>
       </div>
 
       <!-- Barra Inferior de Navegación & Thumbnails del Magazine -->
-      <div class="magazine-footer-controls glass-panel">
+      <div class="magazine-footer-controls">
         <div class="magazine-page-counter">
           <span class="counter-label">SPREAD EDITORIAL</span>
-          <span class="counter-numbers"><strong>0${activeSpread}</strong> / 06</span>
+          <span class="counter-numbers"><strong>0${activeSpread}</strong> / 05</span>
         </div>
 
         <div class="magazine-thumbnails-strip">
           ${[
-            { num: 1, title: 'Portada & Filosofía', icon: '📖' },
-            { num: 2, title: 'Essential Set', icon: '🥉' },
-            { num: 3, title: 'OMNI Set', icon: '🥈' },
-            { num: 4, title: 'Integral Set', icon: '🥇' },
-            { num: 5, title: 'Full House Set', icon: '👑' },
-            { num: 6, title: 'Beneficios & Créditos', icon: '🎁' }
+            { num: 1, title: 'Portada', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>' },
+            { num: 2, title: 'Essential Set', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>' },
+            { num: 3, title: 'OMNI Set', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>' },
+            { num: 4, title: 'Integral Set', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' },
+            { num: 5, title: 'Full House Set', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>' }
           ].map(thumb => `
             <button type="button" class="magazine-thumb-btn ${thumb.num === activeSpread ? 'active' : ''}" data-spread-num="${thumb.num}">
               <span class="thumb-icon">${thumb.icon}</span>
@@ -761,8 +815,9 @@ function renderMagazineExperience() {
         </div>
 
         <div class="magazine-footer-actions">
-          <button type="button" class="btn btn-secondary btn-sm" id="btn-quick-overview">
-            🗺️ Mapa General
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-quick-overview" style="display:inline-flex; align-items:center; gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+            Mapa General
           </button>
         </div>
       </div>
@@ -786,26 +841,24 @@ function renderSpreadContent(spreadNum, family) {
       return renderSpreadSet(family, 'integral', 7, 8);
     case 5:
       return renderSpreadSet(family, 'fullhouse', 9, 10);
-    case 6:
-      return renderSpread06BenefitsAndCredits(family, 11, 12);
     default:
       return renderSpread01Cover(family);
   }
 }
 
 /**
- * Spread 1: Portada & Manifiesto Familiar (Págs 01-02)
+ * Spread 1: Portada & Diagnóstico de Implementación (Págs 01-02)
  */
 function renderSpread01Cover(family) {
   return `
     <div class="spread-page spread-page-left cover-page-left">
       <div class="editorial-image-container">
-        <img src="${family.coverImg}" alt="Zentry Home Lifestyle" class="editorial-img" onerror="this.src='/assets/hero.png'"/>
+        <img src="${family.coverImg || '/assets/repertorio/portada_nuclear_1h.png'}" alt="Zentry Product Architecture" class="editorial-img" onerror="this.src='/assets/repertorio/portada_nuclear_1h.png'"/>
         <div class="editorial-image-overlay">
           <div class="overlay-caption">
-            <span class="caption-tag">ARQUITECTURA DE HOGAR</span>
-            <h4>ZENTRY HABITATS • VOL. 2026</h4>
-            <p>Espacios libres de fricción algorítmica para la evolución del clan.</p>
+            <span class="caption-tag">EDICIÓN EJECUTIVA</span>
+            <h4>ZENTRY HABITATS</h4>
+            <p>Ecosistema tecnológico y parental para el hogar moderno.</p>
           </div>
         </div>
       </div>
@@ -813,25 +866,27 @@ function renderSpread01Cover(family) {
 
     <div class="spread-page spread-page-right cover-page-right">
       <div class="magazine-content-col">
-        <div class="page-number-top">PÁG. 02 // CASO FAMILIAR: ${family.badge.toUpperCase()}</div>
+        <div class="page-number-top">PÁG. 02 // CONFIGURACIÓN: ${family.name.toUpperCase()}</div>
         
-        <span class="magazine-kicker">MANIFIESTO EDITORIAL</span>
-        <h1 class="magazine-main-title">EL VALOR SAGRADO DEL TIEMPO EN FAMILIA</h1>
-        
-        <div class="magazine-lead-paragraph">
-          "No compramos tecnología para entretener el silencio de nuestros hijos; diseñamos un entorno donde su atención neuronal y su curiosidad creadora sigan siendo soberanas."
-        </div>
+        <h1 class="magazine-main-title">ARQUITECTURA DE ECOSISTEMA EN EL HOGAR</h1>
 
         <div class="family-diagnosis-box">
           <div class="diagnosis-header">
-            <span class="diagnosis-icon">🧬</span>
+            <span class="diagnosis-icon-svg" style="color: #533b87; display: flex; align-items: center;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </span>
             <div>
-              <h4 style="margin: 0; color: #0f172a; font-size: 15px;">Diagnóstico: ${family.name}</h4>
-              <span style="font-size: 12px; color: #533b87; font-weight: 600;">${family.membersLabel}</span>
+              <h4 style="margin: 0; color: #0f172a; font-size: 15px;">Diagnóstico de Implementación</h4>
+              <span style="font-size: 12px; color: #533b87; font-weight: 700;">${family.name}</span>
             </div>
           </div>
-          <p class="diagnosis-body">${family.story}</p>
           <div class="diagnosis-stats-row">
+            <div class="stat-item">
+              <span class="stat-num">${family.childrenCount === 1 ? '1' : '2'}</span>
+              <span class="stat-lbl">Usuario(s) Principal(es)</span>
+            </div>
             <div class="stat-item">
               <span class="stat-num">${family.childrenCount * 2}</span>
               <span class="stat-lbl">Dispositivos a Implementar</span>
@@ -852,10 +907,6 @@ function renderSpread01Cover(family) {
             Explorar Sets de Hardware & Implementación ➔
           </button>
         </div>
-
-        <div class="magazine-quote-footer">
-          <em>«Quien recupera el control del tiempo en su hogar, recupera el destino de sus hijos.»</em>
-        </div>
       </div>
     </div>
   `;
@@ -863,9 +914,6 @@ function renderSpread01Cover(family) {
 
 /**
  * Spreads 2 a 5: Sets de Productos (Essential, OMNI, Integral, Full House)
- * Diseñado y estructurado fielmente con base en la imagen referencial de alta fidelidad:
- * - Columna Izquierda: Paginador "PÁG. 0X // CATÁLOGO OFICIAL DE HARDWARE", Showcase con badge flotante, carrusel de tarjetas individuales de producto con flechas < > y contador.
- * - Columna Derecha: Paginador "PÁG. 0Y // PROPUESTA DE VALOR A CLIENTES", Kicker y título del set, bloque destacado de propósito en el hogar, grid 2x2 de beneficios y servicios, desglose transparente de precios con total prominente, y botones de confirmación/copia.
  */
 function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
   const totals = calculateSetTotals(family.id, setKey);
@@ -874,301 +922,110 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
 
   return `
     <div class="spread-page spread-page-left set-page-left">
+      <!-- Paginación superior exacta -->
       <div class="page-number-top">PÁG. 0${pageLeftNum} // CATÁLOGO OFICIAL DE HARDWARE</div>
 
-      <!-- Imagen Editorial de Set Publicitario -->
-      <div class="set-visual-showcase">
-        <div class="set-badge-floating">${set.tierName.toUpperCase()}</div>
-        <img src="${set.image}" alt="${set.name}" class="set-main-image" onerror="this.src='/assets/repertorio/prod_smarttab.png'"/>
+      <!-- Badge de Set -->
+      <div class="set-badge-header">
+        <span class="set-badge-tag">${set.tierName.toUpperCase()}</span>
       </div>
 
-      <!-- Desglose de Componentes Físicos en Carrusel con Controles -->
+      <!-- Imagen Panorámica del Workspace / Setup de Hardware -->
+      <div class="set-visual-showcase">
+        <img src="${set.image}" alt="${set.name}" class="set-main-image" onerror="this.src='/assets/repertorio/set_essential.png'"/>
+      </div>
+
+      <!-- Desglose de Componentes Físicos -->
       <div class="set-items-breakdown">
         <div class="breakdown-header-row">
-          <div class="breakdown-header-titles">
-            <h4 class="breakdown-title">Hardware incluido en ${set.name}</h4>
-            <span class="breakdown-counter-badge">${totals.totalItemsCount} dispositivos</span>
-          </div>
-          <div class="carousel-nav-arrows">
-            <button type="button" class="btn-carousel-arrow carousel-arrow-prev" data-target="carousel-${setKey}" aria-label="Anterior">‹</button>
-            <button type="button" class="btn-carousel-arrow carousel-arrow-next" data-target="carousel-${setKey}" aria-label="Siguiente">›</button>
-          </div>
+          <h4 class="breakdown-title">
+            <span class="bullet-dot">●</span>
+            Hardware Incluido en ${set.name}
+          </h4>
+          <span class="breakdown-devices-count">${totals.totalItemsCount} dispositivos</span>
         </div>
 
-        <div class="product-cards-carousel" id="carousel-${setKey}">
+        <div class="product-cards-row items-count-${set.items.length}">
           ${set.items.map(item => {
             const prod = REPERTORIO_DATA.products[item.code];
             if (!prod) return '';
+            const isCompact = set.items.length > 4;
             return `
-              <div class="product-mini-item">
-                <div class="prod-thumb-wrapper">
-                  <img src="${prod.image}" alt="${prod.name}" class="prod-mini-img" onerror="this.src='/assets/hero.png'"/>
+              <div class="product-item-card ${isCompact ? 'compact-item' : ''}">
+                <div class="prod-card-thumb-box">
+                  <img src="${prod.image}" alt="${prod.name}" class="prod-card-img" onerror="this.src='/assets/repertorio/prod_smarttab.png'"/>
                   <span class="prod-qty-badge">x${item.qty}</span>
                 </div>
-                <div class="prod-mini-info">
-                  <span class="prod-mini-name">${prod.name}</span>
-                  <span class="prod-mini-price">${formatMoney(prod.priceUSD * item.qty, prod.pricePEN * item.qty)}</span>
+                <div class="prod-card-details">
+                  <span class="prod-card-name">${prod.name}</span>
+                  <span class="prod-card-price">${formatMoney(prod.priceUSD * item.qty, prod.pricePEN * item.qty)}</span>
                 </div>
               </div>
             `;
           }).join('')}
         </div>
 
-        ${set.inheritedFrom ? `
-          <div class="set-inheritance-notice">
-            <span class="notice-icon">✨</span>
-            <div class="notice-text">
-              <strong>Evolución de Ecosistema:</strong> Incluye la arquitectura completa de <em>${set.inheritedFrom.toUpperCase()}</em> más ${set.addedItems.map(ai => `<strong>x${ai.qty} ${REPERTORIO_DATA.products[ai.code]?.name}</strong>`).join(', ')}.
-            </div>
-          </div>
-        ` : ''}
       </div>
     </div>
 
     <div class="spread-page spread-page-right set-page-right">
-      <div class="magazine-content-col">
-        <div class="page-number-top">PÁG. 0${pageRightNum} // PROPUESTA DE VALOR A CLIENTES</div>
+      <div class="page-number-top">PÁG. 0${pageRightNum} // PROPUESTA DE VALOR A CLIENTES</div>
 
-        <div class="set-header-editorial">
-          <span class="set-eyebrow">SET PARA ${family.name.toUpperCase()}</span>
-          <h2 class="set-title-headline">${set.name}</h2>
-          <p class="set-tagline-text">${set.tagline}</p>
+      <!-- Encabezado Editorial -->
+      <div class="set-header-editorial">
+        <span class="set-eyebrow">SET PARA ${family.name.toUpperCase()}</span>
+        <h2 class="set-title-headline">${set.name}</h2>
+        <p class="set-tagline-text">${set.tagline}</p>
+      </div>
+
+      <!-- Bloque Editorial de Valor Arquitectónico -->
+      <div class="set-value-card">
+        <div class="value-card-badge-row">
+          <span class="value-card-badge">✨ PROPUESTA DE VALOR</span>
+          <span class="value-card-highlight">${set.highlight}</span>
         </div>
+        <p class="value-card-experience">${set.experience}</p>
+      </div>
 
-        <!-- Bloque de Propuesta de Valor Destacado (Fondo Lila Tecnológico) -->
-        <div class="set-experience-card">
-          <div class="exp-icon-wrapper">
-            <span class="exp-icon">🎯</span>
-          </div>
-          <div class="exp-content">
-            <h5 class="exp-title">Dinámica en este hogar:</h5>
-            <p class="exp-description">${set.experience}</p>
-          </div>
+      <!-- Desglose de Costes Directo y Elegante -->
+      <div class="costs-summary-card">
+        <div class="cost-summary-item">
+          <span class="cost-label">Hardware Físico:</span>
+          <span class="cost-value">${formatMoney(totals.hardwareUSD, totals.hardwarePEN)}</span>
         </div>
-
-        <!-- Grid 2x2 de Beneficios y Servicios Asociados a la Oferta -->
-        <div class="benefits-grid-2x2">
-          <div class="benefit-grid-item">
-            <div class="bgi-header">
-              <span class="bgi-icon">🛡️</span>
-              <span class="bgi-tag">Soporte Continuo</span>
-            </div>
-            <strong class="bgi-title">Parental Shield</strong>
-            <p class="bgi-desc">Monitoreo y calibración remota para dispositivos de los hijos.</p>
+        <div class="cost-summary-item highlight-item">
+          <div>
+            <span class="cost-label">${totals.implData.name}:</span>
+            <small class="cost-sublabel">${family.childrenCount} hijo(s) • ${totals.implData.devicesIncluded} disp.</small>
           </div>
-
-          <div class="benefit-grid-item">
-            <div class="bgi-header">
-              <span class="bgi-icon">✨</span>
-              <span class="bgi-tag">Studio Zentry</span>
-            </div>
-            <strong class="bgi-title">100 Créditos IA</strong>
-            <p class="bgi-desc">Para generación de microapps, videos educativos y avatares.</p>
-          </div>
-
-          <div class="benefit-grid-item">
-            <div class="bgi-header">
-              <span class="bgi-icon">🧠</span>
-              <span class="bgi-tag">Padres de Familia</span>
-            </div>
-            <strong class="bgi-title">3 Clases de IA</strong>
-            <p class="bgi-desc">Sesiones 1 a 1 para dominar IA aplicada al hogar inteligente.</p>
-          </div>
-
-          <div class="benefit-grid-item bonus-highlight">
-            <div class="bgi-header">
-              <span class="bgi-icon">🎟️</span>
-              <span class="bgi-tag bgi-tag-free">GRATIS</span>
-            </div>
-            <strong class="bgi-title">Zentry Experience</strong>
-            <p class="bgi-desc">Pase familiar presencial o convertible a 100 créditos extra.</p>
-          </div>
+          <span class="cost-value">+${formatMoney(totals.implementationUSD, totals.implementationPEN)}</span>
         </div>
+      </div>
 
-        <!-- Bloque de Resumen de Precios y Totalización Destacada -->
-        <div class="set-pricing-box glass-panel">
-          <div class="pricing-row">
-            <span class="pricing-label">Hardware Físico (${totals.totalItemsCount} dispositivos):</span>
-            <span class="pricing-val">${formatMoney(totals.hardwareUSD, totals.hardwarePEN)}</span>
-          </div>
-
-          <div class="pricing-row highlight-impl">
-            <div>
-              <span class="pricing-label">${totals.implData.name}</span>
-              <small class="pricing-sublabel">${family.childrenCount} hijo(s) • ${totals.implData.devicesIncluded} dispositivos • 2 vistas parentales</small>
-            </div>
-            <span class="pricing-val">${formatMoney(totals.implementationUSD, totals.implementationPEN)}</span>
-          </div>
-
-          <div class="pricing-row benefits-bonus">
-            <div>
-              <span class="pricing-label">🎁 Beneficios & Regalos:</span>
-              <small class="pricing-sublabel">3 Clases IA + 100 Créditos Studio + Pase Zentry Experience</small>
-            </div>
-            <span class="pricing-val-free">
-              <s style="color: #94a3b8; font-size: 11px;">${formatMoney(totals.benefitsValueUSD, totals.benefitsValuePEN)}</s>
-              <strong class="badge-free-green">GRATIS</strong>
-            </span>
-          </div>
-
-          <div class="pricing-divider"></div>
-
-          <div class="pricing-total-row">
-            <div class="total-header-group">
-              <span class="total-caption">VALOR TOTAL DE LA OFERTA</span>
-              <small class="total-subtext">Hardware Físico + Licencia ZentryOS + Regalos</small>
-            </div>
-            <div class="total-amount-display">
-              <span class="amount-number">${formatMoney(totals.totalUSD, totals.totalPEN)}</span>
-            </div>
-          </div>
+      <!-- Tarjeta Prominente de Precio Total -->
+      <div class="hero-total-price-card">
+        <div class="total-caption-group">
+          <span class="total-label-kicker">VALOR TOTAL DE LA OFERTA</span>
         </div>
-
-        <!-- Acciones del Set (Botón Primario y Botón Secundario Fieles a la Referencia) -->
-        <div class="set-actions-toolbar">
-          <button type="button" class="btn ${isSelectedTier ? 'btn-success' : 'btn-primary'} btn-choose-set" data-set-key="${setKey}">
-            ${isSelectedTier ? '✓ Set Seleccionado' : '✓ Seleccionar este Set'}
-          </button>
-          <button type="button" class="btn btn-secondary btn-share-quote" data-set-key="${setKey}">
-            📋 Copiar Propuesta
-          </button>
+        <div class="total-price-large">
+          <span class="price-big-number">${formatMoney(totals.totalUSD, totals.totalPEN)}</span>
         </div>
+      </div>
 
-        <!-- Tip Referidos -->
-        <div class="referrals-hint-banner">
-          <span class="hint-icon">💡</span>
-          <span>¿Financiar este costo? Con <strong>7 a 20 recomendaciones</strong> obtienes hardware sin costo. <a href="javascript:void(0)" class="link-to-credits">Ver Economía de Créditos ➔</a></span>
-        </div>
-
+      <!-- Acciones Inferiores Pinned -->
+      <div class="set-actions-toolbar">
+        <button type="button" class="btn ${isSelectedTier ? 'btn-success' : 'btn-primary'} btn-choose-set" data-set-key="${setKey}">
+          ✓ Set Seleccionado
+        </button>
+        <button type="button" class="btn btn-secondary btn-share-quote" data-set-key="${setKey}" style="display:inline-flex; align-items:center; gap:6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+          Copiar Propuesta
+        </button>
       </div>
     </div>
   `;
 }
 
-/**
- * Spread 6: Beneficios, Regalos y Economía de Referencias (Págs 11-12)
- */
-function renderSpread06BenefitsAndCredits(family, pageLeftNum, pageRightNum) {
-  const totals = calculateSetTotals(family.id, repertorioState.selectedSetTier);
-
-  return `
-    <div class="spread-page spread-page-left benefits-page-left">
-      <div class="page-number-top">PÁG. ${pageLeftNum} // BENEFICIOS & REGALOS INCLUIDOS</div>
-
-      <div class="magazine-content-col">
-        <span class="magazine-kicker">PAQUETE DE BIENVENIDA FAMILIAR</span>
-        <h2 class="magazine-main-title">VALOR AGREGADO SIN COSTO ADICIONAL</h2>
-        <p style="font-size: 13.5px; color: #475569; line-height: 1.5; margin-bottom: 16px;">
-          Cada despliegue de ZentryOS no termina en la instalación del software; incluye un ecosistema de capacitación parental y acompañamiento valorizado en <strong>${formatMoney(totals.benefitsValueUSD, totals.benefitsValuePEN)}</strong>.
-        </p>
-
-        <div class="benefits-vertical-list">
-          ${REPERTORIO_DATA.benefits.map(b => `
-            <div class="benefit-card-box glass-panel">
-              <div class="benefit-icon-badge">${b.icon}</div>
-              <div class="benefit-content">
-                <div class="benefit-title-row">
-                  <h4 class="benefit-title">${b.title}</h4>
-                  <span class="benefit-worth">Valor: ${formatMoney(b.valueUSD, b.valuePEN)}</span>
-                </div>
-                <span class="benefit-tag-pill">${b.tag}</span>
-                <p class="benefit-desc">${b.description}</p>
-                ${b.conversionNote ? `
-                  <div class="benefit-rule-alert">
-                    <span class="rule-icon">🔄</span>
-                    <span><strong>Flexibilidad Zentry:</strong> ${b.conversionNote}</span>
-                  </div>
-                ` : ''}
-              </div>
-            </div>
-          `).join('')}
-        </div>
-
-        <div class="golden-rule-box">
-          <div class="rule-header">
-            <span>⚖️ Regla Canónica de Créditos:</span>
-          </div>
-          <p>
-            Los <strong>Créditos de Generación</strong> (usados en clases, studio y videos) pertenecen al ámbito del software y la IA; <em>no son canjeables por productos físicos</em>. Los productos físicos de hardware se obtienen exclusivamente mediante el <strong>Programa de Referencias</strong>.
-          </p>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="spread-page spread-page-right credits-page-right">
-      <div class="magazine-content-col">
-        <div class="page-number-top">PÁG. ${pageRightNum} // ECONOMÍA CIRCULAR & REFERIDOS</div>
-
-        <span class="magazine-kicker">PROGRAMA DE RECOMENDACIÓN</span>
-        <h2 class="magazine-main-title">EL CÍRCULO VIRTUOSO DE CRÉDITOS</h2>
-        <p style="font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 14px;">
-          Nuestra mejor inversión publicitaria son los propios padres. Al ayudarnos a agendar citas con otras familias, acumulas créditos canjeables por hardware físico de alta gama.
-        </p>
-
-        <!-- Tabla de Recompensas por Referencias -->
-        <div class="referrals-rewards-table-wrapper glass-panel">
-          <table class="referrals-table">
-            <thead>
-              <tr>
-                <th>Citas</th>
-                <th>Créditos</th>
-                <th>Recompensa Física</th>
-                <th>Valor</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${REPERTORIO_DATA.referralsProgram.map(ref => `
-                <tr>
-                  <td>
-                    <div class="citas-badge">
-                      <strong>${ref.citas}</strong>
-                      <span>personas</span>
-                    </div>
-                  </td>
-                  <td>
-                    <strong style="color: #7c3aed; font-size: 14px;">+${ref.credits}</strong> cr
-                  </td>
-                  <td>
-                    <div class="reward-prod-cell">
-                      <span class="prod-icon">${ref.rewardIcon}</span>
-                      <strong>${ref.rewardName}</strong>
-                    </div>
-                  </td>
-                  <td>
-                    <span class="reward-val">${formatMoney(ref.commercialValueUSD, ref.commercialValuePEN)}</span>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Simulador Rápido de Referidos -->
-        <div class="referrals-calculator-card glass-panel">
-          <h4>🧮 Simulador de Retorno por Recomendación</h4>
-          <p style="font-size: 12px; color: #64748b; margin-bottom: 10px;">
-            Si recomiendas a <strong>10 familias amigas</strong> que nos reciban para una demo de 40 minutos:
-          </p>
-          <div class="sim-result-pill">
-            <span class="sim-icon">🎁</span>
-            <div class="sim-text">
-              <strong>Te llevas 1 Smart Ring totalmente gratis</strong>
-              <small>Equivalente a 650 créditos o ${formatMoney(450, 1530)} en ahorro directo.</small>
-            </div>
-          </div>
-        </div>
-
-        <div class="magazine-cta-row" style="margin-top: 14px;">
-          <button type="button" class="btn btn-primary btn-block btn-quote-action">
-            Finalizar & Generar Cotización Oficial 💎
-          </button>
-        </div>
-
-      </div>
-    </div>
-  `;
-}
 
 /**
  * Modal de Cotización y Cierre Comercial
@@ -1238,19 +1095,6 @@ export function openQuoteModal() {
           </div>
         </div>
 
-        <!-- Beneficios de Regalo -->
-        <div class="quote-section">
-          <h4 class="quote-section-title">3. Beneficios & Regalos de Bienvenida (100% Bonificados)</h4>
-          <div class="quote-benefits-list">
-            ${REPERTORIO_DATA.benefits.map(b => `
-              <div class="quote-benefit-row">
-                <span>${b.icon} ${b.title}</span>
-                <span class="worth-strike"><s>${formatMoney(b.valueUSD, b.valuePEN)}</s> <strong>GRATIS</strong></span>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-
         <!-- Totalización -->
         <div class="quote-summary-box">
           <div class="summary-line">
@@ -1260,10 +1104,6 @@ export function openQuoteModal() {
           <div class="summary-line">
             <span>Implementación ZentryOS:</span>
             <span>${formatMoney(totals.implementationUSD, totals.implementationPEN)}</span>
-          </div>
-          <div class="summary-line" style="color: #059669;">
-            <span>Valor Obsequios Zentry:</span>
-            <span>+${formatMoney(totals.benefitsValueUSD, totals.benefitsValuePEN)} (INCLUIDO)</span>
           </div>
           <div class="summary-total-final">
             <div>
@@ -1279,11 +1119,13 @@ export function openQuoteModal() {
       </div>
 
       <div class="quote-modal-footer">
-        <button type="button" class="btn btn-secondary" id="btn-copy-quote-whatsapp">
-          📲 Copiar Formato WhatsApp
+        <button type="button" class="btn btn-secondary" id="btn-copy-quote-whatsapp" style="display:inline-flex; align-items:center; gap:6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+          Copiar Formato WhatsApp
         </button>
-        <button type="button" class="btn btn-primary" id="btn-confirm-quote-action">
-          🚀 Agendar Cita de Implementación
+        <button type="button" class="btn btn-primary" id="btn-confirm-quote-action" style="display:inline-flex; align-items:center; gap:6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          Agendar Cita de Implementación
         </button>
       </div>
     </div>
@@ -1317,13 +1159,8 @@ function copyQuoteToWhatsApp(totals) {
     `*2. Implementación de Software:*\n` +
     `  • ${totals.implData.name} (${totals.implData.devicesIncluded} dispositivos)\n` +
     `  • Parental Dashboard Multidispositivo (2 vistas: Padre y Madre en celular, tablet y PC)\n\n` +
-    `*3. Regalos y Beneficios Incluidos:*\n` +
-    `  • 3 Clases de Inteligencia Artificial para Padres\n` +
-    `  • 100 Créditos de Generación para Studio Parental Dashboard\n` +
-    `  • Pase Gratis al evento familiar "Zentry Experience"\n\n` +
     `💰 *Inversión Total:* ${formatMoney(totals.totalUSD, totals.totalPEN, currency)}\n` +
-    `*(Hardware completo + Despliegue de software + Ecosistema de beneficios)*\n\n` +
-    `💡 *Programa de Referidos:* Con 7 a 20 familias referidas puedes obtener Smart Bands, Smart Rings o Smart Sound sin costo.\n\n` +
+    `*(Hardware completo + Despliegue de software ZentryOS)*\n\n` +
     `_Generado desde QZ-Hub Operativo_`;
 
   navigator.clipboard.writeText(text).then(() => {
@@ -1346,6 +1183,25 @@ function attachRepertorioEvents() {
       repertorioState.currency = e.currentTarget.dataset.currency;
       renderRepertorioView();
     });
+  });
+
+  // Breadcrumb: Navegación a Repertorio (Redirección al selector de familias)
+  document.getElementById('crumb-nav-repertorio')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    repertorioState.viewMode = 'family-picker';
+    renderRepertorioView();
+  });
+
+  // Breadcrumb: Navegación a Slides [SUFIJO]
+  document.getElementById('crumb-link-slides')?.addEventListener('click', () => {
+    if (repertorioState.viewMode === 'family-picker') {
+      repertorioState.viewMode = 'magazine';
+      repertorioState.currentSpread = 1;
+      renderRepertorioView();
+    } else {
+      repertorioState.viewMode = 'family-picker';
+      renderRepertorioView();
+    }
   });
 
   // Toggle Selector de Familia / Catálogo
@@ -1380,64 +1236,139 @@ function attachRepertorioEvents() {
     });
   });
 
-  // Navegación de Spreads (Prev / Next)
-  document.getElementById('btn-spread-prev')?.addEventListener('click', () => {
-    if (repertorioState.currentSpread > 1) {
-      repertorioState.currentSpread--;
-      renderRepertorioView();
-    }
-  });
+  // Navegación aislada de Spreads (Solo actualiza el recuadro central de la presentación)
+  function navigateToSpread(targetSpread) {
+    if (targetSpread < 1 || targetSpread > 5) return;
+    repertorioState.currentSpread = targetSpread;
 
-  document.getElementById('btn-spread-next')?.addEventListener('click', () => {
-    if (repertorioState.currentSpread < 6) {
-      repertorioState.currentSpread++;
+    const currentFam = REPERTORIO_DATA.families[repertorioState.selectedFamily];
+    const activeSpreadEl = document.getElementById('magazine-active-spread');
+    if (activeSpreadEl) {
+      activeSpreadEl.style.opacity = '0';
+      activeSpreadEl.style.transform = 'translateY(4px)';
+      setTimeout(() => {
+        activeSpreadEl.innerHTML = renderSpreadContent(targetSpread, currentFam);
+        activeSpreadEl.style.opacity = '1';
+        activeSpreadEl.style.transform = 'translateY(0)';
+        attachSpreadInnerEvents(activeSpreadEl);
+      }, 90);
+    } else {
       renderRepertorioView();
+      return;
     }
-  });
 
-  // Botones de acción directa en spreads
-  root.querySelectorAll('.btn-next-spread-action').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const target = parseInt(e.currentTarget.dataset.targetSpread, 10);
-      if (target) {
-        repertorioState.currentSpread = target;
-        renderRepertorioView();
+    // Actualizar indicador de página en el footer
+    const counterNumbersEl = root.querySelector('.magazine-page-counter .counter-numbers');
+    if (counterNumbersEl) {
+      counterNumbersEl.innerHTML = `<strong>0${targetSpread}</strong> / 05`;
+    }
+
+    // Actualizar thumbnails activos en el footer
+    root.querySelectorAll('.magazine-thumb-btn').forEach(btn => {
+      const num = parseInt(btn.dataset.spreadNum, 10);
+      if (num === targetSpread) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
       }
     });
-  });
+  }
 
-  // Thumbnails de spreads
+  function attachSpreadInnerEvents(container) {
+    if (!container) return;
+
+    // Botones de acción directa para avanzar de spread (ej. en la portada)
+    container.querySelectorAll('.btn-next-spread-action').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = parseInt(e.currentTarget.dataset.targetSpread, 10);
+        if (target) navigateToSpread(target);
+      });
+    });
+
+    // Elegir Set para Cotización
+    container.querySelectorAll('.btn-choose-set').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        repertorioState.selectedSetTier = e.currentTarget.dataset.setKey;
+        openQuoteModal();
+      });
+    });
+
+    // Compartir Propuesta rápida
+    container.querySelectorAll('.btn-share-quote').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        repertorioState.selectedSetTier = e.currentTarget.dataset.setKey;
+        const totals = calculateSetTotals(repertorioState.selectedFamily, repertorioState.selectedSetTier);
+        copyQuoteToWhatsApp(totals);
+      });
+    });
+  }
+
+  // Vincular eventos internos del spread inicial
+  const activeSpreadEl = document.getElementById('magazine-active-spread');
+  if (activeSpreadEl) {
+    attachSpreadInnerEvents(activeSpreadEl);
+  }
+
+  // Thumbnails de spreads usan navigateToSpread
   root.querySelectorAll('.magazine-thumb-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      repertorioState.currentSpread = parseInt(e.currentTarget.dataset.spreadNum, 10);
-      renderRepertorioView();
+      const target = parseInt(e.currentTarget.dataset.spreadNum, 10);
+      if (target) navigateToSpread(target);
     });
   });
 
-  // Elegir Set para Cotización
-  root.querySelectorAll('.btn-choose-set').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      repertorioState.selectedSetTier = e.currentTarget.dataset.setKey;
-      openQuoteModal();
-    });
-  });
+  // Navegación por teclado en PC (Flechas Izquierda / Derecha / Arriba / Abajo)
+  if (!window._repertorioKeyHandlerAttached) {
+    window.addEventListener('keydown', (e) => {
+      if (repertorioState.viewMode !== 'magazine') return;
+      if (document.getElementById('repertorio-quote-modal')) return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
-  // Compartir Propuesta rápida
-  root.querySelectorAll('.btn-share-quote').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      repertorioState.selectedSetTier = e.currentTarget.dataset.setKey;
-      const totals = calculateSetTotals(repertorioState.selectedFamily, repertorioState.selectedSetTier);
-      copyQuoteToWhatsApp(totals);
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        navigateToSpread(repertorioState.currentSpread + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        navigateToSpread(repertorioState.currentSpread - 1);
+      }
     });
-  });
+    window._repertorioKeyHandlerAttached = true;
+  }
 
-  // Enlace a créditos desde tips
-  root.querySelectorAll('.link-to-credits').forEach(link => {
-    link.addEventListener('click', () => {
-      repertorioState.currentSpread = 6;
-      renderRepertorioView();
-    });
-  });
+  // Gestos de Deslizar (Swipe) para Tablets y Smartphones
+  const viewport = document.getElementById('magazine-viewport');
+  if (viewport) {
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    viewport.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', (e) => {
+      if (!touchStartX || !e.changedTouches || e.changedTouches.length === 0) return;
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+      const diffX = touchEndX - touchStartX;
+      const diffY = touchEndY - touchStartY;
+
+      // Umbral mínimo de 40px y predominancia horizontal
+      if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX < 0) {
+          // Deslizar hacia la izquierda -> avanzar spread siguiente
+          navigateToSpread(repertorioState.currentSpread + 1);
+        } else {
+          // Deslizar hacia la derecha -> volver al spread anterior
+          navigateToSpread(repertorioState.currentSpread - 1);
+        }
+      }
+      touchStartX = 0;
+      touchStartY = 0;
+    }, { passive: true });
+  }
 
   // Botón Abrir Modal Cotización
   document.getElementById('btn-open-quote-modal')?.addEventListener('click', () => {
@@ -1448,20 +1379,5 @@ function attachRepertorioEvents() {
   document.getElementById('btn-quick-overview')?.addEventListener('click', () => {
     repertorioState.viewMode = 'family-picker';
     renderRepertorioView();
-  });
-
-  // Navegación de carrusel de productos individuales dentro del set
-  root.querySelectorAll('.btn-carousel-arrow').forEach(arrowBtn => {
-    arrowBtn.addEventListener('click', (e) => {
-      const targetId = e.currentTarget.dataset.target;
-      const carousel = document.getElementById(targetId);
-      if (!carousel) return;
-      const isPrev = e.currentTarget.classList.contains('carousel-arrow-prev');
-      const scrollAmount = carousel.clientWidth * 0.75;
-      carousel.scrollBy({
-        left: isPrev ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    });
   });
 }
