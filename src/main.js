@@ -28,23 +28,15 @@ function processLocalSsotQuery(query) {
 import { manifestMarkdown, circadianoMarkdown, metricasMarkdown, dispositivosData } from './herramientas-data.js';
 import './style.css';
 import db from './ssot-db.json';
-import {
-  renderProtocoloPreviewHTML,
-  renderProtocolo30DiasFullPage,
-  setupProtocoloEvents
-} from './protocolo-30dias.js';
-import { renderRepertorioView } from './repertorio-view.js';
+import { renderSprint3DiasHTML, setupSprint3DiasEvents } from './sprint-3dias.js';
+import { renderKeepNotesHTML, setupKeepNotesEvents } from './keep-notes.js';
+import { renderAgentWorkflowHTML, setupAgentWorkflowEvents } from './agent-workflow.js';
 import {
   bootstrapFirestoreSync,
   pushToFirestoreDebounced,
   pushAllToFirestore,
-  forceSyncNow,
-  onSyncStatusChange,
-  getSyncStatus,
   syncTasks,
   syncMIT,
-  syncHabitTracker,
-  syncProtocolsHistory,
   syncObjectives,
   syncTimeblock,
   syncTimeblockHistory,
@@ -82,34 +74,25 @@ const state = {
   tasks: [],
   currentEditingTask: null,
   // Espacio Personal state
-  personalDate: getLocalDateString(),
+  personalDate: new Date().toISOString().split('T')[0],
   chatMessages: [],
   pendingSuggestions: null,
   calendarEvents: [],
   calendarConnected: !!localStorage.getItem('gcal_access_token') || !!localStorage.getItem('gcal_gas_url')
 };
 
-// Local Date Helper (prevents UTC timezone offset day-shift bugs in Peru / LatAm)
-function getLocalDateString(d = new Date()) {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
 // Initialize Tasks from LocalStorage or DB
 function initTasks() {
   const stored = localStorage.getItem('zentry_tasks');
   if (stored) {
     try {
-      const parsed = JSON.parse(stored);
-      state.tasks = (Array.isArray(parsed) && parsed.length > 0) ? parsed : JSON.parse(JSON.stringify(db.tasks));
+      state.tasks = JSON.parse(stored);
     } catch (e) {
       state.tasks = JSON.parse(JSON.stringify(db.tasks));
     }
   } else {
     state.tasks = JSON.parse(JSON.stringify(db.tasks));
-    localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks));
+    localStorage.setItem('zentry_tasks', JSON.stringify(state.tasks)); syncTasks(state.tasks);
   }
 }
 
@@ -127,137 +110,15 @@ function pushCloudDataDebounced() {
 
 // Bootstrap Firestore on load (pull -> merge -> push -> listen)
 bootstrapFirestoreSync(state.tasks, (cloudData) => {
-  if (!cloudData) return;
-
   // Re-hydrate state from cloud updates received from other devices
-  if (Array.isArray(cloudData.tasks) && cloudData.tasks.length > 0) {
+  if (cloudData && Array.isArray(cloudData.tasks) && cloudData.tasks.length > 0) {
     state.tasks = cloudData.tasks;
-    localStorage.setItem('zentry_tasks', JSON.stringify(cloudData.tasks));
   }
-
-  // Avoid interrupting user typing
-  const isUserTyping = document.activeElement && 
-    (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
-  if (isUserTyping) return;
-
-  // Trigger smooth re-render on whichever view is active
-  if (state.activeView && state.activeView.startsWith('backlog')) {
+  // Trigger re-render if on backlog view
+  if (state.activeView === 'backlog') {
     if (typeof renderers !== 'undefined' && renderers.backlog) renderers.backlog();
-  } else if (state.activeView === 'journal' && typeof renderers !== 'undefined' && renderers.journal) {
-    renderers.journal();
-  } else if (typeof renderers !== 'undefined' && renderers[state.activeView]) {
-    renderers[state.activeView]();
   }
 });
-
-// Setup GCP Sync Status UI (Badges + Modal)
-function initSyncUI() {
-  const sidebarBtn = document.getElementById('sidebar-sync-btn');
-  const sidebarText = document.getElementById('sidebar-sync-text');
-  const sidebarDot = document.getElementById('sidebar-sync-dot');
-  const mobileBtn = document.getElementById('mobile-sync-btn');
-  const mobileText = document.getElementById('mobile-sync-text');
-  const mobileDot = document.getElementById('mobile-sync-dot');
-  
-  const modal = document.getElementById('gcp-sync-modal');
-  const modalClose = document.getElementById('gcp-sync-modal-close');
-  const modalDot = document.getElementById('modal-sync-dot');
-  const modalTitle = document.getElementById('modal-sync-title');
-  const modalSubtitle = document.getElementById('modal-sync-subtitle');
-  const modalTime = document.getElementById('modal-sync-last-time');
-  const btnForce = document.getElementById('btn-force-sync');
-
-  function updateUI(status) {
-    if (!status) return;
-    const isSynced = status.state === 'synced';
-    const isSyncing = status.state === 'syncing';
-    const isOffline = status.state === 'offline';
-    const isError = status.state === 'error';
-
-    let dotClass = 'sync-indicator-dot';
-    if (isSyncing) dotClass += ' syncing';
-    else if (isOffline) dotClass += ' offline';
-    else if (isError) dotClass += ' error';
-
-    if (sidebarDot) sidebarDot.className = dotClass;
-    if (mobileDot) mobileDot.className = dotClass;
-    if (modalDot) modalDot.className = `modal-sync-dot ${dotClass}`;
-
-    if (sidebarText) {
-      if (isSynced) sidebarText.textContent = '☁️ GCP Sincronizado';
-      else if (isSyncing) sidebarText.textContent = '🔄 Guardando en GCP...';
-      else if (isOffline) sidebarText.textContent = '⚠️ Modo Local';
-      else if (isError) sidebarText.textContent = '❌ Error Sync GCP';
-      else sidebarText.textContent = '☁️ Conectando GCP...';
-    }
-
-    if (mobileText) {
-      if (isSynced) mobileText.textContent = 'GCP ✓';
-      else if (isSyncing) mobileText.textContent = 'Sync...';
-      else if (isOffline) mobileText.textContent = 'Offline';
-      else if (isError) mobileText.textContent = 'Error';
-      else mobileText.textContent = 'GCP';
-    }
-
-    if (modalTitle) {
-      if (isSynced) modalTitle.textContent = 'Sincronizado con GCP Firestore';
-      else if (isSyncing) modalTitle.textContent = 'Transmitiendo a GCP...';
-      else if (isOffline) modalTitle.textContent = 'Modo Local (Desconectado)';
-      else if (isError) modalTitle.textContent = 'Error de Sincronización';
-      else modalTitle.textContent = 'Conectando a GCP Firestore...';
-    }
-
-    if (modalSubtitle) {
-      modalSubtitle.textContent = status.message || 'Sincronización multi-dispositivo activa (PC ↔ Celular)';
-    }
-
-    if (modalTime) {
-      modalTime.textContent = status.lastSyncTime 
-        ? new Date(status.lastSyncTime).toLocaleTimeString() + ' (' + new Date(status.lastSyncTime).toLocaleDateString() + ')'
-        : 'Recién conectado';
-    }
-  }
-
-  onSyncStatusChange(updateUI);
-
-  const openModal = () => { if (modal) modal.classList.add('active'); };
-  const closeModal = () => { if (modal) modal.classList.remove('active'); };
-
-  if (sidebarBtn) sidebarBtn.addEventListener('click', openModal);
-  if (mobileBtn) mobileBtn.addEventListener('click', openModal);
-  if (modalClose) modalClose.addEventListener('click', closeModal);
-  if (modal) {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
-  }
-
-  if (btnForce) {
-    btnForce.addEventListener('click', async () => {
-      btnForce.disabled = true;
-      btnForce.innerHTML = '<span>🔄</span> Sincronizando con GCP...';
-      await forceSyncNow(state.tasks, (cloudData) => {
-        if (cloudData && Array.isArray(cloudData.tasks)) {
-          state.tasks = cloudData.tasks;
-        }
-        if (typeof renderers !== 'undefined' && renderers.backlog) {
-          renderers.backlog();
-        }
-      });
-      btnForce.innerHTML = '<span>✅</span> ¡Sincronizado!';
-      setTimeout(() => {
-        btnForce.disabled = false;
-        btnForce.innerHTML = '<span>🔄</span> Sincronizar Ahora con GCP';
-      }, 1800);
-    });
-  }
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initSyncUI);
-} else {
-  initSyncUI();
-}
 
 
 
@@ -283,11 +144,6 @@ function getMITData() {
       { text: 'Cumplir bloque de ayuno y protocolo circadiano de energía', checked: false },
       { text: 'Realizar caminata activa de 45 min + calistenia', checked: false },
       { text: 'Completar 40 llamadas breves Royal Prestige', checked: false }
-    ],
-    global: [
-      { text: 'Sincronizar métricas clave de holding QUARZ y ZentryOS', checked: false },
-      { text: 'Completar bloque diario de prospección y ventas', checked: false },
-      { text: 'Supervisar arquitectura técnica y despliegues en producción', checked: false }
     ]
   };
   
@@ -300,11 +156,10 @@ function getMITData() {
 }
 
 function saveMITData(mit) {
-  const mode = state.backlogMode || 'quarz';
   const key = getMITStorageKey();
   localStorage.setItem(key, JSON.stringify(mit));
   localStorage.setItem('zentry_mit', JSON.stringify(mit));
-  syncMIT(mit, mode);
+  syncMIT(mit);
 }
 
 function getCorkboardObjectives() {
@@ -415,8 +270,8 @@ function applyCalendarEventsToTimeblock() {
     const end = new Date(event.end);
     
     const dateStr = state.personalDate;
-    const startStr = getLocalDateString(start);
-    const endStr = getLocalDateString(end);
+    const startStr = start.toISOString().split('T')[0];
+    const endStr = end.toISOString().split('T')[0];
     
     if (startStr !== dateStr && endStr !== dateStr) return;
     
@@ -460,7 +315,7 @@ function formatDateLabel(dateStr) {
 function shiftDate(dateStr, days) {
   const d = new Date(dateStr + 'T12:00:00');
   d.setDate(d.getDate() + days);
-  return getLocalDateString(d);
+  return d.toISOString().split('T')[0];
 }
 
 function formatTime12h(time24) {
@@ -900,11 +755,17 @@ function setupBrickWallInteraction(baseScale) {
   }
 }
 
-// Function to invoke real Google Cloud Vertex AI / Gemini API with full SSOT System Instruction
-async function callRealGeminiAPI(userQuery, chatHistory = []) {
-  const model = localStorage.getItem('gemini_model') || 'gemini-2.5-flash';
+// Views Renderers
 
-  const systemInstruction = `Eres el Orquestador SSOT Maestro de José Ángel para el Plan de 63 Días (10 Agosto a 11 Octubre de 2026) y QUARZ Group.
+// Function to invoke real Google Cloud / AI Studio Gemini API with full SSOT System Instruction
+async function callRealGeminiAPI(userQuery, chatHistory = []) {
+  const apiKey = localStorage.getItem('gemini_api_key');
+  if (!apiKey) throw new Error('MISSING_API_KEY');
+
+  const model = localStorage.getItem('gemini_model') || 'gemini-2.0-flash';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+  const systemInstruction = `Eres el Orquestador SSOT Maestro de José Ángel para el Plan de 63 Días (10 Agosto a 11 Octubre de 2026).
 Tienes conocimiento completo del SSOT:
 1. MANIFIESTO MAESTRO 63 DÍAS:
 ${manifestMarkdown.slice(0, 4000)}
@@ -916,6 +777,7 @@ ${metricasMarkdown.slice(0, 3000)}
 ${circadianoMarkdown.slice(0, 3000)}
 
 INFORMACIÓN OPERATIVA:
+- Fecha de hoy: Lunes 10 de Agosto de 2026.
 - Obligación financiera al 31 de agosto: S/ 4,000.00 PEN (Caja actual S/ 770.00).
 - Dispositivos: Redmi Note 9 (SIM 933709385 QUARZ para llamadas), Motorola Edge 40 Neo (Servidor USB Scrcpy para WhatsApp), Tab A7 Samsung (Demo ZentryOS Launcher Device Owner), iPad 5ª Gen (Demo PWA Dashboard).
 - Franja 12:00 PM - 02:00 PM: Paseo del perro + Calistenia + 40 llamadas breves Royal Prestige.
@@ -924,22 +786,56 @@ INFORMACIÓN OPERATIVA:
 
 Responde con profesionalismo, concisión, estructura Markdown impecable y máxima alineación al SSOT.`;
 
-  // Format past history into prompt
-  let fullPrompt = '';
-  if (Array.isArray(chatHistory) && chatHistory.length > 0) {
-    fullPrompt = chatHistory.slice(-6).map(m => `${m.sender === 'user' ? 'Usuario' : 'Asistente'}: ${m.text}`).join('\n\n') + `\n\nUsuario: ${userQuery}`;
-  } else {
-    fullPrompt = userQuery;
+  const contents = [];
+  
+  // Format past history into Gemini role objects
+  chatHistory.slice(-6).forEach(msg => {
+    if (msg.sender === 'user') {
+      contents.push({ role: 'user', parts: [{ text: msg.text }] });
+    } else if (msg.sender === 'bot') {
+      contents.push({ role: 'model', parts: [{ text: msg.text }] });
+    }
+  });
+
+  // Ensure current userQuery is at the end
+  if (contents.length === 0 || contents[contents.length - 1].role !== 'user' || contents[contents.length - 1].parts[0].text !== userQuery) {
+    contents.push({ role: 'user', parts: [{ text: userQuery }] });
   }
 
-  return await callVertexGemini(fullPrompt, systemInstruction, model);
+  const payload = {
+    system_instruction: {
+      parts: [{ text: systemInstruction }]
+    },
+    contents: contents,
+    generationConfig: {
+      temperature: 0.7,
+      maxOutputTokens: 1024
+    }
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || `Error HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Respuesta vacía recibida de Gemini API.');
+  
+  return text;
 }
 
 
 
 // ─── INTERACTIVE BACKLOG CALENDAR LOGIC ───────────────────────────────────────
 let calCurrentDate = new Date();
-let calSelectedDateStr = getLocalDateString();
+let calSelectedDateStr = new Date().toISOString().split('T')[0];
 
 function checkTaskMatchesDate(task, dateStr) {
   if (!task || !task.deadline) return false;
@@ -970,26 +866,15 @@ function checkTaskMatchesDate(task, dateStr) {
   return false;
 }
 
-function matchTaskUnit(task, mode) {
-  if (!mode || mode === 'global') return true;
-  const origin = (task.origin || task.unit || 'Quarz').toLowerCase();
-  if (mode === 'quarz') {
-    return origin.includes('quarz') || (!origin.includes('zentry') && !origin.includes('personal') && !task.id.startsWith('TEC') && !task.id.startsWith('PROD') && !task.id.startsWith('MKT'));
-  }
-  if (mode === 'zentry') {
-    return origin.includes('zentry') || task.id.startsWith('TEC') || task.id.startsWith('PROD') || task.id.startsWith('MKT');
-  }
-  if (mode === 'personal' || mode === 'personal-board') {
-    return origin.includes('personal');
-  }
-  return true;
-}
-
 function getTasksForDate(dateStr) {
   const mode = state.backlogMode || 'quarz';
   return state.tasks.filter(task => {
     // 1. Unit filtering
-    if (!matchTaskUnit(task, mode)) return false;
+    const taskUnit = (task.origin || 'Quarz').toLowerCase();
+    if (mode === 'quarz' && taskUnit !== 'quarz') return false;
+    if (mode === 'zentry' && taskUnit !== 'zentry') return false;
+    if ((mode === 'personal' || mode === 'personal-board') && taskUnit !== 'personal') return false;
+    // 'global' includes all units
     
     // 2. Date matching
     return checkTaskMatchesDate(task, dateStr);
@@ -1019,7 +904,7 @@ function renderBacklogCalendar() {
   const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
   const prevMonthTotalDays = new Date(year, month, 0).getDate();
   
-  const todayStr = getLocalDateString();
+  const todayStr = new Date().toISOString().split('T')[0];
   
   daysGrid.innerHTML = '';
   
@@ -1159,7 +1044,7 @@ function renderBacklogCalendar() {
   
   document.getElementById('cal-today-btn')?.addEventListener('click', () => {
     calCurrentDate = new Date();
-    calSelectedDateStr = getLocalDateString();
+    calSelectedDateStr = new Date().toISOString().split('T')[0];
     renderBacklogCalendar();
   });
   
@@ -1175,80 +1060,17 @@ function renderBacklogCalendar() {
 // BIO-TRACKER & PROTOCOLO CUÁNTICO GAMIFICADO (9 MÉTRICAS DE DISCIPLINA)
 // ==============================================================================
 
-const PROTOCOLS_STORAGE_KEY = 'qz_bio_protocols_history';
-
-function getDefaultProtocolsData() {
-  return {
-    activeId: 'pre-elrow',
-    viewingId: 'pre-elrow',
-    protocols: [
-      {
-        id: 'sobriedad-80d',
-        name: 'Protocolo de Sobriedad (80 Días)',
-        shortName: 'Sobriedad 80D',
-        status: 'completado',
-        dates: '15 Jun 2026 – 03 Sep 2026',
-        durationLabel: '80 Días',
-        summary: '80 días sobrio (100%) • 20d sin eyacular (Récord) • 36d sin PMO',
-        metrics: {
-          ay: { daysSince: 51, h24: 1, h48: 0, h72: 0 },
-          lec: { daysSince: 7, daysRead: 7, daysMissed: 0, lastPages: 25 },
-          am: { slot5to6: 1, slot6to7: 3, missed: 2 },
-          z: { daysClean: 0, daysConsumed: 1 },
-          fri: { coldDays: 15, missedDays: 31 },
-          ik: { doneDays: 11, missedDays: 15 },
-          a: { cleanDays: 80, targetDays: 80, missedDays: 0 },
-          e: { retentionDays: 20, ejaculations: 0, pornFreeDays: 36 },
-          s: { days: 12 }
-        }
-      },
-      {
-        id: 'pre-elrow',
-        name: 'Protocolo Pre-Elrow',
-        shortName: 'Pre-Elrow',
-        status: 'en_curso',
-        dates: '10 Sep 2026 – Presente (hacia Elrow)',
-        durationLabel: '30 Días',
-        summary: 'Protocolo activo: disciplina biológica, prospección presencial y cierres',
-        metrics: null
-      }
-    ]
-  };
-}
-
-function getProtocolsData() {
-  try {
-    const stored = localStorage.getItem(PROTOCOLS_STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      return { ...getDefaultProtocolsData(), ...parsed };
-    }
-  } catch (e) {}
-  return getDefaultProtocolsData();
-}
-
-function saveProtocolsData(data) {
-  localStorage.setItem(PROTOCOLS_STORAGE_KEY, JSON.stringify(data));
-  syncProtocolsHistory(data);
-}
-
 function getDefaultHabitTrackerData() {
   return {
-    ay: { daysSince: 0, h24: 0, h48: 0, h72: 0, missed: 0 },
-    lec: { daysSince: 0, daysRead: 0, daysMissed: 0, lastPages: 0 },
-    am: { slot5to6: 0, slot6to7: 0, missed: 0 },
-    z: { daysClean: 0, daysConsumed: 0 },
-    fri: { coldDays: 0, missedDays: 0 },
-    ik: { doneDays: 0, missedDays: 0 },
-    a: { cleanDays: 0, targetDays: 30, missedDays: 0 },
-    e: { retentionDays: 0, ejaculations: 0, pornFreeDays: 0 },
-    s: { days: 0, missedDays: 0 },
-    prod: {
-      todayDate: getLocalDateString(),
-      today: { pcc: 0, ll: 0, demos: 0, win: 0 },
-      history: {},
-      totals: { pcc: 0, ll: 0, demos: 0, win: 0 }
-    }
+    ay: { daysSince: 51, h24: 1, h48: 0, h72: 0 },
+    lec: { daysSince: 7, daysRead: 7, daysMissed: 0, lastPages: 25 },
+    am: { slot5to6: 1, slot6to7: 3, missed: 2 },
+    z: { daysClean: 0, daysConsumed: 1 },
+    fri: { coldDays: 15, missedDays: 31 },
+    ik: { doneDays: 11, missedDays: 15 },
+    a: { cleanDays: 77, targetDays: 90, missedDays: 0 },
+    e: { retentionDays: 8, ejaculations: 0, pornFreeDays: 36 },
+    s: { days: 12 }
   };
 }
 
@@ -1256,26 +1078,16 @@ function getHabitTrackerData() {
   const stored = localStorage.getItem('qz_bio_tracker');
   if (stored) {
     try {
-      const parsed = JSON.parse(stored);
-      // Reiniciar a 0 para el Protocolo Pre-Elrow si tenía métricas acumuladas de protocolos previos
-      if (parsed.ay && parsed.ay.daysSince > 30) {
-        const fresh = getDefaultHabitTrackerData();
-        saveHabitTrackerData(fresh);
-        return fresh;
-      }
-      return { ...getDefaultHabitTrackerData(), ...parsed };
+      return { ...getDefaultHabitTrackerData(), ...JSON.parse(stored) };
     } catch (e) {
       return getDefaultHabitTrackerData();
     }
   }
-  const fresh = getDefaultHabitTrackerData();
-  saveHabitTrackerData(fresh);
-  return fresh;
+  return getDefaultHabitTrackerData();
 }
 
 function saveHabitTrackerData(data) {
   localStorage.setItem('qz_bio_tracker', JSON.stringify(data));
-  syncHabitTracker(data);
 }
 
 function resetHabitTrackerDefaults() {
@@ -1284,312 +1096,117 @@ function resetHabitTrackerDefaults() {
   return defaults;
 }
 
-// Helper para gestión de métricas comerciales productivas (PCC, LL, Demos, WIN)
-function getProductiveData(trackerData) {
-  const todayStr = getLocalDateString();
-  if (!trackerData.prod) {
-    trackerData.prod = {
-      todayDate: todayStr,
-      today: { pcc: 0, ll: 0, demos: 0, win: 0 },
-      history: {},
-      totals: { pcc: 0, ll: 0, demos: 0, win: 0 }
-    };
-  }
-  const prod = trackerData.prod;
-  if (!prod.history) prod.history = {};
-  if (!prod.today) prod.today = { pcc: 0, ll: 0, demos: 0, win: 0 };
-  
-  if (prod.todayDate && prod.todayDate !== todayStr) {
-    prod.history[prod.todayDate] = { ...prod.today };
-    prod.todayDate = todayStr;
-    prod.today = prod.history[todayStr] ? { ...prod.history[todayStr] } : { pcc: 0, ll: 0, demos: 0, win: 0 };
-  } else if (!prod.todayDate) {
-    prod.todayDate = todayStr;
-  }
-
-  const totals = { pcc: 0, ll: 0, demos: 0, win: 0 };
-  for (const date in prod.history) {
-    if (date !== todayStr) {
-      totals.pcc += prod.history[date].pcc || 0;
-      totals.ll += prod.history[date].ll || 0;
-      totals.demos += prod.history[date].demos || 0;
-      totals.win += prod.history[date].win || 0;
-    }
-  }
-  totals.pcc += prod.today.pcc || 0;
-  totals.ll += prod.today.ll || 0;
-  totals.demos += prod.today.demos || 0;
-  totals.win += prod.today.win || 0;
-  prod.totals = totals;
-
-  return prod;
-}
-
 function renderHabitTrackerHTML(tData) {
-  const pData = getProtocolsData();
-  const viewingId = pData.viewingId || 'pre-elrow';
-  const currentProto = pData.protocols.find(p => p.id === viewingId) || pData.protocols[1];
-  const isHistorical = currentProto.status === 'completado';
-  const activeData = isHistorical ? currentProto.metrics : tData;
-  const prodData = isHistorical 
-    ? (currentProto.metrics?.prod || { todayDate: 'Histórico', today: { pcc: 0, ll: 0, demos: 0, win: 0 }, totals: { pcc: 45, ll: 180, demos: 24, win: 8 } })
-    : getProductiveData(tData);
-
-  const friTotal = activeData.fri.coldDays + activeData.fri.missedDays;
-  const friPercent = friTotal > 0 ? Math.round((activeData.fri.coldDays / friTotal) * 100) : 0;
+  const friTotal = tData.fri.coldDays + tData.fri.missedDays;
+  const friPercent = friTotal > 0 ? Math.round((tData.fri.coldDays / friTotal) * 100) : 0;
   
-  const ikTotal = activeData.ik.doneDays + activeData.ik.missedDays;
-  const ikPercent = ikTotal > 0 ? Math.round((activeData.ik.doneDays / ikTotal) * 100) : 0;
+  const ikTotal = tData.ik.doneDays + tData.ik.missedDays;
+  const ikPercent = ikTotal > 0 ? Math.round((tData.ik.doneDays / ikTotal) * 100) : 0;
   
-  const aPercent = activeData.a.targetDays > 0 ? Math.min(100, Math.round((activeData.a.cleanDays / activeData.a.targetDays) * 100)) : 100;
-  const aRemaining = Math.max(0, activeData.a.targetDays - activeData.a.cleanDays);
-
-  const eTargetDays = 30;
-  const ePercent = Math.min(100, Math.round(((activeData.e.retentionDays || 0) / eTargetDays) * 100));
+  const aPercent = tData.a.targetDays > 0 ? Math.min(100, Math.round((tData.a.cleanDays / tData.a.targetDays) * 100)) : 100;
+  const aRemaining = Math.max(0, tData.a.targetDays - tData.a.cleanDays);
 
   return `
-    <div class="backlog-tracker-card roman-temple-card ${isHistorical ? 'historical-mode' : ''}" id="backlog-tracker-widget">
-      <!-- 1. CORNISA / ENTABLAMENTO ROMANO SUPERIOR (ESTRUCTURA DE TEMPLO) -->
-      <div class="tracker-roman-entablature">
-        <svg class="entablature-svg" viewBox="0 0 400 38" preserveAspectRatio="none" width="100%" height="38">
-          <defs>
-            <pattern id="dentil-pattern" width="11" height="11" patternUnits="userSpaceOnUse">
-              <rect x="2" y="1" width="7" height="9" rx="0.5" fill="#e4dbcf" stroke="#75695a" stroke-width="0.7"/>
-              <line x1="2.5" y1="2" x2="8.5" y2="2" stroke="#ffffff" stroke-width="0.8"/>
-              <line x1="2" y1="9.5" x2="9" y2="9.5" stroke="#4a3e30" stroke-width="0.8"/>
-            </pattern>
-            <linearGradient id="pediment-shelf-grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#f8f4ed"/>
-              <stop offset="40%" stop-color="#dfd6c8"/>
-              <stop offset="100%" stop-color="#a89a87"/>
-            </linearGradient>
-            <linearGradient id="frieze-grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#eee6db"/>
-              <stop offset="60%" stop-color="#dfd5c7"/>
-              <stop offset="100%" stop-color="#8c7e6c"/>
-            </linearGradient>
-          </defs>
-          <!-- Geison / Cornisa superior con moldura escalonada -->
-          <rect x="0" y="0" width="400" height="7" fill="url(#pediment-shelf-grad)"/>
-          <line x1="0" y1="7" x2="400" y2="7" stroke="#5a4e3f" stroke-width="1"/>
-          <rect x="4" y="7" width="392" height="4" fill="#cfc4b4"/>
-          <!-- Fila corrida de Dentículos Romanos -->
-          <rect x="8" y="11" width="384" height="11" fill="url(#dentil-pattern)"/>
-          <line x1="0" y1="22" x2="400" y2="22" stroke="#4a3d2e" stroke-width="1.2"/>
-          <!-- Arquitrabe con molduras de banda (fasciae) -->
-          <rect x="4" y="22" width="392" height="7" fill="url(#frieze-grad)"/>
-          <line x1="4" y1="29" x2="396" y2="29" stroke="#756756" stroke-width="0.8"/>
-          <rect x="0" y="29" width="400" height="8" fill="#ded5c6"/>
-          <line x1="0" y1="37" x2="400" y2="37" stroke="#4a3d2e" stroke-width="1.2"/>
-          <!-- Capitel Izquierdo con Voluta Jónica -->
-          <g transform="translate(0, 7)">
-            <rect x="0" y="0" width="24" height="30" fill="#cfc3b2" stroke="#524536" stroke-width="0.9"/>
-            <circle cx="7" cy="18" r="4.5" fill="#f0e8dc" stroke="#524536" stroke-width="1.1"/>
-            <circle cx="7" cy="18" r="2" fill="#8c7d6c"/>
-            <rect x="1" y="25" width="22" height="5" fill="#beb19f" stroke="#524536" stroke-width="0.8"/>
-          </g>
-          <!-- Capitel Derecho con Voluta Jónica -->
-          <g transform="translate(376, 7)">
-            <rect x="0" y="0" width="24" height="30" fill="#cfc3b2" stroke="#524536" stroke-width="0.9"/>
-            <circle cx="17" cy="18" r="4.5" fill="#f0e8dc" stroke="#524536" stroke-width="1.1"/>
-            <circle cx="17" cy="18" r="2" fill="#8c7d6c"/>
-            <rect x="1" y="25" width="22" height="5" fill="#beb19f" stroke="#524536" stroke-width="0.8"/>
-          </g>
-        </svg>
+    <div class="backlog-tracker-card" id="backlog-tracker-widget">
+      <div class="tracker-card-header">
+        <div class="tracker-title-group">
+          <span class="tracker-icon">🧬</span>
+          <div>
+            <h4 class="tracker-card-title">BIO-TRACKER GAMIFICADO</h4>
+            <span class="tracker-card-subtitle">Protocolo de Disciplina y Rendimiento</span>
+          </div>
+        </div>
+        <button type="button" class="btn-tracker-config" id="btn-open-tracker-config" title="Configurar métricas y cifras">⚙️</button>
       </div>
-
-      <!-- 2. CUERPO DEL TEMPLO FLANQUEADO POR PILARES ESTRIADOS -->
-      <div class="tracker-roman-body">
-        <!-- PILAR ROMANO IZQUIERDO -->
-        <div class="tracker-roman-pillar tracker-pillar-left">
-          <div class="pillar-fluting"></div>
-          <div class="pillar-base-molding"></div>
-        </div>
-
-        <!-- CONTENIDO INTERNO DEL BIO-TRACKER -->
-        <div class="tracker-temple-content">
-          <!-- HEADER CON INSIGNIA ROMANA Y SELECTOR DE PROTOCOLO -->
-          <div class="tracker-card-header">
-            <div class="tracker-title-group">
-              <div class="tracker-icon-svg-wrap">
-                <!-- SVG INSIGNIA: TEMPLO ROMANO CLÁSICO CON COLUMNAS Y CORONA DE LAUREL -->
-                <svg viewBox="0 0 28 28" width="22" height="22" fill="none" class="tracker-svg-roman-insignia">
-                  <polygon points="14 3, 4 8, 24 8" fill="#dfd5c7" stroke="#4a3e30" stroke-width="1.3" stroke-linejoin="round"/>
-                  <circle cx="14" cy="6.2" r="1.1" fill="#756858"/>
-                  <rect x="3.5" y="8" width="21" height="2" fill="#ece5d9" stroke="#4a3e30" stroke-width="1"/>
-                  <g stroke="#4a3e30" stroke-width="1" fill="#f5f0e8">
-                    <rect x="5.2" y="10" width="2.8" height="11" rx="0.4"/>
-                    <rect x="10.2" y="10" width="2.8" height="11" rx="0.4"/>
-                    <rect x="15" y="10" width="2.8" height="11" rx="0.4"/>
-                    <rect x="20" y="10" width="2.8" height="11" rx="0.4"/>
-                  </g>
-                  <path d="M6.6 11v9 M11.6 11v9 M16.4 11v9 M21.4 11v9" stroke="#8a7c6c" stroke-width="0.8"/>
-                  <rect x="3.5" y="21" width="21" height="1.8" fill="#dfd6c8" stroke="#4a3e30" stroke-width="1"/>
-                  <rect x="2" y="22.8" width="24" height="2.2" fill="#c4b8a7" stroke="#4a3e30" stroke-width="1"/>
-                  <path d="M3 16C2.2 12.5 3.5 7.5 7 4.5" stroke="#b89c50" stroke-width="1.3" stroke-linecap="round"/>
-                  <path d="M25 16C25.8 12.5 24.5 7.5 21 4.5" stroke="#b89c50" stroke-width="1.3" stroke-linecap="round"/>
-                  <circle cx="2.2" cy="10.5" r="0.9" fill="#b89c50"/>
-                  <circle cx="4.2" cy="6.5" r="0.9" fill="#b89c50"/>
-                  <circle cx="25.8" cy="10.5" r="0.9" fill="#b89c50"/>
-                  <circle cx="23.8" cy="6.5" r="0.9" fill="#b89c50"/>
-                </svg>
-              </div>
-              <div class="tracker-title-texts">
-                <h4 class="tracker-card-title">BIO-TRACKER</h4>
-                <span class="tracker-card-subtitle">${currentProto.name}</span>
-              </div>
-            </div>
-
-            <div class="tracker-header-actions">
-              <!-- BOTÓN COMPACTO DE HISTORIAL (UNA LÍNEA, SIN 'EN CURSO' EN VISTA PRINCIPAL) -->
-              <button type="button" class="btn-tracker-history-box" id="btn-open-protocol-history" title="Ver Historial de Protocolos">
-                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tracker-svg-clock">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                <span class="history-box-label">Historial</span>
-                <span class="history-box-arrow">▼</span>
-              </button>
-
-              <button type="button" class="btn-tracker-config" id="btn-open-tracker-config" title="Configurar métricas y cifras">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tracker-svg-gear">
-                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-      <!-- BANNER DE MODO HISTÓRICO SI SE ESTÁ VIENDO PROTOCOLO COMPLETADO -->
-      ${isHistorical ? `
-        <div class="tracker-historical-alert-bar">
-          <div class="historical-alert-text">
-            <strong>🏁 REGISTRO HISTÓRICO:</strong> ${currentProto.name} (${currentProto.dates}). Métricas consolidadas.
-          </div>
-          <button type="button" class="btn-return-active-proto" id="btn-return-active-proto" title="Volver al protocolo activo">
-            Volver a Pre-Elrow (En Curso) ➔
-          </button>
-        </div>
-      ` : ''}
 
       <div class="tracker-metrics-grid">
         <!-- 1. AY (Ayuno) -->
-        <div class="metric-chip chip-ay" data-metric="ay" title="Ayuno: ${activeData.ay.daysSince}d tracking | 24h: ${activeData.ay.h24}, 48h: ${activeData.ay.h48}, -: ${activeData.ay.missed || 0}">
+        <div class="metric-chip chip-ay" data-metric="ay" title="Ayuno: ${tData.ay.daysSince}d tracking | 24h: ${tData.ay.h24}, 48h: ${tData.ay.h48}, 72h: ${tData.ay.h72}">
           <div class="metric-chip-header">
-            <span class="metric-code-wrap">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-              <span class="metric-code">AY</span>
-            </span>
-            <span class="metric-total">${activeData.ay.daysSince}d</span>
+            <span class="metric-code">AY</span>
+            <span class="metric-total">${tData.ay.daysSince}d</span>
           </div>
           <div class="metric-chip-body">
-            <span class="metric-badge ${activeData.ay.h24 > 0 ? 'active' : ''}">24h: <strong>${activeData.ay.h24}</strong></span>
-            <span class="metric-badge ${activeData.ay.h48 > 0 ? 'active' : ''}">48h: <strong>${activeData.ay.h48}</strong></span>
-            <span class="metric-badge ${activeData.ay.missed > 0 ? 'danger' : ''}">-: <strong>${activeData.ay.missed || 0}</strong></span>
+            <span class="metric-badge ${tData.ay.h24 > 0 ? 'active' : ''}">24h: <strong>${tData.ay.h24}</strong></span>
+            <span class="metric-badge ${tData.ay.h48 > 0 ? 'active' : ''}">48h: <strong>${tData.ay.h48}</strong></span>
+            <span class="metric-badge ${tData.ay.h72 > 0 ? 'active' : ''}">72h: <strong>${tData.ay.h72}</strong></span>
           </div>
-          ${!isHistorical ? `
-            <div class="metric-chip-actions">
-              <button type="button" class="btn-chip-inc" data-action="inc-ay-24" title="+1 Ayuno 24h">24</button>
-              <button type="button" class="btn-chip-inc" data-action="inc-ay-48" title="+1 Ayuno 48h">48</button>
-              <button type="button" class="btn-chip-inc danger" data-action="inc-ay-missed" title="Día sin ayuno">－</button>
-            </div>
-          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-ay-24" title="+1 Ayuno 24h">＋24</button>
+            <button type="button" class="btn-chip-inc" data-action="inc-ay-48" title="+1 Ayuno 48h">＋48</button>
+          </div>
         </div>
 
         <!-- 2. LEC (Lectura) -->
-        <div class="metric-chip chip-lec" data-metric="lec" title="Lectura: +${activeData.lec.daysRead} leídos, -${activeData.lec.daysMissed} omitidos | ${activeData.lec.lastPages} páginas">
+        <div class="metric-chip chip-lec" data-metric="lec" title="Lectura: +${tData.lec.daysRead} leídos, -${tData.lec.daysMissed} omitidos | ${tData.lec.lastPages} páginas">
           <div class="metric-chip-header">
-            <span class="metric-code-wrap">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-              <span class="metric-code">LEC</span>
-            </span>
-            <span class="metric-streak success">+${activeData.lec.daysRead}</span>
-            <span class="metric-missed danger">-${activeData.lec.daysMissed}</span>
+            <span class="metric-code">LEC</span>
+            <span class="metric-streak success">+${tData.lec.daysRead}</span>
+            <span class="metric-missed danger">-${tData.lec.daysMissed}</span>
           </div>
           <div class="metric-chip-body">
-            <span class="metric-subval">📖 <strong>${activeData.lec.lastPages}</strong> pág.</span>
+            <span class="metric-subval">📖 <strong>${tData.lec.lastPages}</strong> pág.</span>
           </div>
-          ${!isHistorical ? `
-            <div class="metric-chip-actions">
-              <button type="button" class="btn-chip-inc" data-action="inc-lec-read" title="+1 Día de Lectura">＋Día</button>
-              <button type="button" class="btn-chip-inc" data-action="inc-lec-pages" title="Modificar Páginas">＋Pág</button>
-              <button type="button" class="btn-chip-inc danger" data-action="inc-lec-missed" title="Día sin lectura">－</button>
-            </div>
-          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-lec-read" title="+1 Día de Lectura">＋Día</button>
+            <button type="button" class="btn-chip-inc" data-action="inc-lec-pages" title="Modificar Páginas">＋Pág</button>
+          </div>
         </div>
 
         <!-- 3. AM (Madrugar) -->
-        <div class="metric-chip chip-am" data-metric="am" title="Madrugar: 5-6am (${activeData.am.slot5to6}), 6-7am (${activeData.am.slot6to7}), Tarde (-${activeData.am.missed})">
+        <div class="metric-chip chip-am" data-metric="am" title="Madrugar: 5-6am (${tData.am.slot5to6}), 6-7am (${tData.am.slot6to7}), Tarde (-${tData.am.missed})">
           <div class="metric-chip-header">
-            <span class="metric-code-wrap">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><path d="M12 2v4"></path><path d="m4.93 4.93 2.83 2.83"></path><path d="m16.24 7.76 2.83-2.83"></path><path d="M2 18h20"></path><path d="M20 18a8 8 0 0 0-16 0"></path></svg>
-              <span class="metric-code">AM</span>
-            </span>
-            <span class="metric-streak success">+${(activeData.am.slot5to6 || 0) + (activeData.am.slot6to7 || 0)}</span>
-            <span class="metric-missed danger">-${activeData.am.missed || 0}</span>
+            <span class="metric-code">AM</span>
+            <span class="metric-missed danger">-${tData.am.missed}</span>
           </div>
           <div class="metric-chip-body">
-            <span class="metric-tag gold">5a: <strong>${activeData.am.slot5to6}</strong></span>
-            <span class="metric-tag">6a: <strong>${activeData.am.slot6to7}</strong></span>
+            <span class="metric-tag gold">5a: <strong>${tData.am.slot5to6}</strong></span>
+            <span class="metric-tag">6a: <strong>${tData.am.slot6to7}</strong></span>
           </div>
-          ${!isHistorical ? `
-            <div class="metric-chip-actions">
-              <button type="button" class="btn-chip-inc" data-action="inc-am-5" title="+1 Madrugón 5 AM">＋5a</button>
-              <button type="button" class="btn-chip-inc" data-action="inc-am-6" title="+1 Madrugón 6 AM">＋6a</button>
-              <button type="button" class="btn-chip-inc danger" data-action="inc-am-missed" title="Despertar tarde">－</button>
-            </div>
-          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-am-5" title="+1 Madrugón 5 AM">＋5a</button>
+            <button type="button" class="btn-chip-inc" data-action="inc-am-6" title="+1 Madrugón 6 AM">＋6a</button>
+          </div>
         </div>
 
         <!-- 4. Z (Azúcar) -->
-        <div class="metric-chip chip-z" data-metric="z" title="Zero Azúcar: ${activeData.z.daysClean}d limpio, ${activeData.z.daysConsumed} consumos">
+        <div class="metric-chip chip-z" data-metric="z" title="Zero Azúcar: ${tData.z.daysClean}d limpio, ${tData.z.daysConsumed} consumos">
           <div class="metric-chip-header">
-            <span class="metric-code-wrap">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-              <span class="metric-code">Z</span>
-            </span>
-            <span class="metric-exp-display"><span class="exp-base">+${activeData.z.daysClean}</span><sup class="exp-sup">-${activeData.z.daysConsumed}</sup></span>
+            <span class="metric-code">Z</span>
+            <span class="metric-exp-display"><span class="exp-base">+${tData.z.daysClean}</span><sup class="exp-sup">-${tData.z.daysConsumed}</sup></span>
           </div>
           <div class="metric-chip-body">
-            <span class="metric-subval">Azúcar</span>
+            <span class="metric-subval">${tData.z.daysClean === 0 ? '⚠️ Reset reciente' : '🔥 Racha activa'}</span>
           </div>
-          ${!isHistorical ? `
-            <div class="metric-chip-actions">
-              <button type="button" class="btn-chip-inc" data-action="inc-z-clean" title="+1 Día Sin Azúcar">＋Día</button>
-              <button type="button" class="btn-chip-inc danger" data-action="inc-z-consumed" title="Registrar Consumo / Reset">⚠️ Consumo</button>
-            </div>
-          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-z-clean" title="+1 Día Sin Azúcar">＋Día</button>
+            <button type="button" class="btn-chip-inc danger" data-action="inc-z-consumed" title="Registrar Consumo / Reset">⚠️ Consumo</button>
+          </div>
         </div>
 
         <!-- 5. FRI (Agua Fría) -->
-        <div class="metric-chip chip-fri" data-metric="fri" title="Ducha Fría: +${activeData.fri.coldDays} frío / -${activeData.fri.missedDays} omitidos">
+        <div class="metric-chip chip-fri" data-metric="fri" title="Ducha Fría: ${tData.fri.coldDays} frío / ${tData.fri.missedDays} omitidos (${friPercent}%)">
           <div class="metric-chip-header">
-            <span class="metric-code-wrap">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><line x1="12" y1="2" x2="12" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line><line x1="19.07" y1="4.93" x2="4.93" y2="19.07"></line><circle cx="12" cy="12" r="2.5"></circle></svg>
-              <span class="metric-code">FRI</span>
-            </span>
-            <span class="metric-streak success">+${activeData.fri.coldDays}</span>
-            <span class="metric-missed danger">-${activeData.fri.missedDays}</span>
+            <span class="metric-code">FRI</span>
+            <span class="metric-ratio">${tData.fri.coldDays}/${friTotal}</span>
           </div>
           <div class="metric-chip-body">
-            <span class="metric-subval">Ducha Fría</span>
-          </div>
-          ${!isHistorical ? `
-            <div class="metric-chip-actions">
-              <button type="button" class="btn-chip-inc" data-action="inc-fri-cold" title="+1 Ducha Fría">＋🧊</button>
-              <button type="button" class="btn-chip-inc danger" data-action="inc-fri-missed" title="Omitido">－</button>
+            <div class="mini-progress-track">
+              <div class="mini-progress-fill cyan" style="width: ${friPercent}%;"></div>
             </div>
-          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
+            <span class="metric-ratio-text">${friPercent}% (1 de ${friTotal > 0 && tData.fri.coldDays > 0 ? (friTotal / tData.fri.coldDays).toFixed(1) : '-'})</span>
+          </div>
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-fri-cold" title="+1 Ducha Fría">＋🧊</button>
+            <button type="button" class="btn-chip-inc" data-action="inc-fri-missed" title="+1 Omitido">＋🔥</button>
+          </div>
         </div>
 
         <!-- 6. IK (Isha Kriya) -->
-        <div class="metric-chip chip-ik" data-metric="ik" title="Isha Kriya: ${activeData.ik.doneDays} hechos / ${activeData.ik.missedDays} omitidos (${ikPercent}%)">
+        <div class="metric-chip chip-ik" data-metric="ik" title="Isha Kriya: ${tData.ik.doneDays} hechos / ${tData.ik.missedDays} omitidos (${ikPercent}%)">
           <div class="metric-chip-header">
-            <span class="metric-code-wrap">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><circle cx="12" cy="7" r="4"></circle><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"></path><circle cx="12" cy="12" r="9" stroke-dasharray="2 2"></circle></svg>
-              <span class="metric-code">IK</span>
-            </span>
-            <span class="metric-ratio">${activeData.ik.doneDays}/${ikTotal}</span>
+            <span class="metric-code">IK</span>
+            <span class="metric-ratio">${tData.ik.doneDays}/${ikTotal}</span>
           </div>
           <div class="metric-chip-body">
             <div class="mini-progress-track">
@@ -1597,22 +1214,17 @@ function renderHabitTrackerHTML(tData) {
             </div>
             <span class="metric-ratio-text">${ikPercent}% consistencia</span>
           </div>
-          ${!isHistorical ? `
-            <div class="metric-chip-actions">
-              <button type="button" class="btn-chip-inc" data-action="inc-ik-done" title="+1 Meditación">＋🧘</button>
-              <button type="button" class="btn-chip-inc" data-action="inc-ik-missed" title="+1 Omitido">＋⭕</button>
-            </div>
-          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-ik-done" title="+1 Meditación">＋🧘</button>
+            <button type="button" class="btn-chip-inc" data-action="inc-ik-missed" title="+1 Omitido">＋⭕</button>
+          </div>
         </div>
 
         <!-- 7. A (Alcohol) -->
-        <div class="metric-chip chip-a" data-metric="a" title="Alcohol: ${activeData.a.cleanDays} de ${activeData.a.targetDays} días sobrio (${aPercent}%)">
+        <div class="metric-chip chip-a" data-metric="a" title="Alcohol: ${tData.a.cleanDays} de ${tData.a.targetDays} días sobrio (${aPercent}%)">
           <div class="metric-chip-header">
-            <span class="metric-code-wrap">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line><path d="M8 7h8l-3 4.5v4.5h2"></path></svg>
-              <span class="metric-code">A</span>
-            </span>
-            <span class="metric-streak gold">${activeData.a.cleanDays}/${activeData.a.targetDays}d</span>
+            <span class="metric-code">A</span>
+            <span class="metric-streak gold">${tData.a.cleanDays}/${tData.a.targetDays}d</span>
           </div>
           <div class="metric-chip-body">
             <div class="mini-progress-track">
@@ -1620,258 +1232,40 @@ function renderHabitTrackerHTML(tData) {
             </div>
             <span class="metric-ratio-text">${aPercent}% (${aRemaining}d faltan)</span>
           </div>
-          ${!isHistorical ? `
-            <div class="metric-chip-actions">
-              <button type="button" class="btn-chip-inc" data-action="inc-a-clean" title="+1 Día Sobrio">＋1d</button>
-            </div>
-          ` : '<div class="metric-chip-archived-label">🏁 Meta Cumplida</div>'}
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-a-clean" title="+1 Día Sobrio">＋1d</button>
+          </div>
         </div>
 
-        <!-- 8. E (Energía Sexual / Retención) -->
-        <div class="metric-chip chip-e" data-metric="e" title="Retención: ${activeData.e.retentionDays}d limpio, ${activeData.e.ejaculations} caídas">
+        <!-- 8. E (Energía Sexual) -->
+        <div class="metric-chip chip-e" data-metric="e" title="Energía Sexual: ${tData.e.retentionDays}d Retención | ${tData.e.pornFreeDays}d Sin Pornografía | ${tData.e.ejaculations} Eyaculaciones">
           <div class="metric-chip-header">
-            <span class="metric-code-wrap">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-              <span class="metric-code">E</span>
+            <span class="metric-code">E</span>
+            <span class="metric-tag-dual">
+              <span class="ret-badge" title="Retención">⚡ ${tData.e.retentionDays}d</span>
+              <span class="pmo-badge" title="No-Porn">🚫 ${tData.e.pornFreeDays}d</span>
             </span>
-            <span class="metric-streak success">+${activeData.e.retentionDays}d</span>
-            <span class="metric-missed danger">-${activeData.e.ejaculations}</span>
           </div>
           <div class="metric-chip-body">
-            <div class="mini-progress-track">
-              <div class="mini-progress-fill purple" style="width: ${ePercent}%;"></div>
-            </div>
-            <span class="metric-ratio-text">${ePercent}% (${activeData.e.retentionDays}/${eTargetDays}d)</span>
+            <span class="metric-subval">Eyaculaciones: <strong>-${tData.e.ejaculations}</strong></span>
           </div>
-          ${!isHistorical ? `
-            <div class="metric-chip-actions">
-              <button type="button" class="btn-chip-inc" data-action="inc-e-ret" title="+1 Día Retención">＋Día</button>
-              <button type="button" class="btn-chip-inc danger" data-action="inc-e-ejac" title="Registrar caída">－</button>
-            </div>
-          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-e-ret" title="+1 Día Retención">＋⚡</button>
+            <button type="button" class="btn-chip-inc" data-action="inc-e-noporn" title="+1 Día No-Porn">＋🚫</button>
+          </div>
         </div>
 
         <!-- 9. S (Suplementos) -->
-        <div class="metric-chip chip-s" data-metric="s" title="Suplementos: +${activeData.s.days} consistentes / -${activeData.s.missedDays || 0} omitidos">
+        <div class="metric-chip chip-s" data-metric="s" title="Suplementos: ${tData.s.days} días consistentes">
           <div class="metric-chip-header">
-            <span class="metric-code-wrap">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="metric-chip-svg"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"></line></svg>
-              <span class="metric-code">S</span>
-            </span>
-            <span class="metric-streak success">+${activeData.s.days}</span>
-            <span class="metric-missed danger">-${activeData.s.missedDays || 0}</span>
+            <span class="metric-code">S</span>
+            <span class="metric-streak success">💊 +${tData.s.days}d</span>
           </div>
           <div class="metric-chip-body">
             <span class="metric-subval">Adherencia activa</span>
           </div>
-          ${!isHistorical ? `
-            <div class="metric-chip-actions">
-              <button type="button" class="btn-chip-inc" data-action="inc-s-day" title="+1 Día Suplementado">＋💊</button>
-              <button type="button" class="btn-chip-inc danger" data-action="inc-s-missed" title="Día sin suplementar">－</button>
-            </div>
-          ` : '<div class="metric-chip-archived-label">Archivado</div>'}
-        </div>
-
-        <!-- 10. ELEMENTO PRODUCTIVO COMERCIAL (PCC, LL, DEMOS, WIN) -->
-        <div class="metric-chip chip-prod" data-metric="prod">
-          <div class="prod-chip-top">
-            <div class="prod-title-group">
-              <span class="prod-badge-code">PROD</span>
-              <span class="prod-main-title">PRODUCTIVO</span>
-              <span class="prod-sub-tag">Comercial ZentryOS</span>
-            </div>
-            <div class="prod-date-info">
-              <span class="prod-date-pill">📅 ${prodData.todayDate}</span>
-            </div>
-          </div>
-
-          <div class="prod-columns-grid">
-            <!-- 1. PCC (Prospecciones) -->
-            <div class="prod-sub-col">
-              <div class="prod-sub-header">
-                <span class="prod-code-tag tag-pcc">PCC</span>
-                <span class="prod-sub-name" title="Prospección presencial en colegios">Prospección</span>
-              </div>
-              <div class="prod-sub-values">
-                <span class="prod-val-today" data-prod-key="pcc" title="Clic para ingresar cifra de hoy">+${prodData.today.pcc || 0}</span>
-                <span class="prod-val-total" title="Total acumulado en el protocolo">Acum: <strong>${prodData.totals.pcc || 0}</strong></span>
-              </div>
-              ${!isHistorical ? `
-                <div class="prod-sub-actions">
-                  <button type="button" class="btn-prod-ctrl btn-prod-add" data-action="prod-inc" data-prod="pcc" title="+1 Prospección">＋</button>
-                  <button type="button" class="btn-prod-ctrl btn-prod-sub" data-action="prod-dec" data-prod="pcc" title="-1 Prospección">－</button>
-                </div>
-              ` : ''}
-            </div>
-
-            <!-- 2. LL (Llamadas) -->
-            <div class="prod-sub-col">
-              <div class="prod-sub-header">
-                <span class="prod-code-tag tag-ll">LL</span>
-                <span class="prod-sub-name" title="Llamadas y WhatsApp a directores y prospectos">Llamadas</span>
-              </div>
-              <div class="prod-sub-values">
-                <span class="prod-val-today" data-prod-key="ll" title="Clic para ingresar cifra de hoy">+${prodData.today.ll || 0}</span>
-                <span class="prod-val-total" title="Total acumulado en el protocolo">Acum: <strong>${prodData.totals.ll || 0}</strong></span>
-              </div>
-              ${!isHistorical ? `
-                <div class="prod-sub-actions">
-                  <button type="button" class="btn-prod-ctrl btn-prod-add" data-action="prod-inc" data-prod="ll" title="+1 Llamada">＋</button>
-                  <button type="button" class="btn-prod-ctrl btn-prod-sub" data-action="prod-dec" data-prod="ll" title="-1 Llamada">－</button>
-                </div>
-              ` : ''}
-            </div>
-
-            <!-- 3. DEMOS (Demostraciones) -->
-            <div class="prod-sub-col">
-              <div class="prod-sub-header">
-                <span class="prod-code-tag tag-demos">DEMO</span>
-                <span class="prod-sub-name" title="Demostraciones de ZentryOS en vivo">Demos</span>
-              </div>
-              <div class="prod-sub-values">
-                <span class="prod-val-today" data-prod-key="demos" title="Clic para ingresar cifra de hoy">+${prodData.today.demos || 0}</span>
-                <span class="prod-val-total" title="Total acumulado en el protocolo">Acum: <strong>${prodData.totals.demos || 0}</strong></span>
-              </div>
-              ${!isHistorical ? `
-                <div class="prod-sub-actions">
-                  <button type="button" class="btn-prod-ctrl btn-prod-add" data-action="prod-inc" data-prod="demos" title="+1 Demo">＋</button>
-                  <button type="button" class="btn-prod-ctrl btn-prod-sub" data-action="prod-dec" data-prod="demos" title="-1 Demo">－</button>
-                </div>
-              ` : ''}
-            </div>
-
-            <!-- 4. WIN (Ventas / Cierres) -->
-            <div class="prod-sub-col">
-              <div class="prod-sub-header">
-                <span class="prod-code-tag tag-win">WIN</span>
-                <span class="prod-sub-name" title="Ventas y cierres de contratos concretados">Ventas</span>
-              </div>
-              <div class="prod-sub-values">
-                <span class="prod-val-today gold" data-prod-key="win" title="Clic para ingresar cifra de hoy">+${prodData.today.win || 0}</span>
-                <span class="prod-val-total gold" title="Total acumulado en el protocolo">Acum: <strong>${prodData.totals.win || 0}</strong></span>
-              </div>
-              ${!isHistorical ? `
-                <div class="prod-sub-actions">
-                  <button type="button" class="btn-prod-ctrl btn-prod-add gold" data-action="prod-inc" data-prod="win" title="+1 Venta">＋</button>
-                  <button type="button" class="btn-prod-ctrl btn-prod-sub" data-action="prod-dec" data-prod="win" title="-1 Venta">－</button>
-                </div>
-              ` : ''}
-            </div>
-          </div>
-        </div>
-      </div>
-        </div>
-
-        <!-- PILAR ROMANO DERECHO -->
-        <div class="tracker-roman-pillar tracker-pillar-right">
-          <div class="pillar-fluting"></div>
-          <div class="pillar-base-molding"></div>
-        </div>
-      </div>
-
-      <!-- 3. BASE ESCALONADA ROMANA (ESTILÓBATO) -->
-      <div class="tracker-roman-stylobate">
-        <svg class="stylobate-svg" viewBox="0 0 400 16" preserveAspectRatio="none" width="100%" height="16">
-          <defs>
-            <linearGradient id="stylobate-grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#dfd6c8"/>
-              <stop offset="100%" stop-color="#a89a87"/>
-            </linearGradient>
-          </defs>
-          <rect x="6" y="0" width="388" height="5" fill="#ded5c6" stroke="#685c4e" stroke-width="0.8"/>
-          <rect x="0" y="5" width="400" height="11" fill="url(#stylobate-grad)" stroke="#4a3e30" stroke-width="1"/>
-          <line x1="0" y1="5" x2="400" y2="5" stroke="#f2ebe2" stroke-width="0.8"/>
-        </svg>
-      </div>
-
-      <!-- MODAL DE HISTORIAL DE PROTOCOLOS (ESTILO ARQUITECTURA ROMANA) -->
-      <div class="protocols-history-modal" id="protocols-history-modal" style="display: none;">
-        <div class="proto-modal-backdrop" id="proto-modal-backdrop"></div>
-        <div class="proto-modal-card roman-modal-card">
-          <!-- CORNISAMENTO ROMANO DEL MODAL -->
-          <div class="proto-modal-roman-cornice">
-            <svg viewBox="0 0 500 24" preserveAspectRatio="none" width="100%" height="24">
-              <rect x="0" y="0" width="500" height="5" fill="#e8dfd3" />
-              <line x1="0" y1="5" x2="500" y2="5" stroke="#786c5e" stroke-width="0.8" />
-              <rect x="4" y="6" width="492" height="12" fill="url(#dentil-pattern)" />
-              <line x1="0" y1="18" x2="500" y2="18" stroke="#5a4e3f" stroke-width="1" />
-              <rect x="0" y="18" width="500" height="6" fill="#ded5c6" />
-            </svg>
-          </div>
-          <div class="proto-modal-header">
-            <div class="proto-modal-title-group">
-              <!-- SVG INSIGNIA IMPERIAL ROMANA EN EL MODAL -->
-              <div class="modal-roman-icon-wrap">
-                <svg viewBox="0 0 28 28" width="22" height="22" fill="none">
-                  <polygon points="14 3, 4 8, 24 8" fill="#dfd5c7" stroke="#4a3e30" stroke-width="1.3" stroke-linejoin="round"/>
-                  <circle cx="14" cy="6.2" r="1.1" fill="#756858"/>
-                  <rect x="3.5" y="8" width="21" height="2" fill="#ece5d9" stroke="#4a3e30" stroke-width="1"/>
-                  <g stroke="#4a3e30" stroke-width="1" fill="#f5f0e8">
-                    <rect x="5.2" y="10" width="2.8" height="11" rx="0.4"/>
-                    <rect x="10.2" y="10" width="2.8" height="11" rx="0.4"/>
-                    <rect x="15" y="10" width="2.8" height="11" rx="0.4"/>
-                    <rect x="20" y="10" width="2.8" height="11" rx="0.4"/>
-                  </g>
-                  <path d="M6.6 11v9 M11.6 11v9 M16.4 11v9 M21.4 11v9" stroke="#8a7c6c" stroke-width="0.8"/>
-                  <rect x="3.5" y="21" width="21" height="1.8" fill="#dfd6c8" stroke="#4a3e30" stroke-width="1"/>
-                  <rect x="2" y="22.8" width="24" height="2.2" fill="#c4b8a7" stroke="#4a3e30" stroke-width="1"/>
-                  <path d="M3 16C2.2 12.5 3.5 7.5 7 4.5" stroke="#b89c50" stroke-width="1.3" stroke-linecap="round"/>
-                  <path d="M25 16C25.8 12.5 24.5 7.5 21 4.5" stroke="#b89c50" stroke-width="1.3" stroke-linecap="round"/>
-                </svg>
-              </div>
-              <div>
-                <h4 class="modal-roman-title">HISTORIAL DE PROTOCOLOS</h4>
-                <span class="modal-roman-sub">Registro Biológico & Estados de Disciplina</span>
-              </div>
-            </div>
-            <button type="button" class="btn-proto-modal-close" id="btn-close-proto-history">✕</button>
-          </div>
-
-          <div class="proto-modal-body">
-            <p class="proto-modal-intro">Selecciona un protocolo para cargar sus métricas o gestionar el seguimiento biológico:</p>
-            
-            <div class="proto-cards-list">
-              <!-- 1. PROTOCOLO PRE-ELROW (EN CURSO) -->
-              <div class="proto-entry-card ${viewingId === 'pre-elrow' ? 'selected' : ''}" data-proto-id="pre-elrow">
-                <div class="proto-entry-top">
-                  <div class="proto-entry-title-wrap">
-                    <span class="proto-phase-badge in-progress">🟢 En Curso</span>
-                    <h5>Protocolo Pre-Elrow</h5>
-                  </div>
-                  <span class="proto-entry-dates">10 Sep 2026 – Presente</span>
-                </div>
-                <p class="proto-entry-desc">Protocolo activo: reactivación comercial de ZentryOS, recomposición biológica y disciplina estricta de 30 días.</p>
-                <div class="proto-entry-footer">
-                  <span class="proto-duration-pill">Fase: 30 días (10 Sep - 10 Oct)</span>
-                  <button type="button" class="btn-select-proto ${viewingId === 'pre-elrow' ? 'btn-active' : ''}" data-select-id="pre-elrow">
-                    ${viewingId === 'pre-elrow' ? '✓ Operando Actualmente' : 'Operar Protocolo Activo'}
-                  </button>
-                </div>
-              </div>
-
-              <!-- 2. PROTOCOLO DE SOBRIEDAD (COMPLETADO) -->
-              <div class="proto-entry-card ${viewingId === 'sobriedad-80d' ? 'selected' : ''}" data-proto-id="sobriedad-80d">
-                <div class="proto-entry-top">
-                  <div class="proto-entry-title-wrap">
-                    <span class="proto-phase-badge completed">🏁 Completado</span>
-                    <h5>Protocolo de Sobriedad (80 Días)</h5>
-                  </div>
-                  <span class="proto-entry-dates">15 Jun 2026 – 03 Sep 2026 (80 días)</span>
-                </div>
-                <div class="proto-entry-highlights">
-                  <span class="entry-hl-chip">🍺 <strong>80 días sobrio</strong> (100%)</span>
-                  <span class="entry-hl-chip">⚡ <strong>20 días sin eyacular</strong> (Récord)</span>
-                  <span class="entry-hl-chip">🚫 <strong>36d sin pornografía</strong></span>
-                </div>
-                <p class="proto-entry-desc">Fase culminada con éxito absoluto en abstinencia etílica y retención seminal sostenida.</p>
-                <div class="proto-entry-footer">
-                  <span class="proto-duration-pill">80 días completados</span>
-                  <button type="button" class="btn-select-proto ${viewingId === 'sobriedad-80d' ? 'btn-active' : ''}" data-select-id="sobriedad-80d">
-                    ${viewingId === 'sobriedad-80d' ? '✓ Viendo Métricas' : 'Ver Métricas Históricas'}
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div class="metric-chip-actions">
+            <button type="button" class="btn-chip-inc" data-action="inc-s-day" title="+1 Día Suplementado">＋💊</button>
           </div>
         </div>
       </div>
@@ -1892,7 +1286,7 @@ function setupHabitTrackerEvents(container) {
     setupHabitTrackerEvents(container);
   };
 
-  // 1. Action buttons on chips (active only when not historical)
+  // 1. Action buttons on chips
   trackerWidget.querySelectorAll('.btn-chip-inc').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1901,14 +1295,9 @@ function setupHabitTrackerEvents(container) {
       const data = getHabitTrackerData();
 
       if (action === 'inc-ay-24') {
-        data.ay.h24 = (data.ay.h24 || 0) + 1;
-        data.ay.daysSince = (data.ay.daysSince || 0) + 1;
+        data.ay.h24 += 1;
       } else if (action === 'inc-ay-48') {
-        data.ay.h48 = (data.ay.h48 || 0) + 1;
-        data.ay.daysSince = (data.ay.daysSince || 0) + 1;
-      } else if (action === 'inc-ay-missed') {
-        data.ay.missed = (data.ay.missed || 0) + 1;
-        data.ay.daysSince = (data.ay.daysSince || 0) + 1;
+        data.ay.h48 += 1;
       } else if (action === 'inc-lec-read') {
         data.lec.daysRead += 1;
       } else if (action === 'inc-lec-pages') {
@@ -1916,14 +1305,10 @@ function setupHabitTrackerEvents(container) {
         if (p !== null && !isNaN(parseInt(p))) {
           data.lec.lastPages = parseInt(p);
         }
-      } else if (action === 'inc-lec-missed') {
-        data.lec.daysMissed = (data.lec.daysMissed || 0) + 1;
       } else if (action === 'inc-am-5') {
         data.am.slot5to6 += 1;
       } else if (action === 'inc-am-6') {
         data.am.slot6to7 += 1;
-      } else if (action === 'inc-am-missed') {
-        data.am.missed = (data.am.missed || 0) + 1;
       } else if (action === 'inc-z-clean') {
         data.z.daysClean += 1;
       } else if (action === 'inc-z-consumed') {
@@ -1940,74 +1325,15 @@ function setupHabitTrackerEvents(container) {
       } else if (action === 'inc-a-clean') {
         data.a.cleanDays += 1;
       } else if (action === 'inc-e-ret') {
-        data.e.retentionDays = (data.e.retentionDays || 0) + 1;
-      } else if (action === 'inc-e-ejac') {
-        data.e.ejaculations = (data.e.ejaculations || 0) + 1;
-        data.e.retentionDays = 0;
+        data.e.retentionDays += 1;
+      } else if (action === 'inc-e-noporn') {
+        data.e.pornFreeDays += 1;
       } else if (action === 'inc-s-day') {
         data.s.days += 1;
-      } else if (action === 'inc-s-missed') {
-        data.s.missedDays = (data.s.missedDays || 0) + 1;
       }
 
       saveHabitTrackerData(data);
       updateWidgetUI();
-    });
-  });
-
-  // 1.b Eventos de bloque productivo comercial (PCC, LL, Demos, WIN)
-  trackerWidget.querySelectorAll('[data-action="prod-inc"]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      const key = btn.getAttribute('data-prod');
-      const data = getHabitTrackerData();
-      const prod = getProductiveData(data);
-      prod.today[key] = (prod.today[key] || 0) + 1;
-      prod.history[prod.todayDate] = { ...prod.today };
-      saveHabitTrackerData(data);
-      updateWidgetUI();
-    });
-  });
-
-  trackerWidget.querySelectorAll('[data-action="prod-dec"]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      const key = btn.getAttribute('data-prod');
-      const data = getHabitTrackerData();
-      const prod = getProductiveData(data);
-      prod.today[key] = Math.max(0, (prod.today[key] || 0) - 1);
-      prod.history[prod.todayDate] = { ...prod.today };
-      saveHabitTrackerData(data);
-      updateWidgetUI();
-    });
-  });
-
-  trackerWidget.querySelectorAll('.prod-val-today').forEach(span => {
-    span.addEventListener('click', (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      const key = span.getAttribute('data-prod-key');
-      const labels = {
-        pcc: 'Prospecciones en colegios (PCC)',
-        ll: 'Llamadas a directores y prospectos (LL)',
-        demos: 'Demostraciones en vivo de ZentryOS (Demos)',
-        win: 'Ventas y cierres de contratos (WIN)'
-      };
-      const data = getHabitTrackerData();
-      const prod = getProductiveData(data);
-      const currentVal = prod.today[key] || 0;
-      const input = prompt(`Ingresar cifra de HOY para ${labels[key] || key}:`, currentVal);
-      if (input !== null) {
-        const parsed = parseInt(input);
-        if (!isNaN(parsed) && parsed >= 0) {
-          prod.today[key] = parsed;
-          prod.history[prod.todayDate] = { ...prod.today };
-          saveHabitTrackerData(data);
-          updateWidgetUI();
-        }
-      }
     });
   });
 
@@ -2018,60 +1344,6 @@ function setupHabitTrackerEvents(container) {
       e.stopPropagation();
       e.preventDefault();
       openHabitTrackerConfigModal(updateWidgetUI);
-    });
-  }
-
-  // 3. Protocol History Modal Toggle
-  const histBtn = trackerWidget.querySelector('#btn-open-protocol-history');
-  const histModal = trackerWidget.querySelector('#protocols-history-modal');
-  const closeHistBtn = trackerWidget.querySelector('#btn-close-proto-history');
-  const backdrop = trackerWidget.querySelector('#proto-modal-backdrop');
-
-  const openHistoryModal = () => {
-    if (histModal) histModal.style.display = 'flex';
-  };
-  const closeHistoryModal = () => {
-    if (histModal) histModal.style.display = 'none';
-  };
-
-  if (histBtn) {
-    histBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      openHistoryModal();
-    });
-  }
-  if (closeHistBtn) {
-    closeHistBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      closeHistoryModal();
-    });
-  }
-  if (backdrop) {
-    backdrop.addEventListener('click', closeHistoryModal);
-  }
-
-  // 4. Select Protocol in Modal
-  trackerWidget.querySelectorAll('[data-select-id]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const protoId = btn.getAttribute('data-select-id');
-      const pData = getProtocolsData();
-      pData.viewingId = protoId;
-      saveProtocolsData(pData);
-      closeHistoryModal();
-      updateWidgetUI();
-    });
-  });
-
-  // 5. Return to Active Protocol button from historical banner
-  const returnActiveBtn = trackerWidget.querySelector('#btn-return-active-proto');
-  if (returnActiveBtn) {
-    returnActiveBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const pData = getProtocolsData();
-      pData.viewingId = 'pre-elrow';
-      saveProtocolsData(pData);
-      updateWidgetUI();
     });
   }
 }
@@ -2120,16 +1392,6 @@ function openHabitTrackerConfigModal(onSaveCallback) {
 
   setVal('cfg-s-days', data.s.days);
 
-  const prod = getProductiveData(data);
-  setVal('cfg-prod-pcc-today', prod.today.pcc);
-  setVal('cfg-prod-pcc-total', prod.totals.pcc);
-  setVal('cfg-prod-ll-today', prod.today.ll);
-  setVal('cfg-prod-ll-total', prod.totals.ll);
-  setVal('cfg-prod-demos-today', prod.today.demos);
-  setVal('cfg-prod-demos-total', prod.totals.demos);
-  setVal('cfg-prod-win-today', prod.today.win);
-  setVal('cfg-prod-win-total', prod.totals.win);
-
   modal.classList.add('show');
 
   const closeModal = () => {
@@ -2157,33 +1419,6 @@ function openHabitTrackerConfigModal(onSaveCallback) {
     form.onsubmit = (e) => {
       e.preventDefault();
       const getNum = (id) => parseInt(document.getElementById(id)?.value) || 0;
-
-      const pccToday = getNum('cfg-prod-pcc-today');
-      const pccTotal = getNum('cfg-prod-pcc-total');
-      const llToday = getNum('cfg-prod-ll-today');
-      const llTotal = getNum('cfg-prod-ll-total');
-      const demosToday = getNum('cfg-prod-demos-today');
-      const demosTotal = getNum('cfg-prod-demos-total');
-      const winToday = getNum('cfg-prod-win-today');
-      const winTotal = getNum('cfg-prod-win-total');
-
-      const existingProd = getProductiveData(data);
-      const updatedProd = {
-        ...existingProd,
-        today: {
-          pcc: pccToday,
-          ll: llToday,
-          demos: demosToday,
-          win: winToday
-        },
-        totals: {
-          pcc: pccTotal,
-          ll: llTotal,
-          demos: demosTotal,
-          win: winTotal
-        }
-      };
-      updatedProd.history[updatedProd.todayDate] = { ...updatedProd.today };
 
       const updated = {
         ay: {
@@ -2226,10 +1461,8 @@ function openHabitTrackerConfigModal(onSaveCallback) {
           ejaculations: getNum('cfg-e-ejac')
         },
         s: {
-          days: getNum('cfg-s-days'),
-          missedDays: data.s.missedDays || 0
-        },
-        prod: updatedProd
+          days: getNum('cfg-s-days')
+        }
       };
 
       saveHabitTrackerData(updated);
@@ -2251,16 +1484,6 @@ const renderers = {
     document.getElementById('page-title').textContent = 'Tablero Backlog';
 
     const container = document.getElementById('workspace-content');
-
-        if (state.backlogMode === 'protocolo-30dias') {
-      document.getElementById('properties-block').style.display = 'none';
-      document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #fee2e2 0%, #fef3c7 50%, #ecfdf5 100%)';
-      document.getElementById('page-icon').textContent = '🔥';
-      document.getElementById('page-title').textContent = 'Protocolo Pre-Elrow';
-      renderProtocolo30DiasFullPage(container);
-      setupProtocoloEvents(container, true);
-      return;
-    }
 
     if (state.backlogMode === 'selection') {
       document.getElementById('properties-block').style.display = 'none';
@@ -2286,126 +1509,87 @@ const renderers = {
               <button type="button" class="btn-hero-enter">Entrar a Timeblocking</button>
             </a>
 
-            <!-- RECUADRO 2: BIO-TRACKER GAMIFICADO (CON HISTORIAL & SVGS) -->
+            <!-- RECUADRO 2: BIO-TRACKER GAMIFICADO (9 MÉTRICAS) -->
             ${renderHabitTrackerHTML(trackerData)}
 
           </div>
 
-          <!-- COLUMNA DERECHA: TARJETA ÚNICA DE TABLEROS + PREVIEW PROTOCOLO PRE-ELROW -->
+          <!-- COLUMNA DERECHA: 2x2 GRID DE TABLEROS EQUITATIVOS -->
           <div class="backlog-selection-right">
             
-            <!-- TARJETA ÚNICA DE TABLEROS (DESPLEGABLE) -->
-            <div class="consolidated-boards-card" id="consolidated-boards-card">
-              <div class="consolidated-boards-header" id="btn-toggle-boards">
-                <div class="consolidated-single-icon-wrap">
-                  <span class="consolidated-single-icon">🗂️</span>
-                </div>
-                <div class="consolidated-header-text">
-                  <h4 class="consolidated-title">TABLEROS DE TRABAJO</h4>
-                  <p class="consolidated-subtitle">Quarz • Zentry • Personal • Global</p>
-                </div>
-                <button type="button" class="btn-toggle-boards">
-                  <span>Ver Tableros</span>
-                  <span class="dropdown-chevron">▼</span>
-                </button>
+            <!-- 1. TABLERO QUARZ -->
+            <a href="#backlog/quarz" class="selection-unit-card">
+              <div class="unit-card-icon-box">
+                <img src="/assets/quarz/QUARZ_3D_Cuarzo_Vertical_QZ-removebg-preview.png" alt="QUARZ" class="unit-quarz-logo" />
               </div>
-
-              <!-- MENÚ DESPLEGABLE DE TABLEROS -->
-              <div class="consolidated-dropdown-menu" id="consolidated-boards-dropdown" style="display: none;">
-                <a href="#backlog/quarz" class="dropdown-board-item quarz-item">
-                  <img src="/assets/quarz/QUARZ_3D_Cuarzo_Vertical_QZ-removebg-preview.png" alt="QUARZ" class="dropdown-item-icon-img" style="width: 20px; height: 20px; max-width: 20px; max-height: 20px; object-fit: contain;" />
-                  <div class="dropdown-item-info">
-                    <strong>Tablero QUARZ</strong>
-                    <small>Gobernanza de holding y decisiones estratégicas</small>
-                  </div>
-                  <span class="dropdown-arrow">➔</span>
-                </a>
-
-                <a href="#backlog/zentry" class="dropdown-board-item zentry-item">
-                  <span class="dropdown-zentry-badge">Z</span>
-                  <div class="dropdown-item-info">
-                    <strong>Tablero ZENTRY</strong>
-                    <small>Roadmap comercial, MVP y prospectos</small>
-                  </div>
-                  <span class="dropdown-arrow">➔</span>
-                </a>
-
-                <a href="#backlog/personal-board" class="dropdown-board-item personal-item">
-                  <span class="dropdown-personal-badge">👤</span>
-                  <div class="dropdown-item-info">
-                    <strong>Tablero PERSONAL</strong>
-                    <small>Tareas individuales, notas y objetivos personales</small>
-                  </div>
-                  <span class="dropdown-arrow">➔</span>
-                </a>
-
-                <a href="#backlog/global" class="dropdown-board-item global-item">
-                  <span class="dropdown-global-badge" style="font-size: 16px;">🌐</span>
-                  <div class="dropdown-item-info">
-                    <strong>Tablero GLOBAL</strong>
-                    <small>Vista consolidada con todas las tareas y objetivos</small>
-                  </div>
-                  <span class="dropdown-arrow">➔</span>
-                </a>
+              <div class="unit-card-text">
+                <h4 class="unit-card-title">TABLERO QUARZ</h4>
+                <p class="unit-card-desc">Gobernanza estratégica, decisiones de holding y prioridades corporativas de QUARZ Group.</p>
               </div>
-            </div>
+              <button type="button" class="btn-unit-enter">Entrar a Quarz</button>
+            </a>
 
-            <!-- CONTENEDOR DE PREVIEW PROTOCOLO PRE-ELROW (30 DÍAS) -->
-            <div class="protocolo-preview-container" id="protocolo-preview-mount">
-              ${renderProtocoloPreviewHTML()}
-            </div>
+            <!-- 2. TABLERO ZENTRY -->
+            <a href="#backlog/zentry" class="selection-unit-card">
+              <div class="unit-card-icon-box">
+                <span class="unit-zentry-z">Z</span>
+              </div>
+              <div class="unit-card-text">
+                <h4 class="unit-card-title">TABLERO ZENTRY</h4>
+                <p class="unit-card-desc">Roadmap comercial, arquitectura técnica MVP, prospectos y ecosistema ZentryOS.</p>
+              </div>
+              <button type="button" class="btn-unit-enter">Entrar a Zentry</button>
+            </a>
+
+            <!-- 3. TABLERO GLOBAL -->
+            <a href="#backlog/global" class="selection-unit-card">
+              <div class="unit-card-icon-box">
+                <span class="unit-global-icon">🌐</span>
+              </div>
+              <div class="unit-card-text">
+                <h4 class="unit-card-title">TABLERO GLOBAL</h4>
+                <p class="unit-card-desc">Perspectiva global de operaciones, KPIs y objetivos estratégicos de la organización.</p>
+              </div>
+              <button type="button" class="btn-unit-enter">Entrar a Global</button>
+            </a>
+
+            <!-- 4. TABLERO PERSONAL -->
+            <a href="#backlog/personal-board" class="selection-unit-card">
+              <div class="unit-card-icon-box">
+                <span class="unit-personal-icon">👤</span>
+              </div>
+              <div class="unit-card-text">
+                <h4 class="unit-card-title">TABLERO PERSONAL</h4>
+                <p class="unit-card-desc">Tus tareas individuales, notas y objetivos personales.</p>
+              </div>
+              <button type="button" class="btn-unit-enter">Entrar a Personal</button>
+            </a>
 
           </div>
 
         </div>
+
+        <!-- SECCIÓN DE EXTENSIÓN: SPRINT DE 3 DÍAS + WORKFLOW AGÉNTICO + BANCO DE IDEAS (KEEP) -->
+        <div class="backlog-extension-container">
+          <!-- 1. SPRINT DE 3 DÍAS (MICRO-BLOQUES DE CORTO PLAZO) -->
+          ${renderSprint3DiasHTML()}
+
+          <!-- 2. WORKFLOW AGÉNTICO MATUTINO -->
+          ${renderAgentWorkflowHTML()}
+
+          <!-- 3. BANCO DE IDEAS & WORKFLOWS (GOOGLE KEEP STYLE) -->
+          ${renderKeepNotesHTML()}
+        </div>
       `;
 
-      // Evento para desplegar/contraer menú de tableros (Acordeón con efecto bounce)
-      const toggleBoardsBtn = container.querySelector('#btn-toggle-boards');
-      const boardsDropdown = container.querySelector('#consolidated-boards-dropdown');
-      const boardsCard = container.querySelector('#consolidated-boards-card');
-      if (toggleBoardsBtn && boardsDropdown && boardsCard) {
-        toggleBoardsBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const isExpanded = boardsCard.classList.contains('is-expanded');
-          const chevron = toggleBoardsBtn.querySelector('.dropdown-chevron');
-          if (isExpanded) {
-            boardsCard.classList.remove('is-expanded');
-            boardsDropdown.style.display = 'none';
-            if (chevron) chevron.textContent = '▼';
-          } else {
-            boardsCard.classList.add('is-expanded');
-            boardsDropdown.style.display = 'flex';
-            if (chevron) chevron.textContent = '▲';
-          }
-        });
-      }
-
-      // Eventos del Protocolo Pre-Elrow (Preview mode)
-      setupProtocoloEvents(container, false);
-
-      // Eventos de Bio-Tracker
       setupHabitTrackerEvents(container);
+      setupSprint3DiasEvents(container);
+      setupAgentWorkflowEvents(container);
+      setupKeepNotesEvents(container);
       return;
     }
 
-    // Journal Full Page mode → Dedicated Full-tab Journal Workspace
-    if (state.backlogMode === 'journal') {
-      renderJournalFullPage(container);
-      return;
-    }
-
-    // Personal mode → Espacio Personal (timeblock + AI chat) & Personal Board (Protected by PIN 1212)
-    if (state.backlogMode === 'personal' || state.backlogMode === 'personal-board') {
-      if (!isPersonalUnlocked()) {
-        document.getElementById('properties-block').style.display = 'none';
-        document.getElementById('page-banner').style.display = 'none';
-        document.querySelector('.workspace-header').style.display = 'none';
-        renderPersonalLockScreen(container, state.backlogMode);
-        return;
-      }
-    }
-
+    // Personal mode → Espacio Personal (timeblock + AI chat)
     if (state.backlogMode === 'personal') {
       document.getElementById('properties-block').style.display = 'none';
       document.getElementById('page-banner').style.display = 'none';
@@ -2597,27 +1781,16 @@ const renderers = {
   ideas: () => {
     document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #1c142e 0%, #0c0d10 100%)';
     document.getElementById('page-icon').textContent = '💡';
-    document.getElementById('page-title').textContent = 'Banco de Ideas (Keep)';
+    document.getElementById('page-title').textContent = 'Banco de Ideas & Workflows (Keep)';
     document.getElementById('properties-block').style.display = 'none';
 
     const container = document.getElementById('workspace-content');
-    
-    let html = `<div class="keep-notes-container">`;
-    db.ideas.forEach(note => {
-      const taskListItems = note.tasks.map(t => `<li>${t}</li>`).join('');
-      html += `
-        <div class="keep-card">
-          <div class="keep-header">
-            <h3 class="keep-title">${note.fullTitle}</h3>
-            <span class="keep-category">${note.category}</span>
-          </div>
-          <div class="keep-body">${note.body.replace(/\n/g, '<br>')}</div>
-          ${taskListItems ? `<div class="keep-tasks-title">⚙️ Pendientes Inferidos:</div><ul class="keep-tasks-list">${taskListItems}</ul>` : ''}
-        </div>
-      `;
-    });
-    html += `</div>`;
-    container.innerHTML = html;
+    container.innerHTML = `
+      <div style="max-width: 1100px; margin: 0 auto; padding-bottom: 40px;">
+        ${renderKeepNotesHTML()}
+      </div>
+    `;
+    setupKeepNotesEvents(container);
   },
 
   // 3. Metrics and KPIs View
@@ -2803,295 +1976,45 @@ const renderers = {
     container.innerHTML = html;
   },
 
-  // 6. Recursos Comerciales View (formerly DEMO / Demobook)
-  demo: () => {
+  // 6. Demobook View
+  demobook: () => {
     const workspace = document.querySelector('.workspace');
     if (workspace) workspace.classList.add('minimal-view');
 
-    document.getElementById('page-title').textContent = 'Recursos Comerciales';
-    document.getElementById('page-icon').textContent = '💼';
+    document.getElementById('page-title').textContent = 'Demobook';
     document.getElementById('properties-block').style.display = 'none';
 
     const container = document.getElementById('workspace-content');
     container.innerHTML = `
       <div class="demobook-minimal-container">
-        <div class="demobook-columns-layout">
-          
-          <!-- Columna Izquierda: Preguntas de Bienestar, Slides, Features, Repertorio -->
-          <div class="demobook-col-left">
-            
-            <!-- 1. Preguntas-Bienestar -->
-            <a href="https://bienestar-chi.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-              <div class="demobook-card-minimal glass-panel">
-                <div class="demobook-card-content">
-                  <div class="demobook-card-icon-wrapper" style="background: rgba(59, 130, 246, 0.1); color: #2563eb;">
-                    📋
-                  </div>
-                  <div class="demobook-card-title">Preguntas-Bienestar</div>
-                </div>
-                <span class="demobook-card-arrow">➔</span>
-              </div>
-            </a>
-
-            <!-- 2. Slides - DEMO -->
-            <a href="https://demobook.quarz.online/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-              <div class="demobook-card-minimal glass-panel">
-                <div class="demobook-card-content">
-                  <div class="demobook-card-icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: #059669;">
-                    📊
-                  </div>
-                  <div class="demobook-card-title">Slides</div>
-                </div>
-                <span class="demobook-card-arrow">➔</span>
-              </div>
-            </a>
-
-            <!-- 3. DEMO Features -->
-            <a href="#demofeatures" class="demobook-card-link">
-              <div class="demobook-card-minimal glass-panel">
-                <div class="demobook-card-content">
-                  <div class="demobook-card-icon-wrapper" style="background: rgba(139, 92, 246, 0.12); color: #7c3aed;">
-                    ✨
-                  </div>
-                  <div class="demobook-card-title" style="display: flex; align-items: center; gap: 8px;">
-                    Features
-                    <span style="font-size: 10px; font-weight: 700; background: rgba(139, 92, 246, 0.15); color: #6d28d9; padding: 2px 8px; border-radius: 6px;">SANDBOX</span>
-                  </div>
-                </div>
-                <span class="demobook-card-arrow">➔</span>
-              </div>
-            </a>
-
-            <!-- 4. Repertorio -->
-            <a href="#repertorio" class="demobook-card-link">
-              <div class="demobook-card-minimal glass-panel">
-                <div class="demobook-card-content">
-                  <div class="demobook-card-icon-wrapper" style="background: rgba(236, 72, 153, 0.1); color: #db2777;">
-                    🎭
-                  </div>
-                  <div class="demobook-card-title">Repertorio</div>
-                </div>
-                <span class="demobook-card-arrow">➔</span>
-              </div>
-            </a>
-
-          </div>
-
-          <!-- Línea Separadora Central Delgada -->
-          <div class="demobook-col-divider"></div>
-
-          <!-- Columna Derecha: Manual de Pre-Cierres -->
-          <div class="demobook-col-right">
-            
-            <!-- Manual de Pre-Cierres -->
-            <a href="#precierres" class="demobook-card-link">
-              <div class="demobook-card-minimal glass-panel">
-                <div class="demobook-card-content">
-                  <div class="demobook-card-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #d97706;">
-                    📑
-                  </div>
-                  <div class="demobook-card-title">Manual de Pre-Cierres</div>
-                </div>
-                <span class="demobook-card-arrow">➔</span>
-              </div>
-            </a>
-
-          </div>
-
-        </div>
-      </div>
-    `;
-  },
-  demobook: function() {
-    this.demo();
-  },
-
-  // 6.0. DEMO Features View
-  demofeatures: () => {
-    const workspace = document.querySelector('.workspace');
-    if (workspace) workspace.classList.add('minimal-view');
-
-    document.getElementById('page-title').textContent = 'DEMO Features';
-    document.getElementById('page-icon').textContent = '✨';
-    document.getElementById('properties-block').style.display = 'none';
-
-    const features = [
-      {
-        name: 'Isla Dinámica Multimodal',
-        icon: '🏝️',
-        url: 'https://zf-isla-dinamica.web.app',
-        displayUrl: 'zf-isla-dinamica.web.app',
-        tag: 'GEMINI 2.5',
-        desc: 'Isla multimodal con visión en vivo, cámara dual/BeReal y voz en tiempo real.',
-        badgeColor: 'rgba(83, 59, 135, 0.1)',
-        textColor: '#533B87'
-      },
-      {
-        name: 'Caja de Skinner',
-        icon: '🎰',
-        url: 'https://zf-skinner-box.web.app',
-        displayUrl: 'zf-skinner-box.web.app',
-        tag: 'VR-7 CONDICIONAMIENTO',
-        desc: 'Simulador de micro-videos que expone la degradación de atención y refuerzo variable.',
-        badgeColor: 'rgba(239, 68, 68, 0.1)',
-        textColor: '#dc2626'
-      },
-      {
-        name: 'Dashboard Parental',
-        icon: '🛡️',
-        url: 'https://zf-parental-d.web.app',
-        displayUrl: 'zf-parental-d.web.app',
-        tag: 'COCKPIT & CASINO WOW',
-        desc: 'Supervisión en vivo para padres con vista analítica y máquina tragamonedas reactiva.',
-        badgeColor: 'rgba(59, 130, 246, 0.1)',
-        textColor: '#2563eb'
-      },
-      {
-        name: 'Z-Art Creative Studio',
-        icon: '🎨',
-        url: 'https://zf-creative-studio.web.app',
-        displayUrl: 'zf-creative-studio.web.app',
-        tag: 'CREATIVE AI',
-        desc: 'Lienzo de ilustración y mini-apps lúdicas con paleta Zentry sin patrones adictivos.',
-        badgeColor: 'rgba(16, 185, 129, 0.1)',
-        textColor: '#059669'
-      },
-      {
-        name: 'Bio-Morph Canvas',
-        icon: '🧬',
-        url: 'https://z-bio-morph.web.app',
-        displayUrl: 'z-bio-morph.web.app',
-        tag: 'INFANCIA (2-5 AÑOS)',
-        desc: 'Entorno háptico de física biomórfica adaptativa para estimulación sensorial temprana.',
-        badgeColor: 'rgba(217, 70, 239, 0.1)',
-        textColor: '#a21caf'
-      },
-      {
-        name: 'Consola Zentry Admin',
-        icon: '⚡',
-        url: 'https://zf-admin.web.app',
-        displayUrl: 'zf-admin.web.app',
-        tag: 'GOBERNANZA & FLOTA',
-        desc: 'Monitor de flota en tiempo real, latencias de Firestore y auditoría de seguridad.',
-        badgeColor: 'rgba(245, 158, 11, 0.1)',
-        textColor: '#d97706'
-      }
-    ];
-
-    const container = document.getElementById('workspace-content');
-    container.innerHTML = `
-      <div class="demobook-minimal-container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
-          <a href="#demobook" class="btn btn-secondary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
-            <span>← Volver a Recursos Comerciales</span>
-          </a>
-          <span style="font-size: 11px; font-weight: 700; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 4px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
-            <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span>
-            6 Micro-PWAs Online (GCP quarz-group)
-          </span>
-        </div>
-
-        <div style="margin-bottom: 20px;">
-          <h2 style="font-family: var(--font-family-title); font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 4px 0;">Micro-PWAs Comerciales (DEMO Features)</h2>
-          <p style="font-size: 13px; color: #64748b; margin: 0;">Entornos web y piezas del sistema operativo aisladas para presentaciones comerciales en vivo.</p>
-        </div>
-
         <div class="demobook-grid">
-          ${features.map(feat => `
-            <a href="${feat.url}" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-              <div class="demobook-card-minimal glass-panel" style="padding: 20px 22px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff; height: 100%; box-sizing: border-box;">
-                <div class="demobook-card-content" style="gap: 16px; width: 100%;">
-                  <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(83, 59, 135, 0.08); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
-                    ${feat.icon}
-                  </div>
-                  <div style="flex: 1; min-width: 0;">
-                    <div class="demobook-card-title" style="font-size: 15.5px; margin-bottom: 3px; color: #0f172a; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                      <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${feat.name}</span>
-                      <span style="font-size: 9.5px; font-weight: 700; background: ${feat.badgeColor}; color: ${feat.textColor}; padding: 2px 7px; border-radius: 6px; flex-shrink: 0;">${feat.tag}</span>
-                    </div>
-                    <div style="font-size: 11.5px; color: #533B87; font-family: monospace; font-weight: 600; margin-bottom: 3px;">${feat.displayUrl}</div>
-                    <div style="font-size: 12px; color: #64748b; line-height: 1.4;">${feat.desc}</div>
-                  </div>
-                </div>
-                <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 12px; color: #533B87;">➔</span>
+          <a href="https://bienestar-chi.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
+            <div class="demobook-card-minimal">
+              <div class="demobook-card-content">
+                <span class="demobook-card-icon">📋</span>
+                <span class="demobook-card-title">Preguntas-Bienestar</span>
               </div>
-            </a>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  },
-
-  // 6.1. Accesos Directos a Ecosistema ZentryOS
-  accesos: () => {
-    const workspace = document.querySelector('.workspace');
-    if (workspace) workspace.classList.add('minimal-view');
-
-    document.getElementById('page-title').textContent = 'Accesos';
-    document.getElementById('page-icon').textContent = '🔗';
-    document.getElementById('properties-block').style.display = 'none';
-
-    const container = document.getElementById('workspace-content');
-    container.innerHTML = `
-      <div class="demobook-minimal-container">
-        <div style="margin-bottom: 20px;">
-          <h2 style="font-family: var(--font-family-title); font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">Plataformas & Portales ZentryOS</h2>
-          <p style="font-size: 13px; color: #64748b; margin: 0;">Accesos directos a los entornos web, consolas de administración y dashboards del ecosistema ZentryOS.</p>
-        </div>
-
-        <div class="demobook-grid">
-          
-          <!-- 1. ZENTRY PARENT DASHBOARD -->
-          <a href="https://zentry-parent-dashboard.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff;">
-              <div class="demobook-card-content" style="gap: 16px;">
-                <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
-                  🛡️
-                </div>
-                <div>
-                  <div class="demobook-card-title" style="font-size: 15.5px; margin-bottom: 3px; color: #0f172a;">Zentry Parent Dashboard</div>
-                  <div style="font-size: 11.5px; color: #3b82f6; font-family: monospace;">zentry-parent-dashboard.vercel.app</div>
-                  <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Portal de supervisión y control parental para tutores.</div>
-                </div>
-              </div>
-              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px;">➔</span>
+              <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
-
-          <!-- 2. ZENTRYOS WEB -->
-          <a href="https://zentryos.web.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff;">
-              <div class="demobook-card-content" style="gap: 16px;">
-                <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
-                  ☄️
-                </div>
-                <div>
-                  <div class="demobook-card-title" style="font-size: 15.5px; margin-bottom: 3px; color: #0f172a;">ZentryOS Web</div>
-                  <div style="font-size: 11.5px; color: #10b981; font-family: monospace;">zentryos.web.app</div>
-                  <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Web App principal y entorno launcher de ZentryOS.</div>
-                </div>
+          <a href="https://recursos-venta.vercel.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
+            <div class="demobook-card-minimal">
+              <div class="demobook-card-content">
+                <span class="demobook-card-icon">📊</span>
+                <span class="demobook-card-title">Slides - Demobook</span>
               </div>
-              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px;">➔</span>
+              <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
-
-          <!-- 3. ZENTRYOS ADMIN -->
-          <a href="https://zentryos-admin.web.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
-            <div class="demobook-card-minimal glass-panel" style="padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff;">
-              <div class="demobook-card-content" style="gap: 16px;">
-                <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(139, 92, 246, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
-                  ⚡
-                </div>
-                <div>
-                  <div class="demobook-card-title" style="font-size: 15.5px; margin-bottom: 3px; color: #0f172a;">ZentryOS Admin</div>
-                  <div style="font-size: 11.5px; color: #8b5cf6; font-family: monospace;">zentryos-admin.web.app</div>
-                  <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Consola administrativa y gestión de licencias / usuarios.</div>
-                </div>
+          <a href="#precierres" class="demobook-card-link">
+            <div class="demobook-card-minimal">
+              <div class="demobook-card-content">
+                <span class="demobook-card-icon">📑</span>
+                <span class="demobook-card-title">Manual de Pre-Cierres</span>
               </div>
-              <span class="demobook-card-arrow" style="font-size: 16px; margin-left: 10px;">➔</span>
+              <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
-
         </div>
       </div>
     `;
@@ -3112,9 +2035,10 @@ const renderers = {
         <div class="precierres-header-bar">
           <div>
             <h2 class="precierres-title">Arsenal Dialéctico de Pre-Cierres Comerciales</h2>
+            <p class="precierres-subtitle">Estructuras psicológicas y guiones de alto impacto para demolición de objeciones durante la presentación de ZentryOS.</p>
           </div>
-          <a href="#demo" class="btn btn-secondary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
-            <span>← Volver a DEMO</span>
+          <a href="#demobook" class="btn btn-secondary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+            <span>← Volver al Demobook</span>
           </a>
         </div>
 
@@ -3212,7 +2136,7 @@ const renderers = {
               </div>
 
               <div class="precierre-actions-bar" style="margin-top: 14px;">
-                <a href="https://demobook.quarz.online/" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+                <a href="https://recursos-venta.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size: 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
                   <span>🚀 Probar en Diapositivas Interactivas (Slide 4)</span>
                 </a>
               </div>
@@ -3245,373 +2169,1011 @@ const renderers = {
     `;
   },
 
-  // 6.3. Repertorio View (Catálogo Magazine & Presentación de Oferta)
-  repertorio: () => {
-    renderRepertorioView();
-  },
-
-  // 6.5. Gestión Comercial & Prospección View
+  // 6.5. Prospección View
   prospeccion: () => {
     const workspace = document.querySelector('.workspace');
-    if (workspace) {
-      workspace.classList.add('minimal-view');
-      workspace.classList.add('full-width-view');
-    }
+    if (workspace) workspace.classList.add('minimal-view');
 
-    document.getElementById('page-title').textContent = 'Gestión comercial';
-    document.getElementById('page-icon').textContent = '🎯';
+    document.getElementById('page-title').textContent = 'Prospección';
     document.getElementById('properties-block').style.display = 'none';
 
     const container = document.getElementById('workspace-content');
     container.innerHTML = `
-      <div class="gestion-comercial-container" style="display: flex; flex-direction: column; gap: 24px; width: 100%; max-width: 1300px; margin: 0 auto; padding-bottom: 40px;">
-        
-        <!-- Header descriptivo -->
-        <div style="display: flex; flex-direction: column; gap: 6px;">
-          <h2 style="font-family: var(--font-family-title); font-size: 20px; font-weight: 700; color: #0f172a; margin: 0;">Plataforma de Captación & CRM Comercial</h2>
-          <p style="font-size: 13px; color: #64748b; margin: 0;">Herramientas operativas de campo para captura de prospectos y administración integral de leads.</p>
-        </div>
-
-        <!-- Tarjeta de Prospección -->
-        <div class="demobook-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
-          <a href="https://zentry-prospecc.web.app/" target="_blank" rel="noopener noreferrer" class="demobook-card-link" style="text-decoration: none;">
-            <div class="demobook-card-minimal glass-panel" style="padding: 20px 24px; border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.08); background: #ffffff; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
-              <div class="demobook-card-content" style="display: flex; align-items: center; gap: 16px;">
-                <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(83, 59, 135, 0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
-                  🎯
-                </div>
-                <div>
-                  <div class="demobook-card-title" style="font-size: 15.5px; font-weight: 700; margin-bottom: 3px; color: #0f172a;">ZentryOS-Prospect (Evaluación)</div>
-                  <div style="font-size: 11.5px; color: #533b87; font-family: monospace;">zentry-prospecc.web.app</div>
-                  <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Web app de captación y diagnóstico familiar en campo.</div>
-                </div>
+      <div class="demobook-minimal-container">
+        <div class="demobook-grid">
+          <a href="https://script.google.com/macros/s/AKfycbzXCowYg5XsmnN8s6HJVDtrWK-nh8sBERuP82qGtTDtM9WAm7j3RXotY6bwUsi6eLSlTA/exec" target="_blank" rel="noopener noreferrer" class="demobook-card-link">
+            <div class="demobook-card-minimal">
+              <div class="demobook-card-content">
+                <span class="demobook-card-icon">🎯</span>
+                <span class="demobook-card-title">ZentryOS-Prospect</span>
               </div>
-              <span class="demobook-card-arrow" style="font-size: 18px; color: #533b87; margin-left: 12px;">➔</span>
+              <span class="demobook-card-arrow">➔</span>
             </div>
           </a>
         </div>
-
-        <!-- Módulo Embed CRM -->
-        <div class="crm-embedded-section" style="background: #ffffff; border: 1px solid rgba(15, 23, 42, 0.08); border-radius: 14px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); overflow: hidden; display: flex; flex-direction: column;">
-          
-          <!-- CRM Barra Superior / Acciones -->
-          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 14px 20px; background: rgba(248, 250, 252, 0.85); border-bottom: 1px solid rgba(15, 23, 42, 0.08);">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(83, 59, 135, 0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
-                📊
-              </div>
-              <div>
-                <div style="font-weight: 700; font-size: 14.5px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-                  CRM Gestión Comercial
-                  <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 9999px; background: rgba(16, 185, 129, 0.12); color: #059669;">
-                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: inline-block;"></span> En vivo
-                  </span>
-                </div>
-                <div style="font-size: 11.5px; color: #64748b; font-family: monospace;">zentry-prospecc.web.app/crm</div>
-              </div>
-            </div>
-            
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <button id="reload-crm-btn" type="button" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px; border: 1px solid rgba(15, 23, 42, 0.12); background: #ffffff; color: #334155; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
-                <span>🔄 Recargar</span>
-              </button>
-              <a href="https://zentry-prospecc.web.app/crm" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; border: none; background: #533b87; color: #ffffff; font-size: 12px; font-weight: 600; text-decoration: none; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(83, 59, 135, 0.25);">
-                <span>↗ Abrir CRM Completo</span>
-              </a>
-            </div>
-          </div>
-
-          <!-- Contenedor del Iframe -->
-          <div style="position: relative; width: 100%; height: 750px; min-height: 550px; background: #f8fafc;">
-            <iframe
-              id="crm-embedded-iframe"
-              src="https://zentry-prospecc.web.app/crm"
-              title="CRM Gestión Comercial - ZentryOS"
-              style="width: 100%; height: 100%; border: none; display: block;"
-              loading="lazy"
-              allow="clipboard-read; clipboard-write;"
-            ></iframe>
-          </div>
-        </div>
-
       </div>
     `;
-
-    const reloadBtn = document.getElementById('reload-crm-btn');
-    if (reloadBtn) {
-      reloadBtn.addEventListener('click', () => {
-        const iframe = document.getElementById('crm-embedded-iframe');
-        if (iframe) {
-          iframe.src = iframe.src;
-        }
-      });
-    }
   },
 
-  // 6. Tools View (QZ TERMINAL COCKPIT & AGY DAEMON REMOTE ACCESS)
+  // 6. Tools View (QZ CLOUD REMOTE SESSION COMPANION & AGENT COCKPIT)
   herramientas: () => {
     const workspace = document.querySelector('.workspace');
     if (workspace) {
       workspace.classList.add('full-width-view');
     }
 
-    document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #0b0f19 0%, #1e293b 50%, #0b0f19 100%)';
-    document.getElementById('page-icon').textContent = '💻';
-    document.getElementById('page-title').textContent = 'QZ TERMINAL COCKPIT';
+    document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)';
+    document.getElementById('page-icon').textContent = '🤖';
+    document.getElementById('page-title').textContent = 'QZ AGENT COCKPIT';
     document.getElementById('properties-block').style.display = 'none';
 
     const container = document.getElementById('workspace-content');
-
-    const STORAGE_HOST_KEY = 'qz_terminal_host';
-    const STORAGE_PORT_KEY = 'qz_terminal_port';
-    const DEFAULT_HOST = '100.105.162.78';
-    const DEFAULT_PORT = '7681';
-
-    let currentHost = localStorage.getItem(STORAGE_HOST_KEY) || DEFAULT_HOST;
-    let currentPort = localStorage.getItem(STORAGE_PORT_KEY) || DEFAULT_PORT;
-
-    const buildTerminalUrl = () => `http://${currentHost}:${currentPort}`;
+    const todayStr = new Date().toISOString().split('T')[0];
 
     container.innerHTML = `
-      <div class="terminal-cockpit-wrapper">
+      <div class="cockpit-layout-grid">
         
-        <!-- Top Control Bar -->
-        <div class="terminal-control-bar">
-          <div class="terminal-status-group">
-            <span class="terminal-status-pill">
-              <span id="term-status-dot" class="terminal-status-dot"></span>
-              <span id="term-status-text">Terminal Daemon</span>
-            </span>
-            <span id="term-host-display" class="terminal-host-pill" title="Click para cambiar Host / IP">
-              📡 <span id="term-host-text">${currentHost}:${currentPort}</span>
-            </span>
-          </div>
-
-          <div class="terminal-actions-group">
-            <button type="button" id="btn-term-popout" class="btn-terminal-primary" title="Abrir terminal en pestaña nueva o pantalla completa (Ideal para iPad)">
-              ⚡ Pantalla Completa / iPad Tab
-            </button>
-            <button type="button" id="btn-term-reload" class="btn-terminal-action" title="Recargar Terminal">
-              🔄 Recargar
-            </button>
-            <button type="button" id="btn-term-config" class="btn-terminal-action" title="Configurar Host y Puerto">
-              ⚙️ Red
-            </button>
-            <button type="button" id="btn-term-daemon-info" class="btn-terminal-action" title="Instrucciones para iniciar el Daemon">
-              🚀 Daemon PC
-            </button>
-          </div>
-        </div>
-
-        <!-- Terminal Frame Container -->
-        <div class="terminal-frame-container">
-          <iframe 
-            id="qz-terminal-frame" 
-            class="terminal-iframe" 
-            src="${buildTerminalUrl()}" 
-            allow="clipboard-read; clipboard-write; fullscreen"
-            title="QZ AGY Terminal">
-          </iframe>
-        </div>
-
-        <!-- Quick Commands Bar -->
-        <div class="terminal-quick-bar">
-          <span class="terminal-quick-label">⚡ Atajos AGY:</span>
-          <div class="terminal-chip-list">
-            <button type="button" class="terminal-chip" data-cmd="agy"><span>🤖</span> agy</button>
-            <button type="button" class="terminal-chip" data-cmd="agy /goal "><span>🎯</span> agy /goal</button>
-            <button type="button" class="terminal-chip" data-cmd="git status"><span>🌿</span> git status</button>
-            <button type="button" class="terminal-chip" data-cmd="cd D:\\1_jose_angel\\1_GitHub\\Quarz\\QZ-HUB"><span>📁</span> cd QZ-HUB</button>
-            <button type="button" class="terminal-chip" data-cmd="npx vite build"><span>📦</span> npx vite build</button>
-            <button type="button" class="terminal-chip" data-cmd="clear"><span>🧹</span> clear</button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Network Config Modal -->
-      <div id="terminal-config-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content glass-modal" style="max-width: 480px;">
-          <div class="modal-header">
-            <h2 class="modal-task-id" style="font-size: 16px;">⚙️ Configurar Conexión de Terminal</h2>
-            <button type="button" id="btn-close-term-config" class="modal-close-btn">&times;</button>
-          </div>
-          <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px; padding: 16px 0;">
-            <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.5;">
-              Configura la IP y puerto de tu PC para transmitir la terminal mediante <strong>Tailscale</strong> o conexión local.
-            </p>
-
-            <div style="display: flex; gap: 8px;">
-              <button type="button" id="btn-preset-tailscale" class="btn btn-secondary" style="flex: 1; font-size: 11px; padding: 8px;">
-                📱 Tailscale (${DEFAULT_HOST})
-              </button>
-              <button type="button" id="btn-preset-local" class="btn btn-secondary" style="flex: 1; font-size: 11px; padding: 8px;">
-                💻 Localhost (127.0.0.1)
-              </button>
-            </div>
-
-            <div>
-              <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 4px;">Host / IP:</label>
-              <input type="text" id="input-term-host" value="${currentHost}" style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
-            </div>
-
-            <div>
-              <label style="font-size: 11.5px; font-weight: 600; display: block; margin-bottom: 4px;">Puerto:</label>
-              <input type="text" id="input-term-port" value="${currentPort}" style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box;">
-            </div>
-
-            <div style="display: flex; gap: 8px; margin-top: 6px;">
-              <button type="button" id="btn-save-term-config" class="btn btn-primary" style="flex: 1; padding: 10px; font-size: 12px; background: #0f172a; color: white; cursor: pointer; font-weight: 600; border-radius: 6px;">
-                Guardar y Conectar
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Daemon Instructions Modal -->
-      <div id="terminal-daemon-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content glass-modal" style="max-width: 560px;">
-          <div class="modal-header">
-            <h2 class="modal-task-id" style="font-size: 16px;">🚀 Daemon de Terminal (ttyd + Tailscale)</h2>
-            <button type="button" id="btn-close-daemon-modal" class="modal-close-btn">&times;</button>
-          </div>
-          <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px; padding: 16px 0; font-size: 12.5px; line-height: 1.5; color: #334155;">
-            <p style="margin: 0;">
-              Para que la terminal responda desde tu iPad o navegador, el servidor <strong>ttyd</strong> debe estar ejecutándose en tu PC host.
-            </p>
-
-            <div style="background: #0b0f19; color: #f8fafc; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 12px; border: 1px solid rgba(245, 158, 11, 0.3);">
-              <div style="color: #94a3b8; font-size: 11px; margin-bottom: 6px;"># 1. En la carpeta de QZ-HUB, ejecuta:</div>
-              <div style="color: #fbbf24; font-weight: 600;">.\\scripts\\start_terminal.bat</div>
-            </div>
-
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px;">
-              <strong style="color: #0f172a; font-size: 12px;">💡 Ejecutar en segundo plano:</strong>
-              <div style="font-family: monospace; font-size: 11.5px; margin-top: 4px; color: #475569;">
-                wscript .\\scripts\\start_terminal_background.vbs
+        <!-- ============================================================== -->
+        <!-- COLUMNA PRINCIPAL (70%): CHATBOT DE SESIONES Y CONTROL REMOTO -->
+        <!-- ============================================================== -->
+        <div class="session-cockpit-container glass-panel">
+          
+          <!-- Top Telemetry Bar -->
+          <div class="session-top-header">
+            <div class="session-title-block">
+              <div class="session-icon">🤖</div>
+              <div>
+                <div class="session-main-title">
+                  <span id="current-session-title-display">Sesión Principal</span>
+                  <span id="current-session-id-pill" class="session-id-tag">#live</span>
+                </div>
+                <div class="session-subtitle">
+                  <span id="cockpit-bridge-badge" class="bridge-status-mini standby">
+                    <span class="status-dot"></span> Bridge PC: <strong id="bridge-status-text">Detectando...</strong>
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 12px; font-size: 11.5px; color: #92400e;">
-              <strong>ℹ️ Nota para iPad / Móvil:</strong> Asegúrate de que la app <strong>Tailscale</strong> esté conectada (VPN activa) tanto en tu PC como en tu iPad.
+            <div class="session-header-actions">
+              <select id="cockpit-model-select" class="cockpit-model-select" title="Motor de Inteligencia (Créditos GCP)">
+                <option value="gemini-2.5-flash">⚡ Gemini 2.5 Flash</option>
+                <option value="gemini-2.5-pro">🧠 Gemini 2.5 Pro</option>
+                <option value="gemini-1.5-pro">💎 Gemini 1.5 Pro</option>
+                <option value="ssot-local">📖 SSOT Local</option>
+              </select>
+              <button type="button" id="btn-toggle-sessions-list" class="btn-cockpit-icon" title="Ver Historial de Sesiones">📋 Sesiones</button>
+              <button type="button" id="btn-new-session" class="btn-cockpit-primary">＋ Nueva Sesión</button>
+            </div>
+          </div>
+
+          <!-- Main Split View: Sessions Sidebar (Collapsible) + Chat + Session Inspector -->
+          <div class="session-body-grid">
+            
+            <!-- 1. Sessions Drawer / List -->
+            <div id="sessions-drawer" class="sessions-drawer">
+              <div class="sessions-drawer-header">
+                <span style="font-weight: 700; font-size: 12px; color: #0f172a;">Historial de Sesiones</span>
+                <button type="button" id="btn-close-sessions-drawer" class="btn-drawer-close">&times;</button>
+              </div>
+              <div id="sessions-list-container" class="sessions-list-container">
+                <!-- Session items rendered dynamically -->
+              </div>
             </div>
 
-            <div style="display: flex; gap: 8px; margin-top: 6px;">
-              <a href="${buildTerminalUrl()}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="flex: 1; text-align: center; text-decoration: none; padding: 10px; font-size: 12px; background: #0f172a; color: white; cursor: pointer; font-weight: 600; border-radius: 6px;">
-                ⚡ Probar Conexión Directa
-              </a>
+            <!-- 2. Chat Stream & Conversation Feed -->
+            <div class="session-chat-section">
+              
+              <!-- Messages Feed -->
+              <div id="session-chat-feed" class="session-chat-feed">
+                <!-- Messages rendered dynamically -->
+              </div>
+
+              <!-- Chat Input Box & Action Controls -->
+              <div class="session-input-wrapper">
+                <form id="session-chat-form" class="session-chat-form">
+                  <div class="session-input-controls">
+                    <button type="button" id="btn-input-screenshot" class="btn-input-tool" title="Tomar Captura de PC y adjuntar a la sesión">📸 Captura PC</button>
+                    <button type="button" id="btn-input-terminal-cmd" class="btn-input-tool" title="Ejecutar comando en la terminal de tu PC">💻 Ejecutar Comando</button>
+                    <button type="button" id="btn-open-gcp-settings" class="btn-input-tool" title="Configuración de API Key GCP">⚙️ Config GCP</button>
+                  </div>
+                  <div class="session-input-row">
+                    <textarea id="session-chat-input" rows="1" placeholder="Escribe tu consulta, instrucción o comando para el agente..." autocomplete="off"></textarea>
+                    <button type="submit" id="btn-send-message" class="btn-send-message" title="Enviar mensaje">Enviar ⚡</button>
+                  </div>
+                </form>
+              </div>
+
             </div>
+
+            <!-- 3. Session Inspector (Right Tabs: Artefactos, Media, To-Do) -->
+            <div class="session-inspector-panel">
+              <div class="inspector-tabs">
+                <button type="button" class="inspector-tab-btn active" data-tab="artifacts">📑 Artefactos (<span id="inspector-count-artifacts">0</span>)</button>
+                <button type="button" class="inspector-tab-btn" data-tab="media">📸 Media (<span id="inspector-count-media">0</span>)</button>
+                <button type="button" class="inspector-tab-btn" data-tab="todos">✅ To-Do (<span id="inspector-count-todos">0</span>)</button>
+              </div>
+
+              <div class="inspector-content">
+                <!-- Tab: Artefactos & Markdowns vinculados a esta sesión -->
+                <div id="inspector-panel-artifacts" class="inspector-tab-pane active">
+                  <div id="session-artifacts-list" class="inspector-items-list">
+                    <!-- Loaded dynamically -->
+                  </div>
+                </div>
+
+                <!-- Tab: Capturas & Visual Media vinculadas a esta sesión -->
+                <div id="inspector-panel-media" class="inspector-tab-pane">
+                  <div id="session-media-list" class="inspector-media-grid">
+                    <!-- Loaded dynamically -->
+                  </div>
+                </div>
+
+                <!-- Tab: Tareas y To-Dos vinculados a esta sesión -->
+                <div id="inspector-panel-todos" class="inspector-tab-pane">
+                  <div id="session-todos-list" class="inspector-todos-list">
+                    <!-- Loaded dynamically -->
+                  </div>
+                  <button type="button" id="btn-add-session-todo" class="btn-add-todo">＋ Agregar Tarea</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- ============================================================== -->
+        <!-- COLUMNA LATERAL (30%): DIARIO NOCTURNO + FUNNEL METRICS ENGINE -->
+        <!-- ============================================================== -->
+        <div class="cockpit-side-column">
+          
+          <!-- 1. DIARIO NOCTURNO DE REFLEXIÓN -->
+          <div class="journal-card glass-panel" style="padding: 16px; display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 1.3rem;">📝</span>
+                <div>
+                  <h3 style="margin: 0; font-size: 0.95rem; color: #0f172a; text-transform: uppercase;">Diario Nocturno</h3>
+                  <span style="font-size: 10px; color: var(--text-muted);">Reflexión Diaria</span>
+                </div>
+              </div>
+              <input type="date" id="journal-date" value="${todayStr}" style="padding: 3px 6px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff; color: #111111; font-size: 11px;">
+            </div>
+
+            <textarea id="journal-content" style="width: 100%; height: 140px; min-height: 100px; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #ffffff; color: #111111; font-size: 12px; line-height: 1.5; resize: vertical; margin-bottom: 10px;" placeholder="Escribe libremente tus reflexiones o avances del día..."></textarea>
+
+            <button id="journal-save-btn" class="btn btn-primary" style="padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 11.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <span>💾 Guardar Registro de Journal</span>
+            </button>
+
+            <div id="journal-history-list" style="margin-top: 8px; font-size: 10px; color: var(--text-muted);">
+              <!-- Past entries -->
+            </div>
+          </div>
+
+          <!-- 2. FUNNEL METRICS ENGINE (COMPACT COLLAPSIBLE) -->
+          <div class="funnel-card glass-panel" style="padding: 14px; margin-top: 14px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 1.2rem;">📊</span>
+                <h3 style="margin: 0; font-size: 0.9rem; color: #0f172a; text-transform: uppercase;">Funnel Metrics</h3>
+              </div>
+              <span id="funnel-progress-text" style="font-weight: bold; font-size: 10.5px; color: #0f172a;">S/ 770 / S/ 4,000</span>
+            </div>
+
+            <div class="progress-bar-container" style="height: 6px; background: rgba(15,23,42,0.08); border-radius: 3px; overflow: hidden; margin-bottom: 10px;">
+              <div id="funnel-progress-bar" class="progress-bar" style="width: 19.25%; background: linear-gradient(90deg, #0f172a 0%, #b89c50 100%); height: 100%;"></div>
+            </div>
+
+            <details style="font-size: 11.5px; cursor: pointer;">
+              <summary style="font-weight: 600; color: var(--primary); margin-bottom: 6px;">⚙️ Variables de Simulación</summary>
+              
+              <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 4px;">
+                <div style="background: #ffffff; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color);">
+                  <div style="font-weight: 700; font-size: 10.5px; margin-bottom: 3px;">🍳 Royal Prestige (933709385)</div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                    <div>
+                      <label style="font-size: 9.5px; color: var(--text-muted);">Llamadas:</label>
+                      <input type="number" id="fn-rp-calls" value="40" min="0" style="width: 100%; padding: 3px; font-size: 10.5px;">
+                    </div>
+                    <div>
+                      <label style="font-size: 9.5px; color: var(--text-muted);">Demos:</label>
+                      <input type="number" id="fn-rp-ref-demos" value="3" min="0" style="width: 100%; padding: 3px; font-size: 10.5px;">
+                    </div>
+                  </div>
+                  <div style="font-size: 10px; margin-top: 3px;">Est. RP: <strong id="fn-rp-total-gain">S/ 1,852.76</strong></div>
+                </div>
+
+                <div style="background: #ffffff; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color);">
+                  <div style="font-weight: 700; font-size: 10.5px; margin-bottom: 3px;">☄️ QUARZ Group (ZentryOS $1k)</div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                    <div>
+                      <label style="font-size: 9.5px; color: var(--text-muted);">Prospectos:</label>
+                      <input type="number" id="fn-zentry-prospects" value="15" min="0" style="width: 100%; padding: 3px; font-size: 10.5px;">
+                    </div>
+                    <div>
+                      <label style="font-size: 9.5px; color: var(--text-muted);">Demos:</label>
+                      <input type="number" id="fn-zentry-demos" value="5" min="0" style="width: 100%; padding: 3px; font-size: 10.5px;">
+                    </div>
+                  </div>
+                  <div style="font-size: 10px; margin-top: 3px;">Est. ZentryOS: <strong id="fn-zentry-total-gain">S/ 1,906.78</strong></div>
+                </div>
+
+                <span id="fn-rp-est-demos" style="display: none;"></span>
+                <span id="fn-rp-cold-sales" style="display: none;"></span>
+                <span id="fn-rp-ref-sales" style="display: none;"></span>
+                <span id="fn-rp-new-refs" style="display: none;"></span>
+                <span id="fn-zentry-est-demos" style="display: none;"></span>
+                <span id="fn-zentry-sales" style="display: none;"></span>
+                <span id="fn-zentry-personal-gain" style="display: none;"></span>
+                <span id="fn-zentry-company-gain" style="display: none;"></span>
+              </div>
+            </details>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Markdown Viewer Modal for Artifacts -->
+      <div id="artifact-viewer-modal" class="modal-overlay">
+        <div class="modal-content glass-modal" style="max-width: 720px; max-height: 85vh; display: flex; flex-direction: column;">
+          <div class="modal-header">
+            <h2 id="artifact-modal-title" class="modal-task-id" style="font-size: 16px;">📑 Vista de Artefacto</h2>
+            <button id="artifact-modal-close" class="modal-close-btn">&times;</button>
+          </div>
+          <div id="artifact-modal-body" class="modal-body" style="overflow-y: auto; flex: 1; padding: 16px; font-size: 13px; line-height: 1.6;">
+            <!-- Rendered Markdown -->
+          </div>
+          <div class="modal-actions" style="margin-top: 10px; padding-top: 10px;">
+            <button type="button" id="btn-copy-artifact-content" class="btn btn-secondary" style="font-size: 12px;">Copiar Contenido</button>
+            <button type="button" id="btn-close-artifact-modal" class="btn btn-primary" style="font-size: 12px;">Cerrar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- GCP Settings Modal -->
+      <div id="gcp-settings-modal" class="modal-overlay">
+        <div class="modal-content glass-modal" style="max-width: 480px;">
+          <div class="modal-header">
+            <h2 class="modal-task-id" style="font-size: 16px;">⚙️ Configuración Google Cloud Platform</h2>
+            <button id="gcp-modal-close" class="modal-close-btn">&times;</button>
+          </div>
+          <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; font-size: 12px; color: #334155;">
+              <strong>¿Cómo obtener tu API Key con tus créditos de GCP?</strong>
+              <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b;">
+                1. Ve a <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #0f172a; font-weight: bold; text-decoration: underline;">Google AI Studio API Keys</a> o tu <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color: #0f172a; font-weight: bold; text-decoration: underline;">Consola de GCP</a> en tu proyecto <code>qz-hub</code>.<br>
+                2. Haz clic en <strong>Create API Key</strong> y pégala aquí abajo.
+              </p>
+            </div>
+            <div>
+              <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px;">Google Cloud / Gemini API Key (Vertex AI):</label>
+              <input type="password" id="modal-gcp-api-key" placeholder="Pega tu clave AIzaSy..." style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px;">
+            </div>
+            <div>
+              <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px;">GCP Project ID:</label>
+              <input type="text" id="modal-gcp-project-id" value="qz-hub" style="width: 100%; padding: 8px 10px; font-family: monospace; font-size: 12px; border: 1px solid var(--border-color); border-radius: 6px;">
+            </div>
+            <button type="button" id="btn-save-modal-gcp-settings" class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 12.5px; margin-top: 6px;">Guardar y Conectar</button>
           </div>
         </div>
       </div>
     `;
 
-    // Elements
-    const iframe = document.getElementById('qz-terminal-frame');
-    const hostText = document.getElementById('term-host-text');
-    const popoutBtn = document.getElementById('btn-term-popout');
-    const reloadBtn = document.getElementById('btn-term-reload');
-    const configBtn = document.getElementById('btn-term-config');
-    const daemonBtn = document.getElementById('btn-term-daemon-info');
-    const configModal = document.getElementById('terminal-config-modal');
-    const daemonModal = document.getElementById('terminal-daemon-modal');
-    const closeConfigBtn = document.getElementById('btn-close-term-config');
-    const closeDaemonBtn = document.getElementById('btn-close-daemon-modal');
-    const saveConfigBtn = document.getElementById('btn-save-term-config');
-    const presetTailscaleBtn = document.getElementById('btn-preset-tailscale');
-    const presetLocalBtn = document.getElementById('btn-preset-local');
-    const inputHost = document.getElementById('input-term-host');
-    const inputPort = document.getElementById('input-term-port');
+    // ==============================================================================
+    // SESSION MANAGER & CHATBOT ENGINE LOGIC
+    // ==============================================================================
 
-    // Popout button
-    popoutBtn?.addEventListener('click', () => {
-      window.open(buildTerminalUrl(), '_blank');
+    const SESSIONS_STORAGE_KEY = 'qz_agent_sessions_v1';
+    let sessionsState = JSON.parse(localStorage.getItem(SESSIONS_STORAGE_KEY) || '[]');
+    let currentSessionId = localStorage.getItem('qz_active_session_id') || '';
+
+    // Initialize default session if none exists
+    if (!sessionsState || sessionsState.length === 0) {
+      const initSession = {
+        id: 'ses_' + Date.now().toString(36),
+        title: 'Sesión Principal (Laptop & Mobile)',
+        createdAt: new Date().toISOString(),
+        messages: [
+          {
+            id: 'msg_welcome',
+            sender: 'agent',
+            text: 'Hola Jose Angel. He inicializado tu sesión de orquestación en **QZ-Hub**.\n\nTodo lo que generes en esta sesión (archivos `.md`, capturas de pantalla, herramientas ejecutadas y tareas) quedará vinculado a este ID de sesión para que lo revises desde tu celular o laptop.',
+            timestamp: new Date().toISOString()
+          }
+        ],
+        artifacts: [
+          {
+            id: 'art_canon',
+            name: 'CANON.md',
+            title: 'CANON — Single Source of Truth',
+            content: `# 📜 CANON.md — Single Source of Truth\n\n### 🎯 Meta Financiera 31 de Agosto\n- **Meta Total:** S/ 4,000.00 PEN\n- **Caja Actual:** S/ 770.00 PEN\n- **Brecha a Generar:** S/ 3,230.00 PEN\n\n### 📊 Embudo Royal Prestige\n- **Llamadas Frías (12-2pm):** 40 diarias (SIM 933709385).\n- **Ratio:** 20 llamadas conversadas = 1 demo.\n- **Ratio de Cierre:** 4 demos = 1 venta (Comisión S/ 1,010.59).\n\n### ☄️ QUARZ Group / ZentryOS\n- **Licencias:** $1,000 USD por despliegue.\n- **Ganancia Personal (60%):** S/ 1,906.78.`
+          }
+        ],
+        media: [],
+        todos: []
+      };
+      sessionsState = [initSession];
+      currentSessionId = initSession.id;
+      saveSessions();
+    }
+
+    if (!currentSessionId || !sessionsState.find(s => s.id === currentSessionId)) {
+      currentSessionId = sessionsState[0].id;
+      localStorage.setItem('qz_active_session_id', currentSessionId);
+    }
+
+    function getActiveSession() {
+      return sessionsState.find(s => s.id === currentSessionId) || sessionsState[0];
+    }
+
+    function saveSessions() {
+      localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(sessionsState));
+      localStorage.setItem('qz_active_session_id', currentSessionId);
+    }
+
+    // UI Elements
+    const chatFeed = document.getElementById('session-chat-feed');
+    const chatForm = document.getElementById('session-chat-form');
+    const chatInput = document.getElementById('session-chat-input');
+    const modelSelect = document.getElementById('cockpit-model-select');
+    const titleDisplay = document.getElementById('current-session-title-display');
+    const idTag = document.getElementById('current-session-id-pill');
+    const sessionsList = document.getElementById('sessions-list-container');
+    const sessionsDrawer = document.getElementById('sessions-drawer');
+
+    function renderSessionsDrawer() {
+      if (!sessionsList) return;
+      sessionsList.innerHTML = '';
+
+      sessionsState.forEach(ses => {
+        const item = document.createElement('div');
+        const isActive = ses.id === currentSessionId;
+        item.className = `session-drawer-item${isActive ? ' active' : ''}`;
+        
+        const lastMsg = ses.messages && ses.messages.length > 0 ? ses.messages[ses.messages.length - 1].text : 'Nueva sesión';
+        const snippet = (lastMsg || '').replace(/\n/g, ' ').slice(0, 40);
+
+        item.innerHTML = `
+          <div class="session-item-header">
+            <span class="session-item-title">${ses.title || 'Sesión'}</span>
+            <span class="session-item-date">${ses.createdAt ? new Date(ses.createdAt).toLocaleDateString([], {month: 'short', day: 'numeric'}) : ''}</span>
+          </div>
+          <div class="session-item-snippet">${snippet}...</div>
+        `;
+
+        item.addEventListener('click', () => {
+          currentSessionId = ses.id;
+          saveSessions();
+          sessionsDrawer.classList.remove('open');
+          renderCurrentSession();
+        });
+
+        sessionsList.appendChild(item);
+      });
+    }
+
+    function renderCurrentSession() {
+      const session = getActiveSession();
+      if (!session) return;
+
+      if (titleDisplay) titleDisplay.textContent = session.title || 'Sesión';
+      if (idTag) idTag.textContent = `#${session.id.slice(0, 8)}`;
+
+      // Render Messages
+      if (chatFeed) {
+        chatFeed.innerHTML = '';
+        (session.messages || []).forEach(msg => {
+          appendMessageToDOM(msg);
+        });
+        chatFeed.scrollTop = chatFeed.scrollHeight;
+      }
+
+      // Render Inspector (Artifacts, Media, Todos)
+      renderSessionInspector(session);
+      renderSessionsDrawer();
+    }
+
+    function appendMessageToDOM(msg) {
+      if (!chatFeed) return;
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `chat-message-row ${msg.sender}`;
+
+      const isUser = msg.sender === 'user';
+      const formattedContent = isUser 
+        ? msg.text.replace(/\n/g, '<br>')
+        : (typeof mdToHtml === 'function' ? mdToHtml(msg.text) : msg.text.replace(/\n/g, '<br>'));
+
+      // Build inline tools execution badges if any
+      let toolsHtml = '';
+      if (msg.tools && Array.isArray(msg.tools) && msg.tools.length > 0) {
+        toolsHtml = `<div class="msg-tools-used">` + msg.tools.map(t => `
+          <span class="tool-tag">⚡ ${t.name}: <em>${t.summary || ''}</em></span>
+        `).join('') + `</div>`;
+      }
+
+      // Build inline artifact badge if any
+      let artifactHtml = '';
+      if (msg.artifact) {
+        artifactHtml = `
+          <div class="msg-inline-artifact" data-art-id="${msg.artifact.id || ''}">
+            <span>📑 Artefacto Generado: <strong>${msg.artifact.name || 'documento.md'}</strong></span>
+            <button type="button" class="btn-view-art-inline">Ver Artefacto ➔</button>
+          </div>
+        `;
+      }
+
+      msgDiv.innerHTML = `
+        <div class="chat-bubble ${isUser ? 'bubble-user' : 'bubble-agent'}">
+          <div class="bubble-sender">${isUser ? '👤 Tú' : '🤖 QZ Agent'}</div>
+          <div class="bubble-text">${formattedContent}</div>
+          ${toolsHtml}
+          ${artifactHtml}
+          <div class="bubble-time">${msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) : ''}</div>
+        </div>
+      `;
+
+      msgDiv.querySelector('.btn-view-art-inline')?.addEventListener('click', () => {
+        openArtifactModal(msg.artifact);
+      });
+
+      chatFeed.appendChild(msgDiv);
+      chatFeed.scrollTop = chatFeed.scrollHeight;
+    }
+
+    function renderSessionInspector(session) {
+      const artCount = document.getElementById('inspector-count-artifacts');
+      const medCount = document.getElementById('inspector-count-media');
+      const todoCount = document.getElementById('inspector-count-todos');
+
+      const artList = document.getElementById('session-artifacts-list');
+      const medList = document.getElementById('session-media-list');
+      const todoList = document.getElementById('session-todos-list');
+
+      const artifacts = session.artifacts || [];
+      const media = session.media || [];
+      const todos = session.todos || [];
+
+      if (artCount) artCount.textContent = artifacts.length;
+      if (medCount) medCount.textContent = media.length;
+      if (todoCount) todoCount.textContent = todos.length;
+
+      // 1. Artifacts List
+      if (artList) {
+        if (artifacts.length === 0) {
+          artList.innerHTML = '<div class="inspector-empty-state">No hay artefactos en esta sesión aún.</div>';
+        } else {
+          artList.innerHTML = artifacts.map((art, idx) => `
+            <div class="artifact-card-item" data-index="${idx}">
+              <div class="art-card-left">
+                <span class="art-icon">📑</span>
+                <div>
+                  <div class="art-name">${art.name || 'documento.md'}</div>
+                  <div class="art-desc">${art.title || 'Documento Markdown'}</div>
+                </div>
+              </div>
+              <button type="button" class="btn-art-open">Ver ➔</button>
+            </div>
+          `).join('');
+
+          artList.querySelectorAll('.artifact-card-item').forEach(el => {
+            el.addEventListener('click', () => {
+              const idx = parseInt(el.dataset.index);
+              openArtifactModal(artifacts[idx]);
+            });
+          });
+        }
+      }
+
+      // 2. Media List
+      if (medList) {
+        if (media.length === 0) {
+          medList.innerHTML = '<div class="inspector-empty-state">Sin capturas de pantalla en esta sesión.</div>';
+        } else {
+          medList.innerHTML = media.map(m => `
+            <div class="media-thumb-card" onclick="window.open('${m.url}', '_blank')">
+              <img src="${m.url}" alt="Screenshot" />
+              <div class="media-thumb-label">${m.timestamp ? new Date(m.timestamp).toLocaleTimeString() : 'Captura'}</div>
+            </div>
+          `).join('');
+        }
+      }
+
+      // 3. Todos List
+      if (todoList) {
+        if (todos.length === 0) {
+          todoList.innerHTML = '<div class="inspector-empty-state">Sin tareas pendientes en esta sesión.</div>';
+        } else {
+          todoList.innerHTML = todos.map((t, idx) => `
+            <div class="session-todo-item">
+              <input type="checkbox" ${t.done ? 'checked' : ''} data-index="${idx}" class="todo-check" />
+              <span style="${t.done ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${t.text}</span>
+            </div>
+          `).join('');
+
+          todoList.querySelectorAll('.todo-check').forEach(chk => {
+            chk.addEventListener('change', (e) => {
+              const idx = parseInt(e.target.dataset.index);
+              session.todos[idx].done = e.target.checked;
+              saveSessions();
+              renderSessionInspector(session);
+            });
+          });
+        }
+      }
+    }
+
+    // Modal Artifact Viewer
+    let currentViewingArtifact = null;
+    function openArtifactModal(artifact) {
+      if (!artifact) return;
+      currentViewingArtifact = artifact;
+      const modal = document.getElementById('artifact-viewer-modal');
+      const title = document.getElementById('artifact-modal-title');
+      const body = document.getElementById('artifact-modal-body');
+
+      if (title) title.textContent = `📑 ${artifact.name || 'Artefacto'}`;
+      if (body) {
+        const content = artifact.content || '';
+        body.innerHTML = (typeof mdToHtml === 'function') ? mdToHtml(content) : content.replace(/\n/g, '<br>');
+      }
+      if (modal) modal.classList.add('show');
+    }
+
+    document.getElementById('artifact-modal-close')?.addEventListener('click', () => {
+      document.getElementById('artifact-viewer-modal')?.classList.remove('show');
     });
-
-    // Reload iframe
-    reloadBtn?.addEventListener('click', () => {
-      if (iframe) {
-        iframe.src = buildTerminalUrl() + '?t=' + Date.now();
-        showToast('Terminal recargada 🔄');
+    document.getElementById('btn-close-artifact-modal')?.addEventListener('click', () => {
+      document.getElementById('artifact-viewer-modal')?.classList.remove('show');
+    });
+    document.getElementById('btn-copy-artifact-content')?.addEventListener('click', () => {
+      if (currentViewingArtifact && currentViewingArtifact.content) {
+        navigator.clipboard.writeText(currentViewingArtifact.content);
+        alert('Contenido copiado al portapapeles.');
       }
     });
 
-    // Host Display Click -> Open Config
-    document.getElementById('term-host-display')?.addEventListener('click', () => {
-      if (configModal) configModal.style.display = 'flex';
-    });
-
-    // Modals
-    configBtn?.addEventListener('click', () => {
-      if (configModal) configModal.style.display = 'flex';
-    });
-
-    closeConfigBtn?.addEventListener('click', () => {
-      if (configModal) configModal.style.display = 'none';
-    });
-
-    daemonBtn?.addEventListener('click', () => {
-      if (daemonModal) daemonModal.style.display = 'flex';
-    });
-
-    closeDaemonBtn?.addEventListener('click', () => {
-      if (daemonModal) daemonModal.style.display = 'none';
-    });
-
-    // Presets
-    presetTailscaleBtn?.addEventListener('click', () => {
-      if (inputHost) inputHost.value = DEFAULT_HOST;
-      if (inputPort) inputPort.value = DEFAULT_PORT;
-    });
-
-    presetLocalBtn?.addEventListener('click', () => {
-      if (inputHost) inputHost.value = 'localhost';
-      if (inputPort) inputPort.value = DEFAULT_PORT;
-    });
-
-    // Save Configuration
-    saveConfigBtn?.addEventListener('click', () => {
-      const newHost = inputHost.value.trim() || DEFAULT_HOST;
-      const newPort = inputPort.value.trim() || DEFAULT_PORT;
-      currentHost = newHost;
-      currentPort = newPort;
-      localStorage.setItem(STORAGE_HOST_KEY, currentHost);
-      localStorage.setItem(STORAGE_PORT_KEY, currentPort);
-
-      if (hostText) hostText.textContent = `${currentHost}:${currentPort}`;
-      if (iframe) iframe.src = buildTerminalUrl();
-      if (configModal) configModal.style.display = 'none';
-      showToast(`Conectando a http://${currentHost}:${currentPort} 🚀`);
-    });
-
-    // Quick Command Chips
-    document.querySelectorAll('.terminal-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        const cmd = chip.getAttribute('data-cmd');
-        if (cmd) {
-          navigator.clipboard?.writeText(cmd).then(() => {
-            showToast(`Copiado: ${cmd} 📋`);
-          }).catch(() => {
-            showToast(`Comando: ${cmd}`);
-          });
-        }
+    // Inspector Tabs Switching
+    document.querySelectorAll('.inspector-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        document.querySelectorAll('.inspector-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.inspector-tab-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(`inspector-panel-${tab}`)?.classList.add('active');
       });
     });
 
-    // Toast helper
-    function showToast(msg) {
-      const existing = document.querySelector('.terminal-toast');
-      if (existing) existing.remove();
-      const toast = document.createElement('div');
-      toast.className = 'terminal-toast';
-      toast.textContent = msg;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 2500);
+    // Sessions Drawer Toggle
+    document.getElementById('btn-toggle-sessions-list')?.addEventListener('click', () => {
+      sessionsDrawer?.classList.toggle('open');
+    });
+    document.getElementById('btn-close-sessions-drawer')?.addEventListener('click', () => {
+      sessionsDrawer?.classList.remove('open');
+    });
+
+    // New Session Creation
+    document.getElementById('btn-new-session')?.addEventListener('click', () => {
+      const sessionTitle = prompt('Nombre o tema de la nueva sesión:', `Sesión ${sessionsState.length + 1}`);
+      if (!sessionTitle) return;
+
+      const newSes = {
+        id: 'ses_' + Date.now().toString(36),
+        title: sessionTitle.trim(),
+        createdAt: new Date().toISOString(),
+        messages: [
+          {
+            id: 'msg_welcome_' + Date.now(),
+            sender: 'agent',
+            text: `Sesión **"${sessionTitle.trim()}"** iniciada. ¿En qué podemos avanzar hoy?`,
+            timestamp: new Date().toISOString()
+          }
+        ],
+        artifacts: [],
+        media: [],
+        todos: []
+      };
+
+      sessionsState.unshift(newSes);
+      currentSessionId = newSes.id;
+      saveSessions();
+      sessionsDrawer?.classList.remove('open');
+      renderCurrentSession();
+    });
+
+    // Add Session Todo Button
+    document.getElementById('btn-add-session-todo')?.addEventListener('click', () => {
+      const todoText = prompt('Nueva tarea o to-do para esta sesión:');
+      if (!todoText) return;
+      const session = getActiveSession();
+      if (!session.todos) session.todos = [];
+      session.todos.push({ id: 'todo_' + Date.now(), text: todoText.trim(), done: false });
+      saveSessions();
+      renderSessionInspector(session);
+    });
+
+    // GCP Settings Modal
+    const gcpModal = document.getElementById('gcp-settings-modal');
+    const modalApiKey = document.getElementById('modal-gcp-api-key');
+    const modalProjectId = document.getElementById('modal-gcp-project-id');
+
+    document.getElementById('btn-open-gcp-settings')?.addEventListener('click', () => {
+      if (modalApiKey) modalApiKey.value = localStorage.getItem('gemini_api_key') || '';
+      if (modalProjectId) modalProjectId.value = localStorage.getItem('gemini_project_id') || 'qz-hub';
+      if (gcpModal) gcpModal.classList.add('show');
+    });
+
+    document.getElementById('gcp-modal-close')?.addEventListener('click', () => {
+      gcpModal?.classList.remove('show');
+    });
+
+    document.getElementById('btn-save-modal-gcp-settings')?.addEventListener('click', () => {
+      const key = (modalApiKey ? modalApiKey.value : '').trim();
+      const proj = (modalProjectId ? modalProjectId.value : '').trim() || 'qz-hub';
+      localStorage.setItem('gemini_api_key', key);
+      localStorage.setItem('gemini_project_id', proj);
+      gcpModal?.classList.remove('show');
+      alert('✅ Credenciales de Google Cloud guardadas.');
+    });
+
+    // Tool: Remote Screenshot Button (Attaches to Active Session)
+    document.getElementById('btn-input-screenshot')?.addEventListener('click', async () => {
+      const session = getActiveSession();
+      const btn = document.getElementById('btn-input-screenshot');
+      if (btn) btn.disabled = true;
+
+      const userMsg = {
+        id: 'msg_' + Date.now(),
+        sender: 'user',
+        text: '📸 Solicitar captura de pantalla en tiempo real a mi PC.',
+        timestamp: new Date().toISOString()
+      };
+      session.messages.push(userMsg);
+      appendMessageToDOM(userMsg);
+      saveSessions();
+
+      try {
+        await sendRemoteTask('take_screenshot', {});
+        const unsub = listenToLatestScreenshot((mediaDoc) => {
+          if (mediaDoc && mediaDoc.data) {
+            const mediaItem = {
+              id: 'med_' + Date.now(),
+              type: 'screenshot',
+              url: mediaDoc.data,
+              timestamp: mediaDoc.timestamp || new Date().toISOString()
+            };
+            if (!session.media) session.media = [];
+            session.media.unshift(mediaItem);
+
+            const agentMsg = {
+              id: 'msg_' + Date.now() + '_res',
+              sender: 'agent',
+              text: '📸 **Captura de pantalla recibida de tu PC exitosamente.** Se ha guardado en la pestaña **Media** de esta sesión.',
+              timestamp: new Date().toISOString(),
+              tools: [{ name: 'take_screenshot', summary: 'Pantalla capturada en PC' }]
+            };
+            session.messages.push(agentMsg);
+            appendMessageToDOM(agentMsg);
+            saveSessions();
+            renderSessionInspector(session);
+            unsub();
+          }
+        });
+      } catch (err) {
+        alert('Error solicitando captura: ' + err.message);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    });
+
+    // Tool: Remote Terminal Command Runner
+    document.getElementById('btn-input-terminal-cmd')?.addEventListener('click', async () => {
+      const cmd = prompt('Comando para ejecutar en tu PC remota (ej: git status, dir, python -V):');
+      if (!cmd) return;
+      const session = getActiveSession();
+
+      const userMsg = {
+        id: 'msg_' + Date.now(),
+        sender: 'user',
+        text: `💻 \`$ ${cmd.trim()}\``,
+        timestamp: new Date().toISOString()
+      };
+      session.messages.push(userMsg);
+      appendMessageToDOM(userMsg);
+      saveSessions();
+
+      try {
+        await sendRemoteTask('exec_command', { command: cmd.trim() });
+        const unsub = listenToRemoteTask((taskDoc) => {
+          if (taskDoc && taskDoc.status === 'completed' && taskDoc.action === 'exec_command') {
+            const out = (taskDoc.result?.stdout || '') + (taskDoc.result?.stderr || '');
+            const agentMsg = {
+              id: 'msg_' + Date.now() + '_res',
+              sender: 'agent',
+              text: `\`\`\`\n${out || 'Comando ejecutado sin salida.'}\n\`\`\``,
+              timestamp: new Date().toISOString(),
+              tools: [{ name: 'exec_command', summary: `Exit Code ${taskDoc.result?.exitCode || 0}` }]
+            };
+            session.messages.push(agentMsg);
+            appendMessageToDOM(agentMsg);
+            saveSessions();
+            unsub();
+          }
+        });
+      } catch (err) {
+        alert('Error ejecutando comando: ' + err.message);
+      }
+    });
+
+    // Chat Message Submission (Google Cloud Vertex AI with Session History)
+    if (chatForm) {
+      chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if (!text) return;
+        chatInput.value = '';
+
+        const session = getActiveSession();
+        const userMsg = {
+          id: 'msg_' + Date.now(),
+          sender: 'user',
+          text: text,
+          timestamp: new Date().toISOString()
+        };
+        session.messages.push(userMsg);
+        appendMessageToDOM(userMsg);
+        saveSessions();
+
+        // Thinking placeholder
+        const thinkingDiv = document.createElement('div');
+        thinkingDiv.id = 'session-thinking-indicator';
+        thinkingDiv.className = 'chat-message-row agent';
+        thinkingDiv.innerHTML = `
+          <div class="chat-bubble bubble-agent" style="opacity: 0.7;">
+            <div class="bubble-sender">🤖 QZ Agent</div>
+            <div class="bubble-text"><em>Pensando y procesando...</em></div>
+          </div>
+        `;
+        chatFeed.appendChild(thinkingDiv);
+        chatFeed.scrollTop = chatFeed.scrollHeight;
+
+        const selectedModel = modelSelect ? modelSelect.value : 'gemini-2.5-flash';
+
+        if (selectedModel === 'ssot-local') {
+          setTimeout(() => {
+            document.getElementById('session-thinking-indicator')?.remove();
+            const reply = processLocalSsotQuery(text);
+            const agentMsg = {
+              id: 'msg_' + Date.now(),
+              sender: 'agent',
+              text: reply,
+              timestamp: new Date().toISOString()
+            };
+            session.messages.push(agentMsg);
+            appendMessageToDOM(agentMsg);
+            saveSessions();
+          }, 300);
+        } else {
+          try {
+            // Build conversation history prompt
+            const historyPrompt = (session.messages || []).slice(-6).map(m => `${m.sender === 'user' ? 'Usuario' : 'Asistente'}: ${m.text}`).join('\n\n');
+            const systemPrompt = `Eres el Agente Orquestador Central de QZ-HUB y QUARZ Group (SSOT).
+Estás interactuando en la sesión: "${session.title}".
+Tienes acceso a todo el SSOT:
+- Metas de Caja al 31 de Agosto: S/ 4,000.00 PEN (partiendo de S/ 770.00).
+- Royal Prestige: 40 llamadas frías diarias de 12-2pm (SIM 933709385), ratio 20:1 a demo, 4:1 a venta (comisión S/ 1,010.59).
+- Quarz ZentryOS: $1,000 USD por licencia (S/ 1,906.78 ganancia personal + S/ 1,271.19 caja empresa).
+- Biohacking: Rutina 12-2pm, ayuno autofágico 48h, abastecimiento Yerbateros viernes 4:30am.
+
+Responde de forma concisa, ejecutiva y formateada en Markdown limpio.`;
+
+            const reply = await callVertexGemini(historyPrompt, systemPrompt, selectedModel);
+            document.getElementById('session-thinking-indicator')?.remove();
+
+            const agentMsg = {
+              id: 'msg_' + Date.now(),
+              sender: 'agent',
+              text: reply,
+              timestamp: new Date().toISOString()
+            };
+
+            // Detect if the agent generated an artifact / deliverable in markdown
+            if (reply.includes('# ') && reply.length > 300) {
+              const artName = `entregable_${Date.now().toString(36)}.md`;
+              const newArt = {
+                id: 'art_' + Date.now(),
+                name: artName,
+                title: 'Entregable de la Sesión',
+                content: reply
+              };
+              if (!session.artifacts) session.artifacts = [];
+              session.artifacts.unshift(newArt);
+              agentMsg.artifact = newArt;
+              renderSessionInspector(session);
+            }
+
+            session.messages.push(agentMsg);
+            appendMessageToDOM(agentMsg);
+            saveSessions();
+          } catch (err) {
+            document.getElementById('session-thinking-indicator')?.remove();
+            console.warn('Vertex AI error:', err);
+            const fallbackReply = processLocalSsotQuery(text);
+            const agentMsg = {
+              id: 'msg_' + Date.now(),
+              sender: 'agent',
+              text: `⚠️ *[Aviso GCP: ${err.message}]*\n\n${fallbackReply}`,
+              timestamp: new Date().toISOString()
+            };
+            session.messages.push(agentMsg);
+            appendMessageToDOM(agentMsg);
+            saveSessions();
+          }
+        }
+      });
     }
+
+    // Telemetry Listener for Bridge Status
+    try {
+      listenToRemoteTelemetry((telemetry) => {
+        const bridgeBadge = document.getElementById('cockpit-bridge-badge');
+        const bridgeText = document.getElementById('bridge-status-text');
+
+        if (!bridgeBadge || !bridgeText) return;
+
+        if (telemetry && telemetry.status === 'online') {
+          const now = Date.now();
+          const lastSeenTime = telemetry.lastSeen ? new Date(telemetry.lastSeen).getTime() : now;
+          const diffSec = Math.round((now - lastSeenTime) / 1000);
+
+          if (diffSec < 35) {
+            bridgeBadge.className = 'bridge-status-mini online';
+            bridgeText.textContent = `En Línea (${telemetry.deviceName || 'PC'})`;
+          } else {
+            bridgeBadge.className = 'bridge-status-mini standby';
+            bridgeText.textContent = 'Standby';
+          }
+        } else {
+          bridgeBadge.className = 'bridge-status-mini offline';
+          bridgeText.textContent = 'Desconectado';
+        }
+      });
+    } catch(e) {}
+
+    // Auto-resize chat textarea as user types
+    chatInput?.addEventListener('input', () => {
+      chatInput.style.height = 'auto';
+      chatInput.style.height = Math.min(100, chatInput.scrollHeight) + 'px';
+    });
+
+    // Initial render of active session
+    renderCurrentSession();
+
+    // 8. Journaling Logic (Preserved)
+    const journalDate = document.getElementById('journal-date');
+    const journalContent = document.getElementById('journal-content');
+    const journalSaveBtn = document.getElementById('journal-save-btn');
+    const journalHistoryList = document.getElementById('journal-history-list');
+
+    function loadJournalForDate(dateStr) {
+      const history = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
+      const entry = history.find(h => h.date === dateStr);
+      if (entry && journalContent) {
+        journalContent.value = entry.content || '';
+      } else if (journalContent) {
+        journalContent.value = '';
+      }
+    }
+
+    function renderJournalHistory() {
+      const history = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
+      if (!journalHistoryList) return;
+      if (history.length === 0) {
+        journalHistoryList.innerHTML = `<p style="font-style: italic;">No hay entradas guardadas aún.</p>`;
+        return;
+      }
+      journalHistoryList.innerHTML = '<strong>📅 Entradas Recientes:</strong>' + history.slice(0, 3).map(h => {
+        const previewText = (h.content || '').replace(/\n/g, ' ').slice(0, 45);
+        return `
+          <div style="background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.06); padding: 6px 8px; border-radius: 4px; margin-top: 4px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="document.getElementById('journal-date').value='${h.date}'; document.getElementById('journal-date').dispatchEvent(new Event('change'));">
+            <span style="font-weight: 600; color: #0f172a;">${h.date}</span>
+            <span style="font-size: 10px; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 140px;">${previewText}...</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    if (journalDate) {
+      journalDate.addEventListener('change', () => {
+        loadJournalForDate(journalDate.value);
+      });
+      loadJournalForDate(journalDate.value);
+    }
+    renderJournalHistory();
+
+    if (journalSaveBtn) {
+      journalSaveBtn.addEventListener('click', async () => {
+        const date = journalDate.value;
+        const text = journalContent ? journalContent.value.trim() : '';
+        if (!text) {
+          alert('Por favor escribe tu reflexión antes de guardar.');
+          return;
+        }
+
+        journalSaveBtn.disabled = true;
+        journalSaveBtn.innerHTML = '<span>⏳ Guardando...</span>';
+
+        const history = JSON.parse(localStorage.getItem('zentry_journal_history') || '[]');
+        const existingIdx = history.findIndex(h => h.date === date);
+        const entry = { date, content: text, savedAt: new Date().toISOString() };
+
+        if (existingIdx !== -1) {
+          history[existingIdx] = entry;
+        } else {
+          history.unshift(entry);
+        }
+
+        localStorage.setItem('zentry_journal_history', JSON.stringify(history));
+
+        try {
+          await syncJournalHistory(history);
+        } catch(e) {}
+
+        journalSaveBtn.disabled = false;
+        journalSaveBtn.innerHTML = '<span>💾 Guardar Registro de Journal</span>';
+        alert(`✅ Journal para ${date} guardado y sincronizado en Firestore.`);
+        renderJournalHistory();
+      });
+    }
+
+    // 9. Funnel Metrics Engine Logic (Preserved Math)
+    const fnRpCalls = document.getElementById('fn-rp-calls');
+    const fnRpRefDemos = document.getElementById('fn-rp-ref-demos');
+    const fnZentryProspects = document.getElementById('fn-zentry-prospects');
+    const fnZentryDemos = document.getElementById('fn-zentry-demos');
+
+    function updateFunnelEngine() {
+      const rpCalls = parseInt(fnRpCalls?.value) || 0;
+      const rpRefDemos = parseInt(fnRpRefDemos?.value) || 0;
+      const zentryProspects = parseInt(fnZentryProspects?.value) || 0;
+      const zentryDemos = parseInt(fnZentryDemos?.value) || 0;
+
+      const estColdDemos = (rpCalls / 20).toFixed(1);
+      const coldSales = (estColdDemos / 4).toFixed(1);
+      const refSales = (rpRefDemos / 3).toFixed(1);
+
+      const rpGain = (parseFloat(coldSales) * 1010.59) + (parseFloat(refSales) * 1347.46);
+      const fnRpTotal = document.getElementById('fn-rp-total-gain');
+      if (fnRpTotal) fnRpTotal.textContent = `S/ ${rpGain.toFixed(2)}`;
+
+      const zentrySales = (zentryDemos / 5).toFixed(1);
+      const zentryPersonalGain = parseFloat(zentrySales) * 1906.78;
+      const fnZentryTotal = document.getElementById('fn-zentry-total-gain');
+      if (fnZentryTotal) fnZentryTotal.textContent = `S/ ${zentryPersonalGain.toFixed(2)}`;
+
+      const initialCash = 770.00;
+      const totalPersonalGain = initialCash + rpGain + zentryPersonalGain;
+      const target = 4000.00;
+      const pct = Math.min(100, Math.round((totalPersonalGain / target) * 100));
+
+      const funnelProgressText = document.getElementById('funnel-progress-text');
+      const funnelProgressBar = document.getElementById('funnel-progress-bar');
+      if (funnelProgressText) funnelProgressText.textContent = `S/ ${totalPersonalGain.toFixed(2)} / S/ ${target.toFixed(2)} (${pct}%)`;
+      if (funnelProgressBar) funnelProgressBar.style.width = `${pct}%`;
+    }
+
+    if (fnRpCalls) fnRpCalls.addEventListener('input', updateFunnelEngine);
+    if (fnRpRefDemos) fnRpRefDemos.addEventListener('input', updateFunnelEngine);
+    if (fnZentryProspects) fnZentryProspects.addEventListener('input', updateFunnelEngine);
+    if (fnZentryDemos) fnZentryDemos.addEventListener('input', updateFunnelEngine);
+
+    updateFunnelEngine();
   },
 
-    // 6.7. Plan Maestro 63 Días View
+  // 6.7. Plan Maestro 63 Días View
   plan63dias: () => {
     document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #2b5c8f 0%, #1c142e 50%, #0c0d10 100%)';
     document.getElementById('page-icon').textContent = '🗺️';
@@ -3699,7 +3261,7 @@ const renderers = {
     // Logic to gather bricks
     let allBricks = [];
     const history = JSON.parse(localStorage.getItem('zentry_timeblock_history') || '[]');
-    const todayStr = state.personalDate || getLocalDateString();
+    const todayStr = state.personalDate || new Date().toISOString().split('T')[0];
     const todayBlocks = JSON.parse(localStorage.getItem(`zentry_timeblock_${todayStr}`)) || {};
     
     // Gather from history
@@ -3927,711 +3489,6 @@ function renderCorkboardObjectives() {
   });
 }
 
-// ==============================================================================
-// MODULAR JOURNAL & DIARIO NOCTURNO SYSTEM (FIREBASE & LOCAL SYNC)
-// ==============================================================================
-
-function getJournalHistory() {
-  const stored = localStorage.getItem('zentry_journal_history');
-  if (stored) {
-    try { return JSON.parse(stored); } catch(e) { return []; }
-  }
-  return [];
-}
-
-function openJournalModal(initialDateStr) {
-  const modal = document.getElementById('journal-modal');
-  if (!modal) return;
-
-  const dateInput = document.getElementById('modal-journal-date');
-  const searchInput = document.getElementById('journal-search-input');
-  const contentTextarea = document.getElementById('modal-journal-content');
-  const activeDateLabel = document.getElementById('journal-active-date-label');
-  const totalCountBadge = document.getElementById('journal-total-count');
-  const historyListContainer = document.getElementById('modal-journal-history-list');
-  const deleteBtn = document.getElementById('modal-journal-delete-btn');
-  const saveBtn = document.getElementById('modal-journal-save-btn');
-  const wordCountSpan = document.getElementById('journal-word-count');
-  const charCountSpan = document.getElementById('journal-char-count');
-  const closeBtn = document.getElementById('journal-modal-close');
-
-  let currentDate = initialDateStr || state.personalDate || getLocalDateString();
-
-  const updateStats = () => {
-    const text = contentTextarea ? contentTextarea.value.trim() : '';
-    const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
-    const chars = text.length;
-    if (wordCountSpan) wordCountSpan.textContent = `${words} palabra${words === 1 ? '' : 's'}`;
-    if (charCountSpan) charCountSpan.textContent = `${chars} carácter${chars === 1 ? '' : 'es'}`;
-  };
-
-  const loadEntryForDate = (dateStr) => {
-    currentDate = dateStr;
-    if (dateInput) dateInput.value = dateStr;
-    if (activeDateLabel) activeDateLabel.textContent = formatDateLabel(dateStr);
-
-    const history = getJournalHistory();
-    const entry = history.find(h => h.date === dateStr);
-
-    if (entry && contentTextarea) {
-      contentTextarea.value = entry.content || '';
-      if (deleteBtn) deleteBtn.style.display = 'inline-flex';
-    } else if (contentTextarea) {
-      contentTextarea.value = '';
-      if (deleteBtn) deleteBtn.style.display = 'none';
-    }
-    updateStats();
-    renderHistoryList(searchInput ? searchInput.value.trim() : '');
-  };
-
-  const renderHistoryList = (filterQuery = '') => {
-    if (!historyListContainer) return;
-    const history = getJournalHistory();
-    if (totalCountBadge) totalCountBadge.textContent = history.length;
-
-    const filtered = filterQuery 
-      ? history.filter(h => h.date.includes(filterQuery) || (h.content || '').toLowerCase().includes(filterQuery.toLowerCase()))
-      : history;
-
-    if (filtered.length === 0) {
-      historyListContainer.innerHTML = `
-        <div style="padding: 16px 8px; text-align: center; color: #94a3b8; font-size: 11px; font-style: italic;">
-          ${filterQuery ? 'No se encontraron entradas para esa búsqueda.' : 'No hay entradas en tu diario aún. ¡Escribe tu primera reflexión!'}
-        </div>
-      `;
-      return;
-    }
-
-    historyListContainer.innerHTML = filtered.map(h => {
-      const isActive = h.date === currentDate ? ' active' : '';
-      const text = (h.content || '').replace(/\n/g, ' ');
-      const preview = text.length > 65 ? text.slice(0, 65) + '...' : (text || '(Entrada vacía)');
-      const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
-
-      return `
-        <div class="journal-entry-item${isActive}" data-date="${h.date}">
-          <div class="journal-entry-date">
-            <span>📅 ${h.date}</span>
-            <span class="journal-entry-words">${words} palabras</span>
-          </div>
-          <div class="journal-entry-snippet">${preview}</div>
-        </div>
-      `;
-    }).join('');
-
-    // Bind item click
-    historyListContainer.querySelectorAll('.journal-entry-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const d = item.getAttribute('data-date');
-        if (d) loadEntryForDate(d);
-      });
-    });
-  };
-
-  // Date input change
-  if (dateInput) {
-    dateInput.onchange = () => {
-      if (dateInput.value) loadEntryForDate(dateInput.value);
-    };
-  }
-
-  // Search input
-  if (searchInput) {
-    searchInput.oninput = () => {
-      renderHistoryList(searchInput.value.trim());
-    };
-  }
-
-  // Textarea input for stats
-  if (contentTextarea) {
-    contentTextarea.oninput = updateStats;
-  }
-
-  // Prompt pills click
-  modal.querySelectorAll('.btn-prompt-pill').forEach(pill => {
-    pill.onclick = () => {
-      const promptText = pill.getAttribute('data-prompt');
-      if (contentTextarea && promptText) {
-        if (contentTextarea.value.length > 0 && !contentTextarea.value.endsWith('\n\n')) {
-          contentTextarea.value += '\n\n';
-        }
-        contentTextarea.value += promptText;
-        contentTextarea.focus();
-        updateStats();
-      }
-    };
-  });
-
-  // Save button
-  if (saveBtn) {
-    saveBtn.onclick = async () => {
-      const text = contentTextarea ? contentTextarea.value.trim() : '';
-      if (!text) {
-        alert('Por favor escribe tu reflexión o notas antes de guardar.');
-        return;
-      }
-
-      saveBtn.disabled = true;
-      saveBtn.innerHTML = '<span>⏳ Guardando...</span>';
-
-      const history = getJournalHistory();
-      const existingIdx = history.findIndex(h => h.date === currentDate);
-      const entry = { date: currentDate, content: text, savedAt: new Date().toISOString() };
-
-      if (existingIdx !== -1) {
-        history[existingIdx] = entry;
-      } else {
-        history.unshift(entry);
-      }
-
-      // Sort by date descending
-      history.sort((a, b) => b.date.localeCompare(a.date));
-
-      localStorage.setItem('zentry_journal_history', JSON.stringify(history));
-
-      try {
-        await syncJournalHistory(history);
-      } catch (e) {
-        console.warn('Firestore sync failed or offline:', e);
-      }
-
-      saveBtn.disabled = false;
-      saveBtn.innerHTML = '<span>✅ ¡Guardado!</span>';
-      setTimeout(() => {
-        if (saveBtn) saveBtn.innerHTML = '<span>💾 Guardar Registro</span>';
-      }, 1800);
-
-      loadEntryForDate(currentDate);
-    };
-  }
-
-  // Delete button
-  if (deleteBtn) {
-    deleteBtn.onclick = async () => {
-      if (confirm(`¿Estás seguro de eliminar el registro de journal del día ${currentDate}?`)) {
-        let history = getJournalHistory();
-        history = history.filter(h => h.date !== currentDate);
-        localStorage.setItem('zentry_journal_history', JSON.stringify(history));
-
-        try {
-          await syncJournalHistory(history);
-        } catch (e) {}
-
-        loadEntryForDate(currentDate);
-      }
-    };
-  }
-
-  // Close handlers
-  const closeModal = () => {
-    modal.classList.remove('show');
-  };
-
-  if (closeBtn) closeBtn.onclick = closeModal;
-  modal.onclick = (e) => {
-    if (e.target === modal) closeModal();
-  };
-
-  // Open modal and load initial date
-  loadEntryForDate(currentDate);
-  modal.classList.add('show');
-}
-
-// ==============================================================================
-// FULL-PAGE JOURNAL VIEW (FULL TAB WORKSPACE)
-// ==============================================================================
-
-function renderJournalFullPage(container) {
-  document.getElementById('properties-block').style.display = 'none';
-  document.getElementById('page-banner').style.display = 'none';
-  const wsHeader = document.querySelector('.workspace-header');
-  if (wsHeader) wsHeader.style.display = 'none';
-
-  let currentDate = state.personalDate || getLocalDateString();
-
-  container.innerHTML = `
-    <div class="journal-fullpage-container">
-      
-      <!-- Top Navigation Bar -->
-      <div class="espacio-personal-header journal-fullpage-header">
-        <a href="#backlog" class="btn-back-personal">⬅️ Volver a Selección</a>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 1.4rem;">📖</span>
-          <h2 style="font-family: 'Space Grotesk', sans-serif; color: #0f172a; margin: 0; font-size: 1.3rem;">DIARIO & REFLEXIÓN NOCTURNA</h2>
-        </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <a href="#backlog/personal" class="btn-open-personal-board" style="background: #ffffff; color: #0f172a; border: 1px solid rgba(15,23,42,0.15); text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">⏱️ Ir a Timeblocking</a>
-          <a href="#backlog/personal-board" class="btn-open-personal-board" style="background: #0f172a; color: #ffffff; text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">📋 Tablero Personal</a>
-        </div>
-      </div>
-
-      <!-- Main Full Workspace Grid: Sidebar (300px) + Main Editor (1fr) -->
-      <div class="journal-fullpage-layout glass-panel">
-        
-        <!-- Sidebar: Fechas, Búsqueda e Historial -->
-        <aside class="journal-sidebar journal-fullpage-sidebar">
-          <div class="journal-sidebar-top">
-            <div class="journal-date-selector-box">
-              <label for="fp-journal-date" class="journal-input-label">📅 Seleccionar Fecha:</label>
-              <input type="date" id="fp-journal-date" class="journal-date-input" value="${currentDate}" />
-            </div>
-            <div class="journal-search-box">
-              <input type="text" id="fp-journal-search-input" placeholder="🔍 Buscar en el historial..." class="journal-search-input" />
-            </div>
-          </div>
-
-          <div class="journal-entries-heading">
-            <span>📚 Entradas Guardadas</span>
-            <span id="fp-journal-total-count" class="journal-count-badge">0</span>
-          </div>
-
-          <div id="fp-journal-history-list" class="journal-history-scroll">
-            <!-- Loaded dynamically -->
-          </div>
-        </aside>
-
-        <!-- Main Editor Column -->
-        <main class="journal-editor-main journal-fullpage-main">
-          <div class="journal-editor-header">
-            <div class="journal-current-date-info">
-              <div>
-                <span id="fp-journal-active-date-label" class="journal-active-date">${formatDateLabel(currentDate)}</span>
-                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Reflexión Diaria, Decisiones y Pensamiento Estratégico</div>
-              </div>
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <span id="fp-journal-sync-status" class="journal-sync-status">⚡ Sincronizado en la nube</span>
-              </div>
-            </div>
-            
-            <!-- Quick prompt chips -->
-            <div class="journal-prompt-pills">
-              <span style="font-size: 11px; font-weight: 600; color: #64748b; margin-right: 4px;">Insertar sección:</span>
-              <button type="button" class="btn-prompt-pill" data-prompt="🎯 Logros del día:&#10;- ">🎯 Logros</button>
-              <button type="button" class="btn-prompt-pill" data-prompt="🧠 Aprendizajes:&#10;- ">🧠 Aprendizajes</button>
-              <button type="button" class="btn-prompt-pill" data-prompt="⚠️ Obstáculos & Soluciones:&#10;- ">⚠️ Obstáculos</button>
-              <button type="button" class="btn-prompt-pill" data-prompt="⚡ Prioridades de mañana:&#10;1. &#10;2. &#10;3. ">⚡ Plan Mañana</button>
-              <button type="button" class="btn-prompt-pill" data-prompt="💡 Ideas & Epifanías:&#10;- ">💡 Ideas</button>
-            </div>
-          </div>
-
-          <div class="journal-textarea-container">
-            <textarea id="fp-journal-content" class="journal-textarea" placeholder="Escribe libremente tus reflexiones, decisiones estratégicas, aprendizajes o avances del día..."></textarea>
-          </div>
-
-          <div class="journal-editor-footer">
-            <div class="journal-stats-info">
-              <span id="fp-journal-word-count">0 palabras</span> • <span id="fp-journal-char-count">0 caracteres</span>
-            </div>
-            <div class="journal-actions-group">
-              <button type="button" id="fp-journal-delete-btn" class="btn btn-danger" style="display: none; font-size: 11.5px; padding: 7px 14px;">🗑️ Borrar Día</button>
-              <button type="button" id="fp-journal-save-btn" class="btn btn-primary" style="background: #0f172a; color: white; padding: 8px 22px; font-weight: 600; font-size: 12.5px; border-radius: 6px; display: flex; align-items: center; gap: 6px;">
-                <span>💾 Guardar Registro</span>
-              </button>
-            </div>
-          </div>
-        </main>
-
-      </div>
-    </div>
-  `;
-
-  // Bind Events for Full Page Journal
-  const dateInput = document.getElementById('fp-journal-date');
-  const searchInput = document.getElementById('fp-journal-search-input');
-  const contentTextarea = document.getElementById('fp-journal-content');
-  const activeDateLabel = document.getElementById('fp-journal-active-date-label');
-  const totalCountBadge = document.getElementById('fp-journal-total-count');
-  const historyListContainer = document.getElementById('fp-journal-history-list');
-  const deleteBtn = document.getElementById('fp-journal-delete-btn');
-  const saveBtn = document.getElementById('fp-journal-save-btn');
-  const wordCountSpan = document.getElementById('fp-journal-word-count');
-  const charCountSpan = document.getElementById('fp-journal-char-count');
-
-  const updateStats = () => {
-    const text = contentTextarea ? contentTextarea.value.trim() : '';
-    const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
-    const chars = text.length;
-    if (wordCountSpan) wordCountSpan.textContent = `${words} palabra${words === 1 ? '' : 's'}`;
-    if (charCountSpan) charCountSpan.textContent = `${chars} carácter${chars === 1 ? '' : 'es'}`;
-  };
-
-  const loadEntryForDate = (dateStr) => {
-    currentDate = dateStr;
-    state.personalDate = dateStr;
-    if (dateInput) dateInput.value = dateStr;
-    if (activeDateLabel) activeDateLabel.textContent = formatDateLabel(dateStr);
-
-    const history = getJournalHistory();
-    const entry = history.find(h => h.date === dateStr);
-
-    if (entry && contentTextarea) {
-      contentTextarea.value = entry.content || '';
-      if (deleteBtn) deleteBtn.style.display = 'inline-flex';
-    } else if (contentTextarea) {
-      contentTextarea.value = '';
-      if (deleteBtn) deleteBtn.style.display = 'none';
-    }
-    updateStats();
-    renderHistoryList(searchInput ? searchInput.value.trim() : '');
-  };
-
-  const renderHistoryList = (filterQuery = '') => {
-    if (!historyListContainer) return;
-    const history = getJournalHistory();
-    if (totalCountBadge) totalCountBadge.textContent = history.length;
-
-    const filtered = filterQuery 
-      ? history.filter(h => h.date.includes(filterQuery) || (h.content || '').toLowerCase().includes(filterQuery.toLowerCase()))
-      : history;
-
-    if (filtered.length === 0) {
-      historyListContainer.innerHTML = `
-        <div style="padding: 20px 10px; text-align: center; color: #94a3b8; font-size: 12px; font-style: italic;">
-          ${filterQuery ? 'No se encontraron entradas para esa búsqueda.' : 'No hay entradas aún. ¡Escribe la primera reflexión de hoy!'}
-        </div>
-      `;
-      return;
-    }
-
-    historyListContainer.innerHTML = filtered.map(h => {
-      const isActive = h.date === currentDate ? ' active' : '';
-      const text = (h.content || '').replace(/\n/g, ' ');
-      const preview = text.length > 70 ? text.slice(0, 70) + '...' : (text || '(Entrada vacía)');
-      const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
-
-      return `
-        <div class="journal-entry-item${isActive}" data-date="${h.date}">
-          <div class="journal-entry-date">
-            <span>📅 ${h.date}</span>
-            <span class="journal-entry-words">${words} palabras</span>
-          </div>
-          <div class="journal-entry-snippet">${preview}</div>
-        </div>
-      `;
-    }).join('');
-
-    historyListContainer.querySelectorAll('.journal-entry-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const d = item.getAttribute('data-date');
-        if (d) loadEntryForDate(d);
-      });
-    });
-  };
-
-  if (dateInput) {
-    dateInput.onchange = () => {
-      if (dateInput.value) loadEntryForDate(dateInput.value);
-    };
-  }
-
-  if (searchInput) {
-    searchInput.oninput = () => {
-      renderHistoryList(searchInput.value.trim());
-    };
-  }
-
-  if (contentTextarea) {
-    contentTextarea.oninput = updateStats;
-  }
-
-  container.querySelectorAll('.btn-prompt-pill').forEach(pill => {
-    pill.onclick = () => {
-      const promptText = pill.getAttribute('data-prompt');
-      if (contentTextarea && promptText) {
-        if (contentTextarea.value.length > 0 && !contentTextarea.value.endsWith('\n\n')) {
-          contentTextarea.value += '\n\n';
-        }
-        contentTextarea.value += promptText;
-        contentTextarea.focus();
-        updateStats();
-      }
-    };
-  });
-
-  if (saveBtn) {
-    saveBtn.onclick = async () => {
-      const text = contentTextarea ? contentTextarea.value.trim() : '';
-      if (!text) {
-        alert('Por favor escribe tu reflexión o notas antes de guardar.');
-        return;
-      }
-
-      saveBtn.disabled = true;
-      saveBtn.innerHTML = '<span>⏳ Guardando...</span>';
-
-      const history = getJournalHistory();
-      const existingIdx = history.findIndex(h => h.date === currentDate);
-      const entry = { date: currentDate, content: text, savedAt: new Date().toISOString() };
-
-      if (existingIdx !== -1) {
-        history[existingIdx] = entry;
-      } else {
-        history.unshift(entry);
-      }
-
-      history.sort((a, b) => b.date.localeCompare(a.date));
-      localStorage.setItem('zentry_journal_history', JSON.stringify(history));
-
-      try {
-        await syncJournalHistory(history);
-      } catch (e) {
-        console.warn('Firestore sync failed or offline:', e);
-      }
-
-      saveBtn.disabled = false;
-      saveBtn.innerHTML = '<span>✅ ¡Guardado!</span>';
-      setTimeout(() => {
-        if (saveBtn) saveBtn.innerHTML = '<span>💾 Guardar Registro</span>';
-      }, 1800);
-
-      loadEntryForDate(currentDate);
-    };
-  }
-
-  if (deleteBtn) {
-    deleteBtn.onclick = async () => {
-      if (confirm(`¿Estás seguro de eliminar el registro de journal del día ${currentDate}?`)) {
-        let history = getJournalHistory();
-        history = history.filter(h => h.date !== currentDate);
-        localStorage.setItem('zentry_journal_history', JSON.stringify(history));
-
-        try {
-          await syncJournalHistory(history);
-        } catch (e) {}
-
-        loadEntryForDate(currentDate);
-      }
-    };
-  }
-
-  loadEntryForDate(currentDate);
-}
-
-// ========================================
-// ========================================
-// QUARZ SECURITY: PERSONAL ACCESS PIN (1212)
-// ========================================
-
-const PERSONAL_ACCESS_PIN = '1212';
-let isPersonalUnlockedMemory = false;
-
-function isPersonalUnlocked() {
-  return isPersonalUnlockedMemory === true;
-}
-
-function lockPersonalAccess() {
-  isPersonalUnlockedMemory = false;
-  sessionStorage.removeItem('qz_personal_unlocked');
-}
-
-function renderPersonalLockScreen(container, targetMode = 'personal') {
-  container.innerHTML = `
-    <div class="personal-lock-overlay" id="personal-lock-overlay">
-      <div class="vault-card" id="personal-lock-card">
-        <button type="button" class="personal-lock-close" id="btn-lock-close" aria-label="Cerrar">✕</button>
-        <h2 class="personal-lock-title">Vault</h2>
-
-        <div class="vault-mechanism" id="vault-mechanism" title="Toca para ingresar PIN">
-          <!-- Locking Bolts -->
-          <div class="vault-bolts">
-            <span class="vault-bolt bolt-top"></span>
-            <span class="vault-bolt bolt-right"></span>
-            <span class="vault-bolt bolt-bottom"></span>
-            <span class="vault-bolt bolt-left"></span>
-          </div>
-
-          <!-- Bezel & Rotating Dial -->
-          <div class="vault-bezel">
-            <div class="vault-wheel" id="vault-wheel">
-              <svg class="vault-svg" viewBox="0 0 160 160">
-                <defs>
-                  <radialGradient id="hubGrad" cx="35%" cy="35%" r="65%">
-                    <stop offset="0%" stop-color="#faecc8" />
-                    <stop offset="50%" stop-color="#b89c50" />
-                    <stop offset="100%" stop-color="#4a3b10" />
-                  </radialGradient>
-                  <linearGradient id="spokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#94a3b8" />
-                    <stop offset="50%" stop-color="#cbd5e1" />
-                    <stop offset="100%" stop-color="#334155" />
-                  </linearGradient>
-                </defs>
-
-                <!-- Outer Dial Face -->
-                <circle cx="80" cy="80" r="74" fill="#090d16" stroke="#b89c50" stroke-width="2.5" />
-                <circle cx="80" cy="80" r="66" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" />
-
-                <!-- Graduations / 12 Dial Ticks -->
-                <g stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round">
-                  <line x1="80" y1="16" x2="80" y2="23" />
-                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(30 80 80)" />
-                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(60 80 80)" />
-                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(90 80 80)" />
-                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(120 80 80)" />
-                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(150 80 80)" />
-                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(180 80 80)" />
-                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(210 80 80)" />
-                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(240 80 80)" />
-                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(270 80 80)" />
-                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(300 80 80)" />
-                  <line x1="80" y1="16" x2="80" y2="23" transform="rotate(330 80 80)" />
-                </g>
-
-                <!-- 3 Heavy Chrome Spokes -->
-                <g fill="url(#spokeGrad)">
-                  <rect x="75" y="20" width="10" height="120" rx="5" />
-                  <rect x="75" y="20" width="10" height="120" rx="5" transform="rotate(60 80 80)" />
-                  <rect x="75" y="20" width="10" height="120" rx="5" transform="rotate(120 80 80)" />
-                </g>
-
-                <!-- Brass Center Hub -->
-                <circle cx="80" cy="80" r="26" fill="#0b1120" stroke="#b89c50" stroke-width="2" />
-                <circle cx="80" cy="80" r="19" fill="url(#hubGrad)" />
-                <circle cx="80" cy="80" r="7" fill="#090d16" stroke="#faecc8" stroke-width="1.5" />
-              </svg>
-            </div>
-          </div>
-
-          <!-- Invisible Input for Mobile & Desktop Typing -->
-          <input 
-            type="password" 
-            id="personal-pin-input" 
-            class="vault-pin-hidden-input" 
-            maxlength="4" 
-            pattern="[0-9]*" 
-            inputmode="numeric" 
-            autocomplete="off"
-            autofocus
-          />
-        </div>
-
-        <!-- Tumbler Indicator LEDs -->
-        <div class="vault-tumblers" id="vault-tumblers">
-          <span class="vault-tumbler-dot" data-i="0"></span>
-          <span class="vault-tumbler-dot" data-i="1"></span>
-          <span class="vault-tumbler-dot" data-i="2"></span>
-          <span class="vault-tumbler-dot" data-i="3"></span>
-        </div>
-      </div>
-    </div>
-  `;
-
-  const pinInput = document.getElementById('personal-pin-input');
-  const card = document.getElementById('personal-lock-card');
-  const wheel = document.getElementById('vault-wheel');
-  const mechanism = document.getElementById('vault-mechanism');
-  const closeBtn = document.getElementById('btn-lock-close');
-  const dots = container.querySelectorAll('.vault-tumbler-dot');
-
-  const dialAngles = [0, 65, -55, 125, -95];
-
-  const updateVaultVisuals = (length) => {
-    // Rotate wheel based on digits entered
-    const angle = dialAngles[length] || 0;
-    if (wheel) {
-      wheel.style.transform = `rotate(${angle}deg)`;
-    }
-
-    // Light up tumbler dots
-    dots.forEach((dot, idx) => {
-      if (idx < length) {
-        dot.classList.add('lit');
-      } else {
-        dot.classList.remove('lit');
-      }
-    });
-  };
-
-  // Auto focus input on mount & on any click in vault zone
-  setTimeout(() => {
-    if (pinInput) pinInput.focus();
-  }, 100);
-
-  mechanism?.addEventListener('click', () => {
-    if (pinInput) pinInput.focus();
-  });
-
-  card?.addEventListener('click', () => {
-    if (pinInput) pinInput.focus();
-  });
-
-  const attemptUnlock = (pin) => {
-    if (pin === PERSONAL_ACCESS_PIN) {
-      isPersonalUnlockedMemory = true;
-
-      // Vault Unlock Animation Sequence
-      if (wheel) {
-        wheel.style.transition = 'transform 0.6s cubic-bezier(0.15, 0.9, 0.25, 1)';
-        wheel.style.transform = 'rotate(720deg)';
-      }
-      if (mechanism) {
-        mechanism.classList.add('unlocked');
-      }
-      if (card) {
-        card.classList.remove('jammed');
-        card.classList.add('unlocked-anim');
-      }
-
-      dots.forEach(dot => {
-        dot.classList.remove('lit', 'error');
-        dot.classList.add('success');
-      });
-
-      setTimeout(() => {
-        if (typeof renderers !== 'undefined' && renderers.backlog) {
-          renderers.backlog();
-        }
-      }, 550);
-    } else {
-      // Vault Jammed / Error Sequence
-      if (card) {
-        card.classList.remove('jammed');
-        void card.offsetWidth; // trigger reflow
-        card.classList.add('jammed');
-      }
-      if (mechanism) {
-        mechanism.classList.add('jammed');
-      }
-
-      dots.forEach(dot => {
-        dot.classList.add('error');
-      });
-
-      setTimeout(() => {
-        if (pinInput) {
-          pinInput.value = '';
-          pinInput.focus();
-        }
-        updateVaultVisuals(0);
-        if (card) card.classList.remove('jammed');
-        if (mechanism) mechanism.classList.remove('jammed');
-        dots.forEach(dot => dot.classList.remove('error'));
-      }, 480);
-    }
-  };
-
-  closeBtn?.addEventListener('click', () => {
-    window.location.hash = '#backlog';
-  });
-
-  pinInput?.addEventListener('input', (e) => {
-    const val = e.target.value;
-    updateVaultVisuals(val.length);
-    if (val.length === 4) {
-      attemptUnlock(val);
-    }
-  });
-
-  pinInput?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      attemptUnlock(pinInput.value);
-    } else if (e.key === 'Escape') {
-      window.location.hash = '#backlog';
-    }
-  });
-}
-
 // ========================================
 // ESPACIO PERSONAL: Timeblock + AI Chat
 // ========================================
@@ -4640,7 +3497,7 @@ function renderEspacioPersonal(container) {
   const dateStr = state.personalDate;
   const timeblockData = getTimeblockData(dateStr);
   const slots = generateTimeSlots();
-  const isToday = dateStr === getLocalDateString();
+  const isToday = dateStr === new Date().toISOString().split('T')[0];
 
   // Build timeblock rows
   let slotsHtml = '';
@@ -4654,9 +3511,6 @@ function renderEspacioPersonal(container) {
     if (currentHour) extraClass += ' is-current-hour';
     if (hasCalEvent) extraClass += ' has-calendar-event';
     if (data.completed) extraClass += ' is-completed';
-    if (data.text && data.text.trim()) extraClass += ' has-text';
-    if (data.type) extraClass += ' has-type';
-    if (data.isBrick) extraClass += ' is-brick';
 
     const timeLabel = slot.isHour ? formatTime12h(slot.time) : slot.time.split(':')[1];
     let badgeHtml = '';
@@ -4708,21 +3562,9 @@ function renderEspacioPersonal(container) {
 
   container.innerHTML = `
     <div class="espacio-personal-header">
-      <div class="personal-header-top-row">
-        <a href="#backlog" class="btn-back-personal">⬅️ Volver a Selección</a>
-        <button type="button" id="btn-lock-personal" class="btn-lock-personal" title="Bloquear Backlog Personal">
-          <span>🔒</span> Bloquear
-        </button>
-      </div>
-      <h2 class="personal-header-title" style="font-family: 'Space Grotesk', sans-serif; color: #0f172a; margin: 0;">⏱️ Timeblocking</h2>
-      <div class="personal-header-actions">
-        <a href="#backlog/journal" class="btn-open-journal">
-          <span>📖</span> Abrir Journal
-        </a>
-        <a href="#backlog/personal-board" class="btn-open-personal-board">
-          <span>📋</span> Tablero Personal
-        </a>
-      </div>
+      <a href="#backlog" class="btn-back-personal">⬅️ Volver a Selección</a>
+      <h2 style="font-family: 'Space Grotesk', sans-serif; color: #0f172a;">⏱️ Timeblocking</h2>
+      <a href="#backlog/personal-board" class="btn-open-personal-board" style="background: #0f172a; color: #ffffff; text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">📋 Abrir Tablero Personal</a>
     </div>
 
     <div class="date-navigator">
@@ -4750,17 +3592,6 @@ function renderEspacioPersonal(container) {
 
   // --- Bind Events ---
 
-  // Bloquear Personal
-  document.getElementById('btn-lock-personal')?.addEventListener('click', () => {
-    lockPersonalAccess();
-    window.location.hash = '#backlog';
-  });
-
-  // Abrir Journal
-  document.getElementById('btn-open-journal-modal')?.addEventListener('click', () => {
-    openJournalModal(state.personalDate);
-  });
-
   // Date navigation
   document.getElementById('date-prev')?.addEventListener('click', () => {
     state.personalDate = shiftDate(state.personalDate, -1);
@@ -4771,7 +3602,7 @@ function renderEspacioPersonal(container) {
     renderEspacioPersonal(container);
   });
   document.getElementById('date-today')?.addEventListener('click', () => {
-    state.personalDate = getLocalDateString();
+    state.personalDate = new Date().toISOString().split('T')[0];
     renderEspacioPersonal(container);
   });
 
@@ -4814,13 +3645,6 @@ function renderEspacioPersonal(container) {
 
   // Timeblock editing
   container.querySelectorAll('.timeblock-text').forEach(input => {
-    input.addEventListener('input', (e) => {
-      const slotDiv = e.target.closest('.timeblock-slot');
-      if (slotDiv) {
-        slotDiv.classList.toggle('has-text', !!e.target.value.trim());
-      }
-    });
-
     input.addEventListener('blur', (e) => {
       const time = e.target.dataset.time;
       const val = e.target.value.trim();
@@ -4911,16 +3735,13 @@ function renderEspacioPersonal(container) {
       const time = e.target.dataset.time;
       const detailsId = `details-${time.replace(':', '-')}`;
       const detailsEl = document.getElementById(detailsId);
-      const slotDiv = e.target.closest('.timeblock-slot');
       if (detailsEl) {
         if (detailsEl.style.display === 'none') {
           detailsEl.style.display = 'block';
           e.target.style.transform = 'rotate(180deg)';
-          if (slotDiv) slotDiv.classList.add('is-expanded');
         } else {
           detailsEl.style.display = 'none';
           e.target.style.transform = 'rotate(0deg)';
-          if (slotDiv) slotDiv.classList.remove('is-expanded');
         }
       }
     });
@@ -5341,7 +4162,7 @@ function getDeadlineBadgeInfo(deadline) {
   const text = formatTaskDeadlineText(deadline);
   if (!text) return null;
   
-  const todayStr = getLocalDateString();
+  const todayStr = new Date().toISOString().split('T')[0];
   let targetDate = null;
   
   if (typeof deadline === 'string') {
@@ -5387,7 +4208,15 @@ function renderKanbanCards() {
   // Filter Tasks
   state.tasks.forEach(task => {
     // 0. Backlog mode unit filter (Quarz | Zentry | Personal | Global)
-    if (!matchTaskUnit(task, state.backlogMode)) return;
+    const taskUnit = (task.origin || 'Quarz').toLowerCase();
+    if (state.backlogMode === 'quarz') {
+      if (taskUnit !== 'quarz') return;
+    } else if (state.backlogMode === 'zentry') {
+      if (taskUnit !== 'zentry') return;
+    } else if (state.backlogMode === 'personal' || state.backlogMode === 'personal-board') {
+      if (taskUnit !== 'personal') return;
+    }
+    // 'global' mode shows ALL tasks from all units
 
     // 1. Vertical filter
     if (state.filters.vertical !== 'all') {
@@ -5478,7 +4307,7 @@ function handleRouting() {
   const hash = window.location.hash || '#backlog';
   
   // Set data-module on body to preserve Zentry colorimetry when accessing Zentry views
-  const isZentryView = hash.includes('demobook') || hash.includes('demo') || hash.includes('accesos') || hash.includes('precierres') || hash.includes('demofeatures') || hash.includes('repertorio') || hash.includes('prospeccion') || hash.includes('gestion-comercial') || hash.includes('branding') || hash.includes('iacontext') || hash === '#backlog/zentry';
+  const isZentryView = hash.includes('demobook') || hash.includes('precierres') || hash.includes('prospeccion') || hash.includes('branding') || hash.includes('iacontext') || hash === '#backlog/zentry';
   if (isZentryView) {
     document.body.setAttribute('data-module', 'zentry');
   } else {
@@ -5491,7 +4320,6 @@ function handleRouting() {
     workspace.classList.remove('minimal-view');
     workspace.classList.remove('backlog-view'); // Reset backlog view full width
     workspace.classList.remove('full-width-view');
-    workspace.classList.remove('repertorio-view-active');
   }
 
   // Restore elements that might be hidden by Espacio Personal
@@ -5506,7 +4334,6 @@ function handleRouting() {
   });
 
   if (hash.startsWith('#doc/')) {
-    lockPersonalAccess();
     state.activeView = 'doc';
     state.activeDocPath = hash.replace('#doc/', '');
     buildDocTree(); // Rebuild tree to show active state
@@ -5514,33 +4341,21 @@ function handleRouting() {
   } else if (hash.startsWith('#backlog')) {
     state.activeView = 'backlog';
     if (hash === '#backlog/zentry') {
-      lockPersonalAccess();
       state.backlogMode = 'zentry';
       document.body.setAttribute('data-module', 'zentry');
     } else if (hash === '#backlog/quarz') {
-      lockPersonalAccess();
       state.backlogMode = 'quarz';
       document.body.setAttribute('data-module', 'quarz');
     } else if (hash === '#backlog/personal-board') {
       state.backlogMode = 'personal-board';
       document.body.setAttribute('data-module', 'quarz');
-    } else if (hash === '#backlog/protocolo-30dias') {
-      lockPersonalAccess();
-      state.backlogMode = 'protocolo-30dias';
-      document.body.setAttribute('data-module', 'quarz');
     } else if (hash === '#backlog/personal') {
       state.backlogMode = 'personal';
       document.body.setAttribute('data-module', 'quarz');
-    } else if (hash === '#backlog/journal') {
-      lockPersonalAccess();
-      state.backlogMode = 'journal';
-      document.body.setAttribute('data-module', 'quarz');
     } else if (hash === '#backlog/global') {
-      lockPersonalAccess();
       state.backlogMode = 'global';
       document.body.setAttribute('data-module', 'quarz');
     } else {
-      lockPersonalAccess();
       state.backlogMode = 'selection';
       document.body.setAttribute('data-module', 'quarz');
     }
@@ -5550,26 +4365,14 @@ function handleRouting() {
     buildDocTree(); // Clear tree highlights
     renderers.backlog();
   } else {
-    lockPersonalAccess();
     state.activeView = hash.replace('#', '');
-    let navLink = document.querySelector(`.nav-link[data-view="${state.activeView}"]`);
-    if (!navLink && (state.activeView === 'demo' || state.activeView === 'demobook' || state.activeView === 'precierres' || state.activeView === 'demofeatures' || state.activeView === 'repertorio')) {
-      navLink = document.querySelector(`.nav-link[data-view="demo"], .nav-link[data-view="demobook"]`);
-    } else if (!navLink && (state.activeView === 'gestion-comercial' || state.activeView === 'prospeccion')) {
-      navLink = document.querySelector(`.nav-link[data-view="prospeccion"], .nav-link[data-view="gestion-comercial"]`);
-    }
+    const navLink = document.querySelector(`.nav-link[data-view="${state.activeView}"]`);
     if (navLink) navLink.classList.add('active');
     
     buildDocTree(); // Clear tree highlights
 
     if (renderers[state.activeView]) {
       renderers[state.activeView]();
-    } else if (state.activeView === 'gestion-comercial' && renderers.prospeccion) {
-      renderers.prospeccion();
-    } else if (state.activeView === 'demobook' && renderers.demo) {
-      renderers.demo();
-    } else if (state.activeView === 'demo' && renderers.demobook) {
-      renderers.demobook();
     } else {
       renderers.backlog();
     }
@@ -5629,7 +4432,7 @@ function closeSidebarMobile() {
   app.classList.remove('sidebar-mobile-open');
 }
 
-const handleToggleSidebar = () => {
+document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
   const app = document.getElementById('app');
   if (window.innerWidth <= 768) {
     toggleSidebarMobile();
@@ -5638,10 +4441,8 @@ const handleToggleSidebar = () => {
     const isCollapsed = app.classList.contains('sidebar-collapsed');
     localStorage.setItem('sidebar_collapsed', isCollapsed ? 'true' : 'false');
   }
-};
+});
 
-document.getElementById('sidebar-toggle')?.addEventListener('click', handleToggleSidebar);
-document.getElementById('sidebar-header-toggle')?.addEventListener('click', handleToggleSidebar);
 document.getElementById('sidebar-toggle-mobile')?.addEventListener('click', toggleSidebarMobile);
 
 // Sidebar Backdrop Click Event Handler
@@ -5846,7 +4647,7 @@ document.querySelectorAll('.deadline-mode-btn').forEach(btn => {
     const mode = e.currentTarget.dataset.mode;
     setDeadlineMode(mode);
     if (mode === 'multiple' && multipleSlotsState.length === 0) {
-      multipleSlotsState.push({ date: state.personalDate || getLocalDateString(), startTime: '09:00', endTime: '10:00' });
+      multipleSlotsState.push({ date: state.personalDate || new Date().toISOString().split('T')[0], startTime: '09:00', endTime: '10:00' });
       renderMultipleSlotsList();
     }
   });
@@ -5871,7 +4672,7 @@ document.getElementById('btn-clear-deadline')?.addEventListener('click', () => {
 });
 
 document.getElementById('btn-add-multiple-slot')?.addEventListener('click', () => {
-  multipleSlotsState.push({ date: state.personalDate || getLocalDateString(), startTime: '09:00', endTime: '10:00' });
+  multipleSlotsState.push({ date: state.personalDate || new Date().toISOString().split('T')[0], startTime: '09:00', endTime: '10:00' });
   renderMultipleSlotsList();
 });
 

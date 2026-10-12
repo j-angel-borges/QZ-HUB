@@ -55,8 +55,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Message is required in request body.' });
     }
 
-    // Resolve API Key: customApiKey in request -> header x-api-key -> env vars -> default quarz-group key
-    const apiKey = customApiKey || req.headers['x-api-key'] || process.env.GOOGLE_AI_API_KEY || process.env.GEMINI_API_KEY || process.env.GCP_API_KEY || process.env.VERTEX_API_KEY || 'AIzaSyBOyKk7awEgQba7L7j19VAU0pz-5xRxqI0';
+    // Resolve API Key: customApiKey in request -> header x-api-key -> process.env.GOOGLE_AI_API_KEY -> process.env.GEMINI_API_KEY -> process.env.GCP_API_KEY
+    const apiKey = customApiKey || req.headers['x-api-key'] || process.env.GOOGLE_AI_API_KEY || process.env.GEMINI_API_KEY || process.env.GCP_API_KEY || process.env.VERTEX_API_KEY;
 
     // Load SSOT Context (or fallback system instruction)
     let ssotContext = "";
@@ -117,22 +117,16 @@ Por favor ingresa tu Clave de API en la configuración del chat o establece \`GE
     }
 
     // Try candidate models
-    // Candidate models in strict order of availability
-    const requestedModel = req.body?.model;
     const candidateModels = [
-      ...(requestedModel ? [requestedModel] : []),
-      'gemini-2.5-flash',
-      'gemini-2.5-pro',
+      'gemini-1.5-flash-latest',
       'gemini-2.0-flash',
       'gemini-1.5-flash',
       'gemini-1.5-pro'
     ];
-    // Remove duplicates
-    const uniqueModels = [...new Set(candidateModels)];
 
     let lastError = null;
 
-    for (const modelName of uniqueModels) {
+    for (const modelName of candidateModels) {
       try {
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
         const fetchRes = await fetch(endpoint, {
@@ -154,15 +148,11 @@ Por favor ingresa tu Clave de API en la configuración del chat o establece \`GE
 
         if (data.error) {
           lastError = data.error;
-          const msg = (data.error.message || '').toLowerCase();
-
-          // If model is deprecated, not found, or not available, try next candidate model
-          if (data.error.code === 404 || msg.includes('not found') || msg.includes('no longer available') || msg.includes('unsupported')) {
-            continue;
-          }
+          // If 404 model not found, try next candidate model
+          if (data.error.code === 404) continue;
 
           // If 429 Prepayment credits depleted or 403 billing issue, fall back to backend SSOT engine gracefully
-          if (data.error.code === 429 || data.error.code === 403 || msg.includes('prepayment') || msg.includes('quota')) {
+          if (data.error.code === 429 || data.error.code === 403 || (data.error.message && data.error.message.includes('prepayment'))) {
             console.warn("GCP Prepayment/Billing error detected (429/403). Falling back to Backend SSOT Engine.");
             const fallbackReply = generateBackendSsotFallback(message);
             return res.status(200).json({
@@ -172,11 +162,7 @@ Por favor ingresa tu Clave de API en la configuración del chat o establece \`GE
             });
           }
           
-          // Try next model if any other 400 error
-          if (data.error.code === 400 && uniqueModels.indexOf(modelName) < uniqueModels.length - 1) {
-            continue;
-          }
-
+          // Return clear API error if unhandled
           return res.status(200).json({
             reply: `❌ **Error de la API de Gemini (${data.error.code}):** ${data.error.message}`,
             error: data.error
@@ -188,21 +174,13 @@ Por favor ingresa tu Clave de API en la configuración del chat o establece \`GE
       }
     }
 
-    // Graceful fallback to SSOT Knowledge Engine if external models are overloaded or unavailable
-    const fallbackReply = generateBackendSsotFallback(message);
-    return res.status(200).json({
-      reply: fallbackReply,
-      status: 'ssot_fallback',
-      notice: 'Respuesta generada por el Motor SSOT Operativo.'
+    return res.status(500).json({
+      error: 'Failed to generate response from Gemini API after trying all candidate models.',
+      details: lastError ? (lastError.message || JSON.stringify(lastError)) : 'Unknown error'
     });
 
   } catch (err) {
     console.error('Serverless function error in /api/chat:', err);
-    const fallbackReply = generateBackendSsotFallback(req.body?.message || '');
-    return res.status(200).json({
-      reply: fallbackReply,
-      status: 'ssot_fallback',
-      error: err.message
-    });
+    return res.status(500).json({ error: 'Internal Server Error', message: err.message });
   }
 }
