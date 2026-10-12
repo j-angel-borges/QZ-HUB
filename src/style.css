@@ -11217,6 +11217,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
 
 
+
 /* ==============================================================================
    WORKSPACE FULL-WIDTH EXPANSION (FOR GOOGLE KEEP BACKPAGE & SIDEBAR COLLAPSE)
    ============================================================================== */
@@ -11239,7 +11240,6 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   max-width: 100% !important;
   width: 100% !important;
 }
-
 /* ==============================================================================
    BACKLOG EXTENSION: SPRINT DE 3 DÍAS + WORKFLOW AGÉNTICO + BANCO DE IDEAS KEEP
    ============================================================================== */
@@ -12096,3 +12096,1426 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 }
 
 .btn-keep-close {
+  background: none;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #202124;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-keep-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* Secciones de Notas: FIJADAS y OTRAS */
+.keep-notes-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.keep-section-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.keep-section-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: #5f6368;
+  padding-left: 4px;
+}
+
+.keep-cards-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+  gap: 16px !important;
+  align-items: start !important;
+  width: 100% !important;
+}
+
+.keep-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #5f6368;
+  text-align: center;
+}
+
+.keep-empty-icon {
+  font-size: 48px;
+  opacity: 0.5;
+  margin-bottom: 12px;
+}
+
+/* Tarjeta individual de Google Keep */
+.keep-note-card {
+  border-radius: 8px;
+  border: 1px solid;
+  padding: 12px 14px 8px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.keep-note-card:hover {
+  box-shadow: 0 2px 6px 2px rgba(60, 64, 67, 0.2);
+  transform: translateY(-1px);
+}
+
+.keep-note-card.is-dark-card {
+  color: #f8fafc;
+}
+
+.keep-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.keep-card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.btn-keep-pin {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  opacity: 0.35;
+  transition: opacity 0.2s;
+  padding: 2px;
+}
+
+.btn-keep-pin.active,
+.keep-note-card:hover .btn-keep-pin {
+  opacity: 1;
+}
+
+.keep-card-content-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.keep-card-body-text {
+  font-size: 12.5px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.keep-card-tasks-block {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.keep-card-task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.keep-card-task-row.is-done {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.keep-task-checkbox {
+  cursor: pointer;
+  margin-top: 2px;
+  accent-color: #0f172a;
+}
+
+.keep-card-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 6px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  opacity: 0.3;
+  transition: opacity 0.2s;
+}
+
+.keep-note-card:hover .keep-card-actions-bar {
+  opacity: 1;
+}
+
+.keep-card-colors-mini {
+  display: flex;
+  gap: 3px;
+}
+
+.keep-mini-color-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s;
+}
+
+.keep-mini-color-dot:hover,
+.keep-mini-color-dot.active {
+  transform: scale(1.3);
+}
+
+.keep-card-action-btns {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-keep-card-tool {
+  background: none;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.btn-keep-card-tool:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* Modal de edición completa Google Keep */
+.keep-edit-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.keep-edit-modal-dialog {
+  width: 580px;
+  max-width: 100%;
+  max-height: 85vh;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.keep-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px 8px;
+}
+
+.keep-modal-title-input {
+  border: none;
+  background: transparent;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: inherit;
+  outline: none;
+  width: 100%;
+}
+
+.btn-modal-pin {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.btn-modal-pin.active {
+  opacity: 1;
+}
+
+.keep-modal-body-area {
+  padding: 8px 18px 14px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.keep-modal-textarea {
+  border: none;
+  background: transparent;
+  font-size: 13.5px;
+  color: inherit;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+  width: 100%;
+}
+
+.keep-modal-tasks-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.keep-modal-tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.keep-modal-task-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-task-chk {
+  accent-color: #0f172a;
+  cursor: pointer;
+}
+
+.modal-task-edit-input {
+  border: none;
+  background: transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 12.5px;
+  color: inherit;
+  outline: none;
+  flex: 1;
+  padding: 2px 0;
+}
+
+.keep-modal-task-row.is-done .modal-task-edit-input {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.btn-remove-modal-task {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: #ef4444;
+  cursor: pointer;
+}
+
+.keep-modal-add-task-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 6px;
+}
+
+.keep-modal-plus {
+  font-weight: bold;
+  opacity: 0.6;
+}
+
+.modal-add-task-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 12.5px;
+  color: inherit;
+  width: 100%;
+}
+
+.keep-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 18px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.keep-modal-footer-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.keep-modal-colors {
+  display: flex;
+  gap: 4px;
+}
+
+.keep-modal-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.keep-modal-swatch.active,
+.keep-modal-swatch:hover {
+  transform: scale(1.25);
+}
+
+.btn-modal-delete {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.btn-modal-delete:hover {
+  opacity: 1;
+}
+
+.btn-modal-close {
+  background: none;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: inherit;
+  cursor: pointer;
+}
+
+.btn-modal-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* --- LAYOUT CON BARRA LATERAL DERECHA (GOOGLE KEEP AUTHENTIC SIDEBAR) --- */
+.keep-workspace-layout {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.keep-main-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Barra lateral derecha auténtica de Google Keep */
+.keep-right-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 20px;
+  padding: 8px 0;
+}
+
+@media (max-width: 1024px) {
+  .keep-workspace-layout {
+    flex-direction: column-reverse;
+  }
+  .keep-right-sidebar {
+    width: 100%;
+    position: static;
+  }
+  .keep-sidebar-nav, .keep-sidebar-labels-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
+
+.keep-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.keep-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 10px 20px;
+  border-radius: 24px;
+  cursor: pointer;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #5f6368;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.keep-sidebar-item:hover {
+  background: #f1f3f4;
+  color: #202124;
+}
+
+/* Color exacto Google Keep para elemento activo */
+.keep-sidebar-item.active {
+  background: #feefc3;
+  color: #202124;
+  font-weight: 700;
+}
+
+.keep-sidebar-item-icon {
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.keep-sidebar-item-text {
+  flex: 1;
+}
+
+.keep-sidebar-divider {
+  border-top: 1px solid #e0e0e0;
+  margin: 10px 12px;
+}
+
+.keep-sidebar-labels-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.keep-sidebar-group-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 1.2px;
+  padding: 6px 20px;
+}
+
+/* Banner de papelera y archivo */
+.keep-special-banner {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 12px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 12.5px;
+  color: #475569;
+}
+
+.btn-empty-trash {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-empty-trash:hover {
+  background: #dc2626;
+}
+
+.keep-card-trash-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  width: 100%;
+}
+
+.btn-restore-note {
+  background: #e2e8f0;
+  color: #0f172a;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-delete-permanent {
+  background: #fee2e2;
+  color: #ef4444;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Badge de contador en barra lateral */
+.keep-sidebar-count-badge {
+  background: #f59e0b;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  margin-left: auto;
+}
+
+/* Recordatorio Pill en tarjeta de nota */
+.keep-card-reminder-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #b45309;
+  padding: 3px 8px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 8px;
+  width: fit-content;
+}
+
+.is-dark-card .keep-card-reminder-pill {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.btn-card-remove-reminder {
+  background: transparent;
+  border: none;
+  color: #b45309;
+  cursor: pointer;
+  font-size: 10px;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.is-dark-card .btn-card-remove-reminder {
+  color: #fbbf24;
+}
+
+.btn-card-remove-reminder:hover {
+  color: #ef4444;
+}
+
+/* Etiquetas Chips en tarjeta de nota */
+.keep-card-labels-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.keep-card-label-chip {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #475569;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.keep-card-label-chip:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #0f172a;
+}
+
+.is-dark-card .keep-card-label-chip {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+}
+
+.is-dark-card .keep-card-label-chip:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+/* Barra de recordatorio en el creador */
+.keep-creator-reminder-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin: 6px 16px;
+  font-size: 12px;
+  color: #92400e;
+}
+
+.keep-reminder-bar-icon {
+  font-size: 14px;
+}
+
+.keep-reminder-bar-label {
+  font-weight: 600;
+}
+
+.keep-reminder-input-date,
+.keep-reminder-input-time {
+  border: 1px solid #d97706;
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-family: inherit;
+  font-size: 11.5px;
+  background: #ffffff;
+  color: #78350f;
+}
+
+.btn-clear-creator-rem {
+  background: transparent;
+  border: none;
+  color: #b45309;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: auto;
+  padding: 2px 4px;
+}
+
+.btn-clear-creator-rem:hover {
+  color: #ef4444;
+}
+
+/* Píldoras de etiquetas en creador */
+.keep-creator-labels-pills-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 16px;
+}
+
+.keep-creator-label-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #e2e8f0;
+  color: #334155;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.btn-remove-creator-pill {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 10px;
+  padding: 0 2px;
+}
+
+.btn-remove-creator-pill:hover {
+  color: #ef4444;
+}
+
+/* Dropdown popover de etiquetas en creador */
+.keep-labels-picker-dropdown {
+  position: relative;
+}
+
+.keep-labels-popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  z-index: 100;
+  min-width: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.keep-labels-popover-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.keep-label-popover-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #334155;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.keep-label-popover-row:hover {
+  background: #f8fafc;
+}
+
+/* Modal auténtico "Editar etiquetas" de Google Keep */
+.keep-labels-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: keepModalFadeIn 0.2s ease-out;
+}
+
+.keep-labels-dialog {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.keep-labels-header {
+  padding: 16px 20px 12px;
+}
+
+.keep-labels-header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.keep-labels-create-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.keep-labels-icon-btn {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.keep-create-label-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 13.5px;
+  color: #1e293b;
+  background: transparent;
+}
+
+.keep-create-label-input::placeholder {
+  color: #94a3b8;
+}
+
+.btn-label-check-submit {
+  background: transparent;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  color: #10b981;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.btn-label-check-submit:hover {
+  background: #ecfdf5;
+}
+
+.keep-labels-list {
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.keep-label-item-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.keep-label-item-row:hover {
+  background: #f8fafc;
+}
+
+.btn-label-row-trash {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 4px;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.btn-label-row-trash:hover {
+  opacity: 1;
+}
+
+.keep-label-row-input {
+  flex: 1;
+  border: 1px solid transparent;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e293b;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.keep-label-row-input:focus {
+  border-color: #cbd5e1;
+  background: #ffffff;
+}
+
+.btn-label-row-save {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: #10b981;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.btn-label-row-save:hover {
+  background: #ecfdf5;
+}
+
+.keep-labels-footer {
+  padding: 12px 18px;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #f1f5f9;
+}
+
+.btn-keep-labels-done {
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-keep-labels-done:hover {
+  background: #1e293b;
+}
+
+/* Recordatorio & Etiquetas en Modal de Edición de Nota */
+.keep-modal-reminder-box,
+.keep-modal-labels-box {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.12);
+}
+
+.keep-modal-meta-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.keep-modal-reminder-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.keep-modal-input-date,
+.keep-modal-input-time {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-family: inherit;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.btn-clear-modal-rem {
+  background: #fee2e2;
+  color: #ef4444;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.keep-modal-labels-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.keep-modal-label-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  color: #334155;
+  cursor: pointer;
+}
+
+.keep-entry-reminder-pill {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+/* Expansión total de la página cuando se colapsa la barra lateral de QZ-Hub */
+.notion-layout.sidebar-collapsed .workspace-content {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.notion-layout.sidebar-collapsed .keep-backpage-wrapper {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* ==============================================================================
+   SPRINTER (HERRAMIENTA DE 3 DÍAS INTERCONECTADA)
+   ============================================================================== */
+.sprinter-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+}
+
+.sprinter-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sprinter-brand-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sprinter-icon-glow {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #fef3c7;
+  color: #b45309;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+}
+
+.sprinter-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sprinter-card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 0.3px;
+  margin: 0;
+}
+
+.sprinter-phase-badge {
+  background: #e0f2fe;
+  color: #0284c7;
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.sprinter-card-subtitle {
+  font-size: 11px;
+  color: #64748b;
+  margin: 2px 0 0;
+  line-height: 1.3;
+}
+
+.sprinter-progress-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.sprinter-progress-bar-bg {
+  width: 100px;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.sprinter-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.sprinter-progress-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: #059669;
+}
+
+/* Tabs de Días */
+.sprinter-day-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding-bottom: 8px;
+}
+
+.btn-sprinter-day-tab {
+  background: #f8fafc;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-sprinter-day-tab:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.btn-sprinter-day-tab.active {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+}
+
+.btn-sprinter-day-tab.active .day-tab-count {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.day-tab-count {
+  background: rgba(0, 0, 0, 0.06);
+  padding: 1px 5px;
+  border-radius: 8px;
+  font-size: 9.5px;
+  font-family: 'Space Mono', monospace;
+}
+
+/* Lista de Bloques */
+.sprinter-blocks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sprinter-block-item {
+  background: #f8fafc;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.sprinter-block-item.is-completed {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.sprinter-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.sprinter-block-title-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sprinter-block-time {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.sprinter-block-act-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.sprinter-block-act-badge.llamadas {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.sprinter-block-act-badge.prospeccion {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.btn-sprinter-done {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-sprinter-done:hover {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.btn-sprinter-done.done-active {
+  background: #10b981;
+  border-color: #059669;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+}
+
+.sprinter-block-desc {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #334155;
+  line-height: 1.35;
+}
+
+.sprinter-block-notes-wrap {
+  width: 100%;
+}
+
+.sprinter-block-input {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-size: 11.5px;
+  font-family: 'Inter', sans-serif;
+  color: #0f172a;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.sprinter-block-input:focus {
+  border-color: #0f172a;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.08);
+}
+
+.sprinter-sync-pill {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px dashed rgba(16, 185, 129, 0.3);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 10.5px;
+  color: #065f46;
+}
+
+.sync-pill-tag {
+  font-weight: 700;
+}
+
+.sync-pill-val {
+  font-family: 'Space Mono', monospace;
+}
+
+.sprinter-card-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding-top: 8px;
+}
+
+.sprinter-hint-text {
+  font-size: 10px;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+.sprinter-hint-text code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-family: 'Space Mono', monospace;
+  color: #0f172a;
+}
+
+/* ==============================================================================
+   PROD PRODUCTIVO CALL BREAKDOWN (NC, COL, LL, CIT) EN BIO-TRACKER
+   ============================================================================== */
+.prod-call-breakdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(15, 23, 42, 0.1);
+  flex-wrap: wrap;
+}
+
+.call-breakdown-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  font-family: 'Space Grotesk', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.call-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.call-pill.pill-nc {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.call-pill.pill-col {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.call-pill.pill-ll {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.call-pill.pill-cit {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+/* Estilos para el contenedor de Sprinter y Keep en columna derecha */
+.sprinter-mount,
+.keep-entry-mount {
+  width: 100%;
+}

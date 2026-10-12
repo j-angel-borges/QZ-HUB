@@ -40,6 +40,10 @@ import {
   renderKeepEntryCardHTML
 } from './keep-notes.js';
 import {
+  renderSprinterCardHTML,
+  setupSprinterEvents
+} from './sprinter.js';
+import {
   bootstrapFirestoreSync,
   pushToFirestoreDebounced,
   pushAllToFirestore,
@@ -156,6 +160,21 @@ bootstrapFirestoreSync(state.tasks, (cloudData) => {
 });
 
 // Puente bidireccional: Conectar recordatorios de Google Keep con Tablero Personal y Calendario
+// Exponer sincronizaciones para Sprinter
+window.syncHabitTracker = syncHabitTracker;
+window.syncTimeblock = syncTimeblock;
+window.refreshHabitTrackerUI = () => {
+  const trackerEl = document.querySelector('.backlog-tracker-card');
+  if (trackerEl) {
+    const freshData = getHabitTrackerData();
+    const temp = document.createElement('div');
+    temp.innerHTML = renderHabitTrackerHTML(freshData);
+    const newWidget = temp.firstElementChild;
+    trackerEl.replaceWith(newWidget);
+    setupHabitTrackerEvents(document.getElementById('workspace-content'));
+  }
+};
+
 window.syncKeepReminderToPersonal = (note) => {
   if (!note || !note.reminder || !note.reminder.date) return;
   const taskId = `KEEP-${note.id}`;
@@ -1829,6 +1848,15 @@ function renderHabitTrackerHTML(tData) {
               ` : ''}
             </div>
           </div>
+
+          <!-- DESGLOSE DETALLADO DE MARCACIÓN (NC, COL, LL, CIT) -->
+          <div class="prod-call-breakdown">
+            <span class="call-breakdown-label">Marcación:</span>
+            <span class="call-pill pill-nc" title="No contestó">NC: <strong>${prodData.today?.callDetails?.nc || 0}</strong></span>
+            <span class="call-pill pill-col" title="Colgó">Col: <strong>${prodData.today?.callDetails?.col || 0}</strong></span>
+            <span class="call-pill pill-ll" title="Volver a llamar">Ll: <strong>${prodData.today?.callDetails?.ll || 0}</strong></span>
+            <span class="call-pill pill-cit" title="Cita agendada">Cit: <strong>${prodData.today?.callDetails?.cit || prodData.today?.demos || 0}</strong></span>
+          </div>
         </div>
       </div>
         </div>
@@ -2421,18 +2449,18 @@ const renderers = {
               </div>
             </div>
 
-            <!-- CONTENEDOR DE PREVIEW PROTOCOLO PRE-ELROW (30 DÍAS) -->
-            <div class="protocolo-preview-container" id="protocolo-preview-mount">
-              ${renderProtocoloPreviewHTML()}
+            <!-- 2. SPRINTER: HERRAMIENTA DE 3 DÍAS INTERCONECTADA -->
+            <div class="sprinter-mount" id="sprinter-mount">
+              ${renderSprinterCardHTML()}
+            </div>
+
+            <!-- 3. BANCO DE IDEAS (GOOGLE KEEP) -->
+            <div class="keep-entry-mount" id="keep-entry-mount">
+              ${renderKeepEntryCardHTML()}
             </div>
 
           </div>
 
-        </div>
-
-        <!-- ACCESO AL BANCO DE IDEAS (GOOGLE KEEP) -->
-        <div class="backlog-extension-container" style="margin-top: 24px;">
-          ${renderKeepEntryCardHTML()}
         </div>
       `;
 
@@ -2457,8 +2485,8 @@ const renderers = {
         });
       }
 
-      // Eventos del Protocolo Pre-Elrow (Preview mode)
-      setupProtocoloEvents(container, false);
+      // Eventos de Sprinter
+      setupSprinterEvents(container);
 
       // Eventos de Bio-Tracker
       setupHabitTrackerEvents(container);

@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.9.0 (RESTORE ADVANCED BIOTRACKER + PROD + KEEP INTEGRATION)
+// QZ-HUB SERVICE WORKER — v4.0.0 (SPRINTER TOOL + DETERMINISTIC TIMEBLOCK/BIO SYNC)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.9.0-restore-biotracker-keep';
+const CACHE_NAME = 'qz-hub-v4.0.0-sprinter-interconnected';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
