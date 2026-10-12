@@ -1,14 +1,18 @@
 // ==============================================================================
-// QZ HUB — BANCO DE IDEAS & NOTAS (GOOGLE KEEP FIDELITY)
+// QZ HUB — BANCO DE IDEAS & NOTAS (GOOGLE KEEP FIDELITY + RIGHT SIDEBAR)
 // ==============================================================================
 // Interfaz 100% fiel a Google Keep:
-// - Buscador superior en tiempo real
-// - Creador "Añade una nota..." colapsable / expandible con listas de casillas
-// - Separación canónica: FIJADAS y OTRAS
-// - Paleta de colores pastel Google Keep
-// - Casillas de verificación interactivas
-// - Modal de edición completa al hacer clic en tarjeta
-// - Tarjeta de entrada compacta para el tablero Backlog
+// - Barra lateral en el costado derecho (Notas, Recordatorios, Archivo, Papelera, Etiquetas)
+//   con los colores exactos de Google Keep (#feefc3 píldora activa ámbar) para no chocar
+//   con la barra principal de la izquierda de QZ-Hub.
+// - Workflow Matutino Agéntico integrado como ANOTACIÓN/NOTA interna en Keep.
+// - Buscador superior en tiempo real.
+// - Creador "Añade una nota..." colapsable / expandible con listas de casillas.
+// - Separación canónica: FIJADAS y OTRAS.
+// - Paleta de colores pastel Google Keep.
+// - Casillas de verificación interactivas con tachado y sincronización Firestore.
+// - Modal de edición completa al hacer clic en tarjeta.
+// - Tarjeta de entrada compacta para el tablero Backlog.
 // ==============================================================================
 
 import db from './ssot-db.json';
@@ -30,10 +34,27 @@ export const GOOGLE_KEEP_COLORS = [
   { id: 'grafito', name: 'Grafito',     bg: '#0f172a', border: '#334155', text: '#f8fafc', isDark: true }
 ];
 
+// Nota del Workflow Matutino Agéntico integrada como anotación dentro de Keep
+export const WORKFLOW_MATUTINO_NOTE = {
+  id: 'keep-workflow-matutino',
+  title: '🤖 Workflow Matutino Agéntico (Prompt & Ritual)',
+  body: 'Iniciando sesión matutina. He completado mis deberes domésticos y desayuno. Lee D:\\1_jose_angel\\HOJA_DE_RUTA_REINICIO_OPTIMIZACION.md donde he colocado mis nuevas reflexiones bajo el emoji 🪢. Audita mi avance, actualiza mis timeblocks y calibra mis prioridades de hoy.',
+  color: 'sand',
+  pinned: true,
+  archived: false,
+  trashed: false,
+  createdAt: new Date().toISOString(),
+  tasks: [
+    { id: 'wm-task-1', text: '1. Orden & Bio: Casa limpia, desayuno keto y electrolitos.', completed: false },
+    { id: 'wm-task-2', text: '2. Terminal: Antigravity CLI con contexto QZ-Hub activo.', completed: false },
+    { id: 'wm-task-3', text: '3. Hoja Viva (🪢): Nuevas reflexiones con 🪢 en el markdown.', completed: false },
+    { id: 'wm-task-4', text: '4. Calibración: Auditoría y ejecución de bloques timeblocking.', completed: false }
+  ]
+};
+
 export function getDefaultKeepNotes() {
   const rawIdeas = db.ideas || [];
-  return rawIdeas.map((idea, index) => {
-    // Asignar un color Keep armónico por defecto
+  const baseNotes = rawIdeas.map((idea, index) => {
     const colors = ['mint', 'sand', 'sage', 'fog', 'peach', 'dusk', 'coral'];
     const chosenColor = colors[index % colors.length];
 
@@ -42,7 +63,9 @@ export function getDefaultKeepNotes() {
       title: idea.fullTitle || idea.title || `Nota #${index + 1}`,
       body: idea.body || '',
       color: chosenColor,
-      pinned: index < 2, // Primeras 2 notas fijadas
+      pinned: index === 0,
+      archived: false,
+      trashed: false,
       createdAt: new Date().toISOString(),
       tasks: (idea.tasks || []).map((tText, tIdx) => ({
         id: `task-${index}-${tIdx}`,
@@ -51,6 +74,8 @@ export function getDefaultKeepNotes() {
       }))
     };
   });
+
+  return [WORKFLOW_MATUTINO_NOTE, ...baseNotes];
 }
 
 export function getKeepNotes() {
@@ -59,6 +84,12 @@ export function getKeepNotes() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
+        // Garantizar que la anotación de Workflow Matutino esté dentro de Keep
+        const hasWM = parsed.some(n => n.id === 'keep-workflow-matutino' || (n.title && n.title.includes('Workflow Matutino')));
+        if (!hasWM) {
+          parsed.unshift(WORKFLOW_MATUTINO_NOTE);
+          saveKeepNotes(parsed);
+        }
         return parsed;
       }
     }
@@ -81,8 +112,9 @@ export function saveKeepNotes(notes) {
   }
 }
 
-// Estado volátil del buscador en memoria
+// Estados volátiles de sesión
 let _searchQuery = '';
+let _currentKeepSection = 'notas'; // 'notas' | 'recordatorios' | 'archivo' | 'papelera' | 'zentry' | 'quarz' | 'bio'
 let _creatorIsExpanded = false;
 let _creatorIsChecklist = false;
 let _creatorPinned = false;
@@ -90,12 +122,13 @@ let _creatorColor = 'default';
 let _creatorChecklistItems = [];
 
 // ==============================================================================
-// 1. TARJETA COMPACTA DE ACCESO PARA EL TABLERO BACKLOG (NO DESPLEGADA COMPLETA)
+// 1. TARJETA COMPACTA DE ACCESO PARA EL TABLERO BACKLOG
 // ==============================================================================
 export function renderKeepEntryCardHTML() {
   const notes = getKeepNotes();
-  const totalCount = notes.length;
-  const pinnedCount = notes.filter(n => n.pinned).length;
+  const activeNotes = notes.filter(n => !n.trashed && !n.archived);
+  const totalCount = activeNotes.length;
+  const pinnedCount = activeNotes.filter(n => n.pinned).length;
 
   return `
     <div class="keep-entry-card" id="keep-entry-card">
@@ -121,13 +154,35 @@ export function renderKeepEntryCardHTML() {
 }
 
 // ==============================================================================
-// 2. VISTA DEDICADA DE GOOGLE KEEP (BACKPAGE COMPLETA)
+// 2. VISTA DEDICADA DE GOOGLE KEEP (BACKPAGE COMPLETA CON BARRA LATERAL DERECHA)
 // ==============================================================================
 export function renderKeepNotesHTML() {
   const allNotes = getKeepNotes();
   const q = _searchQuery.trim().toLowerCase();
 
+  // Filtrado según sección activa y búsqueda
   const filtered = allNotes.filter(n => {
+    if (_currentKeepSection === 'papelera') {
+      if (!n.trashed) return false;
+    } else if (_currentKeepSection === 'archivo') {
+      if (!n.archived || n.trashed) return false;
+    } else {
+      if (n.trashed || n.archived) return false;
+
+      if (_currentKeepSection === 'recordatorios') {
+        if (!n.tasks || n.tasks.length === 0) return false;
+      } else if (_currentKeepSection === 'zentry') {
+        const full = ((n.title || '') + ' ' + (n.body || '')).toLowerCase();
+        if (!full.includes('zentry')) return false;
+      } else if (_currentKeepSection === 'quarz') {
+        const full = ((n.title || '') + ' ' + (n.body || '')).toLowerCase();
+        if (!full.includes('quarz') && !full.includes('holding')) return false;
+      } else if (_currentKeepSection === 'bio') {
+        const full = ((n.title || '') + ' ' + (n.body || '')).toLowerCase();
+        if (!full.includes('bio') && !full.includes('calistenia') && !full.includes('keto') && !full.includes('matutino')) return false;
+      }
+    }
+
     if (!q) return true;
     const matchTitle = (n.title || '').toLowerCase().includes(q);
     const matchBody = (n.body || '').toLowerCase().includes(q);
@@ -158,13 +213,36 @@ export function renderKeepNotesHTML() {
       ? `<div class="keep-card-body-text">${escapeHtml(n.body).replace(/\n/g, '<br/>')}</div>`
       : '';
 
+    // Acciones especiales para papelera o archivo
+    const actionsHtml = _currentKeepSection === 'papelera'
+      ? `
+        <div class="keep-card-trash-actions">
+          <button type="button" class="btn-keep-card-tool btn-restore-note" data-note-id="${n.id}" title="Restaurar nota">♻️ Restaurar</button>
+          <button type="button" class="btn-keep-card-tool btn-delete-permanent" data-note-id="${n.id}" title="Eliminar para siempre">❌ Eliminar</button>
+        </div>
+      `
+      : `
+        <div class="keep-card-colors-mini">
+          ${GOOGLE_KEEP_COLORS.slice(0, 7).map(c => `
+            <button type="button" class="keep-mini-color-dot ${n.color === c.id ? 'active' : ''}" data-note-id="${n.id}" data-color="${c.id}" style="background: ${c.border};" title="${c.name}"></button>
+          `).join('')}
+        </div>
+        <div class="keep-card-action-btns">
+          <button type="button" class="btn-keep-card-tool btn-keep-archive" data-note-id="${n.id}" title="${n.archived ? 'Desarchivar' : 'Archivar nota'}">${n.archived ? '📤' : '📥'}</button>
+          <button type="button" class="btn-keep-card-tool btn-keep-copy" data-note-id="${n.id}" title="Copiar texto">📋</button>
+          <button type="button" class="btn-keep-card-tool btn-keep-delete" data-note-id="${n.id}" title="Enviar a papelera">🗑️</button>
+        </div>
+      `;
+
     return `
       <div class="keep-note-card ${n.pinned ? 'is-pinned' : ''} ${isDark ? 'is-dark-card' : ''}" data-note-id="${n.id}" style="background-color: ${colorObj.bg}; border-color: ${colorObj.border}; color: ${colorObj.text};">
         <div class="keep-card-top">
           <div class="keep-card-title">${escapeHtml(n.title || 'Sin título')}</div>
-          <button type="button" class="btn-keep-pin ${n.pinned ? 'active' : ''}" data-note-id="${n.id}" title="${n.pinned ? 'Desanclar nota' : 'Fijar nota'}">
-            📌
-          </button>
+          ${_currentKeepSection !== 'papelera' ? `
+            <button type="button" class="btn-keep-pin ${n.pinned ? 'active' : ''}" data-note-id="${n.id}" title="${n.pinned ? 'Desanclar nota' : 'Fijar nota'}">
+              📌
+            </button>
+          ` : ''}
         </div>
 
         <div class="keep-card-content-wrap">
@@ -173,15 +251,7 @@ export function renderKeepNotesHTML() {
         </div>
 
         <div class="keep-card-actions-bar">
-          <div class="keep-card-colors-mini">
-            ${GOOGLE_KEEP_COLORS.slice(0, 7).map(c => `
-              <button type="button" class="keep-mini-color-dot ${n.color === c.id ? 'active' : ''}" data-note-id="${n.id}" data-color="${c.id}" style="background: ${c.border};" title="${c.name}"></button>
-            `).join('')}
-          </div>
-          <div class="keep-card-action-btns">
-            <button type="button" class="btn-keep-card-tool btn-keep-copy" data-note-id="${n.id}" title="Copiar texto">📋</button>
-            <button type="button" class="btn-keep-card-tool btn-keep-delete" data-note-id="${n.id}" title="Eliminar nota">🗑️</button>
-          </div>
+          ${actionsHtml}
         </div>
       </div>
     `;
@@ -197,106 +267,178 @@ export function renderKeepNotesHTML() {
         </a>
         <div class="keep-header-title-box">
           <h2 class="keep-view-title">💡 Banco de Ideas (Google Keep)</h2>
-          <span class="keep-view-subtitle">${allNotes.length} notas sincronizadas en tiempo real con Firestore</span>
+          <span class="keep-view-subtitle">${allNotes.filter(n => !n.trashed).length} notas sincronizadas en tiempo real con Firestore</span>
         </div>
       </div>
 
-      <!-- BUSCADOR SUPERIOR ESTILO GOOGLE KEEP -->
-      <div class="keep-search-container">
-        <div class="keep-search-bar">
-          <span class="keep-search-icon">🔍</span>
-          <input type="text" id="keep-search-input" placeholder="Buscar en Keep..." value="${escapeHtml(_searchQuery)}" />
-          ${_searchQuery ? `<button type="button" id="btn-clear-search" class="btn-clear-search" title="Limpiar búsqueda">✕</button>` : ''}
-        </div>
-      </div>
-
-      <!-- CREADOR DE NOTAS ESTILO GOOGLE KEEP ("Añade una nota...") -->
-      <div class="keep-creator-wrapper">
-        <div class="keep-creator-card" id="keep-creator-card" style="background-color: ${GOOGLE_KEEP_COLORS.find(c => c.id === _creatorColor)?.bg || '#ffffff'}; border-color: ${GOOGLE_KEEP_COLORS.find(c => c.id === _creatorColor)?.border || '#e2e8f0'};">
+      <!-- LAYOUT PRINCIPAL: CONTENIDO (IZQUIERDA/CENTRO) + BARRA LATERAL GOOGLE KEEP (DERECHA) -->
+      <div class="keep-workspace-layout">
+        
+        <!-- CONTENIDO PRINCIPAL: BUSCADOR + CREADOR + GRID DE NOTAS -->
+        <main class="keep-main-content">
           
-          <!-- ESTADO COLAPSADO -->
-          <div class="keep-creator-collapsed" id="keep-creator-collapsed" style="${_creatorIsExpanded ? 'display: none;' : 'display: flex;'}">
-            <span class="keep-creator-placeholder">Añade una nota...</span>
-            <div class="keep-creator-quick-icons">
-              <button type="button" class="btn-creator-quick-icon" id="btn-quick-checklist" title="Nueva lista con casillas">☑️</button>
+          <!-- BUSCADOR SUPERIOR ESTILO GOOGLE KEEP -->
+          <div class="keep-search-container">
+            <div class="keep-search-bar">
+              <span class="keep-search-icon">🔍</span>
+              <input type="text" id="keep-search-input" placeholder="Buscar en Keep..." value="${escapeHtml(_searchQuery)}" />
+              ${_searchQuery ? `<button type="button" id="btn-clear-search" class="btn-clear-search" title="Limpiar búsqueda">✕</button>` : ''}
             </div>
           </div>
 
-          <!-- ESTADO EXPANDIDO -->
-          <div class="keep-creator-expanded" id="keep-creator-expanded" style="${_creatorIsExpanded ? 'display: flex;' : 'display: none;'}">
-            <div class="keep-creator-header">
-              <input type="text" id="keep-new-title" class="keep-creator-title-input" placeholder="Título" />
-              <button type="button" class="btn-creator-pin ${_creatorPinned ? 'active' : ''}" id="btn-creator-pin-toggle" title="${_creatorPinned ? 'Desanclar nota' : 'Fijar nota'}">
-                📌
-              </button>
-            </div>
-
-            <!-- CONTENIDO: TEXTO O CHECKLIST -->
-            <div class="keep-creator-body-wrap" id="keep-creator-text-mode" style="${_creatorIsChecklist ? 'display: none;' : 'display: block;'}">
-              <textarea id="keep-new-body" class="keep-creator-textarea" placeholder="Añade una nota..." rows="3"></textarea>
-            </div>
-
-            <div class="keep-creator-checklist-wrap" id="keep-creator-checklist-mode" style="${_creatorIsChecklist ? 'display: block;' : 'display: none;'}">
-              <div class="keep-creator-checklist-items" id="keep-creator-checklist-items">
-                <!-- Items agregados se listan aquí -->
-              </div>
-              <div class="keep-creator-add-item-row">
-                <span class="keep-creator-plus">+</span>
-                <input type="text" id="keep-new-checklist-item-input" class="keep-creator-item-input" placeholder="Elemento de lista (Enter para agregar)..." />
-              </div>
-            </div>
-
-            <!-- BARRA DE ACCIONES INFERIOR -->
-            <div class="keep-creator-footer">
-              <div class="keep-creator-tools">
-                <div class="keep-color-picker-dropdown">
-                  <button type="button" class="btn-creator-tool-icon" id="btn-creator-palette" title="Opciones de fondo">🎨</button>
-                  <div class="keep-palette-popover" id="keep-palette-popover">
-                    ${GOOGLE_KEEP_COLORS.map(c => `
-                      <button type="button" class="keep-palette-swatch ${_creatorColor === c.id ? 'active' : ''}" data-color="${c.id}" style="background-color: ${c.bg}; border-color: ${c.border};" title="${c.name}"></button>
-                    `).join('')}
+          <!-- CREADOR DE NOTAS ("Añade una nota...") (SOLO SI NO ESTÁ EN PAPELERA O ARCHIVO) -->
+          ${_currentKeepSection !== 'papelera' && _currentKeepSection !== 'archivo' ? `
+            <div class="keep-creator-wrapper">
+              <div class="keep-creator-card" id="keep-creator-card" style="background-color: ${GOOGLE_KEEP_COLORS.find(c => c.id === _creatorColor)?.bg || '#ffffff'}; border-color: ${GOOGLE_KEEP_COLORS.find(c => c.id === _creatorColor)?.border || '#e2e8f0'};">
+                
+                <!-- ESTADO COLAPSADO -->
+                <div class="keep-creator-collapsed" id="keep-creator-collapsed" style="${_creatorIsExpanded ? 'display: none;' : 'display: flex;'}">
+                  <span class="keep-creator-placeholder">Añade una nota...</span>
+                  <div class="keep-creator-quick-icons">
+                    <button type="button" class="btn-creator-quick-icon" id="btn-quick-checklist" title="Nueva lista con casillas">☑️</button>
                   </div>
                 </div>
-                <button type="button" class="btn-creator-tool-icon ${_creatorIsChecklist ? 'active' : ''}" id="btn-toggle-checklist" title="${_creatorIsChecklist ? 'Cambiar a nota de texto' : 'Mostrar casillas de verificación'}">
-                  ☑️
-                </button>
-              </div>
-              <button type="button" class="btn-keep-close" id="btn-save-creator">
-                Cerrar
-              </button>
-            </div>
 
-          </div>
+                <!-- ESTADO EXPANDIDO -->
+                <div class="keep-creator-expanded" id="keep-creator-expanded" style="${_creatorIsExpanded ? 'display: flex;' : 'display: none;'}">
+                  <div class="keep-creator-header">
+                    <input type="text" id="keep-new-title" class="keep-creator-title-input" placeholder="Título" />
+                    <button type="button" class="btn-creator-pin ${_creatorPinned ? 'active' : ''}" id="btn-creator-pin-toggle" title="${_creatorPinned ? 'Desanclar nota' : 'Fijar nota'}">
+                      📌
+                    </button>
+                  </div>
 
-        </div>
-      </div>
+                  <!-- CONTENIDO: TEXTO O CHECKLIST -->
+                  <div class="keep-creator-body-wrap" id="keep-creator-text-mode" style="${_creatorIsChecklist ? 'display: none;' : 'display: block;'}">
+                    <textarea id="keep-new-body" class="keep-creator-textarea" placeholder="Añade una nota..." rows="3"></textarea>
+                  </div>
 
-      <!-- SECCIONES DE NOTAS (FIJADAS Y OTRAS) -->
-      <div class="keep-notes-sections">
-        ${filtered.length === 0 ? `
-          <div class="keep-empty-state">
-            <span class="keep-empty-icon">💡</span>
-            <p>No se encontraron notas en tu banco.</p>
-          </div>
-        ` : `
-          ${pinnedNotes.length > 0 ? `
-            <div class="keep-section-block">
-              <div class="keep-section-label">FIJADAS</div>
-              <div class="keep-cards-grid">
-                ${pinnedNotes.map(renderCard).join('')}
+                  <div class="keep-creator-checklist-wrap" id="keep-creator-checklist-mode" style="${_creatorIsChecklist ? 'display: block;' : 'display: none;'}">
+                    <div class="keep-creator-checklist-items" id="keep-creator-checklist-items">
+                      <!-- Items dinámicos -->
+                    </div>
+                    <div class="keep-creator-add-item-row">
+                      <span class="keep-creator-plus">+</span>
+                      <input type="text" id="keep-new-checklist-item-input" class="keep-creator-item-input" placeholder="Elemento de lista (Enter para agregar)..." />
+                    </div>
+                  </div>
+
+                  <!-- BARRA DE ACCIONES INFERIOR -->
+                  <div class="keep-creator-footer">
+                    <div class="keep-creator-tools">
+                      <div class="keep-color-picker-dropdown">
+                        <button type="button" class="btn-creator-tool-icon" id="btn-creator-palette" title="Opciones de fondo">🎨</button>
+                        <div class="keep-palette-popover" id="keep-palette-popover">
+                          ${GOOGLE_KEEP_COLORS.map(c => `
+                            <button type="button" class="keep-palette-swatch ${_creatorColor === c.id ? 'active' : ''}" data-color="${c.id}" style="background-color: ${c.bg}; border-color: ${c.border};" title="${c.name}"></button>
+                          `).join('')}
+                        </div>
+                      </div>
+                      <button type="button" class="btn-creator-tool-icon ${_creatorIsChecklist ? 'active' : ''}" id="btn-toggle-checklist" title="${_creatorIsChecklist ? 'Cambiar a nota de texto' : 'Mostrar casillas de verificación'}">
+                        ☑️
+                      </button>
+                    </div>
+                    <button type="button" class="btn-keep-close" id="btn-save-creator">
+                      Cerrar
+                    </button>
+                  </div>
+
+                </div>
+
               </div>
             </div>
           ` : ''}
 
-          ${otherNotes.length > 0 ? `
-            <div class="keep-section-block">
-              ${pinnedNotes.length > 0 ? `<div class="keep-section-label">OTRAS</div>` : ''}
-              <div class="keep-cards-grid">
-                ${otherNotes.map(renderCard).join('')}
-              </div>
+          <!-- CABECERA DE SECCIÓN ESPECIAL (PAPELERA / ARCHIVO) -->
+          ${_currentKeepSection === 'papelera' ? `
+            <div class="keep-special-banner">
+              <span>🗑️ Las notas en la Papelera se conservan aquí hasta que las restaures o vacíes.</span>
+              <button type="button" class="btn-empty-trash" id="btn-empty-trash">Vaciar Papelera</button>
             </div>
           ` : ''}
-        `}
+
+          ${_currentKeepSection === 'archivo' ? `
+            <div class="keep-special-banner">
+              <span>📥 Notas archivadas para referencia futura.</span>
+            </div>
+          ` : ''}
+
+          <!-- SECCIONES DE NOTAS (FIJADAS Y OTRAS) -->
+          <div class="keep-notes-sections">
+            ${filtered.length === 0 ? `
+              <div class="keep-empty-state">
+                <span class="keep-empty-icon">${_currentKeepSection === 'papelera' ? '🗑️' : (_currentKeepSection === 'archivo' ? '📥' : '💡')}</span>
+                <p>${_currentKeepSection === 'papelera' ? 'La papelera está vacía.' : (_currentKeepSection === 'archivo' ? 'No hay notas archivadas.' : 'No se encontraron notas en tu banco.')}</p>
+              </div>
+            ` : `
+              ${pinnedNotes.length > 0 && _currentKeepSection !== 'papelera' ? `
+                <div class="keep-section-block">
+                  <div class="keep-section-label">FIJADAS</div>
+                  <div class="keep-cards-grid">
+                    ${pinnedNotes.map(renderCard).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              ${otherNotes.length > 0 ? `
+                <div class="keep-section-block">
+                  ${pinnedNotes.length > 0 && _currentKeepSection !== 'papelera' ? `<div class="keep-section-label">OTRAS</div>` : ''}
+                  <div class="keep-cards-grid">
+                    ${otherNotes.map(renderCard).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              ${_currentKeepSection === 'papelera' && pinnedNotes.length > 0 ? `
+                <div class="keep-cards-grid">
+                  ${pinnedNotes.map(renderCard).join('')}
+                </div>
+              ` : ''}
+            `}
+          </div>
+
+        </main>
+
+        <!-- BARRA LATERAL DERECHA (ESTILO GOOGLE KEEP: COLORES #feefc3 PÍLDORA ACTIVA) -->
+        <aside class="keep-right-sidebar" id="keep-right-sidebar">
+          <div class="keep-sidebar-nav">
+            <button type="button" class="keep-sidebar-item ${_currentKeepSection === 'notas' ? 'active' : ''}" data-section="notas">
+              <span class="keep-sidebar-item-icon">💡</span>
+              <span class="keep-sidebar-item-text">Notas</span>
+            </button>
+            <button type="button" class="keep-sidebar-item ${_currentKeepSection === 'recordatorios' ? 'active' : ''}" data-section="recordatorios">
+              <span class="keep-sidebar-item-icon">🔔</span>
+              <span class="keep-sidebar-item-text">Recordatorios</span>
+            </button>
+            <button type="button" class="keep-sidebar-item ${_currentKeepSection === 'archivo' ? 'active' : ''}" data-section="archivo">
+              <span class="keep-sidebar-item-icon">📥</span>
+              <span class="keep-sidebar-item-text">Archivo</span>
+            </button>
+            <button type="button" class="keep-sidebar-item ${_currentKeepSection === 'papelera' ? 'active' : ''}" data-section="papelera">
+              <span class="keep-sidebar-item-icon">🗑️</span>
+              <span class="keep-sidebar-item-text">Papelera</span>
+            </button>
+          </div>
+
+          <div class="keep-sidebar-divider"></div>
+
+          <div class="keep-sidebar-labels-group">
+            <div class="keep-sidebar-group-title">ETIQUETAS</div>
+            <button type="button" class="keep-sidebar-item ${_currentKeepSection === 'zentry' ? 'active' : ''}" data-section="zentry">
+              <span class="keep-sidebar-item-icon">🏷️</span>
+              <span class="keep-sidebar-item-text">Zentry</span>
+            </button>
+            <button type="button" class="keep-sidebar-item ${_currentKeepSection === 'quarz' ? 'active' : ''}" data-section="quarz">
+              <span class="keep-sidebar-item-icon">🏷️</span>
+              <span class="keep-sidebar-item-text">Quarz</span>
+            </button>
+            <button type="button" class="keep-sidebar-item ${_currentKeepSection === 'bio' ? 'active' : ''}" data-section="bio">
+              <span class="keep-sidebar-item-icon">🏷️</span>
+              <span class="keep-sidebar-item-text">Bio & Personal</span>
+            </button>
+          </div>
+        </aside>
+
       </div>
 
       <!-- MODAL DE EDICIÓN COMPLETA (GOOGLE KEEP EDIT MODAL) -->
@@ -317,7 +459,28 @@ export function setupKeepNotesEvents(container) {
   const ws = container.querySelector('#keep-workspace');
   if (!ws) return;
 
-  // 1. Buscador en tiempo real
+  // 1. Navegación en la barra lateral derecha
+  ws.querySelectorAll('.keep-sidebar-item').forEach(btn => {
+    btn.onclick = () => {
+      _currentKeepSection = btn.dataset.section || 'notas';
+      refreshKeepWorkspace(container);
+    };
+  });
+
+  // Vaciar papelera
+  const emptyTrashBtn = ws.querySelector('#btn-empty-trash');
+  if (emptyTrashBtn) {
+    emptyTrashBtn.onclick = () => {
+      if (confirm('¿Vaciar toda la papelera definitivamente?')) {
+        let notes = getKeepNotes();
+        notes = notes.filter(n => !n.trashed);
+        saveKeepNotes(notes);
+        refreshKeepWorkspace(container);
+      }
+    };
+  }
+
+  // 2. Buscador en tiempo real
   const searchInput = ws.querySelector('#keep-search-input');
   if (searchInput) {
     searchInput.oninput = (e) => {
@@ -334,9 +497,8 @@ export function setupKeepNotesEvents(container) {
     };
   }
 
-  // 2. Creador de notas: Expandir / Colapsar
+  // 3. Creador de notas: Expandir / Colapsar
   const collapsedBox = ws.querySelector('#keep-creator-collapsed');
-  const expandedBox = ws.querySelector('#keep-creator-expanded');
   const quickChecklistBtn = ws.querySelector('#btn-quick-checklist');
   const saveCloseBtn = ws.querySelector('#btn-save-creator');
   const toggleChecklistBtn = ws.querySelector('#btn-toggle-checklist');
@@ -416,7 +578,7 @@ export function setupKeepNotesEvents(container) {
     };
   }
 
-  // 3. Pin / Unpin directo en tarjetas
+  // 4. Pin / Unpin directo en tarjetas
   ws.querySelectorAll('.btn-keep-pin').forEach(btn => {
     btn.onclick = (e) => {
       e.stopPropagation();
@@ -431,7 +593,22 @@ export function setupKeepNotesEvents(container) {
     };
   });
 
-  // 4. Checkbox directo en tarjetas
+  // 5. Archivar / Desarchivar
+  ws.querySelectorAll('.btn-keep-archive').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const noteId = btn.dataset.noteId;
+      const notes = getKeepNotes();
+      const n = notes.find(x => x.id === noteId);
+      if (n) {
+        n.archived = !n.archived;
+        saveKeepNotes(notes);
+        refreshKeepWorkspace(container);
+      }
+    };
+  });
+
+  // 6. Checkbox directo en tarjetas
   ws.querySelectorAll('.keep-task-checkbox').forEach(chk => {
     chk.onchange = (e) => {
       e.stopPropagation();
@@ -448,7 +625,7 @@ export function setupKeepNotesEvents(container) {
     };
   });
 
-  // 5. Cambio de color directo en tarjeta (mini dots)
+  // 7. Cambio de color directo en tarjeta (mini dots)
   ws.querySelectorAll('.keep-mini-color-dot').forEach(dot => {
     dot.onclick = (e) => {
       e.stopPropagation();
@@ -464,12 +641,42 @@ export function setupKeepNotesEvents(container) {
     };
   });
 
-  // 6. Eliminar nota
+  // 8. Enviar nota a la papelera (soft delete estilo Keep)
   ws.querySelectorAll('.btn-keep-delete').forEach(btn => {
     btn.onclick = (e) => {
       e.stopPropagation();
       const noteId = btn.dataset.noteId;
-      if (confirm('¿Eliminar esta nota de Keep?')) {
+      const notes = getKeepNotes();
+      const n = notes.find(x => x.id === noteId);
+      if (n) {
+        n.trashed = true;
+        saveKeepNotes(notes);
+        refreshKeepWorkspace(container);
+      }
+    };
+  });
+
+  // 9. Restaurar desde papelera
+  ws.querySelectorAll('.btn-restore-note').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const noteId = btn.dataset.noteId;
+      const notes = getKeepNotes();
+      const n = notes.find(x => x.id === noteId);
+      if (n) {
+        n.trashed = false;
+        saveKeepNotes(notes);
+        refreshKeepWorkspace(container);
+      }
+    };
+  });
+
+  // 10. Eliminar permanentemente
+  ws.querySelectorAll('.btn-delete-permanent').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const noteId = btn.dataset.noteId;
+      if (confirm('¿Eliminar esta nota para siempre?')) {
         let notes = getKeepNotes();
         notes = notes.filter(x => x.id !== noteId);
         saveKeepNotes(notes);
@@ -478,7 +685,7 @@ export function setupKeepNotesEvents(container) {
     };
   });
 
-  // 7. Copiar nota al portapapeles
+  // 11. Copiar nota al portapapeles
   ws.querySelectorAll('.btn-keep-copy').forEach(btn => {
     btn.onclick = async (e) => {
       e.stopPropagation();
@@ -501,13 +708,13 @@ export function setupKeepNotesEvents(container) {
     };
   });
 
-  // 8. Clic en tarjeta -> Abrir Modal de Edición Completa (Google Keep Modal)
+  // 12. Clic en tarjeta -> Abrir Modal de Edición Completa (Google Keep Modal)
   ws.querySelectorAll('.keep-note-card').forEach(card => {
     card.onclick = (e) => {
-      // Ignorar si se hizo clic en botones de acción o checkboxes
       if (e.target.closest('button') || e.target.closest('input[type="checkbox"]')) {
         return;
       }
+      if (_currentKeepSection === 'papelera') return; // En papelera no se edita directamente
       const noteId = card.dataset.noteId;
       openKeepEditModal(noteId, container);
     };
@@ -538,7 +745,6 @@ function saveNewNoteFromCreator(ws, container) {
   const body = ws.querySelector('#keep-new-body')?.value.trim();
 
   if (!title && !body && _creatorChecklistItems.length === 0) {
-    // Si está completamente vacía, solo colapsar
     _creatorIsExpanded = false;
     _creatorIsChecklist = false;
     _creatorPinned = false;
@@ -555,6 +761,8 @@ function saveNewNoteFromCreator(ws, container) {
     body: body || '',
     color: _creatorColor,
     pinned: _creatorPinned,
+    archived: false,
+    trashed: false,
     createdAt: new Date().toISOString(),
     tasks: _creatorChecklistItems.map((item, idx) => ({
       id: `task-${Date.now()}-${idx}`,
@@ -566,7 +774,6 @@ function saveNewNoteFromCreator(ws, container) {
   notes.unshift(newNote);
   saveKeepNotes(notes);
 
-  // Reset creator state
   _creatorIsExpanded = false;
   _creatorIsChecklist = false;
   _creatorPinned = false;
@@ -629,7 +836,7 @@ function openKeepEditModal(noteId, container) {
               <button type="button" class="keep-modal-swatch ${modalColor === c.id ? 'active' : ''}" data-color="${c.id}" style="background-color: ${c.bg}; border-color: ${c.border};" title="${c.name}"></button>
             `).join('')}
           </div>
-          <button type="button" class="btn-modal-delete" id="btn-modal-delete" title="Eliminar nota">🗑️</button>
+          <button type="button" class="btn-modal-delete" id="btn-modal-delete" title="Enviar a papelera">🗑️</button>
         </div>
         <button type="button" class="btn-modal-close" id="btn-modal-close">Cerrar</button>
       </div>
@@ -686,13 +893,14 @@ function openKeepEditModal(noteId, container) {
     }
 
     modalDialog.querySelector('#btn-modal-delete').onclick = () => {
-      if (confirm('¿Eliminar esta nota?')) {
-        let all = getKeepNotes();
-        all = all.filter(x => x.id !== noteId);
+      let all = getKeepNotes();
+      const target = all.find(x => x.id === noteId);
+      if (target) {
+        target.trashed = true;
         saveKeepNotes(all);
-        modalOverlay.style.display = 'none';
-        refreshKeepWorkspace(container);
       }
+      modalOverlay.style.display = 'none';
+      refreshKeepWorkspace(container);
     };
 
     const saveAndClose = () => {

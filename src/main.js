@@ -1569,22 +1569,13 @@ const renderers = {
 
         </div>
 
-        <!-- SECCIÓN DE EXTENSIÓN: SPRINT DE 3 DÍAS + WORKFLOW AGÉNTICO + TARJETA BANCO DE IDEAS -->
+        <!-- ACCESO AL BANCO DE IDEAS (GOOGLE KEEP) -->
         <div class="backlog-extension-container">
-          <!-- 1. SPRINT DE 3 DÍAS (MICRO-BLOQUES DE CORTO PLAZO) -->
-          ${renderSprint3DiasHTML()}
-
-          <!-- 2. WORKFLOW AGÉNTICO MATUTINO -->
-          ${renderAgentWorkflowHTML()}
-
-          <!-- 3. BANCO DE IDEAS (ACCESO A BACKPAGE KEEP) -->
           ${renderKeepEntryCardHTML()}
         </div>
       `;
 
       setupHabitTrackerEvents(container);
-      setupSprint3DiasEvents(container);
-      setupAgentWorkflowEvents(container);
       return;
     }
 

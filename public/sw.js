@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.5.0 (BACKLOG + AUTHENTIC KEEP BACKPAGE)
+// QZ-HUB SERVICE WORKER — v3.6.0 (KEEP RIGHT SIDEBAR + WORKFLOW NOTE)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.5.0-backlog-keep-backpage';
+const CACHE_NAME = 'qz-hub-v3.6.0-keep-right-sidebar';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

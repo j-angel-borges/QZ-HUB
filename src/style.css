@@ -7569,3 +7569,173 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .btn-modal-close:hover {
   background: rgba(0, 0, 0, 0.06);
 }
+
+/* --- LAYOUT CON BARRA LATERAL DERECHA (GOOGLE KEEP AUTHENTIC SIDEBAR) --- */
+.keep-workspace-layout {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.keep-main-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Barra lateral derecha auténtica de Google Keep */
+.keep-right-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 20px;
+  padding: 8px 0;
+}
+
+@media (max-width: 1024px) {
+  .keep-workspace-layout {
+    flex-direction: column-reverse;
+  }
+  .keep-right-sidebar {
+    width: 100%;
+    position: static;
+  }
+  .keep-sidebar-nav, .keep-sidebar-labels-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
+
+.keep-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.keep-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 10px 20px;
+  border-radius: 24px;
+  cursor: pointer;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #5f6368;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.keep-sidebar-item:hover {
+  background: #f1f3f4;
+  color: #202124;
+}
+
+/* Color exacto Google Keep para elemento activo */
+.keep-sidebar-item.active {
+  background: #feefc3;
+  color: #202124;
+  font-weight: 700;
+}
+
+.keep-sidebar-item-icon {
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.keep-sidebar-item-text {
+  flex: 1;
+}
+
+.keep-sidebar-divider {
+  border-top: 1px solid #e0e0e0;
+  margin: 10px 12px;
+}
+
+.keep-sidebar-labels-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.keep-sidebar-group-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 1.2px;
+  padding: 6px 20px;
+}
+
+/* Banner de papelera y archivo */
+.keep-special-banner {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 12px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 12.5px;
+  color: #475569;
+}
+
+.btn-empty-trash {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-empty-trash:hover {
+  background: #dc2626;
+}
+
+.keep-card-trash-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  width: 100%;
+}
+
+.btn-restore-note {
+  background: #e2e8f0;
+  color: #0f172a;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-delete-permanent {
+  background: #fee2e2;
+  color: #ef4444;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
