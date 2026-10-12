@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.3.16 (SMARTBAND WHITE STOCK ALIGNMENT)
+// QZ-HUB SERVICE WORKER — v3.4.0 (SPRINT 3D + KEEP NOTES + AGENT WORKFLOW)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.3.16-smartband-white-stock-fix';
+const CACHE_NAME = 'qz-hub-v3.4.0-sprint3d-keep-notes';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
