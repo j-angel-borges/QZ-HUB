@@ -944,10 +944,168 @@
   ],
   "ideas": [
     {
+      "title": "Start profile 1 terminal",
+      "fullTitle": "Start profile 1 terminal",
+      "body": "start-rec.tc /program /bin (x86)/Google/Chrome/Application/Chrome.exe --argumentlist \"--profile-directory='Profile 1'\"",
+      "category": "00-operaciones",
+      "labels": [
+        "Quarz"
+      ],
+      "tasks": []
+    },
+    {
+      "title": "Up-Grade Papi Padel",
+      "fullTitle": "Up-Grade Papi Padel",
+      "body": "Hoja de ruta para el upgrade y formalización operativa de Papi Padel dentro del ecosistema QUARZ.",
+      "category": "03-marketing-y-ventas y 00-operaciones",
+      "labels": [
+        "Papi-Padel",
+        "upgrade"
+      ],
+      "tasks": [
+        "Integrar pasarelas de pagos efectivas y asignación de pagos automatizada.",
+        "MÉTRICAS Y KPI's de tracking de jugadores y reservas.",
+        "Proyección Financiera y flujo de caja.",
+        "Crear CV del Papi para presentarse a centros de padel.",
+        "Resultados en GMA comprobables y portfolio deportivo.",
+        "Experiencia profesional y acreditación de torneos.",
+        "Estandarizar sistema para escalar academias y eventos."
+      ]
+    },
+    {
+      "title": "Datos Bancarios y RUC de QUARZ",
+      "fullTitle": "Datos Bancarios y RUC de QUARZ",
+      "body": "Cuenta BCP Soles: 197 093 9037\nRUC: 15407750201",
+      "category": "00-operaciones y finanzas",
+      "labels": [
+        "Quarz"
+      ],
+      "tasks": []
+    },
+    {
+      "title": "Up-Grade Papi Padel",
+      "fullTitle": "Up-Grade Papi Padel",
+      "body": "Módulos y arquitectura técnica para la web app y plataforma de Papi Padel.",
+      "category": "02-arquitectura-tecnica",
+      "labels": [
+        "Papi-Padel",
+        "upgrade"
+      ],
+      "tasks": [
+        "Crear Sección Admin para administración de canchas y clubes.",
+        "Módulo de Inscripciones y Donaciones.",
+        "Agregar Sección para Usuario Final (Portal de Jugador).",
+        "Escalar Creación de Torneos y cuadros de competición.",
+        "Escalar Gamificación (Usuarios, Participantes, Puntos y Rankings)."
+      ]
+    },
+    {
       "title": "ZENTRY SPOT",
       "fullTitle": "ZENTRY SPOT",
-      "body": "Una idea que tengo de cómo comunicarle al niño o al joven el tiempo en pantalla para entretenimiento y la manera de quizás ilustrárselo podría ser que siempre haya una barra superpuesta que sea un timer y que ese timer le vaya mostrando cuánto tiempo de uso le queda puede ser un timer diario o podría quizá ser un timer en base a etapas del día en la mañana en la tarde y en la noche quizás en la mañana tiene menos tiempo que en la tarde y en la noche tiene un poquito más de tiempo que en la mañana La idea es que esto esté basado en ciencia basado en el ciclo circadiano esa es una cuestión la de la barra superpuesta tipo timer luego también hablando del ciclo circadiano algo súper importante es poder hacer que el sistema operativo de manera automática tenga ciertas activaciones dependiendo del ciclo circadiano Como por ejemplo la luz nocturna que a partir de una hora se aplica la luz nocturna al dispositivo y se quede hasta la noche o mejor dicho hasta las 6 o 7 de la mañana este tipo de configuraciones son solamente dos que se me han ocurrido en el momento sin embargo me gustaría poder ampliar este tipo de configuraciones automáticas muy basadas en el ciclo circadiano y basadas en ciencia basadas en psicología pedagógica y pediátrica",
+      "body": "En cuanto a feedback o a otras hipótesis a validar están la información que puede tener el nicho al que apuntamos sobre herramientas de control parental Y lograr hacer que se extinga notoriamente un control parental convencional a un sistema operativo como ZENTRY y a la gente me ha hablado de controles parentales que le permiten apagar el celular a distancia limitar el uso las horas, entonces hay que aterrizar enormemente la distinción entre uno y otro.",
+      "category": "03-marketing-y-ventas (Manejo de Objeciones)",
+      "labels": [
+        "ZentryOS",
+        "spot"
+      ],
+      "tasks": [
+        "Diseñar sección comparativa \"Control Parental Tradicional vs. ZentryOS\" para desarmar objeciones.",
+        "Documentar la diferencia funcional de ser un \"Launcher/Device Owner\" (ZentryOS) en lugar de una app restrictiva externa en segundo plano."
+      ]
+    },
+    {
+      "title": "ZENTRYOS spot",
+      "fullTitle": "ZENTRYOS spot",
+      "body": "Una mamá me dijo que el YouTube se puede configurar para la edad del niño dependiendo de su edad lo que aparece. Entonces el sistema operativo también debería ser capaz de configurarse y adaptarse a la edad e intereses iniciales del niño y eso también es una buena excusa como para dar un espacio de tiempo de implementación y que se vaya rellenando el formulario como para que cuando lo instalen sea mucho más fiel a la personalidad del niño.",
+      "category": "02-arquitectura-tecnica (Compose / Onboarding) y 01-vision-y-producto",
+      "labels": [
+        "ZentryOS",
+        "spot"
+      ],
+      "tasks": [
+        "Diseñar el flujo de configuración inicial (Onboarding) mediante un formulario interactivo que pregunte edad y gustos del niño.",
+        "Implementar la personalización dinámica del Launcher Zentry según las respuestas del formulario.",
+        "Analizar la API de YouTube Kids / YouTube Restricted Mode para forzar perfiles por edad automáticamente desde el sistema operativo."
+      ]
+    },
+    {
+      "title": "ZENTRY SPOT",
+      "fullTitle": "ZENTRY SPOT",
+      "body": "Un documental de referencia es en el que Carlos Tamayo el tercer episodio de nos lo dio de las manos en el minuto 1:02:00 donde él concluye para qué se usan los datos y la vulnerabilidad de la telemetría en niños.",
+      "category": "01-vision-y-producto y 03-marketing-y-ventas",
+      "labels": [
+        "ZentryOS",
+        "spot"
+      ],
+      "tasks": [
+        "Analizar el fragmento del minuto 1:02:00 del documental de Carlos Tamayo sobre privacidad y datos de menores.",
+        "Incorporar los argumentos de soberanía de datos infantiles en el pitch comercial del DemoBook."
+      ]
+    },
+    {
+      "title": "ZENTRY SPOT",
+      "fullTitle": "ZENTRY SPOT",
+      "body": "Una cuestión que hay que mapear es la posibilidad de crear algún producto para bebés con un ticket menor No sabría específicamente cuál sería la solución pero que esté como parte de la oferta.",
+      "category": "01-vision-y-producto y 03-marketing-y-ventas (Estructura de Precios)",
+      "labels": [
+        "ZentryOS",
+        "spot"
+      ],
+      "tasks": [
+        "Realizar una lluvia de ideas para un producto Zentry Mini (o Zentry Baby) para niños menores de 2 años (ej. audiolibros, filtros visuales severos) como Lead Magnet o producto de bajo ticket de entrada."
+      ]
+    },
+    {
+      "title": "ZENTRY SPOT",
+      "fullTitle": "ZENTRY SPOT",
+      "body": "La pauta definitivamente va a ser indispensable para crecer este negocio no es solamente en términos de reclutamiento de partner sino de captación de clientes la cantidad de clientes y de posibles padres deberían estar allí afuera imaginándose como curar o como disuadir o reducir el daño que pueden generar los algoritmos y las pantallas en sus hijos es bestial en el mercado gigante y podemos tener una tracción masiva.",
+      "category": "03-marketing-y-ventas (Pauta y Reclutamiento)",
+      "labels": [
+        "ZentryOS",
+        "spot"
+      ],
+      "tasks": [
+        "Diseñar estrategia de pauta publicitaria en Meta Ads / Google Ads enfocada en concienciación de algoritmos y pantallas.",
+        "Crear embudo de reclutamiento de partners y afiliados para ventas directas de ZentryOS."
+      ]
+    },
+    {
+      "title": "ZENTRY Workflow",
+      "fullTitle": "ZENTRY Workflow",
+      "body": "Para la semana pasada tenia yo ZENTRY una expectativa y siempre he cometido el error de poner mis expectativas para proyectos que comian son mas altos Pero esta vez no voy a caer en esa parte del proceso en veces anteriores ha sido parte de la frustración pero realmente creo que es un año este proyecto puede tener crecimiento exponencial y que no haya logrado cumplir con una expectativa inmediata no significa que no vaya a explotar.",
+      "category": "00-operaciones y workflows",
+      "labels": [
+        "ZentryOS",
+        "workflows"
+      ],
+      "tasks": [
+        "Estructurar el workflow semanal iterativo sin sobrecarga emocional de expectativas irreales.",
+        "Mantener constancia diaria en desarrollo y ventas para validar el crecimiento exponencial a 12 meses."
+      ]
+    },
+    {
+      "title": "ZENTRY RECRUIT GAMIFY",
+      "fullTitle": "ZENTRY RECRUIT GAMIFY",
+      "body": "Se me ocurre algo muy potente nosotros debemos gamificar también el ecosistema de trabajo para los afiliados para los partners y una manera de hacerlo es el ecosistema de trabajo para los promotores una persona cuando empieza no debería tener los mismos accesos que una persona que ha crecido dentro de la empresa y estas técnicas las utilizan mucho las empresas de venta directa donde un distribuidor junior va desbloqueando niveles, comisiones, materiales y herramientas a medida que escala.",
+      "category": "03-marketing-y-ventas (Gamificación de Partners)",
+      "labels": [
+        "ZentryOS",
+        "upgrade"
+      ],
+      "tasks": [
+        "Diseñar sistema de niveles y rangos para partners (Junior, Pro, Elite) con desbloqueo progresivo de herramientas.",
+        "Gamificar comisiones y metas mensuales en el panel de afiliados de QZ-Hub."
+      ]
+    },
+    {
+      "title": "ZENTRY SPOT",
+      "fullTitle": "ZENTRY SPOT",
+      "body": "Una idea que tengo de cómo comunicarle al niño o al joven el tiempo en pantalla para entretenimiento y la manera de quizás ilustrárselo podría ser que siempre haya una barra superpuesta que sea un timer y que ese timer le vaya mostrando cuánto tiempo de uso le queda puede ser un timer diario o podría quizá ser un timer en base a etapas del día en la mañana en la tarde y en la noche... Luz nocturna automática según ciclo circadiano.",
       "category": "02-arquitectura-tecnica y 01-vision-y-producto",
+      "labels": [
+        "ZentryOS",
+        "spot"
+      ],
       "tasks": [
         "Diseñar el componente UI de barra superpuesta (Timer) en Jetpack Compose.",
         "Desarrollar la lógica de límites de tiempo circadiánicos (Mañana, Tarde, Noche).",
@@ -956,40 +1114,14 @@
       ]
     },
     {
-      "title": "ZENTRY SPOT",
-      "fullTitle": "ZENTRY SPOT",
-      "body": "En cuanto a feedback o a otras hipótesis a validar están la información que puede tener el nicho al que apuntamos sobre herramientas de control parental Y lograr hacer que se extinga notoriamente un control parental convencional a un sistema operativo como ZENTRY y a la gente me ha hablado de controles parentales que le permiten apagar el celular a distancia limitar el uso las horas, entonces hay que aterrizar enormemente la distinción entre uno y otro",
-      "category": "03-marketing-y-ventas (Manejo de Objeciones)",
-      "tasks": [
-        "Diseñar sección comparativa \"Control Parental Tradicional vs. ZentryOS\" para desarmar objeciones.",
-        "Documentar la diferencia funcional de ser un \"Launcher/Device Owner\" (ZentryOS) en lugar de una app restrictiva externa en segundo plano."
-      ]
-    },
-    {
-      "title": "ZENTRY SPOT",
-      "fullTitle": "ZENTRY SPOT",
-      "body": "Una cuestión que hay que mapear es la posibilidad de crear algún producto para bebés con un ticket menor No sabría específicamente cuál sería la solución pero que esté como parte de la oferta",
-      "category": "01-vision-y-producto y 03-marketing-y-ventas (Estructura de Precios)",
-      "tasks": [
-        "Realizar una lluvia de ideas para un producto Zentry Mini (o Zentry Baby) para niños menores de 2 años (ej. audiolibros, filtros visuales severos) como Lead Magnet o producto de bajo ticket de entrada."
-      ]
-    },
-    {
-      "title": "ZENTRY SPOT",
-      "fullTitle": "ZENTRY SPOT",
-      "body": "Una mamá me dijo que el YouTube se puede configurar para la edad del niño dependiendo de su edad lo que aparece Entonces el sistema operativo también debería ser capaz de configurarse y adaptarse a la edad e intereses iniciales del niño y eso también es una buena excusa como para dar un espacio de tiempo de implementación y que se vaya rellenando el formulario como para que cuando lo instalen sea mucho más fiel a la personalidad del niño",
-      "category": "02-arquitectura-tecnica (Compose / Onboarding) y 01-vision-y-producto",
-      "tasks": [
-        "Diseñar el flujo de configuración inicial (Onboarding) mediante un formulario interactivo que pregunte edad y gustos del niño.",
-        "Implementar la personalización dinámica del Launcher Zentry según las respuestas del formulario.",
-        "Analizar la API de YouTube Kids / YouTube Restricted Mode para forzar perfiles por edad automáticamente desde el sistema operativo."
-      ]
-    },
-    {
       "title": "ZENTRY PRECIERRE",
       "fullTitle": "ZENTRY PRECIERRE",
-      "body": "Entonces esto lo podemos llevar a cuánto cuesta personalizar o adaptar algo a tus necesidades Entonces los sistemas operativos que hay están diseñados para retener tu atención si tú no quieres que sea así tienes que comprar otro o mejorar el que tienes, de la misma manera que si tienes un carro Qué cuesta $10,000 pero te da más problemas Qué beneficios, te toca comprarte un carro del doble o gastar  más en mejorarlo, aterrizando lo más al software si una empresa quiere llevar sus sistemas administrativos en excel y en el entorno de Office a lo mucho le costará $300 al año si lo quiere hacer con un sistema administrativo más avanzado le puede costar hasta $10,000 pero ya siquiera algo ultrapersonalizado y adaptado a sus necesidades le puede costar entre 50k y $100,000",
+      "body": "Entonces esto lo podemos llevar a cuánto cuesta personalizar o adaptar algo a tus necesidades Entonces los sistemas operativos que hay están diseñados para retener tu atención si tú no quieres que sea así tienes que comprar otro o mejorar el que tienes, de la misma manera que si tienes un carro Qué cuesta $10,000 pero te da más problemas Qué beneficios, te toca comprarte un carro del doble o gastar más en mejorarlo, aterrizando lo más al software si una empresa quiere llevar sus sistemas administrativos en excel y en el entorno de Office a lo mucho le costará $300 al año si lo quiere hacer con un sistema administrativo más avanzado le puede costar hasta $10,000 pero ya siquiera algo ultrapersonalizado y adaptado a sus necesidades le puede costar entre 50k y $100,000.",
       "category": "03-marketing-y-ventas (Guiones de Precierre)",
+      "labels": [
+        "ZentryOS",
+        "pre-cierres"
+      ],
       "tasks": [
         "Redactar el guion de ventas \"Analogía del Excel y la Personalización de Software\" e incorporarlo en el DemoBook y manual de asesores.",
         "Desarrollar el cálculo visual para mostrar a los padres durante la videollamada de venta."
@@ -998,8 +1130,12 @@
     {
       "title": "ZENTRY PRECIERRE",
       "fullTitle": "ZENTRY PRECIERRE",
-      "body": "Entonces este precierre es un precierre de construcción de precio basado en el costo de un sistema operativo a largo plazo en la compra de un dispositivo móvil para una familia, Entonces ese costo lo sacamos a través de un juego matemático donde planteamos un escenario que puede ser utilizando el costo de los celulares que usan en casa pueden ser Android o ios en el caso que sea un celular de 2000 soles el juego matemático es decir que el valor de ese dispositivo es 60% está en el hardware y 40% está en el software argumentando que por ejemplo cuál es la diferencia entre un dispositivo ios versus uno Android y en la mayoría de ocasiones lo que hace que la gente compre estos dispositivos no son los materiales físicos sino por el contrario el ecosistema de iOS que es cerrado Entonces el juego matemático en este caso funcionaría así 800 soles corresponderían al costo del celular y hacemos preguntas: ¿Señor (a) __ usted utiliza el mismo celular de hace 10 años? ¿No verdad? ¿Porque iría mucho mas lento verdad? Entonces en los últimos 10 años cuántas veces ha cambiado de celular ? 4-5 veces. Eso quiere decir que si calculamos solo el valor del sistema operativo de esos celulares ¿Estaríamos hablando de que ha destinado más 3000 soles? Y cuántas personas son en casa ? 3-5 (incluyendo hijos) suponiendo eso quiere decir que el dinero que destinan solo in esto puede ascender a más 10000 soles ? Para simplificarlo lo que estaríamos haciendo es hablar en términos generales tanto de lo que han gastado en el pasado como lo que están gastando en el presente y lo que gastarán en el futuro cercano. Pero ojo ! Le recuerdo que eso es solo el sistema operativo incluyendo el celular podríamos estar hablando de más de 20000 soles. Sin embargo ese sistema operativo que usted está utilizando todos los días todos estos estos años está diseñado para dañar cognitivamente, ese sistema y sus algoritmos consideran ustedes que ha sido una inversión O un gasto ? Entonces si por ese mismo valor 10 000 usted pudiera tener un sistema operativo que potencie el desarrollo cognitivo de su hijo le permita mejorar su atención y le ayude a tener las herramientas más pertinentes actuales sería una buena inversión para ustedes y para su hijo ? Por la salud y el futuro de su hijo ?\n\nLuego está relación la compramos con el cuerpo humano donde posicionamos el cuerpo como una máquina y el cerebro como la parte inteligente",
+      "body": "Entonces este precierre es un precierre de construcción de precio basado en el costo de un sistema operativo a largo plazo en la compra de un dispositivo móvil para una familia, Entonces ese costo lo sacamos a través de un juego matemático donde planteamos un escenario que puede ser utilizando el costo de los celulares que usan en casa pueden ser Android o ios en el caso que sea un celular de 2000 soles el juego matemático es decir que el valor de ese dispositivo es 60% está en el hardware y 40% está en el software... ¿Cuánto dinero han destinado a sistemas que dañan la atención de sus hijos? Comparativa con el cuerpo humano como máquina y el cerebro como el OS inteligente.",
       "category": "03-marketing-y-ventas (Venta Directa / Construcción de Precio)",
+      "labels": [
+        "ZentryOS",
+        "pre-cierres"
+      ],
       "tasks": [
         "Integrar el \"Juego Matemático de Inversión de OS\" en el guion de Venta Directa del MVP (sección de precierre de precio).",
         "Desarrollar la analogía del \"Cuerpo humano como máquina y cerebro como el OS inteligente\" para justificar el costo.",
@@ -1009,8 +1145,12 @@
     {
       "title": "ZentryOS - Ecosistema de Juego Creativo",
       "fullTitle": "ZentryOS - Ecosistema de Juego Creativo",
-      "body": "Se me viene a la cabeza por ejemplo revivir los Roleplays y juegos con la imaginacion del joven.\n\nEjemplo de vista del niño:\n- Imagina un juego de rol donde el niño puede conectarse a la TV, crear su propio mundo una IA lo guia en esa creacion, donde el niño puede elegir que personajes, que escenas que roles, pero sin limites si el niño le apasiona algo puede crear una experiencia futbol, basket, pintar, ir al espacio construir una casa, puede jugar con sus idolos, aterrizado a la realidad coo lo imagino es que el niño tenga un dispositivo. deje apretado el boton configurado para hablar con gemini o con el comando de voz y con ello le pida que abra una aplicacion (una web app llamada crea) por ejemplo. Abre y puede haber una dinamica estandarizada el niño le dice algo como \"quiero jugar a ser un astronauta y viajo por el espacio\" el asistente determina con preguntas como hacerlo le pregunta: tienes una TV ? , Tienes una tablet ? tienes un celular ? y el niño va creando su espacio entonces con los recursos que pueda tener empieza a dirigirlo, por ejemplo para crear una experiencia donde viaja por el espacio, podria usar la tablet para crear una aplicacion de viaje por el espacio, donde tiene que conseguir un cable HDMI para conectarlo (se lo explica al padre con su asistente de voz) conecta a la TV la tablet, usa su celular u otro dispositivo para crear una app que simula ser el centro de comandos de la nave y con el celular como mando debe eliminar cosas en la TV\n- Esto que acabó de imaginar obviamente Tiene un nivel de complejidad Importante y cosas que seguro no son tan fáciles como parecen a priori Pero a lo que me refiero es crear experiencias de juego Donde el niño se vea retado Donde tenga que conseguir Herramientas Donde persista Donde las cosas no Sean de un momento para otro Sino que tenga que pasar días Y que ese plan Esté justificado Y al final sienta esa sensación de logro.\n\nVista del Padre\n- Hay una IA entrenada como psicologo o terapeuta pedagojico que le reporta al padre en base a las creaciones del joven que intereses, habilidades podria estar desarrollando el niño.\n- Obviamente Al padre se le debe notificar Lo que está haciendo su hijo Para que lo guíe para que lo oriente Y fomente Esas actividades\n\nCONTEXTO 2\n- Hubo una marca con la que personalmente trabajé que tenía una campaña de marketing Que hablaba de tipos de inteligencia Y eso es algo que se me quedó Inteligencia musical inteligencia creativa inteligencia lógica Inteligencia emocional Pueden haber tantos tipos Y tan diferentes Que no tiene sentido alienar A una civilización. IMAGINO un ecosistema donde el niño pueda crear utilizando herramientas de su vida real Utilizando herramientas de comandos de voz O por ejemplo también herramientas De Cámara donde la Ia IA pueda ver Y orientar mejor al niño para crear lo que tiene en su cabeza, Y que sea capaz de crear escenarios y ambientes Que no den límite a su creatividad. entonces ZENTRY No tiene que ser Una aplicación Puede ser Un sistema Que ayude al niño A usar lo que ya está creado (GEMINI (y todas sus funciones) (Configuraciones de Ipads, Android y más) (Que le ayude a ver El Mundo Como un lienzo) Si va a jugar fútbol Que lo rete, Que le ponga casos como por ejemplo sabias que Cristiano Ronaldo se quedaba practicando x cantidad de tiempo hasta apuntar al palo y golpearle ? Y le ponga esos retos\n\nCONTEXTO 3\n- Una cosa es la idea y otra cosa es hacerizarlo técnicamente el día a día y la manera como yo lo veo viable es utilizando una inteligencia Matriz Si yo logro conectar Todos los dispositivos a una inteligencia en GCP que registra datos y desde alli se crean las experiencias entonces podemos estandarizar y controlar las aplicaciones e integraciones que estan dentro\n\nINSTRUCCIONES :\n- Describe la idea y ordenala en un texto encapsulado para guardarlo\n- Aterriza estas ideas A un flujo de Ecosistema o de aplicaciones donde pueda estar presentado de alguna manera en el MVP",
+      "body": "Revivir los Roleplays y juegos con la imaginación del joven. Ejemplo: vista del niño donde puede conectarse a la TV, crear su propio mundo con una IA que lo guía sin límites (fútbol, espacio, arte). Web app \"Crea\" activada por botón físico de Gemini. Dispositivos coordinados (TV + Tablet + Celular). Reporte de Inteligencias Múltiples para padres en base a telemetría.",
       "category": "02-arquitectura-tecnica (GCP / API / Integraciones) y 01-vision-y-producto",
+      "labels": [
+        "ZentryOS",
+        "spot"
+      ],
       "tasks": [
         "Diseñar el flujo de arquitectura de la \"Inteligencia Matriz\" en GCP para registrar datos y coordinar experiencias entre TV, tablet y celular.",
         "Conceptualizar el prototipo de la web app \"Crea\" (habilitada por botón físico de voz con Gemini).",

@@ -486,8 +486,14 @@ body[data-module="zentry"] .workspace-banner {
   flex: 1;
 }
 
-.workspace.full-width-view .workspace-content {
-  max-width: 100%;
+.workspace.full-width-view .workspace-content,
+.workspace.backlog-view.full-width-view .workspace-content,
+.workspace:has(.keep-backpage-wrapper) .workspace-content {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 28px 60px 28px !important;
+  margin: 16px 0 60px 0 !important;
+  box-sizing: border-box !important;
 }
 
 /* Markdown Rendering */
@@ -6803,10 +6809,11 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
 /* --- 4. GOOGLE KEEP: BACKPAGE DEDICADA --- */
 .keep-backpage-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 8px 40px;
-  box-sizing: border-box;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 4px 40px !important;
+  box-sizing: border-box !important;
 }
 
 .keep-workspace {
@@ -7197,10 +7204,11 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 }
 
 .keep-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 14px;
-  align-items: start;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+  gap: 16px !important;
+  align-items: start !important;
+  width: 100% !important;
 }
 
 .keep-empty-state {
@@ -8194,4 +8202,15 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   border-radius: 10px;
   font-size: 10.5px;
   font-weight: 700;
+}
+
+/* Expansión total de la página cuando se colapsa la barra lateral de QZ-Hub */
+.notion-layout.sidebar-collapsed .workspace-content {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.notion-layout.sidebar-collapsed .keep-backpage-wrapper {
+  max-width: 100% !important;
+  width: 100% !important;
 }

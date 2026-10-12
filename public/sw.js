@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.7.0 (KEEP REMINDERS + EDIT LABELS + DUP TITLES)
+// QZ-HUB SERVICE WORKER — v3.8.0 (KEEP FULLWIDTH + COMPLETE ANNOTATIONS TRANSFERRED)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.7.0-keep-reminders-labels';
+const CACHE_NAME = 'qz-hub-v3.8.0-keep-fullwidth-sync';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

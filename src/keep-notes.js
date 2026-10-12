@@ -45,18 +45,28 @@ export function cleanKeepTitle(title) {
 // GESTIÓN DE ETIQUETAS (LABELS) — AUTÉNTICO GOOGLE KEEP
 // ------------------------------------------------------------------------------
 export function getKeepLabels() {
+  const allKnownLabels = ['ZentryOS', 'Papi-Padel', 'Quarz', 'Bio & Personal', 'spot', 'pre-cierres', 'workflows', 'upgrade'];
   try {
     const raw = localStorage.getItem(KEEP_LABELS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        let changed = false;
+        allKnownLabels.forEach(lbl => {
+          if (!parsed.some(p => p.toLowerCase() === lbl.toLowerCase())) {
+            parsed.push(lbl);
+            changed = true;
+          }
+        });
+        if (changed) saveKeepLabels(parsed);
+        return parsed;
+      }
     }
   } catch (e) {
     console.warn('Error reading keep labels:', e);
   }
-  const defaultLabels = ['Zentry', 'Quarz', 'Bio & Personal'];
-  saveKeepLabels(defaultLabels);
-  return defaultLabels;
+  saveKeepLabels(allKnownLabels);
+  return allKnownLabels;
 }
 
 export function saveKeepLabels(labels) {
@@ -148,14 +158,23 @@ export const WORKFLOW_MATUTINO_NOTE = {
 export function getDefaultKeepNotes() {
   const rawIdeas = db.ideas || [];
   const baseNotes = rawIdeas.map((idea, index) => {
-    const colors = ['mint', 'sand', 'sage', 'fog', 'peach', 'dusk', 'coral'];
-    const chosenColor = colors[index % colors.length];
-
     // Asignar etiquetas contextuales
-    const labels = [];
-    const textContext = ((idea.title || '') + ' ' + (idea.category || '')).toLowerCase();
-    if (textContext.includes('zentry')) labels.push('Zentry');
-    if (textContext.includes('quarz') || textContext.includes('holding')) labels.push('Quarz');
+    let labels = Array.isArray(idea.labels) ? [...idea.labels] : [];
+    if (labels.length === 0) {
+      const textContext = ((idea.title || '') + ' ' + (idea.category || '')).toLowerCase();
+      if (textContext.includes('zentry')) labels.push('ZentryOS');
+      if (textContext.includes('quarz') || textContext.includes('holding')) labels.push('Quarz');
+      if (textContext.includes('papi')) labels.push('Papi-Padel');
+    }
+
+    // Colores fieles a Google Keep
+    let chosenColor = 'default';
+    const t = (idea.title || '').toLowerCase();
+    const b = (idea.body || '').toLowerCase();
+    if (t.includes('workflow')) chosenColor = 'peach';
+    else if (t.includes('recruit') || b.includes('pauta')) chosenColor = 'sand';
+    else if (t.includes('precierre')) chosenColor = 'sand';
+    else if (t.includes('spot') || t.includes('creativo')) chosenColor = (index % 2 === 0) ? 'mint' : 'default';
 
     return {
       id: `keep-seed-${index + 1}`,
@@ -163,7 +182,7 @@ export function getDefaultKeepNotes() {
       body: idea.body || '',
       color: chosenColor,
       labels: labels,
-      pinned: index === 0,
+      pinned: false,
       archived: false,
       trashed: false,
       createdAt: new Date().toISOString(),
@@ -179,13 +198,15 @@ export function getDefaultKeepNotes() {
 }
 
 export function getKeepNotes() {
+  const defaultNotes = getDefaultKeepNotes();
   try {
     const raw = localStorage.getItem(KEEP_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Limpiar sufijos numéricos (1), (2) y asegurar array de etiquetas
         let changed = false;
+
+        // Limpiar sufijos numéricos (1), (2) y asegurar array de etiquetas
         parsed.forEach(n => {
           if (n.title) {
             const cleaned = cleanKeepTitle(n.title);
@@ -199,9 +220,21 @@ export function getKeepNotes() {
           }
         });
 
-        // Garantizar que la anotación de Workflow Matutino esté dentro de Keep
-        const hasWM = parsed.some(n => n.id === 'keep-workflow-matutino' || (n.title && n.title.includes('Workflow Matutino')));
-        if (!hasWM) {
+        // Fusión completa: Asegurar que TODAS las notas de la semilla completa de Google Keep estén presentes
+        defaultNotes.forEach(defNote => {
+          const exists = parsed.some(n => 
+            n.id === defNote.id || 
+            (n.title === defNote.title && (n.body || '').slice(0, 30) === (defNote.body || '').slice(0, 30))
+          );
+          if (!exists) {
+            parsed.push(defNote);
+            changed = true;
+          }
+        });
+
+        // Garantizar que la anotación de Workflow Matutino esté dentro de Keep y fijada
+        const wmIdx = parsed.findIndex(n => n.id === 'keep-workflow-matutino' || (n.title && n.title.includes('Workflow Matutino')));
+        if (wmIdx < 0) {
           parsed.unshift(WORKFLOW_MATUTINO_NOTE);
           changed = true;
         }
@@ -215,7 +248,6 @@ export function getKeepNotes() {
   } catch (e) {
     console.warn('Error reading keep notes from storage:', e);
   }
-  const defaultNotes = getDefaultKeepNotes();
   saveKeepNotes(defaultNotes);
   return defaultNotes;
 }
