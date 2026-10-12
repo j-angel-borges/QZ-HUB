@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.0.0 (SPRINTER TOOL + DETERMINISTIC TIMEBLOCK/BIO SYNC)
+// QZ-HUB SERVICE WORKER — v4.1.0 (SPRINTER D1 SINGLE LLAMADAS FOCUS)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.0.0-sprinter-interconnected';
+const CACHE_NAME = 'qz-hub-v4.1.0-sprinter-d1-calls-only';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

@@ -47,32 +47,6 @@ export function getDefaultSprinterData() {
             completed: false,
             notes: '',
             syncSummary: null
-          },
-          {
-            id: 'd1-b2',
-            time: '12:00 - 13:00',
-            startTime: '12:00',
-            endTime: '13:00',
-            activity: 'prospeccion',
-            title: 'Prospección Presencial / Colegios',
-            icon: '🎯',
-            desc: 'Contacto con directores y evaluación de colegios',
-            completed: false,
-            notes: '',
-            syncSummary: null
-          },
-          {
-            id: 'd1-b3',
-            time: '18:00 - 19:30',
-            startTime: '18:00',
-            endTime: '19:30',
-            activity: 'llamadas',
-            title: 'Llamadas Nocturnas & Seguimiento',
-            icon: '📞',
-            desc: 'Seguimiento a contactos calientes (Starbucks o plaza)',
-            completed: false,
-            notes: '',
-            syncSummary: null
           }
         ]
       },
@@ -182,6 +156,11 @@ export function getSprinterData() {
       if (parsed && Array.isArray(parsed.days) && parsed.days.length === 3) {
         // Verificar si los días tienen la estructura de bloques moderna
         if (parsed.days[0].blocks && Array.isArray(parsed.days[0].blocks)) {
+          // Filtrar hoy (D1) para que la única gestión productiva sea la de llamadas
+          if (parsed.days[0].blocks.length > 1) {
+            parsed.days[0].blocks = parsed.days[0].blocks.filter(b => b.id === 'd1-b1' || b.activity === 'llamadas').slice(0, 1);
+            saveSprinterData(parsed);
+          }
           return parsed;
         }
       }
