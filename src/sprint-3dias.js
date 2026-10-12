@@ -9,46 +9,46 @@ const SPRINT_STORAGE_KEY = 'qz_sprint_3dias';
 export function getDefaultSprint3DiasData() {
   return {
     sprintNumber: 1,
-    title: 'Sprint 1: Aterrizaje Biológico, Orden y Calistenia',
+    title: 'Sprint 1: Aterrizaje Biológico & Orden',
     startDate: '2026-10-12',
     endDate: '2026-10-14',
-    goal: 'Restaurar homeostasis química, cero azúcar ni pornografía, y primeros bloques comerciales.',
+    goal: 'Detox dopamina, calistenia y llamadas fuera de casa.',
     days: [
       {
         id: 'day-1',
         date: '2026-10-12',
-        dayLabel: 'D1 • Lunes 12 Octubre',
-        bio: 'Keto Limpio (5 huevos + palta + mantequilla + queso) + Sal de Maras & Limón + Cero Azúcar',
-        workout: 'Calistenia en barras frente a casa: Front Lever (máx 1.5h)',
-        sales: '30m llamadas Royal Prestige + 30m prospección Royal',
-        support: '1h orden leads ExpoMaternidad + 30m mensajes Zentry',
+        dayLabel: 'D1 • Lun 12 Oct',
+        bio: 'Keto limpio + Sal de Maras & Limón + Cero Azúcar',
+        workout: 'Front Lever & Calistenia (1.5h)',
+        sales: '30m llamadas Royal + 30m prospección',
+        support: 'Orden leads ExpoMaternidad & QZ-Hub',
         completed: false
       },
       {
         id: 'day-2',
         date: '2026-10-13',
-        dayLabel: 'D2 • Martes 13 Octubre',
-        bio: 'Keto continuo + Ventana de comida cerrada a las 19:00 + Cero estimulación barata',
-        workout: 'Calistenia: Estiramiento y acondicionamiento físico (45 min)',
-        sales: 'Llamadas fuera de casa (08:30–10:00 AM) en barras/caminata',
-        support: 'Preparación y cierre de presentación/demo ZentryOS (Factor WOW)',
+        dayLabel: 'D2 • Mar 13 Oct',
+        bio: 'Keto continuo + Ventana hasta 19:00',
+        workout: 'Calistenia acondicionamiento (45m)',
+        sales: 'Llamadas fuera de casa (08:30–10:00 AM)',
+        support: 'Guion y Demo ZentryOS (Factor WOW)',
         completed: false
       },
       {
         id: 'day-3',
         date: '2026-10-14',
-        dayLabel: 'D3 • Miércoles 14 Octubre',
-        bio: 'Keto estricto + Electrolitos + Foco mental (Antídoto a autoflagelación blanca)',
-        workout: 'Calistenia intensa: Rutina de empuje (máx 1.5h)',
-        sales: 'Lanzamiento de llamadas Zentry + Citas para fin de semana',
-        support: 'Lista cerrada de compras para el jueves temprano (S/ 100 casa, S/ 50 bio)',
+        dayLabel: 'D3 • Mié 14 Oct',
+        bio: 'Keto estricto + Electrolitos',
+        workout: 'Calistenia empuje intenso (1.5h)',
+        sales: 'Llamadas Zentry + Citas fin de semana',
+        support: 'Presupuesto compras Gamarra (S/ 150)',
         completed: false
       }
     ],
     rules: [
-      '🚫 Cero alcohol, cero porros, cero azúcar refinado, cero pornografía.',
-      '📱 Tablet apagada y guardada en gaveta fuera del dormitorio durante la noche.',
-      '📞 Llamadas matutinas (08:30–10:00 AM) siempre fuera de casa para eliminar fricción.'
+      '🚫 Cero alcohol, porros, azúcar, porno',
+      '📵 Tablet fuera del cuarto',
+      '📞 Llamadas fuera de casa'
     ]
   };
 }
@@ -59,6 +59,16 @@ export function getSprint3DiasData() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && parsed.days && parsed.days.length === 3) {
+        // Si tiene el texto extenso antiguo, migrar al texto conciso preservando checkboxes
+        if (parsed.days[0].bio && parsed.days[0].bio.includes('5 huevos')) {
+          const fresh = getDefaultSprint3DiasData();
+          fresh.sprintNumber = parsed.sprintNumber || 1;
+          fresh.days.forEach((d, idx) => {
+            if (parsed.days[idx]) d.completed = !!parsed.days[idx].completed;
+          });
+          saveSprint3DiasData(fresh);
+          return fresh;
+        }
         return parsed;
       }
     }
@@ -103,25 +113,25 @@ export function renderSprint3DiasHTML() {
           <div class="sprint-item">
             <span class="sprint-item-icon">🍳</span>
             <div class="sprint-item-text">
-              <strong>Nutrición / Bio:</strong> ${day.bio}
+              <strong>Bio:</strong> ${day.bio}
             </div>
           </div>
           <div class="sprint-item">
             <span class="sprint-item-icon">🤸</span>
             <div class="sprint-item-text">
-              <strong>Entrenamiento:</strong> ${day.workout}
+              <strong>Físico:</strong> ${day.workout}
             </div>
           </div>
           <div class="sprint-item">
             <span class="sprint-item-icon">📞</span>
             <div class="sprint-item-text">
-              <strong>Comercial:</strong> ${day.sales}
+              <strong>Ventas:</strong> ${day.sales}
             </div>
           </div>
           <div class="sprint-item">
-            <span class="sprint-item-icon">📋</span>
+            <span class="sprint-item-icon">💻</span>
             <div class="sprint-item-text">
-              <strong>Soporte / Dev:</strong> ${day.support}
+              <strong>Dev:</strong> ${day.support}
             </div>
           </div>
         </div>
@@ -136,7 +146,7 @@ export function renderSprint3DiasHTML() {
           <div class="sprint-icon-box">⚡</div>
           <div>
             <div class="sprint-badge-row">
-              <span class="sprint-phase-tag">MICRO-BLOQUE</span>
+              <span class="sprint-phase-tag">MICRO-SPRINT</span>
               <span class="sprint-period-pill">${sprint.startDate} ➔ ${sprint.endDate}</span>
             </div>
             <h3 class="sprint-card-title">${sprint.title}</h3>
@@ -199,39 +209,39 @@ export function setupSprint3DiasEvents(container) {
       if (data.sprintNumber === 1) {
         if (!confirm('¿Deseas avanzar al Sprint 2 (Jueves 15 a Sábado 17 Oct)? Esto configurará los hitos de compra en Gamarra y demos.')) return;
         data.sprintNumber = 2;
-        data.title = 'Sprint 2: Compras Logísticas (S/ 100/50) y Caza de Demos';
+        data.title = 'Sprint 2: Logística Gamarra & Citas';
         data.startDate = '2026-10-15';
         data.endDate = '2026-10-17';
-        data.goal = 'Compras Jueves temprano (Gamarra), llamadas fuera de casa (20-30/día) y agendar 2-3 demos.';
+        data.goal = 'Compras Jueves (S/ 150), 20-30 llamadas/día y 2-3 demos.';
         data.days = [
           {
             id: 'day-4',
             date: '2026-10-15',
-            dayLabel: 'D4 • Jueves 15 Octubre',
-            bio: 'Compras Parada Gamarra temprano: S/ 100 casa, S/ 50 bio (maní, vísceras, carne)',
-            workout: 'Calistenia / Descanso activo post-mercado',
-            sales: '20 llamadas fuera de casa (08:30-10:00 y 18:00-21:00)',
-            support: 'Transcripción de nuevos leads y agendamiento',
+            dayLabel: 'D4 • Jue 15 Oct',
+            bio: 'Compras Gamarra temprano (S/ 100 despensa, S/ 50 bio)',
+            workout: 'Calistenia / Descanso activo',
+            sales: '20 llamadas fuera de casa',
+            support: 'Transcripción leads y agendamiento',
             completed: false
           },
           {
             id: 'day-5',
             date: '2026-10-16',
-            dayLabel: 'D5 • Viernes 16 Octubre',
-            bio: 'Keto denso + Mantequilla de maní casera + Cero tentaciones',
-            workout: 'Calistenia: Fuerza y tracción',
-            sales: 'Día pico de llamadas: 25-30 llamadas + cierre de citas para sábado y domingo',
-            support: 'Preparación de material y demos de venta',
+            dayLabel: 'D5 • Vie 16 Oct',
+            bio: 'Keto denso + Crema de maní casera',
+            workout: 'Calistenia fuerza y tracción',
+            sales: 'Pico llamadas (25-30) + Citas sáb/dom',
+            support: 'Material DemoBook preparado',
             completed: false
           },
           {
             id: 'day-6',
             date: '2026-10-17',
-            dayLabel: 'D6 • Sábado 17 Octubre',
-            bio: 'Keto + Batch cooking (chicharrón / carne deshidratada)',
+            dayLabel: 'D6 • Sáb 17 Oct',
+            bio: 'Keto + Batch cooking (proteína)',
             workout: 'Calistenia o Pádel con padre',
-            sales: 'Ejecución de Demostración 1 agendada (CERO inasistencias)',
-            support: 'Seguimiento de prospectos calientes',
+            sales: 'Ejecución Demo 1 presencial/virtual',
+            support: 'Seguimiento prospectos calientes',
             completed: false
           }
         ];

@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v3.4.0 (SPRINT 3D + KEEP NOTES + AGENT WORKFLOW)
+// QZ-HUB SERVICE WORKER — v3.5.0 (BACKLOG + AUTHENTIC KEEP BACKPAGE)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v3.4.0-sprint3d-keep-notes';
+const CACHE_NAME = 'qz-hub-v3.5.0-backlog-keep-backpage';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

@@ -13,8 +13,8 @@ export function renderAgentWorkflowHTML() {
         <div class="workflow-title-box">
           <span class="workflow-icon">🤖</span>
           <div>
-            <h4 class="workflow-title">WORKFLOW MATUTINO AGÉNTICO (MARKDOWN-DRIVEN)</h4>
-            <span class="workflow-subtitle">Ritual diario de alineación operativa y calibración entre Jose Ángel y Antigravity</span>
+            <h4 class="workflow-title">WORKFLOW MATUTINO AGÉNTICO</h4>
+            <span class="workflow-subtitle">Ritual diario de alineación Jose Ángel & Antigravity</span>
           </div>
         </div>
         <div class="workflow-actions-top">
@@ -28,32 +28,32 @@ export function renderAgentWorkflowHTML() {
         <div class="workflow-step-item">
           <span class="step-num">1</span>
           <div class="step-content">
-            <strong>🧹 Base Doméstica & Bio:</strong>
-            <p>Aspiradora, cocina en orden, desayuno cetogénico denso y suero con sal de maras y limón.</p>
+            <strong>🧹 Orden & Bio:</strong>
+            <p>Casa limpia, desayuno keto y electrolitos.</p>
           </div>
         </div>
 
         <div class="workflow-step-item">
           <span class="step-num">2</span>
           <div class="step-content">
-            <strong>💻 Apertura de Terminal:</strong>
-            <p>Iniciar sesión con Antigravity en CLI con el contexto de QZ-Hub y Bio-Tracker cargado.</p>
+            <strong>💻 Terminal:</strong>
+            <p>Antigravity CLI con contexto QZ-Hub.</p>
           </div>
         </div>
 
         <div class="workflow-step-item">
           <span class="step-num">3</span>
           <div class="step-content">
-            <strong>📝 Hoja de Ruta Viva (🪢):</strong>
-            <p>Escribir reflexiones y conclusiones en <code>HOJA_DE_RUTA_REINICIO_OPTIMIZACION.md</code> con el emoji 🪢.</p>
+            <strong>📝 Hoja Viva (🪢):</strong>
+            <p>Nuevas reflexiones con 🪢 en el markdown.</p>
           </div>
         </div>
 
         <div class="workflow-step-item">
           <span class="step-num">4</span>
           <div class="step-content">
-            <strong>🎯 Calibración & Acción:</strong>
-            <p>El agente audita el avance, ajusta el Sprint de 3 días y el Timeblocking para arrancar a ejecutar.</p>
+            <strong>🎯 Calibración:</strong>
+            <p>Auditoría de sprint y ejecución de bloques.</p>
           </div>
         </div>
       </div>

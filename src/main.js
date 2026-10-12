@@ -29,7 +29,7 @@ import { manifestMarkdown, circadianoMarkdown, metricasMarkdown, dispositivosDat
 import './style.css';
 import db from './ssot-db.json';
 import { renderSprint3DiasHTML, setupSprint3DiasEvents } from './sprint-3dias.js';
-import { renderKeepNotesHTML, setupKeepNotesEvents } from './keep-notes.js';
+import { renderKeepNotesHTML, setupKeepNotesEvents, renderKeepEntryCardHTML } from './keep-notes.js';
 import { renderAgentWorkflowHTML, setupAgentWorkflowEvents } from './agent-workflow.js';
 import {
   bootstrapFirestoreSync,
@@ -1569,7 +1569,7 @@ const renderers = {
 
         </div>
 
-        <!-- SECCIÓN DE EXTENSIÓN: SPRINT DE 3 DÍAS + WORKFLOW AGÉNTICO + BANCO DE IDEAS (KEEP) -->
+        <!-- SECCIÓN DE EXTENSIÓN: SPRINT DE 3 DÍAS + WORKFLOW AGÉNTICO + TARJETA BANCO DE IDEAS -->
         <div class="backlog-extension-container">
           <!-- 1. SPRINT DE 3 DÍAS (MICRO-BLOQUES DE CORTO PLAZO) -->
           ${renderSprint3DiasHTML()}
@@ -1577,15 +1577,14 @@ const renderers = {
           <!-- 2. WORKFLOW AGÉNTICO MATUTINO -->
           ${renderAgentWorkflowHTML()}
 
-          <!-- 3. BANCO DE IDEAS & WORKFLOWS (GOOGLE KEEP STYLE) -->
-          ${renderKeepNotesHTML()}
+          <!-- 3. BANCO DE IDEAS (ACCESO A BACKPAGE KEEP) -->
+          ${renderKeepEntryCardHTML()}
         </div>
       `;
 
       setupHabitTrackerEvents(container);
       setupSprint3DiasEvents(container);
       setupAgentWorkflowEvents(container);
-      setupKeepNotesEvents(container);
       return;
     }
 
@@ -1777,16 +1776,22 @@ const renderers = {
     setupDragAndDrop();
   },
 
-  // 2. Google Keep Notes View
+  // 2. Google Keep Notes View (Backpage)
   ideas: () => {
-    document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #1c142e 0%, #0c0d10 100%)';
+    const workspace = document.querySelector('.workspace');
+    if (workspace) {
+      workspace.classList.add('backlog-view');
+      workspace.classList.add('full-width-view');
+    }
+
+    document.getElementById('page-banner').style.background = 'linear-gradient(135deg, #fef9c3 0%, #fef08a 50%, #fef3c7 100%)';
     document.getElementById('page-icon').textContent = '💡';
-    document.getElementById('page-title').textContent = 'Banco de Ideas & Workflows (Keep)';
+    document.getElementById('page-title').textContent = 'Banco de Ideas (Google Keep)';
     document.getElementById('properties-block').style.display = 'none';
 
     const container = document.getElementById('workspace-content');
     container.innerHTML = `
-      <div style="max-width: 1100px; margin: 0 auto; padding-bottom: 40px;">
+      <div class="keep-backpage-wrapper">
         ${renderKeepNotesHTML()}
       </div>
     `;
@@ -4339,6 +4344,15 @@ function handleRouting() {
     buildDocTree(); // Rebuild tree to show active state
     renderers.doc(state.activeDocPath);
   } else if (hash.startsWith('#backlog')) {
+    if (hash === '#backlog/ideas') {
+      state.activeView = 'ideas';
+      document.body.setAttribute('data-module', 'quarz');
+      const navLink = document.querySelector(`.nav-link[data-view="backlog"]`);
+      if (navLink) navLink.classList.add('active');
+      buildDocTree();
+      renderers.ideas();
+      return;
+    }
     state.activeView = 'backlog';
     if (hash === '#backlog/zentry') {
       state.backlogMode = 'zentry';
@@ -4366,7 +4380,8 @@ function handleRouting() {
     renderers.backlog();
   } else {
     state.activeView = hash.replace('#', '');
-    const navLink = document.querySelector(`.nav-link[data-view="${state.activeView}"]`);
+    const navLink = document.querySelector(`.nav-link[data-view="${state.activeView}"]`) ||
+                    (state.activeView === 'ideas' ? document.querySelector(`.nav-link[data-view="backlog"]`) : null);
     if (navLink) navLink.classList.add('active');
     
     buildDocTree(); // Clear tree highlights
