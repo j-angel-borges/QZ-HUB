@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.1.0 (SPRINTER D1 SINGLE LLAMADAS FOCUS)
+// QZ-HUB SERVICE WORKER — v4.2.0 (SPRINTER ISHA KRIYA & CALIBRATED SPRINTS)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.1.0-sprinter-d1-calls-only';
+const CACHE_NAME = 'qz-hub-v4.2.0-sprinter-isha-calibrated';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

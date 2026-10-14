@@ -2,16 +2,17 @@
 // QZ HUB — SPRINTER (HERRAMIENTA DE 3 DÍAS CON INTERCONEXIÓN DETERMINISTA)
 // ==============================================================================
 // Interconexión bidireccional entre:
-// 1. SPRINTER (Micro-bloques de 3 días con actividades asignadas y anotaciones)
+// 1. SPRINTER (Tríada de Sprints 1, 2 y 3 con actividades asignadas, Isha Kriya y notas)
 // 2. TIMEBLOCKING (Escribe automáticamente en cada slot de 15 min:
-//    "Llamadas Realizadas" o "Prospección realizada" + resultados (X call · Y cit))
-// 3. BIO-TRACKER (Actualiza cifras de PROD: LL, DEMOS, PCC, WIN y
-//    métricas detalladas de marcación: NC [no contestó], Col [colgó], Ll [rellamar], cit [citas])
+//    - "Llamadas Realizadas" o "Prospección realizada" + resultados (X call · Y cit)
+//    - "Isha Kriya (Meditación)" en el slot de 15 min seleccionado
+// 3. BIO-TRACKER (Actualiza cifras de PROD: LL, DEMOS, PCC, WIN,
+//    métricas detalladas de marcación: NC, Col, Ll, cit, y contador ik.doneDays)
 // ==============================================================================
 
 const SPRINTER_STORAGE_KEY = 'qz_sprinter_data';
 
-// Helper de zona horaria local (Perú/LatAm)
+// Helper de fecha local
 function getTodayDateStr() {
   const d = new Date();
   const year = d.getFullYear();
@@ -20,30 +21,285 @@ function getTodayDateStr() {
   return `${year}-${month}-${day}`;
 }
 
-export function getDefaultSprinterData() {
+// ==============================================================================
+// DEFINICIÓN CALIBRADA DE SPRINTS (SPRINT 1, SPRINT 2, SPRINT 3)
+// ==============================================================================
+
+export function getSprintPreset(sprintNumber = 1) {
+  if (sprintNumber === 1) {
+    return {
+      sprintNumber: 1,
+      title: 'Sprint 1: Aterrizaje Biológico & Foco Comercial',
+      startDate: '2026-10-12',
+      endDate: '2026-10-14',
+      goal: 'Llamadas de 30 min sin prospección en D1, consolidación de ritmo comercial.',
+      activeDayIndex: 0,
+      days: [
+        {
+          id: 's1-d1',
+          date: '2026-10-12',
+          dayLabel: 'D1 • Lun 12 Oct',
+          isToday: false,
+          isha: { enabled: false, targetCount: 1, session1Slot: '06:30', session2Slot: '18:00', completedSessions: 0, completed: false },
+          blocks: [
+            {
+              id: 's1-d1-b1',
+              time: '08:30 - 09:00',
+              startTime: '08:30',
+              endTime: '09:00',
+              activity: 'llamadas',
+              title: 'Llamadas Fuera de Casa (Royal & Leads)',
+              icon: '📞',
+              desc: 'Bloque único de 30 min de llamadas (sin prospección)',
+              completed: false,
+              notes: '',
+              syncSummary: null
+            }
+          ]
+        },
+        {
+          id: 's1-d2',
+          date: '2026-10-13',
+          dayLabel: 'D2 • Mar 13 Oct',
+          isToday: false,
+          isha: { enabled: false, targetCount: 1, session1Slot: '06:30', session2Slot: '18:00', completedSessions: 0, completed: false },
+          blocks: [
+            {
+              id: 's1-d2-b1',
+              time: '08:30 - 09:00',
+              startTime: '08:30',
+              endTime: '09:00',
+              activity: 'llamadas',
+              title: 'Llamadas Mañana (Directores & Leads)',
+              icon: '📞',
+              desc: 'Bloque matutino de 30 minutos de marcación comercial',
+              completed: false,
+              notes: '',
+              syncSummary: null
+            },
+            {
+              id: 's1-d2-b2',
+              time: '18:00 - 18:30',
+              startTime: '18:00',
+              endTime: '18:30',
+              activity: 'llamadas',
+              title: 'Llamadas Tarde (Seguimientos & Cierres)',
+              icon: '📞',
+              desc: 'Bloque vespertino de 30 minutos de marcación comercial',
+              completed: false,
+              notes: '',
+              syncSummary: null
+            }
+          ]
+        },
+        {
+          id: 's1-d3',
+          date: '2026-10-14',
+          dayLabel: 'D3 • Mié 14 Oct',
+          isToday: true,
+          isha: { enabled: false, targetCount: 1, session1Slot: '06:30', session2Slot: '18:00', completedSessions: 0, completed: false },
+          blocks: [
+            {
+              id: 's1-d3-b1',
+              time: '08:30 - 09:00',
+              startTime: '08:30',
+              endTime: '09:00',
+              activity: 'llamadas',
+              title: 'Llamadas Mañana (Confirmaciones Demos)',
+              icon: '📞',
+              desc: 'Primer bloque de 30 minutos de marcación activa',
+              completed: false,
+              notes: '',
+              syncSummary: null
+            },
+            {
+              id: 's1-d3-b2',
+              time: '18:00 - 18:30',
+              startTime: '18:00',
+              endTime: '18:30',
+              activity: 'llamadas',
+              title: 'Llamadas Tarde (Cierre de Tríada)',
+              icon: '📞',
+              desc: 'Segundo bloque de 30 minutos de llamadas y balance',
+              completed: false,
+              notes: '',
+              syncSummary: null
+            }
+          ]
+        }
+      ]
+    };
+  }
+
+  if (sprintNumber === 2) {
+    return {
+      sprintNumber: 2,
+      title: 'Sprint 2: Expansión de Marcación & Isha Kriya',
+      startDate: '2026-10-15',
+      endDate: '2026-10-17',
+      goal: 'Llamadas de 45 min mañana y tarde. Isha Kriya diario (1 o 2 sesiones de 15m). Prospección únicamente el viernes.',
+      activeDayIndex: 0,
+      days: [
+        {
+          id: 's2-d1',
+          date: '2026-10-15',
+          dayLabel: 'D1 • Jue 15 Oct',
+          isToday: false,
+          isha: { enabled: true, targetCount: 1, session1Slot: '06:30', session2Slot: '17:45', completedSessions: 0, completed: false },
+          blocks: [
+            {
+              id: 's2-d1-b1',
+              time: '08:30 - 09:15',
+              startTime: '08:30',
+              endTime: '09:15',
+              activity: 'llamadas',
+              title: 'Llamadas Mañana (45 min)',
+              icon: '📞',
+              desc: 'Marcación matutina enfocada de 45 minutos',
+              completed: false,
+              notes: '',
+              syncSummary: null
+            },
+            {
+              id: 's2-d1-b2',
+              time: '18:00 - 18:45',
+              startTime: '18:00',
+              endTime: '18:45',
+              activity: 'llamadas',
+              title: 'Llamadas Tarde (45 min)',
+              icon: '📞',
+              desc: 'Marcación vespertina enfocada de 45 minutos',
+              completed: false,
+              notes: '',
+              syncSummary: null
+            }
+          ]
+        },
+        {
+          id: 's2-d2',
+          date: '2026-10-16',
+          dayLabel: 'D2 • Vie 16 Oct',
+          isToday: false,
+          isha: { enabled: true, targetCount: 1, session1Slot: '06:30', session2Slot: '17:45', completedSessions: 0, completed: false },
+          blocks: [
+            {
+              id: 's2-d2-b1',
+              time: '08:30 - 09:15',
+              startTime: '08:30',
+              endTime: '09:15',
+              activity: 'llamadas',
+              title: 'Llamadas Mañana (45 min)',
+              icon: '📞',
+              desc: 'Marcación matutina enfocada de 45 minutos',
+              completed: false,
+              notes: '',
+              syncSummary: null
+            },
+            {
+              id: 's2-d2-b2',
+              time: '12:00 - 13:00',
+              startTime: '12:00',
+              endTime: '13:00',
+              activity: 'prospeccion',
+              title: 'Prospección Viernes (Elegible Mediodía/Noche)',
+              icon: '🎯',
+              desc: 'Único bloque de prospección del Sprint 2 (mediodía o noche)',
+              completed: false,
+              notes: '',
+              syncSummary: null
+            },
+            {
+              id: 's2-d2-b3',
+              time: '18:00 - 18:45',
+              startTime: '18:00',
+              endTime: '18:45',
+              activity: 'llamadas',
+              title: 'Llamadas Tarde (45 min)',
+              icon: '📞',
+              desc: 'Marcación de cierre semanal de 45 minutos',
+              completed: false,
+              notes: '',
+              syncSummary: null
+            }
+          ]
+        },
+        {
+          id: 's2-d3',
+          date: '2026-10-17',
+          dayLabel: 'D3 • Sáb 17 Oct',
+          isToday: false,
+          isha: { enabled: true, targetCount: 1, session1Slot: '06:30', session2Slot: '17:45', completedSessions: 0, completed: false },
+          blocks: [
+            {
+              id: 's2-d3-b1',
+              time: '08:30 - 09:15',
+              startTime: '08:30',
+              endTime: '09:15',
+              activity: 'llamadas',
+              title: 'Llamadas Mañana Sábado (45 min)',
+              icon: '📞',
+              desc: 'Llamadas de seguimiento y agendamiento 45 min',
+              completed: false,
+              notes: '',
+              syncSummary: null
+            },
+            {
+              id: 's2-d3-b2',
+              time: '18:00 - 18:45',
+              startTime: '18:00',
+              endTime: '18:45',
+              activity: 'llamadas',
+              title: 'Llamadas Tarde Sábado (45 min)',
+              icon: '📞',
+              desc: 'Cierre del Sprint 2 y balance de conversión',
+              completed: false,
+              notes: '',
+              syncSummary: null
+            }
+          ]
+        }
+      ]
+    };
+  }
+
+  // SPRINT 3 (Arranca Lunes 19 Octubre)
   return {
-    sprintNumber: 1,
-    title: 'Sprint 1: Aterrizaje Biológico & Foco Comercial',
-    startDate: '2026-10-12',
-    endDate: '2026-10-14',
-    goal: 'Marcación activa fuera de casa, prospección y cero escapes dopaminérgicos.',
+    sprintNumber: 3,
+    title: 'Sprint 3: Dominio de Horario Fijo & Prospección de Cierre',
+    startDate: '2026-10-19',
+    endDate: '2026-10-21',
+    goal: 'Dos bloques de 45m exactos: 08:30 y 18:30. Isha Kriya a diario (1-2 sesiones 15m). Último día: 30 min de prospección.',
     activeDayIndex: 0,
     days: [
       {
-        id: 'day-1',
-        date: '2026-10-12',
-        dayLabel: 'D1 • Lun 12 Oct',
-        isToday: true,
+        id: 's3-d1',
+        date: '2026-10-19',
+        dayLabel: 'D1 • Lun 19 Oct',
+        isToday: false,
+        isha: { enabled: true, targetCount: 1, session1Slot: '06:30', session2Slot: '18:00', completedSessions: 0, completed: false },
         blocks: [
           {
-            id: 'd1-b1',
-            time: '08:30 - 10:00',
+            id: 's3-d1-b1',
+            time: '08:30 - 09:15',
             startTime: '08:30',
-            endTime: '10:00',
+            endTime: '09:15',
             activity: 'llamadas',
-            title: 'Llamadas Fuera de Casa (Royal & Leads)',
+            title: 'Llamadas Mañana (08:30 - 09:15)',
             icon: '📞',
-            desc: 'Marcación activa en parque o barras antes de desayunar',
+            desc: '45 minutos exactos de marcación fija matutina',
+            completed: false,
+            notes: '',
+            syncSummary: null
+          },
+          {
+            id: 's3-d1-b2',
+            time: '18:30 - 19:15',
+            startTime: '18:30',
+            endTime: '19:15',
+            activity: 'llamadas',
+            title: 'Llamadas Tarde (18:30 - 19:15)',
+            icon: '📞',
+            desc: '45 minutos exactos de marcación fija vespertina',
             completed: false,
             notes: '',
             syncSummary: null
@@ -51,46 +307,34 @@ export function getDefaultSprinterData() {
         ]
       },
       {
-        id: 'day-2',
-        date: '2026-10-13',
-        dayLabel: 'D2 • Mar 13 Oct',
+        id: 's3-d2',
+        date: '2026-10-20',
+        dayLabel: 'D2 • Mar 20 Oct',
         isToday: false,
+        isha: { enabled: true, targetCount: 1, session1Slot: '06:30', session2Slot: '18:00', completedSessions: 0, completed: false },
         blocks: [
           {
-            id: 'd2-b1',
-            time: '08:30 - 10:00',
+            id: 's3-d2-b1',
+            time: '08:30 - 09:15',
             startTime: '08:30',
-            endTime: '10:00',
+            endTime: '09:15',
             activity: 'llamadas',
-            title: 'Llamadas Fuera de Casa (Directores)',
+            title: 'Llamadas Mañana (08:30 - 09:15)',
             icon: '📞',
-            desc: 'Foco comercial matutino sin adaptadores',
+            desc: '45 minutos exactos de marcación fija matutina',
             completed: false,
             notes: '',
             syncSummary: null
           },
           {
-            id: 'd2-b2',
-            time: '12:00 - 13:00',
-            startTime: '12:00',
-            endTime: '13:00',
-            activity: 'prospeccion',
-            title: 'Prospección Presencial / Directores',
-            icon: '🎯',
-            desc: 'Entrega de material y agendamiento demo',
-            completed: false,
-            notes: '',
-            syncSummary: null
-          },
-          {
-            id: 'd2-b3',
-            time: '18:00 - 19:30',
-            startTime: '18:00',
-            endTime: '19:30',
+            id: 's3-d2-b2',
+            time: '18:30 - 19:15',
+            startTime: '18:30',
+            endTime: '19:15',
             activity: 'llamadas',
-            title: 'Llamadas Zentry & Agendamiento',
+            title: 'Llamadas Tarde (18:30 - 19:15)',
             icon: '📞',
-            desc: 'Consolidación de agenda y demos para el miércoles',
+            desc: '45 minutos exactos de marcación fija vespertina',
             completed: false,
             notes: '',
             syncSummary: null
@@ -98,46 +342,47 @@ export function getDefaultSprinterData() {
         ]
       },
       {
-        id: 'day-3',
-        date: '2026-10-14',
-        dayLabel: 'D3 • Mié 14 Oct',
+        id: 's3-d3',
+        date: '2026-10-21',
+        dayLabel: 'D3 • Mié 21 Oct',
         isToday: false,
+        isha: { enabled: true, targetCount: 1, session1Slot: '06:30', session2Slot: '18:00', completedSessions: 0, completed: false },
         blocks: [
           {
-            id: 'd3-b1',
-            time: '08:30 - 10:00',
+            id: 's3-d3-b1',
+            time: '08:30 - 09:15',
             startTime: '08:30',
-            endTime: '10:00',
+            endTime: '09:15',
             activity: 'llamadas',
-            title: 'Llamadas de Cierre & Confirmación',
+            title: 'Llamadas Mañana (08:30 - 09:15)',
             icon: '📞',
-            desc: 'Cierres de demos para fin de semana',
+            desc: '45 minutos exactos de marcación fija matutina',
             completed: false,
             notes: '',
             syncSummary: null
           },
           {
-            id: 'd3-b2',
-            time: '12:00 - 13:00',
+            id: 's3-d3-b2',
+            time: '12:00 - 12:30',
             startTime: '12:00',
-            endTime: '13:00',
+            endTime: '12:30',
             activity: 'prospeccion',
-            title: 'Prospección & Validación Final',
+            title: 'Prospección Último Día (30 min)',
             icon: '🎯',
-            desc: 'Cierre de ciclo de prospección semanal',
+            desc: 'Bloque único de 30 minutos de prospección',
             completed: false,
             notes: '',
             syncSummary: null
           },
           {
-            id: 'd3-b3',
-            time: '18:00 - 19:30',
-            startTime: '18:00',
-            endTime: '19:30',
+            id: 's3-d3-b3',
+            time: '18:30 - 19:15',
+            startTime: '18:30',
+            endTime: '19:15',
             activity: 'llamadas',
-            title: 'Llamadas de Cierre de Sprint',
+            title: 'Llamadas Tarde (18:30 - 19:15)',
             icon: '📞',
-            desc: 'Balance de llamadas y preparación compras Gamarra',
+            desc: '45 minutos de cierre del Sprint 3',
             completed: false,
             notes: '',
             syncSummary: null
@@ -148,21 +393,64 @@ export function getDefaultSprinterData() {
   };
 }
 
+export function getDefaultSprinterData() {
+  return getSprintPreset(1);
+}
+
 export function getSprinterData() {
   try {
     const raw = localStorage.getItem(SPRINTER_STORAGE_KEY) || localStorage.getItem('qz_sprint_3dias');
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.days) && parsed.days.length === 3) {
-        // Verificar si los días tienen la estructura de bloques moderna
-        if (parsed.days[0].blocks && Array.isArray(parsed.days[0].blocks)) {
-          // Filtrar hoy (D1) para que la única gestión productiva sea la de llamadas
-          if (parsed.days[0].blocks.length > 1) {
-            parsed.days[0].blocks = parsed.days[0].blocks.filter(b => b.id === 'd1-b1' || b.activity === 'llamadas').slice(0, 1);
-            saveSprinterData(parsed);
+        // Garantizar migración si faltaba isha o estructura calibrada
+        let updated = false;
+        parsed.days.forEach(d => {
+          if (!d.isha) {
+            d.isha = {
+              enabled: (parsed.sprintNumber || 1) >= 2,
+              targetCount: 1,
+              session1Slot: '06:30',
+              session2Slot: '17:45',
+              completedSessions: 0,
+              completed: false
+            };
+            updated = true;
           }
-          return parsed;
+        });
+
+        // Asegurar que Sprint 1 D1 tenga exactamente 1 bloque de 30 min (08:30-09:00)
+        if (parsed.sprintNumber === 1 && parsed.days[0].blocks && parsed.days[0].blocks.length > 1) {
+          parsed.days[0].blocks = [parsed.days[0].blocks[0]];
+          parsed.days[0].blocks[0].time = '08:30 - 09:00';
+          parsed.days[0].blocks[0].startTime = '08:30';
+          parsed.days[0].blocks[0].endTime = '09:00';
+          updated = true;
         }
+
+        // Asegurar que Sprint 1 D2 y D3 tengan bloques de 30 min
+        if (parsed.sprintNumber === 1) {
+          [1, 2].forEach(dayIdx => {
+            const d = parsed.days[dayIdx];
+            if (d && d.blocks) {
+              // Filtrar posibles bloques de prospeccion que se hayan colado en sprint 1
+              const callBlocks = d.blocks.filter(b => b.activity === 'llamadas');
+              if (callBlocks.length >= 2 && d.blocks.length !== 2) {
+                d.blocks = callBlocks.slice(0, 2);
+                d.blocks[0].time = '08:30 - 09:00';
+                d.blocks[0].startTime = '08:30';
+                d.blocks[0].endTime = '09:00';
+                d.blocks[1].time = '18:00 - 18:30';
+                d.blocks[1].startTime = '18:00';
+                d.blocks[1].endTime = '18:30';
+                updated = true;
+              }
+            }
+          });
+        }
+
+        if (updated) saveSprinterData(parsed);
+        return parsed;
       }
     }
   } catch (e) {
@@ -185,17 +473,14 @@ export function saveSprinterData(data) {
   }
 }
 
+export function switchSprinterSprint(sprintNumber) {
+  const newPreset = getSprintPreset(sprintNumber);
+  saveSprinterData(newPreset);
+  return newPreset;
+}
+
 // ==============================================================================
 // PARSER DETERMINISTA DE ANOTACIONES
-// ==============================================================================
-// Nomenclatura determinista tolerante a plurales, mayúsculas y variaciones:
-// - calls / call -> capturado como llamadas
-// - cit / cita / citas -> capturado como citas
-// - nc -> no contestó
-// - col -> colgó
-// - ll -> volver a llamar
-// - pcc / prospec -> prospecciones
-// - win / vta -> ventas
 // ==============================================================================
 export function parseSprinterNotes(notes) {
   if (!notes || typeof notes !== 'string') {
@@ -230,7 +515,7 @@ export function parseSprinterNotes(notes) {
   };
 }
 
-// Generador de slots de 15 minutos en un rango dado (ej: "08:30" a "10:00")
+// Generador de slots de 15 minutos en un rango dado (ej: "08:30" a "09:00" -> ["08:30", "08:45"])
 export function get15MinSlotsInRange(startTime, endTime) {
   const [sh, sm] = startTime.split(':').map(Number);
   const [eh, em] = endTime.split(':').map(Number);
@@ -329,32 +614,27 @@ export function executeSprinterBlockSync(dayIdx, blockId, userNotes) {
     if (!prod.today.callDetails) prod.today.callDetails = { nc: 0, col: 0, ll: 0, cit: 0 };
     if (!prod.totals) prod.totals = { pcc: 0, ll: 0, demos: 0, win: 0 };
 
-    // Sumar llamadas
     if (parsed.calls > 0) {
       prod.today.ll = (prod.today.ll || 0) + parsed.calls;
       prod.totals.ll = (prod.totals.ll || 0) + parsed.calls;
     }
 
-    // Sumar citas / demos
     if (parsed.cits > 0) {
       prod.today.demos = (prod.today.demos || 0) + parsed.cits;
       prod.totals.demos = (prod.totals.demos || 0) + parsed.cits;
       prod.today.callDetails.cit = (prod.today.callDetails.cit || 0) + parsed.cits;
     }
 
-    // Sumar prospección
     if (parsed.pcc > 0) {
       prod.today.pcc = (prod.today.pcc || 0) + parsed.pcc;
       prod.totals.pcc = (prod.totals.pcc || 0) + parsed.pcc;
     }
 
-    // Sumar ventas / win
     if (parsed.win > 0) {
       prod.today.win = (prod.today.win || 0) + parsed.win;
       prod.totals.win = (prod.totals.win || 0) + parsed.win;
     }
 
-    // Sumar marcación detallada
     if (parsed.nc > 0) prod.today.callDetails.nc = (prod.today.callDetails.nc || 0) + parsed.nc;
     if (parsed.col > 0) prod.today.callDetails.col = (prod.today.callDetails.col || 0) + parsed.col;
     if (parsed.ll > 0) prod.today.callDetails.ll = (prod.today.callDetails.ll || 0) + parsed.ll;
@@ -363,8 +643,6 @@ export function executeSprinterBlockSync(dayIdx, blockId, userNotes) {
     if (window.syncHabitTracker) {
       window.syncHabitTracker(trackerData);
     }
-
-    // Notificar al widget visual del Bio-Tracker si está en pantalla
     if (window.refreshHabitTrackerUI) {
       window.refreshHabitTrackerUI();
     }
@@ -386,6 +664,79 @@ export function executeSprinterBlockSync(dayIdx, blockId, userNotes) {
 }
 
 // ==============================================================================
+// PUENTE DETERMINISTA PARA ISHA KRIYA (1 O 2 MEDITACIONES • 15 MIN C/U)
+// ==============================================================================
+export function executeSprinterIshaSync(dayIdx, sessionNum = 1) {
+  const data = getSprinterData();
+  const day = data.days[dayIdx];
+  if (!day) return null;
+
+  if (!day.isha) {
+    day.isha = { enabled: true, targetCount: 1, session1Slot: '06:30', session2Slot: '17:45', completedSessions: 0, completed: false };
+  }
+
+  const slotTime = sessionNum === 2 ? (day.isha.session2Slot || '17:45') : (day.isha.session1Slot || '06:30');
+  const targetDate = day.date || getTodayDateStr();
+
+  // 1. ESCRIBIR EN EXACTAMENTE 1 SLOT DE 15 MIN DE TIMEBLOCKING
+  try {
+    const tbKey = `zentry_timeblock_${targetDate}`;
+    let tbData = {};
+    const rawTb = localStorage.getItem(tbKey);
+    if (rawTb) {
+      try { tbData = JSON.parse(rawTb); } catch(e) {}
+    }
+
+    tbData[slotTime] = {
+      text: `Isha Kriya (Meditación ${sessionNum}/${day.isha.targetCount || 1})`,
+      details: 'Sesión de 15 min sincronizada desde Sprinter',
+      type: 'importante',
+      source: 'sprinter',
+      completed: true,
+      isBrick: true
+    };
+
+    localStorage.setItem(tbKey, JSON.stringify(tbData));
+    if (window.syncTimeblock) {
+      window.syncTimeblock(targetDate, tbData);
+    }
+  } catch (err) {
+    console.error('Error writing Isha Kriya to Timeblocking:', err);
+  }
+
+  // 2. INCREMENTAR IK.DONEDAYS EN BIO-TRACKER
+  try {
+    const rawTracker = localStorage.getItem('qz_bio_tracker');
+    let trackerData = null;
+    if (rawTracker) {
+      try { trackerData = JSON.parse(rawTracker); } catch(e) {}
+    }
+    if (trackerData && trackerData.ik) {
+      trackerData.ik.doneDays = (trackerData.ik.doneDays || 0) + 1;
+      localStorage.setItem('qz_bio_tracker', JSON.stringify(trackerData));
+      if (window.syncHabitTracker) {
+        window.syncHabitTracker(trackerData);
+      }
+      if (window.refreshHabitTrackerUI) {
+        window.refreshHabitTrackerUI();
+      }
+    }
+  } catch (err) {
+    console.error('Error updating IK in Bio-Tracker:', err);
+  }
+
+  // 3. ACTUALIZAR ESTADO DE ISHA EN SPRINTER
+  day.isha.completedSessions = Math.min((day.isha.targetCount || 1), (day.isha.completedSessions || 0) + 1);
+  if (day.isha.completedSessions >= (day.isha.targetCount || 1)) {
+    day.isha.completed = true;
+  }
+  day.isha.lastSyncedAt = new Date().toLocaleTimeString();
+
+  saveSprinterData(data);
+  return day.isha;
+}
+
+// ==============================================================================
 // RENDERIZADO VISUAL COMPACTO DE LA TARJETA SPRINTER (EN COLUMNA DERECHA)
 // ==============================================================================
 export function renderSprinterCardHTML() {
@@ -397,6 +748,15 @@ export function renderSprinterCardHTML() {
   const completedBlocks = data.days.reduce((acc, d) => acc + d.blocks.filter(b => b.completed).length, 0);
   const progressPct = totalBlocks > 0 ? Math.round((completedBlocks / totalBlocks) * 100) : 0;
 
+  // Selector de Sprints (Sprint 1, Sprint 2, Sprint 3)
+  const sprintSelectorHtml = `
+    <div class="sprinter-sprint-nav">
+      <button type="button" class="btn-sprinter-sprint-chip ${data.sprintNumber === 1 ? 'active' : ''}" data-sprint-target="1">Sprint 1</button>
+      <button type="button" class="btn-sprinter-sprint-chip ${data.sprintNumber === 2 ? 'active' : ''}" data-sprint-target="2">Sprint 2</button>
+      <button type="button" class="btn-sprinter-sprint-chip ${data.sprintNumber === 3 ? 'active' : ''}" data-sprint-target="3">Sprint 3</button>
+    </div>
+  `;
+
   const dayTabsHtml = data.days.map((d, idx) => {
     const dayDone = d.blocks.filter(b => b.completed).length;
     const isSelected = idx === currentDayIdx;
@@ -407,6 +767,59 @@ export function renderSprinterCardHTML() {
       </button>
     `;
   }).join('');
+
+  // Render Isha Kriya si está habilitado o si estamos en Sprint 2/3 (o configurable)
+  const isha = currentDay.isha || { enabled: data.sprintNumber >= 2, targetCount: 1, session1Slot: '06:30', session2Slot: '17:45', completedSessions: 0, completed: false };
+  const showIsha = isha.enabled || data.sprintNumber >= 2;
+
+  const ishaHtml = showIsha ? `
+    <div class="sprinter-isha-card ${isha.completed ? 'is-completed' : ''}">
+      <div class="sprinter-isha-header">
+        <div class="sprinter-isha-title-box">
+          <span class="sprinter-isha-icon">🧘</span>
+          <div>
+            <div class="sprinter-isha-title">Isha Kriya (15 min)</div>
+            <div class="sprinter-isha-sub">Sincroniza 1 bloque de 15m al Timeblocking y suma al Bio-Tracker</div>
+          </div>
+        </div>
+        <div class="sprinter-isha-count-toggle">
+          <button type="button" class="btn-isha-count ${isha.targetCount === 1 ? 'active' : ''}" data-count="1" data-day-idx="${currentDayIdx}">1 ses</button>
+          <button type="button" class="btn-isha-count ${isha.targetCount === 2 ? 'active' : ''}" data-count="2" data-day-idx="${currentDayIdx}">2 ses</button>
+        </div>
+      </div>
+
+      <div class="sprinter-isha-sessions-row">
+        <!-- Sesión 1 -->
+        <div class="sprinter-isha-slot-pill">
+          <span class="isha-slot-label">Sesión 1:</span>
+          <select class="sprinter-isha-select" data-session="1" data-day-idx="${currentDayIdx}">
+            ${['05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '12:30', '17:45', '18:00', '18:30', '21:00', '21:30'].map(t => 
+              `<option value="${t}" ${isha.session1Slot === t ? 'selected' : ''}>${t}</option>`
+            ).join('')}
+          </select>
+          <button type="button" class="btn-isha-done ${(isha.completedSessions >= 1) ? 'done' : ''}" data-session="1" data-day-idx="${currentDayIdx}">
+            ${(isha.completedSessions >= 1) ? '✓ Lista' : '○ Hecho'}
+          </button>
+        </div>
+
+        <!-- Sesión 2 (si targetCount == 2) -->
+        ${isha.targetCount === 2 ? `
+          <div class="sprinter-isha-slot-pill">
+            <span class="isha-slot-label">Sesión 2:</span>
+            <select class="sprinter-isha-select" data-session="2" data-day-idx="${currentDayIdx}">
+              ${['17:00', '17:30', '17:45', '18:00', '18:30', '19:00', '20:00', '21:00', '21:30'].map(t => 
+                `<option value="${t}" ${isha.session2Slot === t ? 'selected' : ''}>${t}</option>`
+              ).join('')}
+            </select>
+            <button type="button" class="btn-isha-done ${(isha.completedSessions >= 2) ? 'done' : ''}" data-session="2" data-day-idx="${currentDayIdx}">
+              ${(isha.completedSessions >= 2) ? '✓ Lista' : '○ Hecho'}
+            </button>
+          </div>
+        ` : ''}
+      </div>
+      ${isha.lastSyncedAt ? `<div class="sprinter-isha-synced-note">⚡ Sincronizado ${isha.completedSessions}/${isha.targetCount} en Timeblocking & Bio-Tracker a las ${isha.lastSyncedAt}</div>` : ''}
+    </div>
+  ` : '';
 
   const blocksHtml = currentDay.blocks.map(b => {
     const isDone = !!b.completed;
@@ -445,7 +858,7 @@ export function renderSprinterCardHTML() {
 
   return `
     <div class="sprinter-card" id="sprinter-widget">
-      <!-- HEADER COMPACTO -->
+      <!-- HEADER COMPACTO CON SELECTOR DE SPRINTS -->
       <div class="sprinter-card-top">
         <div class="sprinter-brand-wrap">
           <div class="sprinter-icon-glow">⚡</div>
@@ -454,7 +867,7 @@ export function renderSprinterCardHTML() {
               <h3 class="sprinter-card-title">SPRINTER (3 DÍAS)</h3>
               <span class="sprinter-phase-badge">Sprint ${data.sprintNumber}</span>
             </div>
-            <p class="sprinter-card-subtitle">Micro-bloques deterministas conectados a Timeblocking & Bio-Tracker</p>
+            <p class="sprinter-card-subtitle">${data.goal}</p>
           </div>
         </div>
         <div class="sprinter-progress-box">
@@ -465,10 +878,16 @@ export function renderSprinterCardHTML() {
         </div>
       </div>
 
+      <!-- SELECTOR DE SPRINTS (1, 2, 3) -->
+      ${sprintSelectorHtml}
+
       <!-- SELECTOR DE DÍAS -->
       <div class="sprinter-day-tabs">
         ${dayTabsHtml}
       </div>
+
+      <!-- MEDITACIÓN ISHA KRIYA (SI ESTÁ ACTIVA) -->
+      ${ishaHtml}
 
       <!-- LISTA DE BLOQUES DEL DÍA ACTIVO -->
       <div class="sprinter-blocks-list">
@@ -477,7 +896,7 @@ export function renderSprinterCardHTML() {
 
       <!-- FOOTER CON INSTRUCCIÓN RÁPIDA -->
       <div class="sprinter-card-footer">
-        <span class="sprinter-hint-text">💡 <strong>Nomenclatura:</strong> Escribe <code>15 call</code>, <code>2 cit</code>, <code>5 nc</code>, <code>3 col</code>, <code>2 ll</code> y clic en <em>"Hecho"</em>.</span>
+        <span class="sprinter-hint-text">💡 <strong>Nomenclatura:</strong> Escribe <code>15 call</code>, <code>2 cit</code>, <code>5 nc</code>, <code>3 col</code>, <code>2 ll</code> y presiona Enter o <em>"Hecho"</em>.</span>
       </div>
     </div>
   `;
@@ -490,7 +909,18 @@ export function setupSprinterEvents(container) {
   const widget = container.querySelector('#sprinter-widget');
   if (!widget) return;
 
-  // 1. Cambio de pestaña de día
+  // 1. Selector de Sprints (Sprint 1, Sprint 2, Sprint 3)
+  widget.querySelectorAll('.btn-sprinter-sprint-chip').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const targetSprint = parseInt(btn.dataset.sprintTarget, 10);
+      switchSprinterSprint(targetSprint);
+      widget.outerHTML = renderSprinterCardHTML();
+      setupSprinterEvents(container);
+    };
+  });
+
+  // 2. Cambio de pestaña de día
   widget.querySelectorAll('.btn-sprinter-day-tab').forEach(btn => {
     btn.onclick = (e) => {
       e.stopPropagation();
@@ -503,7 +933,52 @@ export function setupSprinterEvents(container) {
     };
   });
 
-  // 2. Guardar notas mientras escribe
+  // 3. Control de Isha Kriya (1 o 2 sesiones)
+  widget.querySelectorAll('.btn-isha-count').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const count = parseInt(btn.dataset.count, 10);
+      const dayIdx = parseInt(btn.dataset.dayIdx, 10);
+      const data = getSprinterData();
+      if (data.days[dayIdx]) {
+        if (!data.days[dayIdx].isha) {
+          data.days[dayIdx].isha = { enabled: true, targetCount: 1, session1Slot: '06:30', session2Slot: '17:45', completedSessions: 0, completed: false };
+        }
+        data.days[dayIdx].isha.targetCount = count;
+        saveSprinterData(data);
+        widget.outerHTML = renderSprinterCardHTML();
+        setupSprinterEvents(container);
+      }
+    };
+  });
+
+  // 4. Selección de slots de Isha Kriya (horas de 15m)
+  widget.querySelectorAll('.sprinter-isha-select').forEach(sel => {
+    sel.onchange = (e) => {
+      const session = parseInt(sel.dataset.session, 10);
+      const dayIdx = parseInt(sel.dataset.dayIdx, 10);
+      const data = getSprinterData();
+      if (data.days[dayIdx] && data.days[dayIdx].isha) {
+        if (session === 1) data.days[dayIdx].isha.session1Slot = sel.value;
+        if (session === 2) data.days[dayIdx].isha.session2Slot = sel.value;
+        saveSprinterData(data);
+      }
+    };
+  });
+
+  // 5. Botón marcar Isha Kriya Hecho
+  widget.querySelectorAll('.btn-isha-done').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const session = parseInt(btn.dataset.session, 10);
+      const dayIdx = parseInt(btn.dataset.dayIdx, 10);
+      executeSprinterIshaSync(dayIdx, session);
+      widget.outerHTML = renderSprinterCardHTML();
+      setupSprinterEvents(container);
+    };
+  });
+
+  // 6. Guardar notas mientras escribe
   widget.querySelectorAll('.sprinter-block-input').forEach(input => {
     input.oninput = (e) => {
       const dayIdx = parseInt(input.dataset.dayIdx, 10);
@@ -531,7 +1006,7 @@ export function setupSprinterEvents(container) {
     };
   });
 
-  // 3. Botón "✓ Hecho"
+  // 7. Botón "✓ Hecho" de Bloque de llamadas / prospección
   widget.querySelectorAll('.btn-sprinter-done').forEach(btn => {
     btn.onclick = (e) => {
       e.stopPropagation();
