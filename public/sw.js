@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.3.1 (MINIMALIST REPERTORIO SCROLL & COMPACT CARDS)
+// QZ-HUB SERVICE WORKER — v4.3.2 (STICKY BUILDER PANELS & PINNED CONTROLS)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.3.1-minimalist-repertorio-scroll';
+const CACHE_NAME = 'qz-hub-v4.3.2-sticky-builder-panels';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

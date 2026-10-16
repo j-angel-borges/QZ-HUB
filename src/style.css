@@ -9586,6 +9586,9 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
   width: 100%;
   box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .repertorio-header-left {
@@ -11344,6 +11347,9 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   border-radius: 12px;
   padding: 12px 18px;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+  position: sticky;
+  top: 66px;
+  z-index: 90;
 }
 
 .config-control-group {
@@ -11493,9 +11499,13 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   display: flex;
   gap: 6px;
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding: 8px 4px 8px 0;
   margin-bottom: 12px;
   scrollbar-width: thin;
+  position: sticky;
+  top: 134px;
+  z-index: 80;
+  background: var(--color-bg, #f8fafc);
 }
 
 .category-tab-btn {
@@ -11930,7 +11940,8 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 /* Panel de Resumen Lateral (Sticky) */
 .custom-builder-summary-col {
   position: sticky;
-  top: 70px;
+  top: 134px;
+  z-index: 85;
 }
 
 .custom-summary-card {
