@@ -1298,33 +1298,33 @@ body[data-module="zentry"] .workspace-banner {
   color: #533B87;
 }
 
-/* Sidebar Toggle Button floating in workspace */
+/* Sidebar Toggle Button floating in workspace (Visible solo cuando la barra lateral está colapsada) */
 .sidebar-toggle-btn {
   position: fixed;
-  top: 20px;
-  left: 280px; /* 260px sidebar + 20px margin */
-  z-index: 1060; /* Above sidebar overlay */
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(74, 81, 96, 0.12);
-  color: var(--primary-dark);
+  top: 10px;
+  left: 12px;
+  z-index: 1060;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #334155;
   font-size: 15px;
   cursor: pointer;
-  display: flex;
+  display: none; /* Oculto cuando el sidebar está expandido */
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(74, 81, 96, 0.08);
-  transition: left 0.48s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
 }
 
 .sidebar-toggle-btn:hover {
-  background-color: rgba(255, 255, 255, 0.85);
-  transform: scale(1.08);
-  box-shadow: 0 6px 16px rgba(74, 81, 96, 0.15);
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+  transform: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
 }
 
 /* Brick Wall Styles */
@@ -1471,7 +1471,13 @@ body[data-module="zentry"] .workspace-banner {
   pointer-events: none;
 }
 
+/* El botón flotante en el workspace sólo debe mostrarse cuando la barra lateral está colapsada */
+.sidebar-toggle-btn {
+  display: none !important;
+}
+
 .notion-layout.sidebar-collapsed .sidebar-toggle-btn {
+  display: flex !important;
   left: 20px;
 }
 
@@ -1508,10 +1514,7 @@ body[data-module="zentry"] .workspace-banner {
     padding-left: 0 !important;
   }
   .sidebar-toggle-btn {
-    left: 20px !important;
-  }
-  .notion-layout:not(.sidebar-collapsed) .sidebar-toggle-btn {
-    left: 280px !important;
+    left: 12px !important;
   }
 }
 
@@ -9554,25 +9557,21 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
 /* Integrar el botón hamburguesa en la barra superior en vista repertorio */
 .workspace.repertorio-view-active #sidebar-toggle {
-  top: 9px !important;
-  width: 36px !important;
-  height: 36px !important;
+  top: 10px !important;
+  left: 12px !important;
+  width: 34px !important;
+  height: 34px !important;
   border-radius: 8px !important;
-  background: #f1f5f9 !important;
+  background: #ffffff !important;
   border: 1px solid #e2e8f0 !important;
   color: #334155 !important;
-  box-shadow: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
   z-index: 1050 !important;
 }
 .workspace.repertorio-view-active #sidebar-toggle:hover {
-  background: #e2e8f0 !important;
+  background: #f1f5f9 !important;
   color: #0f172a !important;
-}
-.notion-layout.sidebar-collapsed .workspace.repertorio-view-active #sidebar-toggle {
-  left: 12px !important;
-}
-.notion-layout:not(.sidebar-collapsed) .workspace.repertorio-view-active #sidebar-toggle {
-  left: 272px !important;
+  border-color: #cbd5e1 !important;
 }
 
 .repertorio-app-wrapper {
@@ -9605,7 +9604,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   flex-wrap: wrap;
   gap: 14px;
   min-height: 54px;
-  padding: 8px 20px 8px 60px; /* 60px padding para dar espacio exacto al botón de la barra lateral */
+  padding: 8px 20px 8px 20px; /* Padding limpio estándar cuando el sidebar está abierto */
   border-radius: 0;
   background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
@@ -9617,6 +9616,12 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   z-index: 100;
   margin: 0 -16px 12px -16px;
   width: calc(100% + 32px);
+  transition: padding-left 0.25s ease;
+}
+
+/* Cuando el sidebar está colapsado, dar espacio para el botón hamburguesa */
+.notion-layout.sidebar-collapsed .repertorio-header-bar {
+  padding-left: 56px;
 }
 
 .repertorio-header-left {

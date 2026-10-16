@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.3.4 (PERFECT FLUSH HEADER NAV)
+// QZ-HUB SERVICE WORKER — v4.3.5 (UNIFIED SINGLE SIDEBAR TOGGLE)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.3.4-perfect-flush-header-nav';
+const CACHE_NAME = 'qz-hub-v4.3.5-unified-sidebar-toggle';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
