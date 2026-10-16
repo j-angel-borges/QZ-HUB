@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.3.5 (UNIFIED SINGLE SIDEBAR TOGGLE)
+// QZ-HUB SERVICE WORKER — v4.3.6 (FIXED STICKY DECK & ZERO GAP SUMMARY)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.3.5-unified-sidebar-toggle';
+const CACHE_NAME = 'qz-hub-v4.3.6-fixed-sticky-deck';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
