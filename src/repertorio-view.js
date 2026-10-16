@@ -605,10 +605,18 @@ export function calculateCustomSetTotals() {
  */
 export function renderRepertorioView() {
   const workspace = document.querySelector('.workspace');
+  const isScrollable = repertorioState.viewMode === 'custom-builder' || repertorioState.viewMode === 'family-picker';
+
   if (workspace) {
     workspace.classList.add('minimal-view');
     workspace.classList.add('full-width-view');
     workspace.classList.add('repertorio-view-active');
+    
+    if (isScrollable) {
+      workspace.classList.add('scrollable-repertorio');
+    } else {
+      workspace.classList.remove('scrollable-repertorio');
+    }
   }
 
   document.getElementById('page-title').textContent = 'Repertorio & Presentación de Oferta';
@@ -624,7 +632,7 @@ export function renderRepertorioView() {
   if (!container) return;
 
   container.innerHTML = `
-    <div class="repertorio-app-wrapper" id="repertorio-app-root">
+    <div class="repertorio-app-wrapper ${isScrollable ? 'is-scrollable' : ''}" id="repertorio-app-root">
       ${renderTopNavBar()}
       
       ${repertorioState.viewMode === 'family-picker' 
@@ -935,6 +943,7 @@ function renderMagazineExperience() {
 
 /**
  * Pantalla 3: Personalizador de Sets a Medida (Custom Set Builder)
+ * Reducción del 85% de texto: enfoque minimalista, visual y directo
  */
 function renderCustomBuilderScreen() {
   const currentFam = REPERTORIO_DATA.families[repertorioState.selectedFamily] || REPERTORIO_DATA.families['nuclear_1h'];
@@ -942,68 +951,56 @@ function renderCustomBuilderScreen() {
   return `
     <div class="repertorio-custom-builder animate-fade-in">
       
-      <!-- Hero de la Herramienta -->
-      <div class="custom-builder-hero">
-        <div class="custom-builder-title-group">
-          <span class="hero-kicker">HERRAMIENTA COMERCIAL ZENTRYOS // MATRIZ DE PRODUCTOS Y SKUS</span>
-          <h1 class="hero-headline">Personalizador de Sets a la Medida</h1>
-          <p class="custom-builder-sub">
-            Aprovecha la matriz de hardware oficial, selecciona variantes de color, explora las perspectivas frontal, trasera y 3D, y personaliza la inversión exacta de hardware e implementación de software según los requerimientos del cliente.
-          </p>
+      <!-- Barra Superior Compacta de Configuración -->
+      <div class="custom-builder-controls-panel">
+        <!-- Selector de Familia -->
+        <div class="config-control-group">
+          <span class="config-label">Familia:</span>
+          <div class="config-pills-row">
+            ${Object.values(REPERTORIO_DATA.families).map(fam => `
+              <button 
+                type="button" 
+                class="config-pill-btn ${fam.id === repertorioState.selectedFamily ? 'active' : ''}" 
+                data-custom-family="${fam.id}"
+                title="${fam.membersLabel}"
+              >
+                ${fam.name}
+              </button>
+            `).join('')}
+          </div>
         </div>
 
-        <!-- Panel de Control de Familia y Despliegue -->
-        <div class="custom-builder-controls-panel">
-          <!-- Selector de Familia -->
-          <div class="config-control-group">
-            <span class="config-label">Estructura del Hogar:</span>
-            <div class="config-pills-row">
-              ${Object.values(REPERTORIO_DATA.families).map(fam => `
-                <button 
-                  type="button" 
-                  class="config-pill-btn ${fam.id === repertorioState.selectedFamily ? 'active' : ''}" 
-                  data-custom-family="${fam.id}"
-                  title="${fam.membersLabel}"
-                >
-                  ${fam.name}
-                </button>
-              `).join('')}
+        <!-- Toggle de Licencia ZentryOS -->
+        <div class="config-toggle-group">
+          <label class="config-toggle-label" title="Incluir despliegue de software ZentryOS y Parental Dashboard">
+            <input type="checkbox" id="toggle-custom-impl" ${repertorioState.includeImplementation ? 'checked' : ''} />
+            <span class="toggle-slider"></span>
+            <div class="toggle-text-block">
+              <span class="toggle-main-title">
+                ${repertorioState.includeImplementation 
+                  ? `ZentryOS (${formatMoney(REPERTORIO_DATA.implementations[currentFam.defaultImpl].priceUSD, REPERTORIO_DATA.implementations[currentFam.defaultImpl].pricePEN)})` 
+                  : 'Solo Hardware'}
+              </span>
             </div>
-          </div>
+          </label>
+        </div>
 
-          <!-- Toggle de Implementación ZentryOS -->
-          <div class="config-toggle-group">
-            <label class="config-toggle-label" title="Activa o desactiva la implementación de software ZentryOS">
-              <input type="checkbox" id="toggle-custom-impl" ${repertorioState.includeImplementation ? 'checked' : ''} />
-              <span class="toggle-slider"></span>
-              <div class="toggle-text-block">
-                <span class="toggle-main-title">Implementación ZentryOS</span>
-                <span class="toggle-sub-info">
-                  ${repertorioState.includeImplementation 
-                    ? `${REPERTORIO_DATA.implementations[currentFam.defaultImpl].name} (${formatMoney(REPERTORIO_DATA.implementations[currentFam.defaultImpl].priceUSD, REPERTORIO_DATA.implementations[currentFam.defaultImpl].pricePEN)})` 
-                    : 'Solo Hardware Físico (Sin software)'}
-                </span>
-              </div>
-            </label>
-          </div>
-
-          <!-- Presets de Carga Rápida -->
-          <div class="config-presets-group">
-            <span class="presets-label">Cargar Template:</span>
-            <div class="presets-buttons">
-              <button type="button" class="btn btn-xs btn-outline" data-load-template="essential" title="Cargar configuración Essential">Esencial</button>
-              <button type="button" class="btn btn-xs btn-outline" data-load-template="omni" title="Cargar configuración OMNI">OMNI</button>
-              <button type="button" class="btn btn-xs btn-outline" data-load-template="integral" title="Cargar configuración Integral">Integral</button>
-              <button type="button" class="btn btn-xs btn-outline" data-load-template="fullhouse" title="Cargar configuración Full House">Full House</button>
-              ${repertorioState.customSetItems.length > 0 ? `
-                <button type="button" class="btn btn-xs btn-outline" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" id="btn-clear-custom-set" title="Vaciar todo el set">Vaciar</button>
-              ` : ''}
-            </div>
+        <!-- Presets Rápidos -->
+        <div class="config-presets-group">
+          <span class="presets-label">Base:</span>
+          <div class="presets-buttons">
+            <button type="button" class="btn btn-xs btn-outline" data-load-template="essential">Esencial</button>
+            <button type="button" class="btn btn-xs btn-outline" data-load-template="omni">OMNI</button>
+            <button type="button" class="btn btn-xs btn-outline" data-load-template="integral">Integral</button>
+            <button type="button" class="btn btn-xs btn-outline" data-load-template="fullhouse">Full House</button>
+            ${repertorioState.customSetItems.length > 0 ? `
+              <button type="button" class="btn btn-xs btn-outline" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" id="btn-clear-custom-set">Vaciar</button>
+            ` : ''}
           </div>
         </div>
       </div>
 
-      <!-- Layout de Dos Columnas: Matriz de Catálogo + Resumen Sticky -->
+      <!-- Layout de Dos Columnas: Catálogo + Resumen Sticky -->
       <div class="custom-builder-layout">
         
         <!-- Columna de Catálogo -->
@@ -1042,7 +1039,7 @@ function renderCustomBuilderScreen() {
 }
 
 /**
- * Renderiza las tarjetas de productos según la categoría seleccionada
+ * Renderiza las tarjetas de productos: Diseño limpio con 85% menos texto
  */
 function renderProductCatalogGrid() {
   const filteredProducts = getProductsByCategory(repertorioState.customBuilderCategory);
@@ -1063,11 +1060,8 @@ function renderProductCatalogGrid() {
 
     return `
       <div class="custom-product-card ${isInSet ? 'is-in-set' : ''}" data-card-sku="${prod.sku}">
-        <div class="product-card-top-bar">
-          <span class="product-badge-tag">${prod.badge}</span>
-          <span class="product-sku-tag">${prod.sku}</span>
-        </div>
-
+        
+        <!-- Visor de Imagen con Ángulos Compactos -->
         <div class="product-card-preview-box">
           <img 
             src="${activeImgSrc}" 
@@ -1077,101 +1071,83 @@ function renderProductCatalogGrid() {
             loading="lazy"
             onerror="this.src='/assets/repertorio/prod_${prod.familyCode}.png'"
           />
-        </div>
-
-        <!-- Selector de Ángulos / Perspectivas -->
-        <div class="product-angle-selector">
-          <button 
-            type="button" 
-            class="angle-btn ${activeAngle === 'front' ? 'active' : ''}" 
-            data-angle-sku="${prod.sku}" 
-            data-angle="front"
-            title="Vista Frontal"
-          >
-            Frontal
-          </button>
-          ${prod.angles.back ? `
+          <div class="product-angle-overlay">
             <button 
               type="button" 
-              class="angle-btn ${activeAngle === 'back' ? 'active' : ''}" 
+              class="angle-mini-btn ${activeAngle === 'front' ? 'active' : ''}" 
               data-angle-sku="${prod.sku}" 
-              data-angle="back"
-              title="Vista Trasera / Sensores"
+              data-angle="front"
+              title="Frontal"
             >
-              Trasera / Sensores
+              Front
             </button>
-          ` : ''}
-          ${prod.angles.perspective3d && prod.angles.perspective3d !== prod.angles.front ? `
-            <button 
-              type="button" 
-              class="angle-btn ${activeAngle === 'perspective3d' ? 'active' : ''}" 
-              data-angle-sku="${prod.sku}" 
-              data-angle="perspective3d"
-              title="Perspectiva 3D Estudio"
-            >
-              3D Estudio
-            </button>
-          ` : ''}
+            ${prod.angles.back ? `
+              <button 
+                type="button" 
+                class="angle-mini-btn ${activeAngle === 'back' ? 'active' : ''}" 
+                data-angle-sku="${prod.sku}" 
+                data-angle="back"
+                title="Trasera"
+              >
+                Back
+              </button>
+            ` : ''}
+            ${prod.angles.perspective3d && prod.angles.perspective3d !== prod.angles.front ? `
+              <button 
+                type="button" 
+                class="angle-mini-btn ${activeAngle === 'perspective3d' ? 'active' : ''}" 
+                data-angle-sku="${prod.sku}" 
+                data-angle="perspective3d"
+                title="3D"
+              >
+                3D
+              </button>
+            ` : ''}
+          </div>
         </div>
 
+        <!-- Info Limpia: Nombre, SKU, Color y Precio Directo -->
         <div class="product-card-info">
-          <!-- Fila de Color y Variantes -->
-          <div class="product-color-row">
-            <span class="color-dot" style="background-color: ${prod.color.hex};" title="${prod.color.name}"></span>
-            <span class="color-name-text">${prod.color.name}</span>
-
+          <div class="product-card-header-row">
+            <h3 class="product-card-title">${prod.shortName}</h3>
             ${familyVariants.length > 1 ? `
-              <div style="margin-left: auto; display: flex; gap: 5px;">
+              <div class="product-swatches-row">
                 ${familyVariants.map(v => `
                   <span 
                     class="color-dot variant-switch-dot" 
-                    style="background-color: ${v.color.hex}; cursor: pointer; transform: ${v.sku === prod.sku ? 'scale(1.25)' : 'scale(0.95)'}; border: ${v.sku === prod.sku ? '2px solid #533b87' : '1px solid rgba(0,0,0,0.2)'};" 
+                    style="background-color: ${v.color.hex}; transform: ${v.sku === prod.sku ? 'scale(1.25)' : 'scale(0.95)'}; border: ${v.sku === prod.sku ? '2px solid #533b87' : '1px solid rgba(0,0,0,0.18)'};" 
                     data-switch-to-sku="${v.sku}"
-                    title="Ver variante: ${v.color.name}"
+                    title="${v.color.name}"
                   ></span>
                 `).join('')}
               </div>
             ` : ''}
           </div>
 
-          <h3 class="product-card-title">${prod.shortName}</h3>
-          <p class="product-card-tagline">${prod.tagline}</p>
-
-          <!-- Especificaciones Resumidas -->
-          <div class="product-card-specs-mini">
-            <div class="spec-mini-item">
-              <span class="bullet">●</span>
-              <span>${prod.material}</span>
-            </div>
-            ${prod.specs.slice(0, 2).map(spec => `
-              <div class="spec-mini-item">
-                <span class="bullet">●</span>
-                <span>${spec}</span>
-              </div>
-            `).join('')}
+          <div class="product-card-sub-row">
+            <span class="product-color-label">${prod.color.name}</span>
+            <span class="product-sku-code">${prod.sku}</span>
           </div>
 
-          <!-- Precio Unitario -->
-          <div class="product-card-pricing-row">
-            <span class="pricing-label">Precio Unitario:</span>
+          <!-- Precio y Botón de Acción Directo -->
+          <div class="product-card-bottom-row">
             <span class="pricing-number">${formatMoney(prod.priceUSD, prod.pricePEN)}</span>
+            
+            <div class="product-card-action-box">
+              ${isInSet ? `
+                <div class="custom-item-stepper">
+                  <button type="button" class="stepper-btn danger" data-stepper-action="dec" data-sku="${prod.sku}">−</button>
+                  <span class="stepper-qty">${inSetQty}</span>
+                  <button type="button" class="stepper-btn" data-stepper-action="inc" data-sku="${prod.sku}">+</button>
+                </div>
+              ` : `
+                <button type="button" class="btn-add-to-custom-mini" data-add-sku="${prod.sku}">
+                  + Agregar
+                </button>
+              `}
+            </div>
           </div>
 
-          <!-- Acción de Agregar / Stepper -->
-          <div class="product-card-actions">
-            ${isInSet ? `
-              <div class="custom-item-stepper">
-                <button type="button" class="stepper-btn danger" data-stepper-action="dec" data-sku="${prod.sku}">−</button>
-                <span class="stepper-qty">${inSetQty} en el set</span>
-                <button type="button" class="stepper-btn" data-stepper-action="inc" data-sku="${prod.sku}">+</button>
-              </div>
-            ` : `
-              <button type="button" class="btn-add-to-custom" data-add-sku="${prod.sku}">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <span>Incluir en Set</span>
-              </button>
-            `}
-          </div>
         </div>
       </div>
     `;
@@ -1187,18 +1163,14 @@ function renderCustomSummaryCardContent() {
 
   return `
     <div class="custom-summary-header">
-      <h3 class="custom-summary-title">Resumen del Set a Medida</h3>
-      <span class="custom-badge-pill">${customTotals.totalItemsCount} equipos</span>
+      <h3 class="custom-summary-title">Tu Set</h3>
+      <span class="custom-badge-pill">${customTotals.totalItemsCount}</span>
     </div>
 
     <div class="custom-summary-body">
       ${isEmpty ? `
         <div class="summary-empty-state">
-          <div class="summary-empty-icon">📦</div>
-          <p class="summary-empty-text">
-            <strong>Tu set personalizado está vacío.</strong><br/>
-            Explora la matriz de hardware a la izquierda y haz click en <em>"Incluir en Set"</em> para cotizar.
-          </p>
+          <p class="summary-empty-text">Elige dispositivos para cotizar.</p>
         </div>
       ` : `
         <!-- Lista de Items en el Set -->
@@ -1212,8 +1184,7 @@ function renderCustomSummaryCardContent() {
                 onerror="this.src='/assets/repertorio/prod_${item.product.familyCode}.png'"
               />
               <div class="summary-item-details">
-                <div class="summary-item-name" title="${item.product.fullName}">${item.product.shortName}</div>
-                <div class="summary-item-sku">${item.sku}</div>
+                <div class="summary-item-name">${item.product.shortName}</div>
                 <div class="summary-item-subtotal">${formatMoney(item.product.priceUSD * item.qty, item.product.pricePEN * item.qty)}</div>
               </div>
               <div class="summary-item-actions">
@@ -1229,34 +1200,27 @@ function renderCustomSummaryCardContent() {
       <!-- Desglose de Software ZentryOS -->
       <div class="summary-software-box">
         <div class="summary-soft-header">
-          <span class="summary-soft-title">
-            ${customTotals.includeImplementation ? customTotals.implData.name : 'Implementación de Software'}
-          </span>
+          <span class="summary-soft-title">ZentryOS</span>
           <span class="summary-soft-price">
             ${customTotals.includeImplementation 
               ? formatMoney(customTotals.implementationUSD, customTotals.implementationPEN) 
               : 'No incluida'}
           </span>
         </div>
-        <p class="summary-soft-desc">
-          ${customTotals.includeImplementation 
-            ? `${customTotals.implData.devicesIncluded} dispositivos • Parental Dashboard 2 vistas (Padre/Madre)` 
-            : 'Solo compra de equipos físicos sin instalación ni Parental Dashboard'}
-        </p>
       </div>
 
       <!-- Cuadro de Totales Financieros -->
       <div class="summary-breakdown-box">
         <div class="summary-breakdown-line">
-          <span>Subtotal Hardware (${customTotals.totalItemsCount} equipos):</span>
+          <span>Hardware (${customTotals.totalItemsCount}):</span>
           <strong>${formatMoney(customTotals.hardwareUSD, customTotals.hardwarePEN)}</strong>
         </div>
         <div class="summary-breakdown-line">
-          <span>Implementación ZentryOS:</span>
+          <span>Software:</span>
           <strong>${formatMoney(customTotals.implementationUSD, customTotals.implementationPEN)}</strong>
         </div>
         <div class="summary-grand-total">
-          <span class="grand-total-label">Inversión Total:</span>
+          <span class="grand-total-label">Total:</span>
           <span class="grand-total-amount">${formatMoney(customTotals.totalUSD, customTotals.totalPEN)}</span>
         </div>
       </div>
@@ -1269,8 +1233,8 @@ function renderCustomSummaryCardContent() {
         id="btn-copy-custom-whatsapp"
         ${isEmpty ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''}
       >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-        <span>Copiar Propuesta WhatsApp</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        <span>Copiar para WhatsApp</span>
       </button>
 
       <button 
@@ -1279,7 +1243,7 @@ function renderCustomSummaryCardContent() {
         id="btn-view-custom-quote"
         ${isEmpty ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''}
       >
-        <span>+ Ver Propuesta Formal Completa</span>
+        <span>Ver Propuesta Formal</span>
       </button>
     </div>
   `;

@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.3.0 (CUSTOM REPERTORIO BUILDER & SKU MATRIX)
+// QZ-HUB SERVICE WORKER — v4.3.1 (MINIMALIST REPERTORIO SCROLL & COMPACT CARDS)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.3.0-custom-repertorio-builder';
+const CACHE_NAME = 'qz-hub-v4.3.1-minimalist-repertorio-scroll';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

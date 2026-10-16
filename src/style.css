@@ -9521,6 +9521,13 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   max-height: 100vh !important;
 }
 
+.workspace.repertorio-view-active.scrollable-repertorio {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+}
+
 .workspace.repertorio-view-active .workspace-content {
   max-width: 100% !important;
   width: 100% !important;
@@ -9532,6 +9539,14 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   flex-direction: column;
   flex: 1 1 auto;
   height: 100% !important;
+}
+
+.workspace.repertorio-view-active.scrollable-repertorio .workspace-content {
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+  min-height: 100% !important;
+  padding-bottom: 80px !important;
 }
 
 .repertorio-app-wrapper {
@@ -9546,6 +9561,14 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   overflow: hidden;
   flex: 1 1 auto;
   height: 100% !important;
+}
+
+.repertorio-app-wrapper.is-scrollable {
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+  min-height: 100% !important;
+  padding-bottom: 60px !important;
 }
 
 /* Header superior */
@@ -11592,6 +11615,43 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 }
 
 /* Controles de Ángulos */
+.product-angle-overlay {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  display: flex;
+  gap: 3px;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 2px 4px;
+  border-radius: 6px;
+  z-index: 2;
+}
+
+.angle-mini-btn {
+  font-size: 9px;
+  font-family: var(--font-family-mono);
+  font-weight: 700;
+  padding: 2px 6px;
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.angle-mini-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.angle-mini-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+}
+
 .product-angle-selector {
   display: flex;
   justify-content: center;
@@ -11629,10 +11689,85 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
 /* Datos del Producto */
 .product-card-info {
-  padding: 12px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
   flex: 1;
+}
+
+.product-card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.product-swatches-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.variant-switch-dot {
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.variant-switch-dot:hover {
+  transform: scale(1.3) !important;
+}
+
+.product-card-sub-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.product-color-label {
+  font-size: 10.5px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.product-sku-code {
+  font-family: var(--font-family-mono);
+  font-size: 9px;
+  color: #94a3b8;
+  background: #f1f5f9;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.product-card-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 6px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.btn-add-to-custom-mini {
+  padding: 5px 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: 6px;
+  border: 1px solid #533b87;
+  background: #533b87;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-add-to-custom-mini:hover {
+  background: #432e6f;
+  border-color: #432e6f;
+  transform: translateY(-1px);
 }
 
 .product-color-row {
@@ -11662,7 +11797,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   font-size: 14px;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 6px 0;
+  margin: 0;
   line-height: 1.3;
 }
 
@@ -11716,7 +11851,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 
 .pricing-number {
   font-family: var(--font-family-mono);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   color: #0f172a;
 }
