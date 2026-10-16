@@ -11332,7 +11332,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 .repertorio-custom-builder {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 0;
   width: 100%;
   max-width: 100%;
   margin: 0;
@@ -11379,7 +11379,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   border-bottom: 1px solid #e2e8f0;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
   padding: 8px 16px 8px 16px;
-  margin: 0 -16px 12px -16px;
+  margin: 0 -16px 0 -16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -11531,6 +11531,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   grid-template-columns: 1fr 340px;
   gap: 20px;
   align-items: start;
+  padding-top: 16px;
 }
 
 @media (max-width: 1080px) {
@@ -11981,7 +11982,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 /* Panel de Resumen Lateral (Sticky) */
 .custom-builder-summary-col {
   position: sticky;
-  top: 172px;
+  top: 154px;
   z-index: 85;
   align-self: start;
 }

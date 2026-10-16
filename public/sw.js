@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.3.7 (FULL DESKTOP WIDTH PARITY FOR MAGAZINE & BUILDER)
+// QZ-HUB SERVICE WORKER — v4.3.8 (SEAMLESS DOCKED DECK & ZERO GAP SCROLL)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.3.7-desktop-width-parity';
+const CACHE_NAME = 'qz-hub-v4.3.8-zero-gap-deck';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
