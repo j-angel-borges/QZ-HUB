@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.2.0 (SPRINTER ISHA KRIYA & CALIBRATED SPRINTS)
+// QZ-HUB SERVICE WORKER — v4.3.0 (CUSTOM REPERTORIO BUILDER & SKU MATRIX)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.2.0-sprinter-isha-calibrated';
+const CACHE_NAME = 'qz-hub-v4.3.0-custom-repertorio-builder';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
