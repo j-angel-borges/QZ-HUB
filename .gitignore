@@ -27,5 +27,6 @@ dist-ssr
 .firebase
 live_browser_dump.json
 *.lnk
+test_*.png
 
 

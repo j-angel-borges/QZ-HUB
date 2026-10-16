@@ -3,6 +3,15 @@
  * SSOT Oficial de Productos, Planes de Implementación, Beneficios y Economía de Referencias
  */
 
+import {
+  CATALOG_CATEGORIES,
+  PRODUCTS_CATALOG,
+  getAllCatalogProducts,
+  getProductsByCategory,
+  getProductBySku,
+  getProductsByFamilyCode
+} from './products-catalog.js';
+
 export const REPERTORIO_DATA = {
   exchangeRate: 3.40, // 1 USD = 3.40 PEN
 
@@ -460,7 +469,16 @@ export const repertorioState = {
   selectedSetTier: 'essential', // 'essential', 'omni', 'integral', 'fullhouse'
   additionalChildren: 0,
   includeImplementation: true,
-  viewMode: 'magazine' // 'family-picker' | 'magazine'
+  viewMode: 'magazine', // 'family-picker' | 'magazine' | 'custom-builder'
+
+  // Estado del Personalizador de Sets a Medida (Matriz de Productos y SKUs)
+  customBuilderCategory: 'all',
+  customSetItems: [
+    { sku: 'ZT-TAB11-BLK', qty: 1 },
+    { sku: 'ZT-RING-WHT', qty: 1 },
+    { sku: 'ZT-PHN-BLK', qty: 1 }
+  ],
+  productAngles: {} // Mapa de sku -> 'front' | 'back' | 'perspective3d'
 };
 
 /**
@@ -527,6 +545,62 @@ export function calculateSetTotals(familyId, setKey, additionalChildren = repert
 }
 
 /**
+ * Calcula los totales para el Set a Medida (Custom Set)
+ */
+export function calculateCustomSetTotals() {
+  const family = REPERTORIO_DATA.families[repertorioState.selectedFamily] || REPERTORIO_DATA.families['nuclear_1h'];
+  const items = repertorioState.customSetItems.map(item => {
+    const product = getProductBySku(item.sku);
+    return {
+      sku: item.sku,
+      qty: item.qty,
+      product: product
+    };
+  }).filter(i => i.product);
+
+  let hardwareUSD = 0;
+  let hardwarePEN = 0;
+  let totalItemsCount = 0;
+
+  items.forEach(item => {
+    hardwareUSD += item.product.priceUSD * item.qty;
+    hardwarePEN += item.product.pricePEN * item.qty;
+    totalItemsCount += item.qty;
+  });
+
+  const implData = REPERTORIO_DATA.implementations[family.defaultImpl] || REPERTORIO_DATA.implementations.individual;
+  let implementationUSD = repertorioState.includeImplementation ? implData.priceUSD : 0;
+  let implementationPEN = repertorioState.includeImplementation ? implData.pricePEN : 0;
+
+  if (repertorioState.includeImplementation && repertorioState.additionalChildren > 0) {
+    implementationUSD += repertorioState.additionalChildren * REPERTORIO_DATA.implementations.custom.priceUSDPerChild;
+    implementationPEN += repertorioState.additionalChildren * REPERTORIO_DATA.implementations.custom.pricePENPerChild;
+  }
+
+  const benefitsValuePEN = REPERTORIO_DATA.benefits.reduce((acc, b) => acc + b.valuePEN, 0);
+  const benefitsValueUSD = Math.round(benefitsValuePEN / REPERTORIO_DATA.exchangeRate);
+
+  const totalUSD = hardwareUSD + implementationUSD;
+  const totalPEN = hardwarePEN + implementationPEN;
+
+  return {
+    family,
+    items,
+    totalItemsCount,
+    hardwareUSD,
+    hardwarePEN,
+    implData,
+    implementationUSD,
+    implementationPEN,
+    benefitsValueUSD,
+    benefitsValuePEN,
+    includeImplementation: repertorioState.includeImplementation,
+    totalUSD,
+    totalPEN
+  };
+}
+
+/**
  * Renderizador Principal de la Vista Repertorio
  */
 export function renderRepertorioView() {
@@ -555,7 +629,9 @@ export function renderRepertorioView() {
       
       ${repertorioState.viewMode === 'family-picker' 
         ? renderFamilySelectorScreen() 
-        : renderMagazineExperience()}
+        : (repertorioState.viewMode === 'custom-builder' 
+            ? renderCustomBuilderScreen() 
+            : renderMagazineExperience())}
     </div>
   `;
 
@@ -586,7 +662,9 @@ function getFamilySlideSuffix(famId) {
  */
 function renderTopNavBar() {
   const isFamilyPicker = repertorioState.viewMode === 'family-picker';
+  const isCustomBuilder = repertorioState.viewMode === 'custom-builder';
   const slideSuffix = getFamilySlideSuffix(repertorioState.selectedFamily);
+  const customCount = repertorioState.customSetItems.reduce((acc, item) => acc + item.qty, 0);
 
   return `
     <header class="repertorio-header-bar">
@@ -607,17 +685,46 @@ function renderTopNavBar() {
           </button>
           <span class="crumb-separator">/</span>
 
-          <!-- 3. Slides con sufijo de familia (FN, FE, FNx2, FEx2) -->
+          <!-- 3. Modo Activo -->
+          ${isCustomBuilder ? `
+            <span class="crumb-active-pill">
+              Set a Medida
+            </span>
+          ` : `
+            <button 
+              type="button" 
+              class="crumb-nav-btn ${!isFamilyPicker ? 'crumb-active-pill' : 'crumb-nav-link'}" 
+              id="crumb-link-slides" 
+              title="Presentación de Slides (${slideSuffix})"
+            >
+              <span>Slides ${slideSuffix}</span>
+              ${!isFamilyPicker ? '<span class="crumb-arrow-down" style="font-size: 10px; margin-left: 2px;">▾</span>' : ''}
+            </button>
+          `}
+        </nav>
+
+        <!-- Segmented Mode Switcher: Sets Prearmados vs Armar Set a Medida -->
+        <div class="repertorio-mode-tabs" role="tablist">
           <button 
             type="button" 
-            class="crumb-nav-btn ${!isFamilyPicker ? 'crumb-active-pill' : 'crumb-nav-link'}" 
-            id="crumb-link-slides" 
-            title="Presentación de Slides (${slideSuffix})"
+            class="mode-tab-pill ${!isCustomBuilder ? 'active' : ''}" 
+            id="tab-mode-magazine"
+            title="Ver Sets Oficiales y Catálogo Magazine"
           >
-            <span>Slides ${slideSuffix}</span>
-            ${!isFamilyPicker ? '<span class="crumb-arrow-down" style="font-size: 10px; margin-left: 2px;">▾</span>' : ''}
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            <span>Sets Prearmados</span>
           </button>
-        </nav>
+          <button 
+            type="button" 
+            class="mode-tab-pill ${isCustomBuilder ? 'active' : ''}" 
+            id="tab-mode-custom"
+            title="Personalizar Set a Medida con Matriz de SKUs e Imágenes"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            <span>Armar Set a Medida</span>
+            ${customCount > 0 ? `<span class="custom-badge-pill">${customCount}</span>` : ''}
+          </button>
+        </div>
       </div>
 
       <div class="repertorio-header-controls">
@@ -827,6 +934,390 @@ function renderMagazineExperience() {
 }
 
 /**
+ * Pantalla 3: Personalizador de Sets a Medida (Custom Set Builder)
+ */
+function renderCustomBuilderScreen() {
+  const currentFam = REPERTORIO_DATA.families[repertorioState.selectedFamily] || REPERTORIO_DATA.families['nuclear_1h'];
+
+  return `
+    <div class="repertorio-custom-builder animate-fade-in">
+      
+      <!-- Hero de la Herramienta -->
+      <div class="custom-builder-hero">
+        <div class="custom-builder-title-group">
+          <span class="hero-kicker">HERRAMIENTA COMERCIAL ZENTRYOS // MATRIZ DE PRODUCTOS Y SKUS</span>
+          <h1 class="hero-headline">Personalizador de Sets a la Medida</h1>
+          <p class="custom-builder-sub">
+            Aprovecha la matriz de hardware oficial, selecciona variantes de color, explora las perspectivas frontal, trasera y 3D, y personaliza la inversión exacta de hardware e implementación de software según los requerimientos del cliente.
+          </p>
+        </div>
+
+        <!-- Panel de Control de Familia y Despliegue -->
+        <div class="custom-builder-controls-panel">
+          <!-- Selector de Familia -->
+          <div class="config-control-group">
+            <span class="config-label">Estructura del Hogar:</span>
+            <div class="config-pills-row">
+              ${Object.values(REPERTORIO_DATA.families).map(fam => `
+                <button 
+                  type="button" 
+                  class="config-pill-btn ${fam.id === repertorioState.selectedFamily ? 'active' : ''}" 
+                  data-custom-family="${fam.id}"
+                  title="${fam.membersLabel}"
+                >
+                  ${fam.name}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Toggle de Implementación ZentryOS -->
+          <div class="config-toggle-group">
+            <label class="config-toggle-label" title="Activa o desactiva la implementación de software ZentryOS">
+              <input type="checkbox" id="toggle-custom-impl" ${repertorioState.includeImplementation ? 'checked' : ''} />
+              <span class="toggle-slider"></span>
+              <div class="toggle-text-block">
+                <span class="toggle-main-title">Implementación ZentryOS</span>
+                <span class="toggle-sub-info">
+                  ${repertorioState.includeImplementation 
+                    ? `${REPERTORIO_DATA.implementations[currentFam.defaultImpl].name} (${formatMoney(REPERTORIO_DATA.implementations[currentFam.defaultImpl].priceUSD, REPERTORIO_DATA.implementations[currentFam.defaultImpl].pricePEN)})` 
+                    : 'Solo Hardware Físico (Sin software)'}
+                </span>
+              </div>
+            </label>
+          </div>
+
+          <!-- Presets de Carga Rápida -->
+          <div class="config-presets-group">
+            <span class="presets-label">Cargar Template:</span>
+            <div class="presets-buttons">
+              <button type="button" class="btn btn-xs btn-outline" data-load-template="essential" title="Cargar configuración Essential">Esencial</button>
+              <button type="button" class="btn btn-xs btn-outline" data-load-template="omni" title="Cargar configuración OMNI">OMNI</button>
+              <button type="button" class="btn btn-xs btn-outline" data-load-template="integral" title="Cargar configuración Integral">Integral</button>
+              <button type="button" class="btn btn-xs btn-outline" data-load-template="fullhouse" title="Cargar configuración Full House">Full House</button>
+              ${repertorioState.customSetItems.length > 0 ? `
+                <button type="button" class="btn btn-xs btn-outline" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" id="btn-clear-custom-set" title="Vaciar todo el set">Vaciar</button>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layout de Dos Columnas: Matriz de Catálogo + Resumen Sticky -->
+      <div class="custom-builder-layout">
+        
+        <!-- Columna de Catálogo -->
+        <div class="custom-builder-catalog-col">
+          
+          <!-- Filtro de Categorías -->
+          <div class="catalog-category-tabs">
+            ${CATALOG_CATEGORIES.map(cat => `
+              <button 
+                type="button" 
+                class="category-tab-btn ${repertorioState.customBuilderCategory === cat.id ? 'active' : ''}" 
+                data-cat-id="${cat.id}"
+              >
+                <span class="cat-icon">${cat.icon}</span>
+                <span class="cat-name">${cat.name}</span>
+              </button>
+            `).join('')}
+          </div>
+
+          <!-- Grid de Productos -->
+          <div class="custom-catalog-grid" id="custom-catalog-grid-container">
+            ${renderProductCatalogGrid()}
+          </div>
+        </div>
+
+        <!-- Columna de Resumen Lateral -->
+        <aside class="custom-builder-summary-col">
+          <div class="custom-summary-card" id="custom-summary-panel">
+            ${renderCustomSummaryCardContent()}
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Renderiza las tarjetas de productos según la categoría seleccionada
+ */
+function renderProductCatalogGrid() {
+  const filteredProducts = getProductsByCategory(repertorioState.customBuilderCategory);
+
+  if (!filteredProducts || filteredProducts.length === 0) {
+    return `<div style="padding: 30px; text-align: center; color: #64748b;">No hay productos en esta categoría.</div>`;
+  }
+
+  return filteredProducts.map(prod => {
+    const activeAngle = repertorioState.productAngles[prod.sku] || 'front';
+    const activeImgSrc = prod.angles[activeAngle] || prod.angles.front;
+    const existingItem = repertorioState.customSetItems.find(i => i.sku === prod.sku);
+    const inSetQty = existingItem ? existingItem.qty : 0;
+    const isInSet = inSetQty > 0;
+
+    // Buscar variantes en la misma familia/modelo
+    const familyVariants = PRODUCTS_CATALOG.filter(p => p.familyCode === prod.familyCode && p.modelName === prod.modelName);
+
+    return `
+      <div class="custom-product-card ${isInSet ? 'is-in-set' : ''}" data-card-sku="${prod.sku}">
+        <div class="product-card-top-bar">
+          <span class="product-badge-tag">${prod.badge}</span>
+          <span class="product-sku-tag">${prod.sku}</span>
+        </div>
+
+        <div class="product-card-preview-box">
+          <img 
+            src="${activeImgSrc}" 
+            alt="${prod.fullName}" 
+            class="product-card-preview-img" 
+            id="img-preview-${prod.sku}"
+            loading="lazy"
+            onerror="this.src='/assets/repertorio/prod_${prod.familyCode}.png'"
+          />
+        </div>
+
+        <!-- Selector de Ángulos / Perspectivas -->
+        <div class="product-angle-selector">
+          <button 
+            type="button" 
+            class="angle-btn ${activeAngle === 'front' ? 'active' : ''}" 
+            data-angle-sku="${prod.sku}" 
+            data-angle="front"
+            title="Vista Frontal"
+          >
+            Frontal
+          </button>
+          ${prod.angles.back ? `
+            <button 
+              type="button" 
+              class="angle-btn ${activeAngle === 'back' ? 'active' : ''}" 
+              data-angle-sku="${prod.sku}" 
+              data-angle="back"
+              title="Vista Trasera / Sensores"
+            >
+              Trasera / Sensores
+            </button>
+          ` : ''}
+          ${prod.angles.perspective3d && prod.angles.perspective3d !== prod.angles.front ? `
+            <button 
+              type="button" 
+              class="angle-btn ${activeAngle === 'perspective3d' ? 'active' : ''}" 
+              data-angle-sku="${prod.sku}" 
+              data-angle="perspective3d"
+              title="Perspectiva 3D Estudio"
+            >
+              3D Estudio
+            </button>
+          ` : ''}
+        </div>
+
+        <div class="product-card-info">
+          <!-- Fila de Color y Variantes -->
+          <div class="product-color-row">
+            <span class="color-dot" style="background-color: ${prod.color.hex};" title="${prod.color.name}"></span>
+            <span class="color-name-text">${prod.color.name}</span>
+
+            ${familyVariants.length > 1 ? `
+              <div style="margin-left: auto; display: flex; gap: 5px;">
+                ${familyVariants.map(v => `
+                  <span 
+                    class="color-dot variant-switch-dot" 
+                    style="background-color: ${v.color.hex}; cursor: pointer; transform: ${v.sku === prod.sku ? 'scale(1.25)' : 'scale(0.95)'}; border: ${v.sku === prod.sku ? '2px solid #533b87' : '1px solid rgba(0,0,0,0.2)'};" 
+                    data-switch-to-sku="${v.sku}"
+                    title="Ver variante: ${v.color.name}"
+                  ></span>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+
+          <h3 class="product-card-title">${prod.shortName}</h3>
+          <p class="product-card-tagline">${prod.tagline}</p>
+
+          <!-- Especificaciones Resumidas -->
+          <div class="product-card-specs-mini">
+            <div class="spec-mini-item">
+              <span class="bullet">●</span>
+              <span>${prod.material}</span>
+            </div>
+            ${prod.specs.slice(0, 2).map(spec => `
+              <div class="spec-mini-item">
+                <span class="bullet">●</span>
+                <span>${spec}</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Precio Unitario -->
+          <div class="product-card-pricing-row">
+            <span class="pricing-label">Precio Unitario:</span>
+            <span class="pricing-number">${formatMoney(prod.priceUSD, prod.pricePEN)}</span>
+          </div>
+
+          <!-- Acción de Agregar / Stepper -->
+          <div class="product-card-actions">
+            ${isInSet ? `
+              <div class="custom-item-stepper">
+                <button type="button" class="stepper-btn danger" data-stepper-action="dec" data-sku="${prod.sku}">−</button>
+                <span class="stepper-qty">${inSetQty} en el set</span>
+                <button type="button" class="stepper-btn" data-stepper-action="inc" data-sku="${prod.sku}">+</button>
+              </div>
+            ` : `
+              <button type="button" class="btn-add-to-custom" data-add-sku="${prod.sku}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Incluir en Set</span>
+              </button>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/**
+ * Renderiza el contenido del panel lateral de resumen del Set Personalizado
+ */
+function renderCustomSummaryCardContent() {
+  const customTotals = calculateCustomSetTotals();
+  const isEmpty = customTotals.items.length === 0;
+
+  return `
+    <div class="custom-summary-header">
+      <h3 class="custom-summary-title">Resumen del Set a Medida</h3>
+      <span class="custom-badge-pill">${customTotals.totalItemsCount} equipos</span>
+    </div>
+
+    <div class="custom-summary-body">
+      ${isEmpty ? `
+        <div class="summary-empty-state">
+          <div class="summary-empty-icon">📦</div>
+          <p class="summary-empty-text">
+            <strong>Tu set personalizado está vacío.</strong><br/>
+            Explora la matriz de hardware a la izquierda y haz click en <em>"Incluir en Set"</em> para cotizar.
+          </p>
+        </div>
+      ` : `
+        <!-- Lista de Items en el Set -->
+        <div class="summary-items-list">
+          ${customTotals.items.map(item => `
+            <div class="summary-item-row" data-summary-sku="${item.sku}">
+              <img 
+                src="${item.product.angles.front}" 
+                alt="${item.product.shortName}" 
+                class="summary-item-thumb"
+                onerror="this.src='/assets/repertorio/prod_${item.product.familyCode}.png'"
+              />
+              <div class="summary-item-details">
+                <div class="summary-item-name" title="${item.product.fullName}">${item.product.shortName}</div>
+                <div class="summary-item-sku">${item.sku}</div>
+                <div class="summary-item-subtotal">${formatMoney(item.product.priceUSD * item.qty, item.product.pricePEN * item.qty)}</div>
+              </div>
+              <div class="summary-item-actions">
+                <button type="button" class="summary-qty-btn" data-stepper-action="dec" data-sku="${item.sku}">−</button>
+                <span class="summary-qty-num">${item.qty}</span>
+                <button type="button" class="summary-qty-btn" data-stepper-action="inc" data-sku="${item.sku}">+</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `}
+
+      <!-- Desglose de Software ZentryOS -->
+      <div class="summary-software-box">
+        <div class="summary-soft-header">
+          <span class="summary-soft-title">
+            ${customTotals.includeImplementation ? customTotals.implData.name : 'Implementación de Software'}
+          </span>
+          <span class="summary-soft-price">
+            ${customTotals.includeImplementation 
+              ? formatMoney(customTotals.implementationUSD, customTotals.implementationPEN) 
+              : 'No incluida'}
+          </span>
+        </div>
+        <p class="summary-soft-desc">
+          ${customTotals.includeImplementation 
+            ? `${customTotals.implData.devicesIncluded} dispositivos • Parental Dashboard 2 vistas (Padre/Madre)` 
+            : 'Solo compra de equipos físicos sin instalación ni Parental Dashboard'}
+        </p>
+      </div>
+
+      <!-- Cuadro de Totales Financieros -->
+      <div class="summary-breakdown-box">
+        <div class="summary-breakdown-line">
+          <span>Subtotal Hardware (${customTotals.totalItemsCount} equipos):</span>
+          <strong>${formatMoney(customTotals.hardwareUSD, customTotals.hardwarePEN)}</strong>
+        </div>
+        <div class="summary-breakdown-line">
+          <span>Implementación ZentryOS:</span>
+          <strong>${formatMoney(customTotals.implementationUSD, customTotals.implementationPEN)}</strong>
+        </div>
+        <div class="summary-grand-total">
+          <span class="grand-total-label">Inversión Total:</span>
+          <span class="grand-total-amount">${formatMoney(customTotals.totalUSD, customTotals.totalPEN)}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="custom-summary-footer">
+      <button 
+        type="button" 
+        class="btn-whatsapp-custom" 
+        id="btn-copy-custom-whatsapp"
+        ${isEmpty ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''}
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        <span>Copiar Propuesta WhatsApp</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="btn-view-quote-custom" 
+        id="btn-view-custom-quote"
+        ${isEmpty ? 'disabled style="opacity:0.6; cursor:not-allowed;"' : ''}
+      >
+        <span>+ Ver Propuesta Formal Completa</span>
+      </button>
+    </div>
+  `;
+}
+
+/**
+ * Genera el guion formateado para WhatsApp del Set Personalizado
+ */
+export function copyCustomQuoteToWhatsApp(customTotals) {
+  const currency = repertorioState.currency;
+  const itemsText = customTotals.items.map(i => `  • x${i.qty} ${i.product.fullName} [SKU: ${i.sku}] (${formatMoney(i.product.priceUSD * i.qty, i.product.pricePEN * i.qty, currency)})`).join('\n');
+  
+  const implText = customTotals.includeImplementation
+    ? `*2. Implementación de Software & Parental Dashboard:*\n  • ${customTotals.implData.name} (${customTotals.implData.devicesIncluded} dispositivos)\n  • Parental Dashboard Multidispositivo (2 vistas: Padre y Madre en celular, tablet y PC)\n  • Inversión Software: ${formatMoney(customTotals.implementationUSD, customTotals.implementationPEN, currency)}\n\n`
+    : `*2. Implementación de Software:*\n  • Solo adquisición de hardware (Sin despliegue de software)\n\n`;
+
+  const benefitsText = customTotals.includeImplementation
+    ? `🎁 *Beneficios de Regalo Incluidos:*\n  • 3 Clases de Inteligencia Artificial para Padres\n  • 100 Créditos de Generación Studio\n  • Pase Familiar "Zentry Experience"\n\n`
+    : '';
+
+  const text = `*PROPUESTA DE SET PERSONALIZADO ZENTRYOS*\n` +
+    `👨‍👩‍👧 *Estructura:* ${customTotals.family.name} (${customTotals.family.membersLabel})\n` +
+    `📦 *Configuración:* Set a Medida (${customTotals.totalItemsCount} equipos seleccionados)\n\n` +
+    `*1. Hardware Físico Seleccionado:*\n${itemsText}\n` +
+    `  ↳ Subtotal Hardware: ${formatMoney(customTotals.hardwareUSD, customTotals.hardwarePEN, currency)}\n\n` +
+    implText +
+    benefitsText +
+    `💰 *INVERSIÓN TOTAL DE LA OFERTA:* ${formatMoney(customTotals.totalUSD, customTotals.totalPEN, currency)}\n\n` +
+    `_Generado desde el Personalizador de Sets en QZ-Hub Operativo_`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    alert('✅ Propuesta de Set Personalizado copiada al portapapeles en formato WhatsApp.');
+  }).catch(() => {
+    prompt('Copia el texto manualmente:', text);
+  });
+}
+
+/**
  * Renderiza el contenido de cada spread (doble página)
  */
 function renderSpreadContent(spreadNum, family) {
@@ -1030,7 +1521,124 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
 /**
  * Modal de Cotización y Cierre Comercial
  */
-export function openQuoteModal() {
+export function openQuoteModal(forceCustom = false) {
+  const isCustom = forceCustom || repertorioState.viewMode === 'custom-builder';
+  
+  if (isCustom) {
+    const customTotals = calculateCustomSetTotals();
+    const family = customTotals.family;
+
+    let modal = document.getElementById('repertorio-quote-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'repertorio-quote-modal';
+      modal.className = 'modal-backdrop animate-fade-in';
+      document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+      <div class="modal-dialog-content quote-modal-card glass-panel animate-scale-up">
+        <div class="quote-modal-header">
+          <div>
+            <span class="badge-pill">PROPUESTA COMERCIAL PERSONALIZADA</span>
+            <h2 style="font-family: var(--font-family-title); font-size: 20px; color: #0f172a; margin: 4px 0 0 0;">
+              Set a la Medida — ${family.name}
+            </h2>
+            <small style="color: #64748b;">${family.membersLabel} • ${customTotals.totalItemsCount} Dispositivos Físicos</small>
+          </div>
+          <button type="button" class="btn-close-modal" id="btn-close-quote-modal">✕</button>
+        </div>
+
+        <div class="quote-modal-body">
+          
+          <!-- Desglose de Hardware Configurado -->
+          <div class="quote-section">
+            <h4 class="quote-section-title">1. Dispositivos Físicos Seleccionados</h4>
+            <div class="quote-items-grid">
+              ${customTotals.items.map(item => `
+                <div class="quote-item-chip">
+                  <span class="item-chip-qty">x${item.qty}</span>
+                  <span class="item-chip-name">${item.product.shortName}</span>
+                  <span class="item-chip-subtotal">${formatMoney(item.product.priceUSD * item.qty, item.product.pricePEN * item.qty)}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Desglose de Software & Implementación -->
+          <div class="quote-section">
+            <h4 class="quote-section-title">2. Implementación de Software & Parental Dashboard</h4>
+            <div class="quote-impl-card">
+              <div class="impl-title-row">
+                <strong>${customTotals.includeImplementation ? customTotals.implData.name : 'Implementación ZentryOS'}</strong>
+                <span class="impl-price">${customTotals.includeImplementation ? formatMoney(customTotals.implementationUSD, customTotals.implementationPEN) : '$0 USD'}</span>
+              </div>
+              <p style="font-size: 12px; color: #475569; margin: 4px 0;">
+                ${customTotals.includeImplementation 
+                  ? customTotals.implData.description 
+                  : 'Cotización en modalidad solo adquisición de hardware físico sin implementación de software ni Parental Dashboard.'}
+              </p>
+              ${customTotals.includeImplementation ? `
+                <div class="impl-tags-row">
+                  <span class="spec-tag">${customTotals.implData.devicesIncluded} dispositivos implementados</span>
+                  <span class="spec-tag">${customTotals.implData.dashboardViews}</span>
+                  <span class="spec-tag">Celular, Tablet, PC y Laptop</span>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- Totalización -->
+          <div class="quote-summary-box">
+            <div class="summary-line">
+              <span>Subtotal Hardware Físico:</span>
+              <span>${formatMoney(customTotals.hardwareUSD, customTotals.hardwarePEN)}</span>
+            </div>
+            <div class="summary-line">
+              <span>Implementación ZentryOS:</span>
+              <span>${formatMoney(customTotals.implementationUSD, customTotals.implementationPEN)}</span>
+            </div>
+            <div class="summary-total-final">
+              <div>
+                <strong style="font-size: 16px; color: #0f172a;">INVERSIÓN TOTAL DE LA OFERTA</strong>
+                <small style="display: block; color: #64748b; font-size: 11px;">Tipo de cambio referencial: 1 USD = S/ 3.40</small>
+              </div>
+              <div style="text-align: right;">
+                <span class="quote-big-price">${formatMoney(customTotals.totalUSD, customTotals.totalPEN)}</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="quote-modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-copy-quote-whatsapp" style="display:inline-flex; align-items:center; gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            Copiar Formato WhatsApp
+          </button>
+          <button type="button" class="btn btn-primary" id="btn-confirm-quote-action" style="display:inline-flex; align-items:center; gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            Agendar Cita de Implementación
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('btn-close-quote-modal')?.addEventListener('click', () => {
+      modal.remove();
+    });
+
+    document.getElementById('btn-copy-quote-whatsapp')?.addEventListener('click', () => {
+      copyCustomQuoteToWhatsApp(customTotals);
+    });
+
+    document.getElementById('btn-confirm-quote-action')?.addEventListener('click', () => {
+      modal.remove();
+      window.location.hash = '#gestion-comercial';
+    });
+    return;
+  }
+
   const currentFam = REPERTORIO_DATA.families[repertorioState.selectedFamily];
   const setKey = repertorioState.selectedSetTier;
   const totals = calculateSetTotals(currentFam.id, setKey);
@@ -1185,6 +1793,17 @@ function attachRepertorioEvents() {
     });
   });
 
+  // Switch de Modos Principales: Sets Prearmados vs Set a Medida
+  document.getElementById('tab-mode-magazine')?.addEventListener('click', () => {
+    repertorioState.viewMode = 'magazine';
+    renderRepertorioView();
+  });
+
+  document.getElementById('tab-mode-custom')?.addEventListener('click', () => {
+    repertorioState.viewMode = 'custom-builder';
+    renderRepertorioView();
+  });
+
   // Breadcrumb: Navegación a Repertorio (Redirección al selector de familias)
   document.getElementById('crumb-nav-repertorio')?.addEventListener('click', (e) => {
     e.preventDefault();
@@ -1215,7 +1834,7 @@ function attachRepertorioEvents() {
     renderRepertorioView();
   });
 
-  // Selección de Familia en la tarjeta
+  // Selección de Familia en la tarjeta de onboarding
   root.querySelectorAll('.btn-select-family-action, .family-select-card').forEach(elem => {
     elem.addEventListener('click', (e) => {
       const famId = e.currentTarget.dataset.familyId;
@@ -1236,7 +1855,189 @@ function attachRepertorioEvents() {
     });
   });
 
-  // Navegación aislada de Spreads (Solo actualiza el recuadro central de la presentación)
+  // ==========================================
+  // EVENTOS DEL PERSONALIZADOR DE SETS A MEDIDA
+  // ==========================================
+  if (repertorioState.viewMode === 'custom-builder') {
+    // Cambio de Familia en el Builder
+    root.querySelectorAll('[data-custom-family]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        repertorioState.selectedFamily = e.currentTarget.dataset.customFamily;
+        renderRepertorioView();
+      });
+    });
+
+    // Toggle de Implementación ZentryOS
+    const toggleImpl = document.getElementById('toggle-custom-impl');
+    if (toggleImpl) {
+      toggleImpl.addEventListener('change', (e) => {
+        repertorioState.includeImplementation = e.target.checked;
+        const summaryPanel = document.getElementById('custom-summary-panel');
+        if (summaryPanel) {
+          summaryPanel.innerHTML = renderCustomSummaryCardContent();
+          attachCustomSummaryEvents();
+        }
+      });
+    }
+
+    // Cargar Presets de Templates
+    root.querySelectorAll('[data-load-template]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const templateKey = e.currentTarget.dataset.loadTemplate;
+        const currentFam = REPERTORIO_DATA.families[repertorioState.selectedFamily] || REPERTORIO_DATA.families['nuclear_1h'];
+        const setConfig = REPERTORIO_DATA.setsMatrix[currentFam.id]?.[templateKey];
+        if (setConfig && setConfig.items) {
+          const defaultSkuMap = {
+            st: 'ZT-TAB11-BLK',
+            sb: 'ZT-BAND-SIL-BLK',
+            sr: 'ZT-RING-WHT',
+            ss: 'ZT-SND-WHT',
+            sw: 'ZT-WATCH-SIL-BLK',
+            sp: 'ZT-PHN-BLK'
+          };
+          repertorioState.customSetItems = setConfig.items.map(i => ({
+            sku: defaultSkuMap[i.code] || 'ZT-TAB11-BLK',
+            qty: i.qty
+          }));
+          renderRepertorioView();
+        }
+      });
+    });
+
+    // Vaciar Set Personalizado
+    document.getElementById('btn-clear-custom-set')?.addEventListener('click', () => {
+      if (confirm('¿Deseas vaciar todos los dispositivos de tu set personalizado?')) {
+        repertorioState.customSetItems = [];
+        renderRepertorioView();
+      }
+    });
+
+    // Filtro de Categorías
+    root.querySelectorAll('.category-tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        repertorioState.customBuilderCategory = e.currentTarget.dataset.catId;
+        const gridEl = document.getElementById('custom-catalog-grid-container');
+        if (gridEl) {
+          root.querySelectorAll('.category-tab-btn').forEach(b => b.classList.remove('active'));
+          e.currentTarget.classList.add('active');
+          gridEl.innerHTML = renderProductCatalogGrid();
+          attachCustomCardEvents(gridEl);
+        }
+      });
+    });
+
+    // Vincular eventos de tarjetas y resumen
+    attachCustomCardEvents(root);
+    attachCustomSummaryEvents();
+  }
+
+  function attachCustomCardEvents(container) {
+    if (!container) return;
+
+    // Selector de Ángulos
+    container.querySelectorAll('[data-angle-sku]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const sku = e.currentTarget.dataset.angleSku;
+        const angle = e.currentTarget.dataset.angle;
+        repertorioState.productAngles[sku] = angle;
+        
+        const card = e.currentTarget.closest('.custom-product-card');
+        if (card) {
+          card.querySelectorAll('[data-angle-sku]').forEach(b => b.classList.remove('active'));
+          e.currentTarget.classList.add('active');
+
+          const prod = getProductBySku(sku);
+          if (prod) {
+            const imgEl = card.querySelector(`#img-preview-${sku}`);
+            if (imgEl) {
+              imgEl.style.opacity = '0.3';
+              setTimeout(() => {
+                imgEl.src = prod.angles[angle] || prod.angles.front;
+                imgEl.style.opacity = '1';
+              }, 80);
+            }
+          }
+        }
+      });
+    });
+
+    // Cambiar de Variante de Color mediante los puntos de color
+    container.querySelectorAll('[data-switch-to-sku]').forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        const targetSku = e.currentTarget.dataset.switchToSku;
+        if (targetSku) {
+          // Cambiar categoría si fuera necesario o re-renderizar la tarjeta
+          renderRepertorioView();
+        }
+      });
+    });
+
+    // Botón Agregar al Set
+    container.querySelectorAll('[data-add-sku]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const sku = e.currentTarget.dataset.addSku;
+        const existing = repertorioState.customSetItems.find(i => i.sku === sku);
+        if (existing) {
+          existing.qty += 1;
+        } else {
+          repertorioState.customSetItems.push({ sku, qty: 1 });
+        }
+        renderRepertorioView();
+      });
+    });
+
+    // Steppers de Cantidad en la Tarjeta
+    container.querySelectorAll('.custom-item-stepper [data-stepper-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const action = e.currentTarget.dataset.stepperAction;
+        const sku = e.currentTarget.dataset.sku;
+        handleCustomItemQty(sku, action);
+      });
+    });
+  }
+
+  function attachCustomSummaryEvents() {
+    const summaryPanel = document.getElementById('custom-summary-panel');
+    if (!summaryPanel) return;
+
+    // Steppers en el resumen
+    summaryPanel.querySelectorAll('.summary-item-actions [data-stepper-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const action = e.currentTarget.dataset.stepperAction;
+        const sku = e.currentTarget.dataset.sku;
+        handleCustomItemQty(sku, action);
+      });
+    });
+
+    // Copiar WhatsApp
+    document.getElementById('btn-copy-custom-whatsapp')?.addEventListener('click', () => {
+      copyCustomQuoteToWhatsApp(calculateCustomSetTotals());
+    });
+
+    // Ver Propuesta Formal
+    document.getElementById('btn-view-custom-quote')?.addEventListener('click', () => {
+      openQuoteModal(true);
+    });
+  }
+
+  function handleCustomItemQty(sku, action) {
+    const itemIndex = repertorioState.customSetItems.findIndex(i => i.sku === sku);
+    if (itemIndex > -1) {
+      if (action === 'inc') {
+        repertorioState.customSetItems[itemIndex].qty += 1;
+      } else if (action === 'dec') {
+        repertorioState.customSetItems[itemIndex].qty -= 1;
+        if (repertorioState.customSetItems[itemIndex].qty <= 0) {
+          repertorioState.customSetItems.splice(itemIndex, 1);
+        }
+      }
+      renderRepertorioView();
+    }
+  }
+
+  // ==========================================
+  // EVENTOS DEL MAGAZINE / FLIPBOOK
+  // ==========================================
   function navigateToSpread(targetSpread) {
     if (targetSpread < 1 || targetSpread > 5) return;
     repertorioState.currentSpread = targetSpread;
