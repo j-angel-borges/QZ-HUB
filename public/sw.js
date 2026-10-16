@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.3.6 (FIXED STICKY DECK & ZERO GAP SUMMARY)
+// QZ-HUB SERVICE WORKER — v4.3.7 (FULL DESKTOP WIDTH PARITY FOR MAGAZINE & BUILDER)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.3.6-fixed-sticky-deck';
+const CACHE_NAME = 'qz-hub-v4.3.7-desktop-width-parity';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
