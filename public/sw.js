@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.3.3 (SOLID FLUSH STICKY HEADERS & NO GAPS)
+// QZ-HUB SERVICE WORKER — v4.3.4 (PERFECT FLUSH HEADER NAV)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.3.3-solid-flush-sticky-headers';
+const CACHE_NAME = 'qz-hub-v4.3.4-perfect-flush-header-nav';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
