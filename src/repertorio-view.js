@@ -951,76 +951,79 @@ function renderCustomBuilderScreen() {
   return `
     <div class="repertorio-custom-builder animate-fade-in">
       
-      <!-- Barra Superior Compacta de Configuración -->
-      <div class="custom-builder-controls-panel">
-        <!-- Selector de Familia -->
-        <div class="config-control-group">
-          <span class="config-label">Familia:</span>
-          <div class="config-pills-row">
-            ${Object.values(REPERTORIO_DATA.families).map(fam => `
-              <button 
-                type="button" 
-                class="config-pill-btn ${fam.id === repertorioState.selectedFamily ? 'active' : ''}" 
-                data-custom-family="${fam.id}"
-                title="${fam.membersLabel}"
-              >
-                ${fam.name}
-              </button>
-            `).join('')}
-          </div>
-        </div>
-
-        <!-- Toggle de Licencia ZentryOS -->
-        <div class="config-toggle-group">
-          <label class="config-toggle-label" title="Incluir despliegue de software ZentryOS y Parental Dashboard">
-            <input type="checkbox" id="toggle-custom-impl" ${repertorioState.includeImplementation ? 'checked' : ''} />
-            <span class="toggle-slider"></span>
-            <div class="toggle-text-block">
-              <span class="toggle-main-title">
-                ${repertorioState.includeImplementation 
-                  ? `ZentryOS (${formatMoney(REPERTORIO_DATA.implementations[currentFam.defaultImpl].priceUSD, REPERTORIO_DATA.implementations[currentFam.defaultImpl].pricePEN)})` 
-                  : 'Solo Hardware'}
-              </span>
+      <!-- Zona Superior Consolidada Fija (Sin huecos, fondo sólido continuo) -->
+      <div class="custom-builder-sticky-header-zone">
+        
+        <!-- Barra 2: Controles de Familia y Opciones -->
+        <div class="custom-builder-controls-panel">
+          <!-- Selector de Familia -->
+          <div class="config-control-group">
+            <span class="config-label">Familia:</span>
+            <div class="config-pills-row">
+              ${Object.values(REPERTORIO_DATA.families).map(fam => `
+                <button 
+                  type="button" 
+                  class="config-pill-btn ${fam.id === repertorioState.selectedFamily ? 'active' : ''}" 
+                  data-custom-family="${fam.id}"
+                  title="${fam.membersLabel}"
+                >
+                  ${fam.name}
+                </button>
+              `).join('')}
             </div>
-          </label>
-        </div>
+          </div>
 
-        <!-- Presets Rápidos -->
-        <div class="config-presets-group">
-          <span class="presets-label">Base:</span>
-          <div class="presets-buttons">
-            <button type="button" class="btn btn-xs btn-outline" data-load-template="essential">Esencial</button>
-            <button type="button" class="btn btn-xs btn-outline" data-load-template="omni">OMNI</button>
-            <button type="button" class="btn btn-xs btn-outline" data-load-template="integral">Integral</button>
-            <button type="button" class="btn btn-xs btn-outline" data-load-template="fullhouse">Full House</button>
-            ${repertorioState.customSetItems.length > 0 ? `
-              <button type="button" class="btn btn-xs btn-outline" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" id="btn-clear-custom-set">Vaciar</button>
-            ` : ''}
+          <!-- Toggle de Licencia ZentryOS -->
+          <div class="config-toggle-group">
+            <label class="config-toggle-label" title="Incluir despliegue de software ZentryOS y Parental Dashboard">
+              <input type="checkbox" id="toggle-custom-impl" ${repertorioState.includeImplementation ? 'checked' : ''} />
+              <span class="toggle-slider"></span>
+              <div class="toggle-text-block">
+                <span class="toggle-main-title">
+                  ${repertorioState.includeImplementation 
+                    ? `ZentryOS (${formatMoney(REPERTORIO_DATA.implementations[currentFam.defaultImpl].priceUSD, REPERTORIO_DATA.implementations[currentFam.defaultImpl].pricePEN)})` 
+                    : 'Solo Hardware'}
+                </span>
+              </div>
+            </label>
+          </div>
+
+          <!-- Presets Rápidos -->
+          <div class="config-presets-group">
+            <span class="presets-label">Base:</span>
+            <div class="presets-buttons">
+              <button type="button" class="btn btn-xs btn-outline" data-load-template="essential">Esencial</button>
+              <button type="button" class="btn btn-xs btn-outline" data-load-template="omni">OMNI</button>
+              <button type="button" class="btn btn-xs btn-outline" data-load-template="integral">Integral</button>
+              <button type="button" class="btn btn-xs btn-outline" data-load-template="fullhouse">Full House</button>
+              ${repertorioState.customSetItems.length > 0 ? `
+                <button type="button" class="btn btn-xs btn-outline" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" id="btn-clear-custom-set">Vaciar</button>
+              ` : ''}
+            </div>
           </div>
         </div>
+
+        <!-- Barra 3: Pestañas de Categoría de Productos -->
+        <div class="catalog-category-tabs">
+          ${CATALOG_CATEGORIES.map(cat => `
+            <button 
+              type="button" 
+              class="category-tab-btn ${repertorioState.customBuilderCategory === cat.id ? 'active' : ''}" 
+              data-cat-id="${cat.id}"
+            >
+              <span class="cat-icon">${cat.icon}</span>
+              <span class="cat-name">${cat.name}</span>
+            </button>
+          `).join('')}
+        </div>
+
       </div>
 
       <!-- Layout de Dos Columnas: Catálogo + Resumen Sticky -->
       <div class="custom-builder-layout">
         
-        <!-- Columna de Catálogo -->
+        <!-- Columna de Catálogo (Grid de Productos) -->
         <div class="custom-builder-catalog-col">
-          
-          <!-- Filtro de Categorías -->
-          <div class="catalog-category-tabs">
-            ${CATALOG_CATEGORIES.map(cat => `
-              <button 
-                type="button" 
-                class="category-tab-btn ${repertorioState.customBuilderCategory === cat.id ? 'active' : ''}" 
-                data-cat-id="${cat.id}"
-              >
-                <span class="cat-icon">${cat.icon}</span>
-                <span class="cat-name">${cat.name}</span>
-              </button>
-            `).join('')}
-          </div>
-
-          <!-- Grid de Productos -->
           <div class="custom-catalog-grid" id="custom-catalog-grid-container">
             ${renderProductCatalogGrid()}
           </div>

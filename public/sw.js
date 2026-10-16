@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.3.2 (STICKY BUILDER PANELS & PINNED CONTROLS)
+// QZ-HUB SERVICE WORKER — v4.3.3 (SOLID FLUSH STICKY HEADERS & NO GAPS)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.3.2-sticky-builder-panels';
+const CACHE_NAME = 'qz-hub-v4.3.3-solid-flush-sticky-headers';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
