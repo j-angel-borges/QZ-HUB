@@ -9605,7 +9605,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   gap: 14px;
   min-height: 54px;
   padding: 8px 20px 8px 20px; /* Padding limpio estándar cuando el sidebar está abierto */
-  border-radius: 0;
+  border-radius: 12px 12px 0 0;
   background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -9619,9 +9619,9 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   transition: padding-left 0.25s ease;
 }
 
-/* Cuando el sidebar está colapsado, dar espacio para el botón hamburguesa */
+/* Cuando el sidebar está colapsado, separar limpiamente el contenido del botón hamburguesa */
 .notion-layout.sidebar-collapsed .repertorio-header-bar {
-  padding-left: 56px;
+  padding-left: 64px;
 }
 
 .repertorio-header-left {
@@ -11377,8 +11377,9 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   background: #ffffff;
   border-top: 1px solid #f1f5f9;
   border-bottom: 1px solid #e2e8f0;
+  border-radius: 0 0 12px 12px;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
-  padding: 8px 16px 8px 16px;
+  padding: 8px 16px 10px 16px;
   margin: 0 -16px 0 -16px;
   display: flex;
   flex-direction: column;

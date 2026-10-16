@@ -1,12 +1,17 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.3.8 (SEAMLESS DOCKED DECK & ZERO GAP SCROLL)
+// QZ-HUB SERVICE WORKER — v4.3.9 (HARMONIZED ROUNDED DECK & TOGGLE CLEARANCE)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.3.8-zero-gap-deck';
+const CACHE_NAME = 'qz-hub-v4.3.9-deck-harmony';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/favicon.svg',
   '/manifest.json',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/icon-maskable-192.png',
+  '/icons/icon-maskable-512.png',
+  '/icons/apple-touch-icon.png',
   '/assets/quarz/QUARZ_3D_Cuarzo_Vertical_QZ-removebg-preview.png'
 ];
 
