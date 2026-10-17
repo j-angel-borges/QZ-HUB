@@ -4788,13 +4788,13 @@ function renderEspacioPersonal(container) {
   // Mapeo rápido de cuadrantes por slot para pintar la barra vertical indicadora
   const timeToQuadrantMap = {};
   quadrants.forEach(q => {
-    // Determinar qué slots caen dentro de [startTime, endTime]
-    slots.forEach(slot => {
-      if (slot.time >= q.startTime && slot.time <= q.endTime) {
-        // Si hay varios cuadrantes que solapan, priorizamos el más reciente
-        timeToQuadrantMap[slot.time] = q;
+    const startIdx = slots.findIndex(s => s.time === q.startTime);
+    const endIdx = slots.findIndex(s => s.time === q.endTime);
+    if (startIdx !== -1 && endIdx !== -1 && endIdx >= startIdx) {
+      for (let i = startIdx; i <= endIdx; i++) {
+        timeToQuadrantMap[slots[i].time] = q;
       }
-    });
+    }
   });
 
   // Build timeblock rows

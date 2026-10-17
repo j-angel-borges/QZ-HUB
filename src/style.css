@@ -2541,6 +2541,7 @@ body[data-module="zentry"] .workspace-banner {
 }
 
 .timeblock-slot {
+  position: relative !important;
   display: grid;
   grid-template-columns: 24px 72px 1fr;
   min-height: 38px;
@@ -2967,7 +2968,8 @@ body[data-module="zentry"] .workspace-banner {
 /* ─── VISTA VIEW: SOLO HORAS Y CANVAS CALENDAR ────────────────────────────── */
 .timeblock-container.view-mode .timeblock-drag-handle,
 .timeblock-container.view-mode .timeblock-content,
-.timeblock-container.view-mode .timeblock-details {
+.timeblock-container.view-mode .timeblock-details,
+.timeblock-container.view-mode .timeblock-quadrant-indicator {
   display: none !important;
 }
 
