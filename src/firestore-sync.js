@@ -331,6 +331,9 @@ export function hydrateLocalStorage(data) {
     for (const [dateStr, blocks] of Object.entries(data.timeblocks)) {
       if (blocks && typeof blocks === 'object' && Object.keys(blocks).length > 0) {
         localStorage.setItem(`zentry_timeblock_${dateStr}`, JSON.stringify(blocks));
+        if (Array.isArray(blocks._quadrants)) {
+          localStorage.setItem(`zentry_quadrants_${dateStr}`, JSON.stringify(blocks._quadrants));
+        }
       }
     }
   }

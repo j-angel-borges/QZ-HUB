@@ -92,6 +92,7 @@ const state = {
   currentEditingTask: null,
   // Espacio Personal state
   personalDate: getLocalDateString(),
+  timeblockViewMode: false, // false = normal (content visible), true = VIEW (blocks/hours only)
   chatMessages: [],
   pendingSuggestions: null,
   calendarEvents: [],
@@ -428,6 +429,24 @@ function getTimeblockData(dateStr) {
 function saveTimeblockData(dateStr, data) {
   localStorage.setItem(`zentry_timeblock_${dateStr}`, JSON.stringify(data));
   syncTimeblock(dateStr, data);
+}
+
+// Cuadrantes / Bloques extendidos de Timeblocking (VIEW mode)
+function getTimeblockQuadrants(dateStr) {
+  const key = `zentry_quadrants_${dateStr}`;
+  const stored = localStorage.getItem(key);
+  if (stored) {
+    try { return JSON.parse(stored); } catch(e) { return []; }
+  }
+  return [];
+}
+
+function saveTimeblockQuadrants(dateStr, quadrants) {
+  localStorage.setItem(`zentry_quadrants_${dateStr}`, JSON.stringify(quadrants));
+  // Sincronizar en timeblock global de la fecha para respaldo transparente en Firestore
+  const tbData = getTimeblockData(dateStr);
+  tbData._quadrants = quadrants;
+  saveTimeblockData(dateStr, tbData);
 }
 
 function updateBrickInStorage(dateStr, timeStr, updates) {
@@ -4761,8 +4780,22 @@ function renderPersonalLockScreen(container, targetMode = 'personal') {
 function renderEspacioPersonal(container) {
   const dateStr = state.personalDate;
   const timeblockData = getTimeblockData(dateStr);
+  const quadrants = getTimeblockQuadrants(dateStr);
+  const isViewMode = !!state.timeblockViewMode;
   const slots = generateTimeSlots();
   const isToday = dateStr === getLocalDateString();
+
+  // Mapeo rápido de cuadrantes por slot para pintar la barra vertical indicadora
+  const timeToQuadrantMap = {};
+  quadrants.forEach(q => {
+    // Determinar qué slots caen dentro de [startTime, endTime]
+    slots.forEach(slot => {
+      if (slot.time >= q.startTime && slot.time <= q.endTime) {
+        // Si hay varios cuadrantes que solapan, priorizamos el más reciente
+        timeToQuadrantMap[slot.time] = q;
+      }
+    });
+  });
 
   // Build timeblock rows
   let slotsHtml = '';
@@ -4801,8 +4834,18 @@ function renderEspacioPersonal(container) {
       </div>
     `;
 
+    // Barra vertical indicadora del cuadrante
+    const assignedQuad = timeToQuadrantMap[slot.time];
+    let quadrantIndicatorHtml = '';
+    if (assignedQuad) {
+      quadrantIndicatorHtml = `
+        <div class="timeblock-quadrant-indicator" data-quadrant-id="${assignedQuad.id}" style="background-color: ${assignedQuad.color || '#8b5cf6'};" title="${assignedQuad.title || 'Bloque'} (${assignedQuad.startTime} - ${assignedQuad.endTime})"></div>
+      `;
+    }
+
     slotsHtml += `
-      <div class="timeblock-slot${extraClass}" data-time="${slot.time}" draggable="true">
+      <div class="timeblock-slot${extraClass}" data-time="${slot.time}" draggable="${!isViewMode}">
+        ${quadrantIndicatorHtml}
         <div class="timeblock-drag-handle" title="Arrastrar para mover">≡</div>
         <div class="timeblock-time-label">${timeLabel}</div>
         <div class="timeblock-right">
@@ -4824,9 +4867,30 @@ function renderEspacioPersonal(container) {
             </div>
           </div>
         </div>
+        <div class="timeblock-view-slot-area" data-time="${slot.time}"></div>
       </div>
     `;
   });
+
+  // Renderizar cuadrantes superpuestos en modo VIEW
+  let viewCardsHtml = '';
+  if (isViewMode) {
+    quadrants.forEach(q => {
+      const startIndex = slots.findIndex(s => s.time === q.startTime);
+      const endIndex = slots.findIndex(s => s.time === q.endTime);
+      if (startIndex !== -1 && endIndex !== -1 && endIndex >= startIndex) {
+        const topPx = startIndex * 38;
+        const heightPx = (endIndex - startIndex + 1) * 38;
+        const bgColor = q.color || '#8b5cf6';
+        viewCardsHtml += `
+          <div class="timeblock-view-card" data-quadrant-id="${q.id}" style="top: ${topPx + 2}px; height: ${heightPx - 4}px; background: ${bgColor}; color: #ffffff;">
+            <div class="timeblock-view-card-title">${q.title || '(Sin título)'}</div>
+            <div class="timeblock-view-card-time">${formatTime12h(q.startTime)} - ${formatTime12h(q.endTime)}</div>
+          </div>
+        `;
+      }
+    });
+  }
 
   container.innerHTML = `
     <div class="espacio-personal-header">
@@ -4853,6 +4917,9 @@ function renderEspacioPersonal(container) {
       ${!isToday ? '<button class="date-nav-today-btn" id="date-today">Hoy</button>' : ''}
       <button class="date-nav-btn" id="date-next">▶</button>
       <div style="flex: 1;"></div>
+      <button type="button" class="btn-timeblock-view ${isViewMode ? 'active' : ''}" id="btn-toggle-view" title="Alternar entre Vista Detallada y Vista Bloques Cuadrantes">
+        <span>👁️</span> VIEW
+      </button>
       <button class="gcal-sign-in-btn ${state.calendarConnected ? 'connected' : ''}" id="gcal-connect">
         ${state.calendarConnected ? '✅ Calendar Conectado' : '📅 Conectar Calendar'}
       </button>
@@ -4861,10 +4928,11 @@ function renderEspacioPersonal(container) {
     </div>
 
     <div class="espacio-personal-layout">
-      <div class="timeblock-container">
+      <div class="timeblock-container ${isViewMode ? 'view-mode' : ''}">
         <div class="timeblock-grid" id="timeblock-grid">
           ${isToday ? '<div class="timeblock-current-time" id="current-time-line"></div>' : ''}
           ${slotsHtml}
+          ${isViewMode ? `<div class="timeblock-view-quadrants-layer" id="timeblock-quadrants-layer">${viewCardsHtml}</div>` : ''}
         </div>
       </div>
     </div>
@@ -4894,6 +4962,12 @@ function renderEspacioPersonal(container) {
   });
   document.getElementById('date-today')?.addEventListener('click', () => {
     state.personalDate = getLocalDateString();
+    renderEspacioPersonal(container);
+  });
+
+  // Toggle VIEW Mode
+  document.getElementById('btn-toggle-view')?.addEventListener('click', () => {
+    state.timeblockViewMode = !state.timeblockViewMode;
     renderEspacioPersonal(container);
   });
 
@@ -5278,6 +5352,259 @@ function renderEspacioPersonal(container) {
       if (workspaceContent) renderEspacioPersonal(workspaceContent);
     });
   });
+
+  // ==============================================================================
+  // TIMEBLOCKING VIEW MODE: DRAG-TO-CREATE & QUADRANT EDITING ENGINE
+  // ==============================================================================
+
+  // Modal de Cuadrante (Crear / Editar / Eliminar)
+  const openQuadrantModal = (quadrant, isNew = false) => {
+    // Eliminar modal previo si existiese
+    document.getElementById('tb-quadrant-modal-root')?.remove();
+
+    const modalRoot = document.createElement('div');
+    modalRoot.id = 'tb-quadrant-modal-root';
+    modalRoot.className = 'tb-quadrant-modal-backdrop';
+
+    const defaultColors = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#ef4444', '#64748b'];
+
+    modalRoot.innerHTML = `
+      <div class="tb-quadrant-modal" role="dialog" aria-modal="true">
+        <div class="tb-modal-header">
+          <h3 class="tb-modal-title">${isNew ? '✨ Nuevo Bloque de Horas' : '✏️ Editar Bloque de Horas'}</h3>
+          <button type="button" class="tb-modal-close-btn" id="tb-modal-close" title="Cerrar">✕</button>
+        </div>
+        <div class="tb-modal-body">
+          <div class="tb-modal-time-badge">
+            <span>⏱️</span>
+            <span>${formatTime12h(quadrant.startTime)} — ${formatTime12h(quadrant.endTime)}</span>
+          </div>
+
+          <div>
+            <label class="tb-modal-label" for="tb-quad-title">Título o Enfoque del Bloque</label>
+            <input type="text" id="tb-quad-title" class="tb-modal-input" placeholder="Ej: Deep Work, Diseño, Reunión, Gimnasio..." value="${(quadrant.title || '').replace(/"/g, '&quot;')}" autofocus>
+          </div>
+
+          <div>
+            <label class="tb-modal-label">Color del Bloque (Estilo Paint Libre)</label>
+            <div class="tb-color-picker-row">
+              <input type="color" id="tb-quad-color" class="tb-color-native-input" value="${quadrant.color || '#8b5cf6'}" title="Elegir cualquier color con paleta">
+              <div class="tb-color-presets">
+                ${defaultColors.map(c => `
+                  <div class="tb-color-preset-dot" data-color="${c}" style="background-color: ${c};" title="${c}"></div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tb-modal-footer">
+          ${!isNew ? `
+            <button type="button" class="tb-modal-btn-delete" id="tb-modal-delete">
+              <span>🗑️</span> Eliminar
+            </button>
+          ` : ''}
+          <button type="button" class="tb-modal-btn-save" id="tb-modal-save">
+            ${isNew ? 'Crear Bloque' : 'Guardar Cambios'}
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modalRoot);
+
+    const inputTitle = modalRoot.querySelector('#tb-quad-title');
+    const inputColor = modalRoot.querySelector('#tb-quad-color');
+    const closeBtn = modalRoot.querySelector('#tb-modal-close');
+    const saveBtn = modalRoot.querySelector('#tb-modal-save');
+    const deleteBtn = modalRoot.querySelector('#tb-modal-delete');
+
+    setTimeout(() => inputTitle?.focus(), 50);
+
+    // Seleccionar color de presets rápidos
+    modalRoot.querySelectorAll('.tb-color-preset-dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        if (inputColor) inputColor.value = dot.dataset.color;
+      });
+    });
+
+    const closeModal = () => {
+      modalRoot.remove();
+    };
+
+    closeBtn?.addEventListener('click', closeModal);
+    modalRoot.addEventListener('click', (e) => {
+      if (e.target === modalRoot) closeModal();
+    });
+
+    // Guardar
+    const saveAction = () => {
+      const title = inputTitle?.value.trim() || 'Bloque sin título';
+      const color = inputColor?.value || '#8b5cf6';
+
+      const currentQuadrants = getTimeblockQuadrants(state.personalDate);
+      if (isNew) {
+        currentQuadrants.push({
+          id: quadrant.id || ('quad_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5)),
+          startTime: quadrant.startTime,
+          endTime: quadrant.endTime,
+          title,
+          color
+        });
+      } else {
+        const idx = currentQuadrants.findIndex(q => q.id === quadrant.id);
+        if (idx !== -1) {
+          currentQuadrants[idx].title = title;
+          currentQuadrants[idx].color = color;
+        }
+      }
+
+      saveTimeblockQuadrants(state.personalDate, currentQuadrants);
+      closeModal();
+      renderEspacioPersonal(container);
+    };
+
+    saveBtn?.addEventListener('click', saveAction);
+    inputTitle?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveAction();
+      } else if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // Eliminar
+    deleteBtn?.addEventListener('click', () => {
+      if (confirm('¿Deseas eliminar este bloque de horas?')) {
+        let currentQuadrants = getTimeblockQuadrants(state.personalDate);
+        currentQuadrants = currentQuadrants.filter(q => q.id !== quadrant.id);
+        saveTimeblockQuadrants(state.personalDate, currentQuadrants);
+        closeModal();
+        renderEspacioPersonal(container);
+      }
+    });
+  };
+
+  // Interacción en la vista estándar: Clic en la barra indicadora vertical
+  container.querySelectorAll('.timeblock-quadrant-indicator').forEach(ind => {
+    ind.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const qId = ind.dataset.quadrantId;
+      const quad = quadrants.find(q => q.id === qId);
+      if (quad) {
+        openQuadrantModal(quad, false);
+      }
+    });
+  });
+
+  // Interacción en la vista VIEW: Clic en cuadrante existente para editar o eliminar
+  if (isViewMode) {
+    container.querySelectorAll('.timeblock-view-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const qId = card.dataset.quadrantId;
+        const quad = quadrants.find(q => q.id === qId);
+        if (quad) {
+          openQuadrantModal(quad, false);
+        }
+      });
+    });
+
+    // Motor Drag-to-Create tipo Google Calendar sobre la cuadrícula
+    const grid = container.querySelector('#timeblock-grid');
+    const slotElements = Array.from(container.querySelectorAll('.timeblock-slot'));
+    let isDragging = false;
+    let dragStartSlot = null;
+    let dragCurrentSlot = null;
+    let previewEl = null;
+
+    const getSlotIndexFromTime = (timeStr) => slots.findIndex(s => s.time === timeStr);
+
+    const updateDragPreview = () => {
+      if (!isDragging || !dragStartSlot || !dragCurrentSlot || !grid) return;
+
+      const idx1 = getSlotIndexFromTime(dragStartSlot);
+      const idx2 = getSlotIndexFromTime(dragCurrentSlot);
+      if (idx1 === -1 || idx2 === -1) return;
+
+      const minIdx = Math.min(idx1, idx2);
+      const maxIdx = Math.max(idx1, idx2);
+
+      const topPx = minIdx * 38;
+      const heightPx = (maxIdx - minIdx + 1) * 38;
+
+      if (!previewEl) {
+        previewEl = document.createElement('div');
+        previewEl.className = 'timeblock-drag-preview';
+        grid.appendChild(previewEl);
+      }
+
+      previewEl.style.top = `${topPx + 2}px`;
+      previewEl.style.height = `${heightPx - 4}px`;
+      const timeStartStr = slots[minIdx].time;
+      const timeEndStr = slots[maxIdx].time;
+      previewEl.innerHTML = `<span>➕ ${formatTime12h(timeStartStr)} — ${formatTime12h(timeEndStr)}</span>`;
+    };
+
+    const cleanupDrag = () => {
+      isDragging = false;
+      dragStartSlot = null;
+      dragCurrentSlot = null;
+      if (previewEl) {
+        previewEl.remove();
+        previewEl = null;
+      }
+    };
+
+    // Finalizar arrastre
+    const handleMouseUp = (e) => {
+      if (!isDragging) return;
+
+      const idx1 = getSlotIndexFromTime(dragStartSlot);
+      const idx2 = getSlotIndexFromTime(dragCurrentSlot);
+
+      if (idx1 !== -1 && idx2 !== -1) {
+        const minIdx = Math.min(idx1, idx2);
+        const maxIdx = Math.max(idx1, idx2);
+        const startTime = slots[minIdx].time;
+        const endTime = slots[maxIdx].time;
+
+        cleanupDrag();
+
+        // Abrir modal para configurar el bloque creado
+        openQuadrantModal({
+          id: 'quad_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+          startTime,
+          endTime,
+          title: '',
+          color: '#8b5cf6'
+        }, true);
+      } else {
+        cleanupDrag();
+      }
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    // Escuchar mousedown en las áreas de slots
+    container.querySelectorAll('.timeblock-view-slot-area').forEach(slotArea => {
+      slotArea.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return; // solo botón izquierdo
+        e.preventDefault();
+        isDragging = true;
+        dragStartSlot = slotArea.dataset.time;
+        dragCurrentSlot = slotArea.dataset.time;
+        updateDragPreview();
+        window.addEventListener('mouseup', handleMouseUp);
+      });
+
+      slotArea.addEventListener('mouseenter', () => {
+        if (!isDragging) return;
+        dragCurrentSlot = slotArea.dataset.time;
+        updateDragPreview();
+      });
+    });
+  }
 }
 
 function renderHistoryView(container) {
