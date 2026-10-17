@@ -478,7 +478,7 @@ export const repertorioState = {
     { sku: 'ZT-RING-WHT', qty: 1 },
     { sku: 'ZT-PHN-BLK', qty: 1 }
   ],
-  productAngles: {} // Mapa de sku -> 'front' | 'back' | 'perspective3d'
+  productAngles: {} // Mapa de sku -> 'front' | 'back'
 };
 
 /**
@@ -1093,17 +1093,6 @@ function renderProductCatalogGrid() {
                 title="Trasera"
               >
                 Back
-              </button>
-            ` : ''}
-            ${prod.angles.perspective3d && prod.angles.perspective3d !== prod.angles.front ? `
-              <button 
-                type="button" 
-                class="angle-mini-btn ${activeAngle === 'perspective3d' ? 'active' : ''}" 
-                data-angle-sku="${prod.sku}" 
-                data-angle="perspective3d"
-                title="3D"
-              >
-                3D
               </button>
             ` : ''}
           </div>

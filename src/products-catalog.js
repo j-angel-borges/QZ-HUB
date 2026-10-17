@@ -44,7 +44,6 @@ export const PRODUCTS_CATALOG = [
     angles: {
       front: '/assets/products/smarttabs/smarttab_negro_frontal.png',
       back: '/assets/products/smarttabs/smarttab_negro_trasero.png',
-      perspective3d: '/assets/products/smarttabs/smarttab_negro_frontal.png'
     }
   },
   {
@@ -74,7 +73,6 @@ export const PRODUCTS_CATALOG = [
     angles: {
       front: '/assets/products/smarttabs/smarttab_blanco_frontal.png',
       back: '/assets/products/smarttabs/smarttab_blanco_trasero.png',
-      perspective3d: '/assets/products/smarttabs/smarttab_blanco_frontal.png'
     }
   },
 
@@ -107,9 +105,7 @@ export const PRODUCTS_CATALOG = [
     ],
     angles: {
       front: '/assets/products/smartphones/smartphone_negro_frontal.png',
-      back: '/assets/products/smartphones/smartphone_negro_trasero.png',
-      perspective3d: '/assets/products/smartphones/celular_zentry_perspectiva_3d_titanium.png',
-      detail: '/assets/products/smartphones/celular_zentry_detalle_camara.png'
+      back: '/assets/products/smartphones/smartphone_negro_trasero.png'
     }
   },
   {
@@ -138,9 +134,7 @@ export const PRODUCTS_CATALOG = [
     ],
     angles: {
       front: '/assets/products/smartphones/smartphone_blanco_frontal.png',
-      back: '/assets/products/smartphones/smartphone_blanco_trasero.png',
-      perspective3d: '/assets/products/smartphones/celular_zentry_perspectiva_3d_titanium.png',
-      detail: '/assets/products/smartphones/celular_zentry_detalle_camara.png'
+      back: '/assets/products/smartphones/smartphone_blanco_trasero.png'
     }
   },
 
@@ -173,8 +167,7 @@ export const PRODUCTS_CATALOG = [
     ],
     angles: {
       front: '/assets/products/smartrings/smartring_blanco_frontal.png',
-      back: '/assets/products/smartrings/smartring_blanco_trasero.png',
-      perspective3d: '/assets/products/smartrings/smartring_blanco_acero_perfil_sensores.png'
+      back: '/assets/products/smartrings/smartring_blanco_trasero.png'
     }
   },
   {
@@ -203,8 +196,7 @@ export const PRODUCTS_CATALOG = [
     ],
     angles: {
       front: '/assets/products/smartrings/smartring_negro_frontal.png',
-      back: '/assets/products/smartrings/smartring_negro_trasero.png',
-      perspective3d: '/assets/products/smartrings/smartring_negro_acero_perfil_sensores.png'
+      back: '/assets/products/smartrings/smartring_negro_trasero.png'
     }
   },
 
@@ -238,7 +230,6 @@ export const PRODUCTS_CATALOG = [
     angles: {
       front: '/assets/products/smartwatches/smartwatch_negro_frontal.png',
       back: '/assets/products/smartwatches/smartwatch_negro_trasero.png',
-      perspective3d: '/assets/products/smartwatches/smartwatch_zentry_circular_grafito_perfil_3d.png'
     }
   },
   {
@@ -268,7 +259,6 @@ export const PRODUCTS_CATALOG = [
     angles: {
       front: '/assets/products/smartwatches/smartwatch_blanco_frontal.png',
       back: '/assets/products/smartwatches/smartwatch_blanco_trasero.png',
-      perspective3d: '/assets/products/smartwatches/smartwatch_zentry_circular_grafito_perfil_3d.png'
     }
   },
   {
@@ -298,7 +288,6 @@ export const PRODUCTS_CATALOG = [
     angles: {
       front: '/assets/products/smartwatches/smartwatch_tela_blanco_frontal.png',
       back: '/assets/products/smartwatches/smartwatch_tela_blanco_trasero.png',
-      perspective3d: '/assets/products/smartwatches/smartwatch_zentry_circular_grafito_perfil_3d.png'
     }
   },
   {
@@ -328,7 +317,6 @@ export const PRODUCTS_CATALOG = [
     angles: {
       front: '/assets/products/smartwatches/smartwatch_negro_frontal.png',
       back: '/assets/products/smartwatches/smartwatch_tela_negro_trasero.png',
-      perspective3d: '/assets/products/smartwatches/smartwatch_zentry_circular_grafito_perfil_3d.png'
     }
   },
 
@@ -361,8 +349,7 @@ export const PRODUCTS_CATALOG = [
     ],
     angles: {
       front: '/assets/products/smartbands/smartband_plastico_negro_frontal.png',
-      back: '/assets/products/smartbands/smartband_plastico_blanco_trasero.png',
-      perspective3d: '/assets/products/smartbands/smartband_plastico_negro_frontal.png'
+      back: '/assets/products/smartbands/smartband_plastico_negro_trasero.png',
     }
   },
   {
@@ -392,7 +379,6 @@ export const PRODUCTS_CATALOG = [
     angles: {
       front: '/assets/products/smartbands/smartband_plastico_blanco_frontal.png',
       back: '/assets/products/smartbands/smartband_plastico_blanco_trasero.png',
-      perspective3d: '/assets/products/smartbands/smartband_plastico_blanco_frontal.png'
     }
   },
   {
@@ -422,7 +408,6 @@ export const PRODUCTS_CATALOG = [
     angles: {
       front: '/assets/products/smartbands/smartband_tela_negro_frontal.png',
       back: '/assets/products/smartbands/smartband_tela_negro_trasero.png',
-      perspective3d: '/assets/products/smartbands/smartband_tela_negro_frontal.png'
     }
   },
   {
@@ -452,7 +437,6 @@ export const PRODUCTS_CATALOG = [
     angles: {
       front: '/assets/products/smartbands/smartband_tela_blanco_frontal.png',
       back: '/assets/products/smartbands/smartband_tela_negro_trasero.png',
-      perspective3d: '/assets/products/smartbands/smartband_tela_blanco_frontal.png'
     }
   },
 
@@ -486,7 +470,6 @@ export const PRODUCTS_CATALOG = [
     angles: {
       front: '/assets/products/smartsound/smartsound_blanco_frontal.png',
       back: '/assets/products/smartsound/smartsound_blanco_frontal.png',
-      perspective3d: '/assets/products/smartsound/smartsound_blanco_frontal.png'
     }
   },
   {
@@ -516,7 +499,6 @@ export const PRODUCTS_CATALOG = [
     angles: {
       front: '/assets/products/smartsound/smartsound_negro_frontal.png',
       back: '/assets/products/smartsound/smartsound_negro_frontal.png',
-      perspective3d: '/assets/products/smartsound/smartsound_negro_frontal.png'
     }
   }
 ];
