@@ -560,41 +560,41 @@ export function calculateCustomSetTotals() {
 
   let hardwareUSD = 0;
   let hardwarePEN = 0;
+  let hardwareCount = 0;
+  let softwareUSD = 0;
+  let softwarePEN = 0;
+  let softwareCount = 0;
   let totalItemsCount = 0;
 
   items.forEach(item => {
-    hardwareUSD += item.product.priceUSD * item.qty;
-    hardwarePEN += item.product.pricePEN * item.qty;
+    const isSoftware = item.product.category === 'implementations';
+    const subUSD = item.product.priceUSD * item.qty;
+    const subPEN = item.product.pricePEN * item.qty;
+    if (isSoftware) {
+      softwareUSD += subUSD;
+      softwarePEN += subPEN;
+      softwareCount += item.qty;
+    } else {
+      hardwareUSD += subUSD;
+      hardwarePEN += subPEN;
+      hardwareCount += item.qty;
+    }
     totalItemsCount += item.qty;
   });
 
-  const implData = REPERTORIO_DATA.implementations[family.defaultImpl] || REPERTORIO_DATA.implementations.individual;
-  let implementationUSD = repertorioState.includeImplementation ? implData.priceUSD : 0;
-  let implementationPEN = repertorioState.includeImplementation ? implData.pricePEN : 0;
-
-  if (repertorioState.includeImplementation && repertorioState.additionalChildren > 0) {
-    implementationUSD += repertorioState.additionalChildren * REPERTORIO_DATA.implementations.custom.priceUSDPerChild;
-    implementationPEN += repertorioState.additionalChildren * REPERTORIO_DATA.implementations.custom.pricePENPerChild;
-  }
-
-  const benefitsValuePEN = REPERTORIO_DATA.benefits.reduce((acc, b) => acc + b.valuePEN, 0);
-  const benefitsValueUSD = Math.round(benefitsValuePEN / REPERTORIO_DATA.exchangeRate);
-
-  const totalUSD = hardwareUSD + implementationUSD;
-  const totalPEN = hardwarePEN + implementationPEN;
+  const totalUSD = hardwareUSD + softwareUSD;
+  const totalPEN = hardwarePEN + softwarePEN;
 
   return {
     family,
     items,
     totalItemsCount,
+    hardwareCount,
+    softwareCount,
     hardwareUSD,
     hardwarePEN,
-    implData,
-    implementationUSD,
-    implementationPEN,
-    benefitsValueUSD,
-    benefitsValuePEN,
-    includeImplementation: repertorioState.includeImplementation,
+    softwareUSD,
+    softwarePEN,
     totalUSD,
     totalPEN
   };
@@ -973,21 +973,6 @@ function renderCustomBuilderScreen() {
             </div>
           </div>
 
-          <!-- Toggle de Licencia ZentryOS -->
-          <div class="config-toggle-group">
-            <label class="config-toggle-label" title="Incluir despliegue de software ZentryOS y Parental Dashboard">
-              <input type="checkbox" id="toggle-custom-impl" ${repertorioState.includeImplementation ? 'checked' : ''} />
-              <span class="toggle-slider"></span>
-              <div class="toggle-text-block">
-                <span class="toggle-main-title">
-                  ${repertorioState.includeImplementation 
-                    ? `ZentryOS (${formatMoney(REPERTORIO_DATA.implementations[currentFam.defaultImpl].priceUSD, REPERTORIO_DATA.implementations[currentFam.defaultImpl].pricePEN)})` 
-                    : 'Solo Hardware'}
-                </span>
-              </div>
-            </label>
-          </div>
-
           <!-- Presets Rápidos -->
           <div class="config-presets-group">
             <span class="presets-label">Base:</span>
@@ -1189,28 +1174,18 @@ function renderCustomSummaryCardContent() {
         </div>
       `}
 
-      <!-- Desglose de Software ZentryOS -->
-      <div class="summary-software-box">
-        <div class="summary-soft-header">
-          <span class="summary-soft-title">ZentryOS</span>
-          <span class="summary-soft-price">
-            ${customTotals.includeImplementation 
-              ? formatMoney(customTotals.implementationUSD, customTotals.implementationPEN) 
-              : 'No incluida'}
-          </span>
-        </div>
-      </div>
-
       <!-- Cuadro de Totales Financieros -->
       <div class="summary-breakdown-box">
         <div class="summary-breakdown-line">
-          <span>Hardware (${customTotals.totalItemsCount}):</span>
+          <span>Hardware (${customTotals.hardwareCount}):</span>
           <strong>${formatMoney(customTotals.hardwareUSD, customTotals.hardwarePEN)}</strong>
         </div>
-        <div class="summary-breakdown-line">
-          <span>Software:</span>
-          <strong>${formatMoney(customTotals.implementationUSD, customTotals.implementationPEN)}</strong>
-        </div>
+        ${customTotals.softwareCount > 0 ? `
+          <div class="summary-breakdown-line">
+            <span>Software ZentryOS (${customTotals.softwareCount}):</span>
+            <strong>${formatMoney(customTotals.softwareUSD, customTotals.softwarePEN)}</strong>
+          </div>
+        ` : ''}
         <div class="summary-grand-total">
           <span class="grand-total-label">Total:</span>
           <span class="grand-total-amount">${formatMoney(customTotals.totalUSD, customTotals.totalPEN)}</span>
@@ -1246,23 +1221,24 @@ function renderCustomSummaryCardContent() {
  */
 export function copyCustomQuoteToWhatsApp(customTotals) {
   const currency = repertorioState.currency;
-  const itemsText = customTotals.items.map(i => `  • x${i.qty} ${i.product.fullName} [SKU: ${i.sku}] (${formatMoney(i.product.priceUSD * i.qty, i.product.pricePEN * i.qty, currency)})`).join('\n');
-  
-  const implText = customTotals.includeImplementation
-    ? `*2. Implementación de Software & Parental Dashboard:*\n  • ${customTotals.implData.name} (${customTotals.implData.devicesIncluded} dispositivos)\n  • Parental Dashboard Multidispositivo (2 vistas: Padre y Madre en celular, tablet y PC)\n  • Inversión Software: ${formatMoney(customTotals.implementationUSD, customTotals.implementationPEN, currency)}\n\n`
-    : `*2. Implementación de Software:*\n  • Solo adquisición de hardware (Sin despliegue de software)\n\n`;
+  const hardwareItems = customTotals.items.filter(i => i.product.category !== 'implementations');
+  const softwareItems = customTotals.items.filter(i => i.product.category === 'implementations');
 
-  const benefitsText = customTotals.includeImplementation
-    ? `🎁 *Beneficios de Regalo Incluidos:*\n  • 3 Clases de Inteligencia Artificial para Padres\n  • 100 Créditos de Generación Studio\n  • Pase Familiar "Zentry Experience"\n\n`
-    : '';
+  const hwText = hardwareItems.length > 0 
+    ? hardwareItems.map(i => `  • x${i.qty} ${i.product.fullName} [SKU: ${i.sku}] (${formatMoney(i.product.priceUSD * i.qty, i.product.pricePEN * i.qty, currency)})`).join('\n')
+    : '  • Ningún dispositivo de hardware agregado';
+
+  const swText = softwareItems.length > 0
+    ? softwareItems.map(i => `  • x${i.qty} ${i.product.fullName} [SKU: ${i.sku}] (${formatMoney(i.product.priceUSD * i.qty, i.product.pricePEN * i.qty, currency)})`).join('\n')
+    : (hardwareItems.length > 0 ? '  • Hardware con sistema ZentryOS pre-instalado de fábrica' : '  • Ninguna implementación seleccionada');
 
   const text = `*PROPUESTA DE SET PERSONALIZADO ZENTRYOS*\n` +
     `👨‍👩‍👧 *Estructura:* ${customTotals.family.name} (${customTotals.family.membersLabel})\n` +
-    `📦 *Configuración:* Set a Medida (${customTotals.totalItemsCount} equipos seleccionados)\n\n` +
-    `*1. Hardware Físico Seleccionado:*\n${itemsText}\n` +
+    `📦 *Configuración:* Set a Medida (${customTotals.totalItemsCount} ítems seleccionados)\n\n` +
+    `*1. Hardware Físico (${customTotals.hardwareCount} equipos):*\n${hwText}\n` +
     `  ↳ Subtotal Hardware: ${formatMoney(customTotals.hardwareUSD, customTotals.hardwarePEN, currency)}\n\n` +
-    implText +
-    benefitsText +
+    `*2. Implementación de Software & Parental Dashboard:*\n${swText}\n` +
+    (customTotals.softwareCount > 0 ? `  ↳ Subtotal Software: ${formatMoney(customTotals.softwareUSD, customTotals.softwarePEN, currency)}\n\n` : '\n') +
     `💰 *INVERSIÓN TOTAL DE LA OFERTA:* ${formatMoney(customTotals.totalUSD, customTotals.totalPEN, currency)}\n\n` +
     `_Generado desde el Personalizador de Sets en QZ-Hub Operativo_`;
 
@@ -1551,8 +1527,8 @@ export function openQuoteModal(forceCustom = false) {
               <span>${formatMoney(customTotals.hardwareUSD, customTotals.hardwarePEN)}</span>
             </div>
             <div class="summary-line">
-              <span>Implementación ZentryOS:</span>
-              <span>${formatMoney(customTotals.implementationUSD, customTotals.implementationPEN)}</span>
+              <span>Software ZentryOS:</span>
+              <span>${formatMoney(customTotals.softwareUSD, customTotals.softwarePEN)}</span>
             </div>
             <div class="summary-total-final">
               <div>
@@ -1822,19 +1798,6 @@ function attachRepertorioEvents() {
         renderRepertorioView();
       });
     });
-
-    // Toggle de Implementación ZentryOS
-    const toggleImpl = document.getElementById('toggle-custom-impl');
-    if (toggleImpl) {
-      toggleImpl.addEventListener('change', (e) => {
-        repertorioState.includeImplementation = e.target.checked;
-        const summaryPanel = document.getElementById('custom-summary-panel');
-        if (summaryPanel) {
-          summaryPanel.innerHTML = renderCustomSummaryCardContent();
-          attachCustomSummaryEvents();
-        }
-      });
-    }
 
     // Cargar Presets de Templates
     root.querySelectorAll('[data-load-template]').forEach(btn => {

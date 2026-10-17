@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.3.9 (HARMONIZED ROUNDED DECK & TOGGLE CLEARANCE)
+// QZ-HUB SERVICE WORKER — v4.4.0 (OFFICIAL CATALOG REFRESH & ASSET PURGE)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.3.9-deck-harmony';
+const CACHE_NAME = 'qz-hub-v4.4.0-catalog-refresh';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
