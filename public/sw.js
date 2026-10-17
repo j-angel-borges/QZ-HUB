@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.4.1 (ZENTRYOS IMPL $1145 & ETHEREAL VISUAL)
+// QZ-HUB SERVICE WORKER — v4.4.2 (BIOTRACKER PERSISTENCE & RESTORE FIX)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.4.1-zentryos-impl-1145';
+const CACHE_NAME = 'qz-hub-v4.4.2-biotracker-persistence';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

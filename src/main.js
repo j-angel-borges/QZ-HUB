@@ -1347,12 +1347,6 @@ function getHabitTrackerData() {
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
-      // Reiniciar a 0 para el Protocolo Pre-Elrow si tenía métricas acumuladas de protocolos previos
-      if (parsed.ay && parsed.ay.daysSince > 30) {
-        const fresh = getDefaultHabitTrackerData();
-        saveHabitTrackerData(fresh);
-        return fresh;
-      }
       return { ...getDefaultHabitTrackerData(), ...parsed };
     } catch (e) {
       return getDefaultHabitTrackerData();
@@ -2238,11 +2232,40 @@ function openHabitTrackerConfigModal(onSaveCallback) {
   document.getElementById('tracker-modal-close')?.addEventListener('click', closeModal, { once: true });
   document.getElementById('tracker-modal-cancel')?.addEventListener('click', closeModal, { once: true });
 
-  // Reset defaults button
+  // Botón Restaurar Pizarra Maestra previa (Protocolo 80D y rachas acumuladas)
+  const restoreMasterBtn = document.getElementById('btn-restore-master-tracker');
+  if (restoreMasterBtn) {
+    restoreMasterBtn.onclick = () => {
+      if (confirm('¿Restaurar las cifras acumuladas de tu Pizarra Maestra (Sobriedad 80D, 51d ayuno, retención, lectura, etc.)?')) {
+        const masterData = {
+          ay: { daysSince: 51, h24: 1, h48: 0, h72: 0, missed: 0 },
+          lec: { daysSince: 7, daysRead: 7, daysMissed: 0, lastPages: 25 },
+          am: { slot5to6: 1, slot6to7: 3, missed: 2 },
+          z: { daysClean: 0, daysConsumed: 1 },
+          fri: { coldDays: 15, missedDays: 31 },
+          ik: { doneDays: 11, missedDays: 15 },
+          a: { cleanDays: 80, targetDays: 90, missedDays: 0 },
+          e: { retentionDays: 20, ejaculations: 0, pornFreeDays: 36 },
+          s: { days: 12, missedDays: 0 },
+          prod: {
+            todayDate: getLocalDateString(),
+            today: { pcc: 0, ll: 0, demos: 0, win: 0, callDetails: { nc: 0, col: 0, ll: 0, cit: 0 } },
+            history: {},
+            totals: { pcc: 45, ll: 180, demos: 24, win: 8 }
+          }
+        };
+        saveHabitTrackerData(masterData);
+        closeModal();
+        if (onSaveCallback) onSaveCallback();
+      }
+    };
+  }
+
+  // Reset defaults button (Reiniciar a ceros limpios)
   const resetBtn = document.getElementById('btn-reset-tracker-defaults');
   if (resetBtn) {
     resetBtn.onclick = () => {
-      if (confirm('¿Restaurar todas las cifras a los valores iniciales de tu pizarra?')) {
+      if (confirm('¿Reiniciar todas las cifras del Bio-Tracker a 0 para iniciar un ciclo desde cero?')) {
         resetHabitTrackerDefaults();
         closeModal();
         if (onSaveCallback) onSaveCallback();
