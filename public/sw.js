@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.4.0 (OFFICIAL CATALOG REFRESH & ASSET PURGE)
+// QZ-HUB SERVICE WORKER — v4.4.1 (ZENTRYOS IMPL $1145 & ETHEREAL VISUAL)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.4.0-catalog-refresh';
+const CACHE_NAME = 'qz-hub-v4.4.1-zentryos-impl-1145';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

@@ -95,8 +95,8 @@ export const REPERTORIO_DATA = {
       usersIncluded: 1,
       dashboardViews: '2 vistas (Padre y Madre)',
       dashboardDevices: 'Celular, tablet, PC o laptop',
-      priceUSD: 995,
-      pricePEN: 3385,
+      priceUSD: 1145,
+      pricePEN: 3893,
       description: 'Despliegue e instalación de ZentryOS en 2 dispositivos del hijo (ej. tablet y teléfono/laptop) más Parental Dashboard multidispositivo para ambos padres.'
     },
     dual: {

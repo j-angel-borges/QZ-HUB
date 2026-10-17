@@ -504,93 +504,36 @@ export const PRODUCTS_CATALOG = [
   },
 
   // ==========================================
-  // IMPLEMENTACIONES DE SOFTWARE ZENTRYOS
+  // IMPLEMENTACIÓN DE SOFTWARE ZENTRYOS
   // (Para dispositivos propios de la familia)
   // ==========================================
   {
-    sku: 'ZT-IMPL-IND',
+    sku: 'ZT-IMPL',
     category: 'implementations',
     familyCode: 'zo',
     familyName: 'ZentryOS Software',
-    modelName: 'Implementación Individual',
-    fullName: 'ZentryOS — Implementación Individual (1 Hijo / 2 Disp.)',
-    shortName: 'Implementación Individual',
+    modelName: 'Implementación ZentryOS',
+    fullName: 'Implementación Oficial ZentryOS & Parental Dashboard',
+    shortName: 'Implementación ZentryOS',
     color: {
-      name: 'Zentry Purple Core',
+      name: 'Aurora Ethereal Glass',
       hex: '#533b87',
       type: 'dark'
     },
-    material: 'Despliegue Digital & Configuración Parental 1 a 1',
-    priceUSD: 995,
-    pricePEN: 3385,
-    badge: 'Software Nativo',
-    tagline: 'Despliegue e instalación de ZentryOS en 2 dispositivos propios del hijo más Parental Dashboard.',
+    material: 'Despliegue Digital & Blindaje Cognitivo',
+    priceUSD: 1145,
+    pricePEN: 3893,
+    badge: 'Software Central',
+    tagline: 'Despliegue e instalación de ZentryOS en dispositivos propios de la familia más Parental Dashboard multidispositivo.',
     specs: [
-      '1 Hijo / 2 dispositivos implementados (celular, tablet, PC o laptop)',
+      'Despliegue en dispositivos propios (celular, tablet, PC o laptop)',
       'Parental Dashboard multidispositivo para ambos padres (2 vistas)',
       'Blindaje contra algoritmos adictivos y rutinas circadianas',
       'Incluye 3 Clases de Inteligencia Artificial para Padres'
     ],
     angles: {
-      front: '/assets/repertorio/portada_zentry_magazine.png',
-      back: '/assets/repertorio/portada_zentry_magazine.png'
-    }
-  },
-  {
-    sku: 'ZT-IMPL-DUAL',
-    category: 'implementations',
-    familyCode: 'zo',
-    familyName: 'ZentryOS Software',
-    modelName: 'Implementación Dual',
-    fullName: 'ZentryOS — Implementación Dual (2 Hijos / 4 Disp.)',
-    shortName: 'Implementación Dual',
-    color: {
-      name: 'Zentry Lavender Accent',
-      hex: '#7c3aed',
-      type: 'dark'
-    },
-    material: 'Despliegue Digital & Configuración Parental Dual',
-    priceUSD: 1690,
-    pricePEN: 5740,
-    badge: 'Ahorro 30% 2do Hijo',
-    tagline: 'Despliegue para 2 hijos con hasta 4 dispositivos en total y perfiles pedagógicos independientes.',
-    specs: [
-      '2 Hijos / 4 dispositivos implementados en total',
-      'Ahorro del 30% en el segundo hijo ya incluido',
-      'Parental Dashboard consolidado con perfiles y límites autónomos',
-      'Incluye 3 Clases de Inteligencia Artificial para Padres'
-    ],
-    angles: {
-      front: '/assets/repertorio/family_nuclear_2h.png',
-      back: '/assets/repertorio/family_nuclear_2h.png'
-    }
-  },
-  {
-    sku: 'ZT-IMPL-ADD',
-    category: 'implementations',
-    familyCode: 'zo',
-    familyName: 'ZentryOS Software',
-    modelName: 'Hijo Adicional',
-    fullName: 'ZentryOS — Licencia Hijo Adicional (2 Disp.)',
-    shortName: 'Hijo Adicional (+2 Disp.)',
-    color: {
-      name: 'Emerald Health',
-      hex: '#059669',
-      type: 'dark'
-    },
-    material: 'Despliegue Adicional Sincronizado',
-    priceUSD: 500,
-    pricePEN: 1700,
-    badge: 'Expansión Familiar',
-    tagline: 'Agrega un hijo adicional con 2 dispositivos implementados y sincronizados al Parental Dashboard.',
-    specs: [
-      '1 Hijo adicional con 2 dispositivos propios configurados',
-      'Sincronización directa al Parental Dashboard familiar',
-      'Mismo blindaje cognitivo y acompañamiento técnico'
-    ],
-    angles: {
-      front: '/assets/repertorio/family_extensa_1h.png',
-      back: '/assets/repertorio/family_extensa_1h.png'
+      front: '/assets/products/software/zentryos_software_etereo.png',
+      back: '/assets/products/software/zentryos_software_etereo.png'
     }
   }
 ];
