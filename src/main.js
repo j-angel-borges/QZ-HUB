@@ -5584,9 +5584,11 @@ function renderEspacioPersonal(container) {
         cleanupDrag();
       }
       window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchend', handleMouseUp);
+      window.removeEventListener('touchcancel', handleMouseUp);
     };
 
-    // Escuchar mousedown en las áreas de slots
+    // Escuchar mousedown y touchstart en las áreas de slots
     container.querySelectorAll('.timeblock-view-slot-area').forEach(slotArea => {
       slotArea.addEventListener('mousedown', (e) => {
         if (e.button !== 0) return; // solo botón izquierdo
@@ -5603,7 +5605,32 @@ function renderEspacioPersonal(container) {
         dragCurrentSlot = slotArea.dataset.time;
         updateDragPreview();
       });
+
+      // Soporte táctil móvil (touchstart)
+      slotArea.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 1) return;
+        isDragging = true;
+        dragStartSlot = slotArea.dataset.time;
+        dragCurrentSlot = slotArea.dataset.time;
+        updateDragPreview();
+        window.addEventListener('touchend', handleMouseUp, { passive: true });
+        window.addEventListener('touchcancel', handleMouseUp, { passive: true });
+      }, { passive: true });
     });
+
+    // Soporte táctil continuo en móvil (touchmove)
+    const handleTouchMove = (e) => {
+      if (!isDragging || !e.touches || e.touches.length === 0) return;
+      const touch = e.touches[0];
+      const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+      const slotArea = targetEl?.closest('.timeblock-view-slot-area') || targetEl?.closest('.timeblock-slot')?.querySelector('.timeblock-view-slot-area');
+      if (slotArea && slotArea.dataset.time && slotArea.dataset.time !== dragCurrentSlot) {
+        dragCurrentSlot = slotArea.dataset.time;
+        updateDragPreview();
+      }
+    };
+
+    grid.addEventListener('touchmove', handleTouchMove, { passive: true });
   }
 }
 
