@@ -4882,10 +4882,15 @@ function renderEspacioPersonal(container) {
         const topPx = startIndex * 38;
         const heightPx = (endIndex - startIndex + 1) * 38;
         const bgColor = q.color || '#8b5cf6';
+        const safeTitle = (q.title || '(Sin título)').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         viewCardsHtml += `
           <div class="timeblock-view-card" data-quadrant-id="${q.id}" style="top: ${topPx + 2}px; height: ${heightPx - 4}px; background: ${bgColor}; color: #ffffff;">
-            <div class="timeblock-view-card-title">${q.title || '(Sin título)'}</div>
-            <div class="timeblock-view-card-time">${formatTime12h(q.startTime)} - ${formatTime12h(q.endTime)}</div>
+            <div class="timeblock-card-resize-handle handle-top" data-handle="top" title="Ajustar hora de inicio"></div>
+            <div class="timeblock-view-card-body">
+              <div class="timeblock-view-card-title">${safeTitle}</div>
+              <div class="timeblock-view-card-time">${formatTime12h(q.startTime)} - ${formatTime12h(q.endTime)}</div>
+            </div>
+            <div class="timeblock-card-resize-handle handle-bottom" data-handle="bottom" title="Ajustar hora de fin"></div>
           </div>
         `;
       }
@@ -5498,22 +5503,263 @@ function renderEspacioPersonal(container) {
     });
   });
 
-  // Interacción en la vista VIEW: Clic en cuadrante existente para editar o eliminar
+  // ==============================================================================
+  // TIMEBLOCKING VIEW MODE: RESIZE, DRAG-TO-MOVE & DRAG-TO-CREATE ENGINE
+  // ==============================================================================
   if (isViewMode) {
+    const grid = container.querySelector('#timeblock-grid');
+
+    // Mapeo de otros cuadrantes para verificación de colisiones y límites
+    const getOtherQuadsMapped = (currentId) => {
+      return quadrants
+        .filter(q => q.id !== currentId)
+        .map(q => ({
+          ...q,
+          startIdx: slots.findIndex(s => s.time === q.startTime),
+          endIdx: slots.findIndex(s => s.time === q.endTime)
+        }))
+        .filter(q => q.startIdx !== -1 && q.endIdx !== -1);
+    };
+
+    // --- 1 & 2. GESTIÓN DE BLOQUES: REDIMENSIÓN POR BORDES Y ARRASTRE VERTICAL ---
     container.querySelectorAll('.timeblock-view-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const qId = card.dataset.quadrantId;
-        const quad = quadrants.find(q => q.id === qId);
-        if (quad) {
-          openQuadrantModal(quad, false);
-        }
+      const qId = card.dataset.quadrantId;
+      const quad = quadrants.find(q => q.id === qId);
+      if (!quad) return;
+
+      const timeEl = card.querySelector('.timeblock-view-card-time');
+
+      // 1. REDIMENSIÓN POR BORDES (TOP & BOTTOM) CON ESTRICTA NO SUPERPOSICIÓN
+      card.querySelectorAll('.timeblock-card-resize-handle').forEach(handle => {
+        const handleType = handle.dataset.handle; // 'top' | 'bottom'
+
+        const startResize = (startClientY, e) => {
+          if (e.button !== undefined && e.button !== 0) return;
+          e.preventDefault();
+          e.stopPropagation();
+
+          const currentStartIdx = slots.findIndex(s => s.time === quad.startTime);
+          const currentEndIdx = slots.findIndex(s => s.time === quad.endTime);
+          if (currentStartIdx === -1 || currentEndIdx === -1) return;
+
+          const others = getOtherQuadsMapped(quad.id);
+
+          // Límites estrictos para impedir físicamente cualquier superposición
+          let minAllowedIdx = 0;
+          let maxAllowedIdx = slots.length - 1;
+
+          if (handleType === 'top') {
+            const preceding = others.filter(o => o.endIdx < currentStartIdx);
+            minAllowedIdx = preceding.length > 0 ? Math.max(...preceding.map(o => o.endIdx + 1)) : 0;
+            maxAllowedIdx = currentEndIdx; // Mínimo 1 slot (startIdx <= endIdx)
+          } else {
+            // handleType === 'bottom'
+            minAllowedIdx = currentStartIdx; // Mínimo 1 slot (endIdx >= startIdx)
+            const succeeding = others.filter(o => o.startIdx > currentEndIdx);
+            maxAllowedIdx = succeeding.length > 0 ? Math.min(...succeeding.map(o => o.startIdx - 1)) : slots.length - 1;
+          }
+
+          let activeStartIdx = currentStartIdx;
+          let activeEndIdx = currentEndIdx;
+
+          card.classList.add('is-resizing');
+          document.body.style.userSelect = 'none';
+
+          const onMove = (clientY) => {
+            if (!grid) return;
+            const gridRect = grid.getBoundingClientRect();
+            const relativeY = clientY - gridRect.top;
+            const hoveredIdx = Math.floor(relativeY / 38);
+
+            if (handleType === 'top') {
+              const clamped = Math.max(minAllowedIdx, Math.min(maxAllowedIdx, hoveredIdx));
+              if (clamped !== activeStartIdx) {
+                activeStartIdx = clamped;
+                const topPx = activeStartIdx * 38;
+                const heightPx = (activeEndIdx - activeStartIdx + 1) * 38;
+                card.style.top = `${topPx + 2}px`;
+                card.style.height = `${heightPx - 4}px`;
+                if (timeEl) {
+                  timeEl.textContent = `${formatTime12h(slots[activeStartIdx].time)} - ${formatTime12h(slots[activeEndIdx].time)}`;
+                }
+              }
+            } else {
+              // bottom
+              const clamped = Math.max(minAllowedIdx, Math.min(maxAllowedIdx, hoveredIdx));
+              if (clamped !== activeEndIdx) {
+                activeEndIdx = clamped;
+                const heightPx = (activeEndIdx - activeStartIdx + 1) * 38;
+                card.style.height = `${heightPx - 4}px`;
+                if (timeEl) {
+                  timeEl.textContent = `${formatTime12h(slots[activeStartIdx].time)} - ${formatTime12h(slots[activeEndIdx].time)}`;
+                }
+              }
+            }
+          };
+
+          const onEnd = () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('touchmove', handleTouchMove);
+            window.removeEventListener('touchend', handleTouchEnd);
+            window.removeEventListener('touchcancel', handleTouchEnd);
+            document.body.style.userSelect = '';
+            card.classList.remove('is-resizing');
+
+            if (activeStartIdx !== currentStartIdx || activeEndIdx !== currentEndIdx) {
+              quad.startTime = slots[activeStartIdx].time;
+              quad.endTime = slots[activeEndIdx].time;
+              saveTimeblockQuadrants(state.personalDate, quadrants);
+              renderEspacioPersonal(container);
+            }
+          };
+
+          const handleMouseMove = (moveEv) => onMove(moveEv.clientY);
+          const handleMouseUp = () => onEnd();
+          const handleTouchMove = (moveEv) => {
+            if (moveEv.touches && moveEv.touches.length > 0) {
+              moveEv.preventDefault();
+              onMove(moveEv.touches[0].clientY);
+            }
+          };
+          const handleTouchEnd = () => onEnd();
+
+          window.addEventListener('mousemove', handleMouseMove);
+          window.addEventListener('mouseup', handleMouseUp);
+          window.addEventListener('touchmove', handleTouchMove, { passive: false });
+          window.addEventListener('touchend', handleTouchEnd);
+          window.addEventListener('touchcancel', handleTouchEnd);
+        };
+
+        handle.addEventListener('mousedown', (e) => startResize(e.clientY, e));
+        handle.addEventListener('touchstart', (e) => {
+          if (e.touches && e.touches.length === 1) {
+            startResize(e.touches[0].clientY, e);
+          }
+        }, { passive: false });
       });
+
+      // 2. ARRASTRE VERTICAL COMPLETO (DEJAR PRESIONADO Y MOVER) Y CLIC SIMPLE PARA EDITAR
+      const startCardMove = (startClientX, startClientY, e) => {
+        if (e.target.closest('.timeblock-card-resize-handle')) return;
+        if (e.button !== undefined && e.button !== 0) return;
+
+        const currentStartIdx = slots.findIndex(s => s.time === quad.startTime);
+        const currentEndIdx = slots.findIndex(s => s.time === quad.endTime);
+        if (currentStartIdx === -1 || currentEndIdx === -1) return;
+
+        const durationSlots = currentEndIdx - currentStartIdx + 1;
+        const initialTopPx = currentStartIdx * 38 + 2;
+        const others = getOtherQuadsMapped(quad.id);
+
+        if (!grid) return;
+        const gridRect = grid.getBoundingClientRect();
+        const initialHoveredIdx = Math.floor((startClientY - gridRect.top) / 38);
+        const grabOffsetSlots = Math.max(0, Math.min(durationSlots - 1, initialHoveredIdx - currentStartIdx));
+
+        let hasMoved = false;
+        let targetStartIdx = currentStartIdx;
+        let targetEndIdx = currentEndIdx;
+        let hasCollision = false;
+
+        const onMove = (clientX, clientY) => {
+          const distX = clientX - startClientX;
+          const distY = clientY - startClientY;
+
+          if (!hasMoved) {
+            if (Math.hypot(distX, distY) > 5) {
+              hasMoved = true;
+              card.classList.add('is-moving');
+              document.body.style.userSelect = 'none';
+            } else {
+              return;
+            }
+          }
+
+          const currentGridRect = grid.getBoundingClientRect();
+          const hoveredIdx = Math.floor((clientY - currentGridRect.top) / 38);
+          const rawStart = hoveredIdx - grabOffsetSlots;
+          targetStartIdx = Math.max(0, Math.min(slots.length - durationSlots, rawStart));
+          targetEndIdx = targetStartIdx + durationSlots - 1;
+
+          card.style.top = `${targetStartIdx * 38 + 2}px`;
+
+          // Comprobación de colisión: solapan si max(a,c) <= min(b,d)
+          hasCollision = others.some(o => Math.max(targetStartIdx, o.startIdx) <= Math.min(targetEndIdx, o.endIdx));
+
+          if (hasCollision) {
+            card.classList.add('has-collision');
+            if (timeEl) {
+              timeEl.textContent = `⚠️ Superposición (${formatTime12h(slots[targetStartIdx].time)} - ${formatTime12h(slots[targetEndIdx].time)})`;
+            }
+          } else {
+            card.classList.remove('has-collision');
+            if (timeEl) {
+              timeEl.textContent = `${formatTime12h(slots[targetStartIdx].time)} - ${formatTime12h(slots[targetEndIdx].time)}`;
+            }
+          }
+        };
+
+        const onEnd = () => {
+          window.removeEventListener('mousemove', handleMouseMove);
+          window.removeEventListener('mouseup', handleMouseUp);
+          window.removeEventListener('touchmove', handleTouchMove);
+          window.removeEventListener('touchend', handleTouchEnd);
+          window.removeEventListener('touchcancel', handleTouchEnd);
+          document.body.style.userSelect = '';
+          card.classList.remove('is-moving', 'has-collision');
+
+          if (!hasMoved) {
+            // Clic simple sin arrastre: abrir modal de edición
+            openQuadrantModal(quad, false);
+            return;
+          }
+
+          if (hasCollision) {
+            // Revertir a la posición original sin superponer
+            card.style.top = `${initialTopPx}px`;
+            if (timeEl) {
+              timeEl.textContent = `${formatTime12h(quad.startTime)} - ${formatTime12h(quad.endTime)}`;
+            }
+            return;
+          }
+
+          if (targetStartIdx !== currentStartIdx) {
+            quad.startTime = slots[targetStartIdx].time;
+            quad.endTime = slots[targetEndIdx].time;
+            saveTimeblockQuadrants(state.personalDate, quadrants);
+            renderEspacioPersonal(container);
+          } else {
+            card.style.top = `${initialTopPx}px`;
+          }
+        };
+
+        const handleMouseMove = (moveEv) => onMove(moveEv.clientX, moveEv.clientY);
+        const handleMouseUp = () => onEnd();
+        const handleTouchMove = (moveEv) => {
+          if (moveEv.touches && moveEv.touches.length > 0) {
+            moveEv.preventDefault();
+            onMove(moveEv.touches[0].clientX, moveEv.touches[0].clientY);
+          }
+        };
+        const handleTouchEnd = () => onEnd();
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('touchmove', handleTouchMove, { passive: false });
+        window.addEventListener('touchend', handleTouchEnd);
+        window.addEventListener('touchcancel', handleTouchEnd);
+      };
+
+      card.addEventListener('mousedown', (e) => startCardMove(e.clientX, e.clientY, e));
+      card.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches.length === 1) {
+          startCardMove(e.touches[0].clientX, e.touches[0].clientY, e);
+        }
+      }, { passive: false });
     });
 
-    // Motor Drag-to-Create tipo Google Calendar sobre la cuadrícula
-    const grid = container.querySelector('#timeblock-grid');
-    const slotElements = Array.from(container.querySelectorAll('.timeblock-slot'));
+    // --- 3. MOTOR DRAG-TO-CREATE SOBRE LA CUADRÍCULA CON PROTECCIÓN ANTI-SUPERPOSICIÓN ---
     let isDragging = false;
     let dragStartSlot = null;
     let dragCurrentSlot = null;
@@ -5521,11 +5767,35 @@ function renderEspacioPersonal(container) {
 
     const getSlotIndexFromTime = (timeStr) => slots.findIndex(s => s.time === timeStr);
 
+    const clampCreationSlot = (startSlot, currentSlot) => {
+      const idx1 = getSlotIndexFromTime(startSlot);
+      let idx2 = getSlotIndexFromTime(currentSlot);
+      if (idx1 === -1 || idx2 === -1) return idx2;
+
+      const others = quadrants.map(q => ({
+        startIdx: getSlotIndexFromTime(q.startTime),
+        endIdx: getSlotIndexFromTime(q.endTime)
+      })).filter(q => q.startIdx !== -1 && q.endIdx !== -1);
+
+      if (idx2 >= idx1) {
+        // Arrastre hacia abajo: no puede pasar el inicio del siguiente cuadrante
+        const succeeding = others.filter(o => o.startIdx > idx1);
+        const maxAllowed = succeeding.length > 0 ? Math.min(...succeeding.map(o => o.startIdx - 1)) : slots.length - 1;
+        idx2 = Math.min(idx2, maxAllowed);
+      } else {
+        // Arrastre hacia arriba: no puede pasar el final del cuadrante anterior
+        const preceding = others.filter(o => o.endIdx < idx1);
+        const minAllowed = preceding.length > 0 ? Math.max(...preceding.map(o => o.endIdx + 1)) : 0;
+        idx2 = Math.max(idx2, minAllowed);
+      }
+      return idx2;
+    };
+
     const updateDragPreview = () => {
       if (!isDragging || !dragStartSlot || !dragCurrentSlot || !grid) return;
 
       const idx1 = getSlotIndexFromTime(dragStartSlot);
-      const idx2 = getSlotIndexFromTime(dragCurrentSlot);
+      const idx2 = clampCreationSlot(dragStartSlot, dragCurrentSlot);
       if (idx1 === -1 || idx2 === -1) return;
 
       const minIdx = Math.min(idx1, idx2);
@@ -5557,12 +5827,11 @@ function renderEspacioPersonal(container) {
       }
     };
 
-    // Finalizar arrastre
-    const handleMouseUp = (e) => {
+    const handleCreateMouseUp = () => {
       if (!isDragging) return;
 
       const idx1 = getSlotIndexFromTime(dragStartSlot);
-      const idx2 = getSlotIndexFromTime(dragCurrentSlot);
+      const idx2 = clampCreationSlot(dragStartSlot, dragCurrentSlot);
 
       if (idx1 !== -1 && idx2 !== -1) {
         const minIdx = Math.min(idx1, idx2);
@@ -5583,12 +5852,23 @@ function renderEspacioPersonal(container) {
       } else {
         cleanupDrag();
       }
-      window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('touchend', handleMouseUp);
-      window.removeEventListener('touchcancel', handleMouseUp);
+      window.removeEventListener('mouseup', handleCreateMouseUp);
+      window.removeEventListener('touchend', handleCreateMouseUp);
+      window.removeEventListener('touchcancel', handleCreateMouseUp);
+      window.removeEventListener('mousemove', handleCreateMouseMove);
     };
 
-    // Escuchar mousedown y touchstart en las áreas de slots
+    const handleCreateMouseMove = (e) => {
+      if (!isDragging || !grid) return;
+      const gridRect = grid.getBoundingClientRect();
+      const hoveredIdx = Math.max(0, Math.min(slots.length - 1, Math.floor((e.clientY - gridRect.top) / 38)));
+      if (slots[hoveredIdx] && slots[hoveredIdx].time !== dragCurrentSlot) {
+        dragCurrentSlot = slots[hoveredIdx].time;
+        updateDragPreview();
+      }
+    };
+
+    // Escuchar mousedown y touchstart en las áreas vacías de slots
     container.querySelectorAll('.timeblock-view-slot-area').forEach(slotArea => {
       slotArea.addEventListener('mousedown', (e) => {
         if (e.button !== 0) return; // solo botón izquierdo
@@ -5597,40 +5877,33 @@ function renderEspacioPersonal(container) {
         dragStartSlot = slotArea.dataset.time;
         dragCurrentSlot = slotArea.dataset.time;
         updateDragPreview();
-        window.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('mousemove', handleCreateMouseMove);
+        window.addEventListener('mouseup', handleCreateMouseUp);
       });
 
-      slotArea.addEventListener('mouseenter', () => {
-        if (!isDragging) return;
-        dragCurrentSlot = slotArea.dataset.time;
-        updateDragPreview();
-      });
-
-      // Soporte táctil móvil (touchstart)
       slotArea.addEventListener('touchstart', (e) => {
         if (e.touches.length > 1) return;
         isDragging = true;
         dragStartSlot = slotArea.dataset.time;
         dragCurrentSlot = slotArea.dataset.time;
         updateDragPreview();
-        window.addEventListener('touchend', handleMouseUp, { passive: true });
-        window.addEventListener('touchcancel', handleMouseUp, { passive: true });
+        window.addEventListener('touchend', handleCreateMouseUp, { passive: true });
+        window.addEventListener('touchcancel', handleCreateMouseUp, { passive: true });
       }, { passive: true });
     });
 
-    // Soporte táctil continuo en móvil (touchmove)
-    const handleTouchMove = (e) => {
-      if (!isDragging || !e.touches || e.touches.length === 0) return;
+    const handleTouchMoveGrid = (e) => {
+      if (!isDragging || !e.touches || e.touches.length === 0 || !grid) return;
       const touch = e.touches[0];
-      const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
-      const slotArea = targetEl?.closest('.timeblock-view-slot-area') || targetEl?.closest('.timeblock-slot')?.querySelector('.timeblock-view-slot-area');
-      if (slotArea && slotArea.dataset.time && slotArea.dataset.time !== dragCurrentSlot) {
-        dragCurrentSlot = slotArea.dataset.time;
+      const gridRect = grid.getBoundingClientRect();
+      const hoveredIdx = Math.max(0, Math.min(slots.length - 1, Math.floor((touch.clientY - gridRect.top) / 38)));
+      if (slots[hoveredIdx] && slots[hoveredIdx].time !== dragCurrentSlot) {
+        dragCurrentSlot = slots[hoveredIdx].time;
         updateDragPreview();
       }
     };
 
-    grid.addEventListener('touchmove', handleTouchMove, { passive: true });
+    grid.addEventListener('touchmove', handleTouchMoveGrid, { passive: true });
   }
 }
 
