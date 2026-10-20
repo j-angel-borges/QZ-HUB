@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.4.4 (SMARTBAND FABRIC IDENTICAL GEOMETRY & WHITE FIX)
+// QZ-HUB SERVICE WORKER — v4.4.5 (SMARTBAND FABRIC 100% CANONICAL GEOMETRY & POLISHED SILVER)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.4.4-smartband-fabric-geometry-fix';
+const CACHE_NAME = 'qz-hub-v4.4.5-smartband-fabric-exact-geometry-silver';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
