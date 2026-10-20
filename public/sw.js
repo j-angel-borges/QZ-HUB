@@ -1,7 +1,7 @@
 // ==============================================================================
-// QZ-HUB SERVICE WORKER — v4.4.3 (SMARTBAND TEXTURE & ARCTIC WHITE FIX)
+// QZ-HUB SERVICE WORKER — v4.4.4 (SMARTBAND FABRIC IDENTICAL GEOMETRY & WHITE FIX)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.4.3-smartband-textures-fix';
+const CACHE_NAME = 'qz-hub-v4.4.4-smartband-fabric-geometry-fix';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
