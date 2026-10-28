@@ -356,8 +356,8 @@ export const REPERTORIO_DATA = {
         tagline: 'Blindaje digital absoluto para la casa grande.',
         inheritedFrom: 'integral',
         addedItems: [{ code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
-        items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }, { code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
-        image: null,
+        items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }, { code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
+        image: '/assets/repertorio/set_extensa_1h_fullhouse.png',
         highlight: 'Integral + 1 Smart Watch + 1 Smart Phone',
         experience: 'Máxima capacidad: un Smart Phone seguro para el joven o tutor y Smart Watch con monitoreo inmediato en cualquier rincón del hogar.'
       }
@@ -1356,7 +1356,7 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
       <!-- Imagen Panorámica del Workspace / Setup de Hardware -->
       <div class="set-visual-showcase ${!set.image ? 'set-visual-pending' : ''}">
         ${set.image ? `
-          <img src="${set.image}" alt="${set.name}" class="set-main-image" />
+          <img src="${set.image}?v=20261028b" alt="${set.name}" class="set-main-image" />
         ` : `
           <div class="set-pending-placeholder" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding: 28px 16px; color: #64748b; width:100%; height:100%; box-sizing:border-box;">
             <div style="font-size: 34px; margin-bottom: 8px; opacity: 0.85;">📸</div>
