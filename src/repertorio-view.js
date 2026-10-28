@@ -310,7 +310,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'integral',
         addedItems: [{ code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
         items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }, { code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
-        image: '/assets/repertorio/set_nuclear_2h_fullhouse.png',
+        image: null,
         highlight: 'Integral + 1 Smart Watch + 1 Smart Phone',
         experience: 'Control absoluto dentro y fuera de casa. El teléfono seguro con ZentryOS y el Smart Watch permiten comunicación directa protegida ante cualquier estímulo adictivo exterior.'
       }
@@ -345,7 +345,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'omni',
         addedItems: [{ code: 'ss', qty: 1 }],
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }],
-        image: '/assets/repertorio/set_extensa_1h_integral.png',
+        image: null,
         highlight: 'OMNI + 1 Smart Sound',
         experience: 'Smart Sound centralizado para ambientar el living familiar con sonido sin estridencias, ideal para la convivencia intergeneracional.'
       },
@@ -357,7 +357,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'integral',
         addedItems: [{ code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
         items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }, { code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
-        image: '/assets/repertorio/set_extensa_2h_fullhouse.png',
+        image: null,
         highlight: 'Integral + 1 Smart Watch + 1 Smart Phone',
         experience: 'Máxima capacidad: un Smart Phone seguro para el joven o tutor y Smart Watch con monitoreo inmediato en cualquier rincón del hogar.'
       }
@@ -1354,8 +1354,23 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
       </div>
 
       <!-- Imagen Panorámica del Workspace / Setup de Hardware -->
-      <div class="set-visual-showcase">
-        <img src="${set.image}" alt="${set.name}" class="set-main-image" onerror="this.src='/assets/repertorio/set_essential.png'"/>
+      <div class="set-visual-showcase ${!set.image ? 'set-visual-pending' : ''}">
+        ${set.image ? `
+          <img src="${set.image}" alt="${set.name}" class="set-main-image" />
+        ` : `
+          <div class="set-pending-placeholder" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding: 28px 16px; color: #64748b; width:100%; height:100%; box-sizing:border-box;">
+            <div style="font-size: 34px; margin-bottom: 8px; opacity: 0.85;">📸</div>
+            <div style="font-size: 12.5px; font-weight: 700; color: #1e293b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">
+              Fotografía de Set en Homologación
+            </div>
+            <div style="font-size: 11.5px; color: #475569; max-width: 320px; margin: 0 auto 6px; line-height: 1.4;">
+              Composición oficial: <strong style="color: #0f172a;">${set.highlight}</strong>
+            </div>
+            <div style="font-size: 10px; color: #94a3b8; font-style: italic;">
+              Sin imagen asignada para evitar inconsistencias con los ${totals.totalItemsCount} dispositivos exactos.
+            </div>
+          </div>
+        `}
       </div>
 
       <!-- Desglose de Componentes Físicos -->
