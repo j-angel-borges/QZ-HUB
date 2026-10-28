@@ -1,7 +1,7 @@
 // ==============================================================================
 // QZ-HUB SERVICE WORKER — v4.4.7 (SMARTBAND FABRIC WHITE 9.5 TEXTURE)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.5.0-fullhouse-certified-sets-b';
+const CACHE_NAME = 'qz-hub-v4.5.1-family-cards-3d-open-btn';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
