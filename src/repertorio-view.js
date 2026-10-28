@@ -678,8 +678,13 @@ function renderTopNavBar() {
     <header class="repertorio-header-bar">
       <div class="repertorio-header-left">
         <nav class="repertorio-breadcrumbs" aria-label="Ruta de navegación">
-          <!-- 1. Recursos Comerciales -->
-          <a href="#demobook" class="crumb-nav-link" title="Ir a Recursos Comerciales">Recursos Comerciales</a>
+          <!-- 1. Retroceder a Recursos Comerciales (Flecha SVG elegante) -->
+          <a href="#demobook" class="crumb-back-btn" title="Volver a Recursos Comerciales" aria-label="Volver a Recursos Comerciales">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </a>
           <span class="crumb-separator">/</span>
 
           <!-- 2. Repertorio (Redirección a selección de familias) -->
