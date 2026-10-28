@@ -11339,22 +11339,54 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   letter-spacing: -0.5px;
 }
 
-/* Acciones del Set Pinned */
+/* Acciones del Set Pinned con efecto 3D difuminado morado */
 .set-actions-toolbar {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 10px;
+  display: flex;
   margin-top: auto;
   width: 100%;
   box-sizing: border-box;
 }
 
-.set-actions-toolbar .btn {
-  padding: 9px 12px;
-  font-size: 12px;
-  font-weight: 700;
+.set-actions-toolbar .btn-share-quote {
+  width: 100%;
+  padding: 11px 18px;
   border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  border: 1px solid rgba(124, 77, 255, 0.32);
+  background: linear-gradient(180deg, #ffffff 0%, #faf8fd 100%);
+  color: #4c2f82;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 8px;
+  box-shadow: 
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 4px 16px -2px rgba(124, 77, 255, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -2px 0 rgba(83, 59, 135, 0.08);
+}
+
+.set-actions-toolbar .btn-share-quote:hover {
+  background: linear-gradient(180deg, #ffffff 0%, #f4edff 100%);
+  border-color: rgba(124, 77, 255, 0.65);
+  color: #3b206e;
+  transform: translateY(-2px);
+  box-shadow: 
+    0 2px 5px rgba(15, 23, 42, 0.05),
+    0 8px 24px -2px rgba(124, 77, 255, 0.38),
+    inset 0 1px 0 #ffffff,
+    inset 0 -2px 0 rgba(83, 59, 135, 0.12);
+}
+
+.set-actions-toolbar .btn-share-quote:active {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: 
+    0 2px 6px rgba(124, 77, 255, 0.2),
+    inset 0 2px 4px rgba(83, 59, 135, 0.12);
 }
 
 .referrals-hint-banner {
@@ -11645,33 +11677,43 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
 }
 
 .magazine-thumb-btn {
-  background: #f8fafc;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 9999px;
-  padding: 6px 12px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 8px; /* Menos redondeado, look 3D Aurora */
+  padding: 6px 13px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
+  gap: 7px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #475569;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   flex-shrink: 0;
   white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 
 .magazine-thumb-btn:hover {
-  background: #f1f5f9;
-  border-color: #533b87;
-  color: #533b87;
+  background: linear-gradient(180deg, #ffffff 0%, #faf8fd 100%);
+  border-color: rgba(124, 77, 255, 0.4);
+  color: #4c2f82;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 77, 255, 0.15);
 }
 
+/* Efecto 3D luminoso con borde difuminado morado para botones de sets activos (sin morado plano) */
 .magazine-thumb-btn.active {
-  background: #533b87;
-  color: #ffffff;
-  border-color: #533b87;
-  box-shadow: 0 2px 8px rgba(83, 59, 135, 0.25);
+  background: linear-gradient(180deg, #ffffff 0%, #f7f3ff 100%);
+  color: #4c2f82;
+  font-weight: 700;
+  border: 1px solid rgba(124, 77, 255, 0.55);
+  box-shadow: 
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 4px 14px -1px rgba(124, 77, 255, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -2px 0 rgba(83, 59, 135, 0.1);
+  transform: translateY(-1px);
 }
 
 /* --------------------------------------------------------------------------

@@ -1451,14 +1451,11 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
         </div>
       </div>
 
-      <!-- Acciones Inferiores Pinned -->
+      <!-- Acciones Inferiores Pinned (Botón Set Seleccionado eliminado, Copiar Propuesta con efecto 3D) -->
       <div class="set-actions-toolbar">
-        <button type="button" class="btn ${isSelectedTier ? 'btn-success' : 'btn-primary'} btn-choose-set" data-set-key="${setKey}">
-          ✓ Set Seleccionado
-        </button>
-        <button type="button" class="btn btn-secondary btn-share-quote" data-set-key="${setKey}" style="display:inline-flex; align-items:center; gap:6px;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-          Copiar Propuesta
+        <button type="button" class="btn btn-share-quote" data-set-key="${setKey}">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+          <span>Copiar Propuesta</span>
         </button>
       </div>
     </div>
