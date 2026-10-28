@@ -12,7 +12,7 @@
 | **01** | `nuclear_1h_essential` | Nuclear 1H | `1st, 1sb, 1sr` (3 pzas) | Histórico Batch Base | `set_nuclear_1h_essential.png` | `CERTIFIED (PASS)` |
 | **02** | `nuclear_1h_omni` | Nuclear 1H | `1st, 1sb, 2sr` (4 pzas) | Histórico Batch Base | `set_nuclear_1h_omni.png` | `CERTIFIED (PASS)` |
 | **03** | `nuclear_1h_integral` | Nuclear 1H | `1st, 1sb, 2sr, 1ss` (5 pzas) | Histórico Batch Base | `set_nuclear_1h_integral.png` | `CERTIFIED (PASS)` |
-| **04** | `nuclear_1h_fullhouse` | Nuclear 1H | `1st, 1sb, 2sr, 1ss, 1sw, 1sp` (7 pzas) | Pendiente generación exacta 7 pzas | *Ninguna (Placeholder)* | `PENDING_IMAGE` |
+| **04** | `nuclear_1h_fullhouse` | Nuclear 1H | `1st, 1sb, 2sr, 1ss, 1sw, 1sp` (7 pzas) | Gemini Batch 7-piezas (`xwcc`) | `set_nuclear_1h_fullhouse.png` | `CERTIFIED (PASS)` |
 | **05** | `extensa_1h_essential` | Extensa 1H | `1st, 1sb, 2sr` (4 pzas — *Equiv. OMNI 1H*) | Histórico Batch Base | `set_extensa_1h_essential.png` | `CERTIFIED (PASS)` |
 | **06** | `extensa_1h_omni` | Extensa 1H | `2st, 2sb, 2sr` (6 pzas — *Topología T5*) | Gemini Batch Dual Base (`sbyq1`) | `set_extensa_1h_omni.png` | `CERTIFIED (PASS)` |
 | **07** | `extensa_1h_integral` | Extensa 1H | `2st, 2sb, 2sr, 1ss` (7 pzas) | Pendiente generación exacta 7 pzas | *Ninguna (Placeholder)* | `PENDING_IMAGE` |
