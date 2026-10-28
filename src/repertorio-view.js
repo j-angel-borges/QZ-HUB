@@ -310,7 +310,7 @@ export const REPERTORIO_DATA = {
         inheritedFrom: 'integral',
         addedItems: [{ code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
         items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }, { code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
-        image: '/assets/repertorio/set_nuclear_1h_fullhouse.png',
+        image: '/assets/repertorio/set_nuclear_2h_fullhouse.png',
         highlight: 'Integral + 1 Smart Watch + 1 Smart Phone',
         experience: 'Control absoluto dentro y fuera de casa. El teléfono seguro con ZentryOS y el Smart Watch permiten comunicación directa protegida ante cualquier estímulo adictivo exterior.'
       }
