@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tick Tool — Zentry WS Dispatcher</title>
+  <style>
+    :root {
+      --bg-dark: #0b1120;
+      --bg-card: #131c31;
+      --border: #1e293b;
+      --emerald: #10b981;
+      --emerald-dark: #059669;
+      --amber: #f59e0b;
+      --rose: #ef4444;
+      --blue: #3b82f6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 360px;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 14px;
+      user-select: none;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .brand-title {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--emerald);
+      font-weight: 600;
+    }
+
+    .watermark-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.14);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 12px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    .status-label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 11.5px;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .status-pill.connected {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .status-pill.disconnected {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .campaign-name {
+      font-weight: 700;
+      color: #e2e8f0;
+      font-size: 12px;
+      max-width: 195px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .batch-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 12px;
+      margin-bottom: 10px;
+    }
+
+    .batch-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 7px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: #0f172a;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--emerald), #34d399);
+      border-radius: 999px;
+      transition: width 0.25s ease;
+      width: 0%;
+    }
+
+    .jitter-info {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 7px;
+      font-size: 10.5px;
+      color: var(--text-muted);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 11px;
+    }
+
+    .stat-cell {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 4px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 14px;
+      font-weight: 800;
+      display: block;
+    }
+
+    .stat-lbl {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .btn-emergency {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 9px;
+      border: none;
+      font-size: 12.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all 0.15s ease;
+      margin-bottom: 8px;
+    }
+
+    .btn-emergency.pause {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-emergency.resume {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .actions-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: 7px 8px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-secondary:hover {
+      background: #1e293b;
+      color: white;
+    }
+
+    .footer-note {
+      margin-top: 9px;
+      text-align: center;
+      font-size: 10px;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">💬</div>
+      <div>
+        <div class="brand-title">Zentry Tick Tool</div>
+        <div class="brand-sub">WS Campaign Dispatcher</div>
+      </div>
+    </div>
+    <span class="watermark-badge">0% Marca Agua</span>
+  </div>
+
+  <!-- Indicadores Principales Requeridos -->
+  <div class="status-card">
+    <div class="status-row">
+      <span class="status-label">Estado Sesión</span>
+      <span id="waConnectionBadge" class="status-pill connected">
+        <span class="dot"></span>
+        <span id="waConnectionText">WhatsApp Web Conectado</span>
+      </span>
+    </div>
+
+    <div class="status-row">
+      <span class="status-label">Campaña Activa</span>
+      <span id="activeCampaignLabel" class="campaign-name">Expo Maternidad / QZ-Hub</span>
+    </div>
+  </div>
+
+  <!-- Lote en Progreso (X/35) -->
+  <div class="batch-box">
+    <div class="batch-header">
+      <span id="batchProgressTitle">Lote en Progreso (0/35)</span>
+      <span id="batchPercentLabel" style="color: #34d399;">0%</span>
+    </div>
+    <div class="progress-track">
+      <div id="batchProgressBar" class="progress-fill"></div>
+    </div>
+    <div class="jitter-info">
+      <span>🛡️ Jitter Anti-Ban: <strong>45s – 110s</strong></span>
+      <span id="lastJitterLabel">Último delay: --</span>
+    </div>
+  </div>
+
+  <!-- Resumen de Estados en Firestore (`whatsapp_outbox`) -->
+  <div class="stats-grid">
+    <div class="stat-cell">
+      <span id="countPending" class="stat-num" style="color: #fbbf24;">0</span>
+      <span class="stat-lbl">Pending</span>
+    </div>
+    <div class="stat-cell">
+      <span id="countDispatched" class="stat-num" style="color: #34d399;">0</span>
+      <span class="stat-lbl">Enviados</span>
+    </div>
+    <div class="stat-cell">
+      <span id="countReplied" class="stat-num" style="color: #60a5fa;">0</span>
+      <span class="stat-lbl">Replied</span>
+    </div>
+    <div class="stat-cell">
+      <span id="countCancelled" class="stat-num" style="color: #f87171;">0</span>
+      <span class="stat-lbl">Cancelled</span>
+    </div>
+  </div>
+
+  <!-- Botón de Pausa de Emergencia -->
+  <button id="emergencyPauseBtn" class="btn-emergency pause">
+    <span>⏸</span>
+    <span id="emergencyPauseText">PAUSA DE EMERGENCIA</span>
+  </button>
+
+  <div class="actions-row">
+    <button id="syncFirestoreBtn" class="btn-secondary">🔄 Sincronizar Cola</button>
+    <button id="dispatchNextBtn" class="btn-secondary">⚡ Enviar Siguiente</button>
+    <button id="openHubBtn" class="btn-secondary">🎯 QZ-Hub</button>
+  </div>
+
+  <div class="footer-note" id="footerStatusText">
+    Detector Inbound Activo: detiene follow-ups si el lead responde.
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

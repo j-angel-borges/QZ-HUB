@@ -1,0 +1,56 @@
+{
+  "spec_id": "SPEC-06",
+  "set_key": "shared_2x_base_2tab_2band_2ring",
+  "title": "Set 06 (Topología T5 Compartida) — 2 SmartTabs + 2 SmartBands + 2 SmartRings (6 piezas)",
+  "status": "READY_FOR_EXCE",
+  "gcp_project": "gen-lang-client-0929068122",
+  "gcp_location": "us-central1",
+  "model_id": "gemini-2.5-flash-image",
+  "judge_model_id": "gemini-2.5-flash",
+  "temperature": 0.15,
+  "aspect_ratio": "4:3",
+  "staging_output": "public/assets/repertorio/_staging/set_shared_2x_base_candidate.png",
+  "target_outputs": [
+    "public/assets/repertorio/sets/set_extensa_1h_omni.png",
+    "public/assets/repertorio/set_extensa_1h_omni.png",
+    "public/assets/repertorio/sets/set_nuclear_2h_essential.png",
+    "public/assets/repertorio/set_nuclear_2h_essential.png",
+    "public/assets/repertorio/sets/set_nuclear_2h_omni.png",
+    "public/assets/repertorio/set_nuclear_2h_omni.png",
+    "public/assets/repertorio/sets/set_extensa_2h_essential.png",
+    "public/assets/repertorio/set_extensa_2h_essential.png",
+    "public/assets/repertorio/sets/set_extensa_2h_omni.png",
+    "public/assets/repertorio/set_extensa_2h_omni.png"
+  ],
+  "inventory": {
+    "smarttab": 2,
+    "smartband": 2,
+    "smartring": 2
+  },
+  "anchor_references": [
+    {
+      "id": "IMAGE_1_SCENE_ANCHOR",
+      "path": "public/assets/repertorio/_anchors/set_nuclear_1h_omni.png",
+      "role": "Ancla maestra de iluminación global de estudio blanco puro (RGB 255,255,255), proporción real entre Tablet, SmartBand y SmartRings, y estética de pantalla UI Aurora."
+    }
+  ],
+  "stock_references": [
+    {
+      "id": "IMAGE_2_SMARTTAB_STOCK",
+      "path": "public/assets/products/smarttabs/smarttab_blanco_frontal.png",
+      "role": "Ancla morfológica estricta para las 2x SmartTabs blancas en formato horizontal 16:10 (~250mm cada una)."
+    },
+    {
+      "id": "IMAGE_3_SMARTBAND_STOCK",
+      "path": "public/assets/products/smartbands/smartband_plastico_blanco_frontal.png",
+      "role": "Ancla morfológica estricta para las 2x SmartBands blancas de silicona estriada con cápsula OLED vertical activa."
+    },
+    {
+      "id": "IMAGE_4_SMARTRING_STOCK",
+      "path": "public/assets/products/smartrings/smartring_blanco_frontal.png",
+      "role": "Ancla morfológica estricta para los 2x SmartRings cerámicos blancos apoyados de canto en ángulo 3/4 (~20mm cada uno)."
+    }
+  ],
+  "system_instruction": "You are an Industrial Product Photography Synthesizer for Zentry Hardware. Never crop or alter the morphology of the provided reference hardware. Preserve pure white studio background (#FFFFFF, RGB 255,255,255), 85mm f/8 deep focus, and natural contact shadows.",
+  "prompt": "High-end commercial studio product photography of a symmetrical 6-piece white Zentry multi-home hardware set on a seamless pure white cyclorama (#FFFFFF, RGB 255,255,255), shot with an 85mm telephoto lens at f/8 (100% sharp focus across all 6 devices).\n\nEXACT INVENTORY (6 PIECES TOTAL: 2 TABLETS, 2 SMARTBANDS, 2 SMARTRINGS):\n1. BACK ROW (DUAL TABLET ANCHOR): Exactly 2x White Zentry SmartTabs (IMAGE 2) standing horizontally in 16:10 landscape orientation side-by-side in a slight inward V-chevron studio arrangement (left tablet angled 10 degrees right, right tablet angled 10 degrees left, slight clean overlap at the center), ultra-thin white bezels, glowing health dashboard UI.\n2. MID-GROUND FLANKS: Exactly 2x White ribbed silicone Zentry SmartBands (IMAGE 3) standing upright in 3/4 view (one positioned in front of the left tablet, the second positioned in front of the right tablet), each clearly displaying its elongated vertical active OLED screen.\n3. CENTER FOREGROUND: Exactly 2x White ceramic Zentry SmartRings (IMAGE 4) standing upright on their edges in a 3/4 angle at the center foreground (~20mm finger-sized scale, ~8% of a single tablet's width), showing their metallic silver inner lining.\n\nSTRICT ANTI-HALLUCINATION RULES: Render ONLY these 6 pieces (2 tablets, 2 bands, 2 rings). ZERO smartwatches, ZERO speakers, ZERO smartphones, ZERO screenless bands."
+}

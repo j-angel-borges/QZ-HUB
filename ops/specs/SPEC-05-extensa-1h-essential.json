@@ -1,0 +1,48 @@
+{
+  "spec_id": "SPEC-05",
+  "set_key": "extensa_1h_essential",
+  "title": "Set 05 — Familia Extensa (1 Hogar) | Nivel Essential (4 piezas: 1 Tab, 1 Band, 2 Rings)",
+  "status": "READY_FOR_EXCE",
+  "gcp_project": "gen-lang-client-0929068122",
+  "gcp_location": "us-central1",
+  "model_id": "gemini-2.5-flash-image",
+  "judge_model_id": "gemini-2.5-flash",
+  "temperature": 0.15,
+  "aspect_ratio": "4:3",
+  "staging_output": "public/assets/repertorio/_staging/set_extensa_1h_essential_candidate.png",
+  "target_outputs": [
+    "public/assets/repertorio/sets/set_extensa_1h_essential.png",
+    "public/assets/repertorio/set_extensa_1h_essential.png"
+  ],
+  "inventory": {
+    "smarttab": 1,
+    "smartband": 1,
+    "smartring": 2
+  },
+  "anchor_references": [
+    {
+      "id": "IMAGE_1_SCENE_ANCHOR",
+      "path": "public/assets/repertorio/_anchors/set_nuclear_1h_omni.png",
+      "role": "Ancla maestra de escena e iluminación (Topología T2 idéntica: 1 SmartTab, 1 SmartBand, 2 SmartRings). Mantener el mismo estándar de estudio blanco puro RGB 255,255,255 con composición simétrica sutilmente diferenciada para Familia Extensa 1H."
+    }
+  ],
+  "stock_references": [
+    {
+      "id": "IMAGE_2_SMARTTAB_STOCK",
+      "path": "public/assets/products/smarttabs/smarttab_blanco_frontal.png",
+      "role": "Ancla morfológica estricta para 1x SmartTab blanco horizontal 16:10 (~250mm)."
+    },
+    {
+      "id": "IMAGE_3_SMARTBAND_STOCK",
+      "path": "public/assets/products/smartbands/smartband_plastico_blanco_frontal.png",
+      "role": "Ancla morfológica estricta para 1x SmartBand blanca de silicona estriada con pantalla OLED vertical activa."
+    },
+    {
+      "id": "IMAGE_4_SMARTRING_STOCK",
+      "path": "public/assets/products/smartrings/smartring_blanco_frontal.png",
+      "role": "Ancla morfológica estricta para 2x SmartRings cerámicos blancos apoyados de canto en ángulo 3/4 (~20mm)."
+    }
+  ],
+  "system_instruction": "You are an Industrial Product Photography Synthesizer for Zentry Hardware. Never crop or alter the morphology of the provided reference hardware. Preserve pure white studio background (#FFFFFF, RGB 255,255,255), 85mm f/8 deep focus, and natural contact shadows.",
+  "prompt": "High-end commercial studio product photography of a 4-piece white Zentry hardware set (Extensa 1H Essential) on a seamless pure white cyclorama (#FFFFFF, RGB 255,255,255), shot with an 85mm telephoto lens at f/8 (100% sharp focus across all 4 devices).\n\nEXACT INVENTORY (4 PIECES TOTAL — ZERO EXTRA DEVICES):\n1. CENTER-BACK: 1x White Zentry SmartTab (IMAGE 2) standing horizontally in 16:10 landscape orientation (~250mm wide), ultra-thin symmetrical white bezels (<4%), active dark/Aurora health dashboard UI.\n2. FRONT-RIGHT (slightly overlapping the right third of the tablet): 1x White ribbed silicone Zentry SmartBand (IMAGE 3) standing upright in 3/4 view, clearly displaying its elongated vertical active OLED screen.\n3. FRONT-LEFT FOREGROUND: A pair of 2x White ceramic Zentry SmartRings (IMAGE 4) standing upright on their edges in a 3/4 angle (~20mm realistic finger scale, ~8% of tablet width), showing their metallic silver inner lining and soft contact shadows.\n\nSTRICT ANTI-HALLUCINATION RULES: Render ONLY these 4 pieces (1 tablet, 1 band, 2 rings). ZERO smartwatches, ZERO speakers, ZERO smartphones, ZERO screenless bands."
+}

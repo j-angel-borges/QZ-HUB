@@ -28,5 +28,7 @@ dist-ssr
 live_browser_dump.json
 *.lnk
 test_*.png
+__pycache__/
+*.pyc
 
 

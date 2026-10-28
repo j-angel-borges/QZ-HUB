@@ -1,0 +1,76 @@
+{
+  "manifest_version": 3,
+  "name": "Zentry Tick Tool — WhatsApp Campaign Dispatcher",
+  "short_name": "Tick Tool WS",
+  "version": "1.4.0",
+  "description": "Motor despachador ultra-liviano de campañas con archivos adjuntos (Imágenes, PDF, Video), envíos individuales con agenda de contactos y árboles de follow-up en WhatsApp Web para ZentryOS & QZ-Hub. Cero marcas de agua, jitter anti-baneo y parada automática por respuesta.",
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "alarms",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://web.whatsapp.com/*",
+    "https://firestore.googleapis.com/*",
+    "https://hub.quarz.online/*",
+    "https://qz-hub-app.web.app/*",
+    "https://qz-hub-app.firebaseapp.com/*",
+    "https://quarz-group.web.app/*",
+    "https://quarz-group.firebaseapp.com/*",
+    "https://zentry-prospecc.web.app/*",
+    "https://zentry-prospecc.firebaseapp.com/*",
+    "https://zentry-prospect.web.app/*",
+    "https://zentry-prospect.firebaseapp.com/*",
+    "https://zentryos.web.app/*",
+    "https://zentryos.firebaseapp.com/*",
+    "https://vitality-prospecc.web.app/*",
+    "https://vitality-prospecc.firebaseapp.com/*",
+    "https://studio-4949838222-b0ffc.web.app/*",
+    "https://studio-4949838222-b0ffc.firebaseapp.com/*",
+    "http://localhost:*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Tick Tool — Zentry WS Dispatcher",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://web.whatsapp.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://hub.quarz.online/*",
+        "https://qz-hub-app.web.app/*",
+        "https://qz-hub-app.firebaseapp.com/*",
+        "https://quarz-group.web.app/*",
+        "https://quarz-group.firebaseapp.com/*",
+        "https://zentry-prospecc.web.app/*",
+        "https://zentry-prospecc.firebaseapp.com/*",
+        "https://zentry-prospect.web.app/*",
+        "https://zentry-prospect.firebaseapp.com/*",
+        "https://zentryos.web.app/*",
+        "https://zentryos.firebaseapp.com/*",
+        "https://vitality-prospecc.web.app/*",
+        "https://vitality-prospecc.firebaseapp.com/*",
+        "https://studio-4949838222-b0ffc.web.app/*",
+        "https://studio-4949838222-b0ffc.firebaseapp.com/*",
+        "http://localhost:*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

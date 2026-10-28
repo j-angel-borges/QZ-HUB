@@ -1,0 +1,75 @@
+{
+  "spec_id": "SPEC-04",
+  "set_key": "nuclear_1h_fullhouse",
+  "title": "Set 04 — Familia Nuclear (1 Hogar) | Nivel Fullhouse (7 piezas)",
+  "status": "READY_FOR_EXCE",
+  "gcp_project": "gen-lang-client-0929068122",
+  "gcp_location": "us-central1",
+  "model_id": "gemini-2.5-flash-image",
+  "judge_model_id": "gemini-2.5-flash",
+  "temperature": 0.15,
+  "aspect_ratio": "1:1",
+  "staging_output": "public/assets/repertorio/_staging/set_nuclear_1h_fullhouse_candidate.png",
+  "target_outputs": [
+    "public/assets/products/sets/set_nuclear_1h_fullhouse.png",
+    "public/assets/products/sets/set_fullhouse_blanco_studio.png",
+    "public/assets/repertorio/sets/set_nuclear_1h_fullhouse.png",
+    "public/assets/repertorio/set_nuclear_1h_fullhouse.png",
+    "public/assets/repertorio/_anchors/set_nuclear_1h_fullhouse.png",
+    "public/assets/repertorio/pruebas_set_essential/set_nuclear_1h_fullhouse.png"
+  ],
+  "inventory": {
+    "smarttab": 1,
+    "smartband": 1,
+    "smartring": 2,
+    "smartsound": 1,
+    "smartwatch": 1,
+    "smartphone": 1
+  },
+  "anchor_references": [
+    {
+      "id": "IMAGE_1_BASE_OMNI_SET",
+      "path": "public/assets/products/sets/set_nuclear_1h_omni.png",
+      "role": "Base layout and studio scene anchor: Contains 1 SmartTab in center background, 1 SmartBand in front-left, and exactly 2 SmartRings in foreground center on seamless studio white (#FFFFFF). Maintain this exact spatial arrangement, lighting, and reflections."
+    }
+  ],
+  "stock_references": [
+    {
+      "id": "IMAGE_2_SMARTSOUND_STOCK",
+      "path": "public/assets/products/smartsound/smartsound_blanco_frontal.png",
+      "role": "Morphological anchor for SmartSound: White cylindrical acoustic speaker with flat micro-perforated top grille and subtle warm LED base ring."
+    },
+    {
+      "id": "IMAGE_3_SMARTWATCH_STOCK",
+      "path": "public/assets/products/smartwatches/smartwatch_blanco_frontal.png",
+      "role": "Morphological anchor for SmartWatch: STRICTLY CIRCULAR 44mm round chassis in satin silver aluminum, ultra-thin metallic bezel, large round display, white sports silicone strap."
+    },
+    {
+      "id": "IMAGE_4_SMARTWATCH_PROFILE",
+      "path": "public/assets/products/smartwatches/vistas/smartwatch_blanco_perfil_lateral.png",
+      "role": "Side profile reference for SmartWatch: exactly TWO flat side buttons on the right edge, ZERO rotating crowns."
+    },
+    {
+      "id": "IMAGE_5_SMARTPHONE_STOCK",
+      "path": "public/assets/products/smartphones/smartphone_blanco_trasero.png",
+      "role": "Morphological anchor for SmartPhone: shown strictly FROM THE REAR (Back View), completely clean frosted pearl-white glass back (ZERO text, ZERO logos), vertical pill camera island with exactly 2 large stacked lenses."
+    },
+    {
+      "id": "IMAGE_6_SMARTTAB_STOCK",
+      "path": "public/assets/products/smarttabs/smarttab_blanco_frontal.png",
+      "role": "Morphological fidelity reference for SmartTab: horizontal 16:10 orientation, ultra-thin symmetrical micro-bezels (<4%)."
+    },
+    {
+      "id": "IMAGE_7_SMARTBAND_STOCK",
+      "path": "public/assets/products/smartbands/smartband_plastico_blanco_frontal.png",
+      "role": "Morphological fidelity reference for SmartBand: ribbed silicone strap with central vertical active OLED screen."
+    },
+    {
+      "id": "IMAGE_8_SMARTRING_STOCK",
+      "path": "public/assets/products/smartrings/smartring_blanco_frontal.png",
+      "role": "Morphological fidelity reference for SmartRings: white ceramic exterior with metallic titanium inner core, finger-sized upright ~20mm."
+    }
+  ],
+  "system_instruction": "You are an Industrial Product Photography Synthesizer for Zentry Hardware. Never crop or alter the morphology of the provided reference hardware. Preserve pure white studio background (#FFFFFF, RGB 255,255,255), 85mm f/8 deep focus, and natural contact shadows. Ensure zero text printed on casings, 100% circular smartwatch case, active vertical OLED smartband, and exactly 2 rings.",
+  "prompt": "A commercial high-end catalog studio photograph of the complete seven-piece white Zentry hardware family set assembled in an exquisite, unified composition on a pristine seamless white cyclorama (#FFFFFF, RGB 255,255,255) with soft specular contact reflections, shot with an 85mm telephoto lens at f/8 (100% razor-sharp focus across all 7 devices, zero bokeh blur).\n\nBASE COMPOSITION ANCHOR (FROM INJECTED IMAGE 1 - set_nuclear_1h_omni.png):\nYou are extending the composition of IMAGE 1 (which already contains 1 SmartTab, 1 SmartBand, and 2 SmartRings) by seamlessly integrating exactly 3 additional hardware pieces (1 SmartSound, 1 SmartWatch, 1 SmartPhone) to form the canonical 7-device Full House Set.\n\nEXACT HARDWARE INVENTORY (EXACTLY 7 HARDWARE PIECES TOTAL):\n1. CENTER-BACK: 1x White Zentry SmartTab (FAITHFUL TO IMAGE 6 & IMAGE 1) standing horizontally in 16:10 landscape orientation (~250mm wide), ultra-thin symmetrical micro-bezels (<4%), precision 90-degree CNC flat edges, with glowing biometric Aurora dashboard on screen.\n2. BACK-LEFT (FLANK): 1x White cylindrical Zentry SmartSound acoustic speaker (FAITHFUL TO INJECTED IMAGE 2) with flat light-grey micro-perforated acoustic top grille and subtle warm LED illumination ring at the bottom base. Pristine unbranded surface.\n3. FRONT-LEFT (in front of tablet): 1x White Zentry SmartBand (FAITHFUL TO INJECTED IMAGE 7 & IMAGE 1) standing upright in 3/4 angle, featuring textured silicone strap with fine vertical ergonomic ridges and an elongated vertical capsule housing an active vertical OLED display showing glowing health metrics. Strictly NOT a hollow ring, NOT screenless.\n4. FOREGROUND-CENTER: Exactly 2x identical White ceramic Zentry SmartRings (FAITHFUL TO INJECTED IMAGE 8 & IMAGE 1) standing upright on their edges at an elegant 3/4 angle showing circular open centers and metallic silver titanium inner cores. Real finger scale (~20mm outer diameter each, roughly 8% width of the tablet).\n5. FOREGROUND-RIGHT: 1x White Zentry SmartWatch (FAITHFUL TO INJECTED IMAGE 3 & IMAGE 4):\n   - Chassis: STRICTLY CIRCULAR case body (100% CIRCULAR round chassis in brushed satin silver aluminum, strictly NOT square, NOT square-cushion, NOT rectangular, NOT an Apple Watch clone).\n   - Display: Ultra-thin circular metallic silver bezel framing a large circular edge-to-edge display with vibrant circular health ring UI metrics.\n   - Controls: Exactly TWO small flat silver push-buttons stacked vertically on the right edge of the circular chassis. Zero rotating crowns.\n   - Strap: White/light-grey smooth silicone sports strap with clean loop.\n6. BACK-RIGHT: 1x White Zentry SmartPhone (FAITHFUL TO INJECTED IMAGE 5) standing upright in 3/4 angle, SHOWN STRICTLY FROM THE REAR (Back View). Completely clean, pristine unbranded frosted pearl-white glass back with 100% ZERO text, ZERO letters, ZERO logos (NO 'Quarz' text). In the upper-left corner of the rear backplate is an elongated vertical pill-shaped camera island containing EXACTLY TWO large circular camera lenses stacked vertically, with a silver accent ring and single LED flash. Strictly NOT 3 lenses, NOT square bump.\n\nSPATIAL HARMONY & INTEGRATION:\n- Seamlessly integrate all 7 hardware devices into the pure studio white surface (#FFFFFF, RGB 255,255,255) with delicate ambient occlusion grounding shadows, subtle contact reflections, and continuous 5600K keynote studio lighting matching the base anchor.\n- Consistent scale across all 7 devices: Tablet (~250mm) > Phone (~150mm) > Speaker (~95mm) > Watch (~44mm circular) > Band (~45mm loop) > Rings (~20mm miniature).\n\nSTRICT ANTI-HALLUCINATION & ZERO-TEXT MANDATE:\n- 100% ZERO printed text, brand names, or logos anywhere on the hardware casings (NO 'Quarz', NO 'Apple', NO brand text on phone back or speaker).\n- SmartWatch must be 100% ROUND/CIRCULAR (zero square corners).\n- SmartBand must have active vertical OLED screen (zero screenless hollow hoops).\n- SmartPhone back must have exactly 2 stacked lenses in a vertical pill island and zero text.\n- Exactly 2 SmartRings must be present."
+}

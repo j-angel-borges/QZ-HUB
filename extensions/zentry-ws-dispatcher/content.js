@@ -128,6 +128,32 @@
             );
           }
         );
+      } else if (type === 'ZENTRY_TICKTOOL_CANCEL_ALL' || type === 'ZENTRY_TICKTOOL_CANCEL_ALL_CAMPAIGNS') {
+        safeRuntimeSendMessage({ type: 'TICKTOOL_CANCEL_ALL_CAMPAIGNS' }, response => {
+          window.postMessage(
+            {
+              type: 'ZENTRY_TICKTOOL_STATUS_UPDATED',
+              state: response?.state || null
+            },
+            '*'
+          );
+        });
+      } else if (type === 'ZENTRY_TICKTOOL_CANCEL_CAMPAIGN') {
+        safeRuntimeSendMessage(
+          {
+            type: 'TICKTOOL_CANCEL_CAMPAIGN',
+            campaignId: payload?.campaignId || event.data.campaignId
+          },
+          response => {
+            window.postMessage(
+              {
+                type: 'ZENTRY_TICKTOOL_STATUS_UPDATED',
+                state: response?.state || null
+              },
+              '*'
+            );
+          }
+        );
       } else if (type === 'ZENTRY_TICKTOOL_TOGGLE_PAUSE') {
         safeRuntimeSendMessage(
           {
@@ -1435,6 +1461,11 @@
       }
 
       if (message?.type === 'TICKTOOL_DISPATCH_MESSAGE') {
+        const payloadData = message.payload || {};
+        if (payloadData.status === 'cancelled' || payloadData.campaignStatus === 'paused') {
+          sendResponse({ accepted: false, reason: 'CANCELLED_OR_PAUSED' });
+          return true;
+        }
         const {
           outboxId,
           phone,
