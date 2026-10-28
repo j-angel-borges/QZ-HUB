@@ -703,9 +703,9 @@ function renderTopNavBar() {
               type="button" 
               class="crumb-nav-btn ${!isFamilyPicker ? 'crumb-active-pill' : 'crumb-nav-link'}" 
               id="crumb-link-slides" 
-              title="Presentación de Slides (${slideSuffix})"
+              title="Presentación de Slides"
             >
-              <span>Slides ${slideSuffix}</span>
+              <span>Slides</span>
               ${!isFamilyPicker ? '<span class="crumb-arrow-down" style="font-size: 10px; margin-left: 2px;">▾</span>' : ''}
             </button>
           `}

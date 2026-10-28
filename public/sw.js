@@ -1,7 +1,7 @@
 // ==============================================================================
 // QZ-HUB SERVICE WORKER — v4.4.7 (SMARTBAND FABRIC WHITE 9.5 TEXTURE)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.5.3-clean-family-cards-hero';
+const CACHE_NAME = 'qz-hub-v4.5.4-glassmorphic-top-bar';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

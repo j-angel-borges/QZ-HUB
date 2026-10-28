@@ -10109,10 +10109,12 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   width: 34px !important;
   height: 34px !important;
   border-radius: 8px !important;
-  background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(226, 232, 240, 0.85) !important;
   color: #334155 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06) !important;
   z-index: 1050 !important;
 }
 .workspace.repertorio-view-active #sidebar-toggle:hover {
@@ -10143,7 +10145,7 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   padding-bottom: 60px !important;
 }
 
-/* Header superior principal */
+/* Header superior principal con efecto glassmorphic traslúcido y despegado del botón desplegable */
 .repertorio-header-bar {
   display: flex;
   align-items: center;
@@ -10151,11 +10153,13 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   flex-wrap: wrap;
   gap: 14px;
   min-height: 54px;
-  padding: 8px 20px 8px 20px; /* Padding limpio estándar cuando el sidebar está abierto */
+  padding: 8px 20px 8px 60px; /* Empieza más a la derecha para no chocar jamás con el botón del menú desplegable */
   border-radius: 12px 12px 0 0;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+  box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.05), inset 0 -1px 0 rgba(255, 255, 255, 0.6);
   width: 100%;
   box-sizing: border-box;
   position: sticky;
@@ -10163,10 +10167,10 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   z-index: 100;
   margin: 0 -16px 0 -16px;
   width: calc(100% + 32px);
-  transition: padding-left 0.25s ease;
+  transition: padding-left 0.25s ease, background 0.25s ease;
 }
 
-/* Cuando el sidebar está colapsado, separar limpiamente el contenido del botón hamburguesa */
+/* Cuando el sidebar está colapsado, mantener espacio despejado y holgado */
 .notion-layout.sidebar-collapsed .repertorio-header-bar {
   padding-left: 64px;
 }
