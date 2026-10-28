@@ -44,6 +44,6 @@ El catálogo de `src/repertorio-view.js` define 16 combinaciones (`4 familias ×
 | **T4 (Fullhouse 1x)** | `1 Tab + 1 Band + 2 Rings + 1 Sound + 1 Watch + 1 Phone` | `set_nuclear_1h_fullhouse.png` | **CERTIFICADO** |
 | **T5 (Base 2x)** | `2 Tabs + 2 Bands + 2 Rings` | `set_extensa_1h_omni.png`, `set_nuclear_2h_essential.png`, `set_nuclear_2h_omni.png`, `set_extensa_2h_essential.png`, `set_extensa_2h_omni.png` | `SPEC-06` listo |
 | **T6 (Integral 2x - 1 Sound)** | `2 Tabs + 2 Bands + 2 Rings + 1 Sound` | `set_extensa_1h_integral.png` | `PENDING_SPEC` (`SPEC-07`) |
-| **T7 (Fullhouse 2x Base - 1x Comp)** | `2 Tabs + 2 Bands + 2 Rings + 1 Sound + 1 Watch + 1 Phone` | `set_extensa_1h_fullhouse.png` | `PENDING_SPEC` (`SPEC-08`) |
+| **T7 (Fullhouse 2x Base - 1x Comp)** | `2 Tabs + 2 Bands + 2 Rings + 1 Sound + 1 Watch + 1 Phone` | `set_extensa_2h_fullhouse.png` | `CERTIFIED (PASS)` |
 | **T8 (Integral 2x Full)** | `2 Tabs + 2 Bands + 2 Rings + 2 Sounds` | `set_nuclear_2h_integral.png`, `set_extensa_2h_integral.png` | `PENDING_SPEC` (`SPEC-09`) |
 | **T9 (Fullhouse 2x Total - 12 pzas)** | `2 Tabs + 2 Bands + 2 Rings + 2 Sounds + 2 Watches + 2 Phones` | `set_nuclear_2h_fullhouse.png`, `set_extensa_2h_fullhouse.png` | `PENDING_SPEC` (`SPEC-10`) |
