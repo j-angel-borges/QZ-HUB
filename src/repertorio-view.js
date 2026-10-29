@@ -609,7 +609,7 @@ export function calculateCustomSetTotals() {
  */
 export function renderRepertorioView() {
   const workspace = document.querySelector('.workspace');
-  const isScrollable = repertorioState.viewMode === 'custom-builder' || repertorioState.viewMode === 'family-picker';
+  const isScrollable = repertorioState.viewMode === 'family-picker';
 
   if (workspace) {
     workspace.classList.add('minimal-view');
@@ -980,90 +980,76 @@ function renderMagazineExperience() {
  * Reducción del 85% de texto: enfoque minimalista, visual y directo
  */
 function renderCustomBuilderScreen() {
-  const currentFam = REPERTORIO_DATA.families[repertorioState.selectedFamily] || REPERTORIO_DATA.families['nuclear_1h'];
-
   return `
-    <div class="repertorio-custom-builder animate-fade-in">
+    <div class="repertorio-magazine-container animate-fade-in custom-builder-magazine-container">
       
-      <!-- Zona Superior Consolidada Fija (Sin huecos, fondo sólido continuo) -->
-      <div class="custom-builder-sticky-header-zone">
-        
-        <!-- Barra 2: Controles de Familia y Opciones -->
-        <div class="custom-builder-controls-panel">
-          <!-- Selector de Familia -->
-          <div class="config-control-group">
-            <span class="config-label">Familia:</span>
-            <div class="config-pills-row">
-              ${Object.values(REPERTORIO_DATA.families).map(fam => `
-                <button 
-                  type="button" 
-                  class="config-pill-btn ${fam.id === repertorioState.selectedFamily ? 'active' : ''}" 
-                  data-custom-family="${fam.id}"
-                  title="${fam.membersLabel}"
-                >
-                  ${fam.name}
-                </button>
-              `).join('')}
+      <!-- Contenedor con borde circular / redondo idéntico al Magazine Spread -->
+      <div class="magazine-viewport custom-builder-viewport">
+        <div class="magazine-spread custom-builder-spread" id="custom-builder-active-spread">
+          
+          <!-- Columna Izquierda (50%): Catálogo Oficial de Hardware -->
+          <div class="spread-page spread-page-left custom-builder-page-left">
+            <div class="custom-builder-left-header">
+              <div class="page-number-top">PÁG. 03 // CATÁLOGO OFICIAL DE HARDWARE</div>
+              
+              <div class="custom-builder-subbar">
+                <span class="custom-builder-eyebrow">SELECCIONA COMPONENTES</span>
+                ${repertorioState.customSetItems.length > 0 ? `
+                  <button type="button" class="btn-clear-custom-inline" id="btn-clear-custom-set" title="Vaciar set actual">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    <span>Vaciar Set</span>
+                  </button>
+                ` : ''}
+              </div>
+
+              <!-- Filtro de Categorías de Productos (Sin selector de familias) -->
+              <div class="catalog-category-tabs">
+                ${CATALOG_CATEGORIES.map(cat => `
+                  <button 
+                    type="button" 
+                    class="category-tab-btn ${repertorioState.customBuilderCategory === cat.id ? 'active' : ''}" 
+                    data-cat-id="${cat.id}"
+                  >
+                    <span class="cat-icon">${cat.icon}</span>
+                    <span class="cat-name">${cat.name}</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Grid de Catálogo Scrolleable Limpio -->
+            <div class="custom-builder-catalog-scroll-area">
+              <div class="custom-catalog-grid" id="custom-catalog-grid-container">
+                ${renderProductCatalogGrid()}
+              </div>
             </div>
           </div>
 
-          <!-- Presets Rápidos -->
-          <div class="config-presets-group">
-            <span class="presets-label">Base:</span>
-            <div class="presets-buttons">
-              <button type="button" class="btn btn-xs btn-outline" data-load-template="essential">Esencial</button>
-              <button type="button" class="btn btn-xs btn-outline" data-load-template="omni">OMNI</button>
-              <button type="button" class="btn btn-xs btn-outline" data-load-template="integral">Integral</button>
-              <button type="button" class="btn btn-xs btn-outline" data-load-template="fullhouse">Full House</button>
-              ${repertorioState.customSetItems.length > 0 ? `
-                <button type="button" class="btn btn-xs btn-outline" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);" id="btn-clear-custom-set">Vaciar</button>
-              ` : ''}
+          <!-- Columna Derecha (50%): Configuración y Cotizador de Set a Medida -->
+          <div class="spread-page spread-page-right custom-builder-page-right">
+            <div class="custom-builder-right-header">
+              <div class="page-number-top">PÁG. 04 // CONFIGURACIÓN PERSONALIZADA</div>
+              <h2 class="magazine-main-title" style="margin-top: 4px; margin-bottom: 2px;">SET A MEDIDA</h2>
+              <p class="custom-builder-description">Ecosistema modular seleccionado específicamente para los requerimientos del hogar.</p>
+            </div>
+
+            <!-- Resumen Scrolleable Limpio -->
+            <div class="custom-builder-summary-scroll-area">
+              <div class="custom-summary-card" id="custom-summary-panel">
+                ${renderCustomSummaryCardContent()}
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Barra 3: Pestañas de Categoría de Productos -->
-        <div class="catalog-category-tabs">
-          ${CATALOG_CATEGORIES.map(cat => `
-            <button 
-              type="button" 
-              class="category-tab-btn ${repertorioState.customBuilderCategory === cat.id ? 'active' : ''}" 
-              data-cat-id="${cat.id}"
-            >
-              <span class="cat-icon">${cat.icon}</span>
-              <span class="cat-name">${cat.name}</span>
-            </button>
-          `).join('')}
         </div>
-
       </div>
 
-      <!-- Layout de Dos Columnas: Catálogo + Resumen Sticky -->
-      <div class="custom-builder-layout">
-        
-        <!-- Columna de Catálogo (Grid de Productos) -->
-        <div class="custom-builder-catalog-col">
-          <div class="custom-catalog-grid" id="custom-catalog-grid-container">
-            ${renderProductCatalogGrid()}
-          </div>
-        </div>
-
-        <!-- Columna de Resumen Lateral -->
-        <aside class="custom-builder-summary-col">
-          <div class="custom-summary-card" id="custom-summary-panel">
-            ${renderCustomSummaryCardContent()}
-          </div>
-        </aside>
-
-      </div>
     </div>
   `;
 }
 
 /**
- * Renderiza las tarjetas de productos: Diseño limpio con 85% menos texto
- */
-function renderProductCatalogGrid() {
+ * function renderProductCatalogGrid() {
   const filteredProducts = getProductsByCategory(repertorioState.customBuilderCategory);
 
   if (!filteredProducts || filteredProducts.length === 0) {
@@ -1310,12 +1296,7 @@ function renderSpread01Cover(family) {
   return `
     <div class="spread-page spread-page-left cover-page-left">
       <div class="editorial-image-container">
-        <img src="${(family.coverImg || '/assets/repertorio/portada_nuclear_1h.png') + '?v=20261029'}" alt="Zentry Product Architecture" class="editorial-img" onerror="this.src='/assets/repertorio/portada_nuclear_1h.png'"/>
-        <!-- Tipografía Cursiva Negrita 3D Gel Iridiscente en el Centro de Portada -->
-        <div class="family-3d-title-wrapper cover-version" aria-hidden="true">
-          <div class="family-3d-title-halo cover-halo"></div>
-          <span class="family-3d-title-text cover-text">${family.scriptTitle}</span>
-        </div>
+        <img src="${(family.coverImg || '/assets/portadas/portada_03_lounge_connected.png') + '?v=20261029'}" alt="Zentry Product Architecture" class="editorial-img" onerror="this.src='/assets/portadas/portada_03_lounge_connected.png'"/>
         <div class="editorial-image-overlay">
           <div class="overlay-caption">
             <span class="caption-tag">EDICIÓN EJECUTIVA</span>
