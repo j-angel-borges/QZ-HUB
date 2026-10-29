@@ -200,6 +200,7 @@ export const REPERTORIO_DATA = {
     nuclear_1h: {
       id: 'nuclear_1h',
       name: 'Familia Nuclear',
+      scriptTitle: 'Nuclear',
       membersLabel: '2 Padres + 1 Hijo',
       membersSubtitle: '2 Padres • 1 Hijo',
       badge: 'Estructura Nuclear',
@@ -217,6 +218,7 @@ export const REPERTORIO_DATA = {
     nuclear_2h: {
       id: 'nuclear_2h',
       name: 'Familia Nuclear x2',
+      scriptTitle: 'Nuclear x2',
       membersLabel: '2 Padres + 2 Hijos',
       membersSubtitle: '2 Padres • 2 Hijos',
       badge: 'Hermanos & Rutinas',
@@ -234,6 +236,7 @@ export const REPERTORIO_DATA = {
     extensa_1h: {
       id: 'extensa_1h',
       name: 'Familia Extensa',
+      scriptTitle: 'Extensa',
       membersLabel: '2 Padres + 1 Hijo + 3 Abuelos',
       membersSubtitle: '2 Padres • 1 Hijo • 3 Abuelos',
       badge: 'Multigeneracional',
@@ -251,6 +254,7 @@ export const REPERTORIO_DATA = {
     extensa_2h: {
       id: 'extensa_2h',
       name: 'Familia Extensa x2',
+      scriptTitle: 'Extensa x2',
       membersLabel: '2 Padres + 2 Hijos + 3 Abuelos',
       membersSubtitle: '2 Padres • 2 Hijos • 3 Abuelos',
       badge: 'Dinastía Integral',
@@ -893,8 +897,7 @@ function renderFamilySelectorScreen() {
                 </div>
                 <!-- Tipografía Cursiva Negrita 3D Gel Iridiscente en el Centro -->
                 <div class="family-3d-title-wrapper" aria-hidden="true">
-                  <div class="family-3d-title-halo"></div>
-                  <span class="family-3d-title-text">${fam.scriptTitle}</span>
+                  <span class="family-3d-title-text">${fam.scriptTitle || fam.name.replace('Familia ', '')}</span>
                 </div>
                 <div class="family-photo-members-pill">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
