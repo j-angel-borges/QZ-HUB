@@ -1,4 +1,510 @@
 /**
+ * REPERTORIO - Catálogo Magazine & Presentación de Oferta ZentryOS
+ * SSOT Oficial de Productos, Planes de Implementación, Beneficios y Economía de Referencias
+ */
+
+import {
+  CATALOG_CATEGORIES,
+  PRODUCTS_CATALOG,
+  getAllCatalogProducts,
+  getProductsByCategory,
+  getProductBySku,
+  getProductsByFamilyCode
+} from './products-catalog.js';
+
+export const REPERTORIO_DATA = {
+  exchangeRate: 3.40, // 1 USD = 3.40 PEN
+
+  // Catálogo de Productos Físicos Oficial
+  products: {
+    st: {
+      code: 'st',
+      name: 'Smart Tab',
+      shortName: 'Smart Tab',
+      tagline: 'Pantalla de alta resolución calibrada para estudio, foco y creatividad.',
+      priceUSD: 1300,
+      pricePEN: 4420,
+      image: '/assets/repertorio/prod_smarttab.png',
+      icon: '📱',
+      badge: 'Hardware Central'
+    },
+    sb: {
+      code: 'sb',
+      name: 'Smart Band',
+      shortName: 'Smart Band',
+      tagline: 'Monitoreo discreto de actividad física, sueño y biorritmo infantil y juvenil.',
+      priceUSD: 350,
+      pricePEN: 1190,
+      image: '/assets/repertorio/prod_smartband.png',
+      icon: '⌚',
+      badge: 'Hábito & Sueño'
+    },
+    sr: {
+      code: 'sr',
+      name: 'Smart Ring',
+      shortName: 'Smart Ring',
+      tagline: 'Anillo biométrico de titanio para monitoreo no intrusivo de salud y temperatura.',
+      priceUSD: 450,
+      pricePEN: 1530,
+      image: '/assets/repertorio/prod_smartring.png',
+      icon: '💍',
+      badge: 'Biometría Invisible'
+    },
+    ss: {
+      code: 'ss',
+      name: 'Smart Sound',
+      shortName: 'Smart Sound',
+      tagline: 'Audio espacial multiroom sin pantalla para rutinas matutinas, estudio y meditación.',
+      priceUSD: 650,
+      pricePEN: 2210,
+      image: '/assets/repertorio/prod_smartsound.png',
+      icon: '🔊',
+      badge: 'Acústica & Foco'
+    },
+    sw: {
+      code: 'sw',
+      name: 'Smart Watch',
+      shortName: 'Smart Watch',
+      tagline: 'Reloj inteligente de pulso con enlace prioritario y notificaciones parentales seguras.',
+      priceUSD: 650,
+      pricePEN: 2210,
+      image: '/assets/repertorio/prod_smartwatch.png',
+      icon: '🧭',
+      badge: 'Conectividad Directa'
+    },
+    sp: {
+      code: 'sp',
+      name: 'Smart Phone',
+      shortName: 'Smart Phone',
+      tagline: 'Terminal móvil con núcleo ZentryOS blindado contra algoritmos adictivos.',
+      priceUSD: 1200,
+      pricePEN: 4080,
+      image: '/assets/repertorio/prod_smartphone.png',
+      icon: '📲',
+      badge: 'Ecosistema Total'
+    }
+  },
+
+  // Planes de Implementación de Software en dispositivos propios del usuario
+  implementations: {
+    individual: {
+      id: 'individual',
+      name: 'Implementación Individual',
+      target: '1 Hijo (2 dispositivos asignados)',
+      devicesIncluded: 2,
+      usersIncluded: 1,
+      dashboardViews: '2 vistas (Padre y Madre)',
+      dashboardDevices: 'Celular, tablet, PC o laptop',
+      priceUSD: 1145,
+      pricePEN: 3893,
+      description: 'Despliegue e instalación de ZentryOS en 2 dispositivos del hijo (ej. tablet y teléfono/laptop) más Parental Dashboard multidispositivo para ambos padres.'
+    },
+    dual: {
+      id: 'dual',
+      name: 'Implementación Dual',
+      target: '2 Hijos (4 dispositivos asignados)',
+      devicesIncluded: 4,
+      usersIncluded: 2,
+      dashboardViews: '2 vistas (Padre y Madre)',
+      dashboardDevices: 'Celular, tablet, PC o laptop',
+      priceUSD: 1690, // Estrategia escalonada con 30% desc. en el 2do hijo
+      pricePEN: 5740,
+      discountNote: 'Ahorro del 30% en el segundo hijo ya aplicado',
+      description: 'Despliegue para 2 hijos con hasta 4 dispositivos en total, calibrando rutinas y perfiles pedagógicos independientes con Parental Dashboard consolidado.'
+    },
+    custom: {
+      id: 'custom',
+      name: 'Hijo Adicional (Custom)',
+      target: 'A partir del 3er hijo',
+      devicesPerUser: 2,
+      priceUSDPerChild: 500,
+      pricePENPerChild: 1700,
+      description: 'Agrega un hijo adicional con 2 dispositivos implementados y sincronizados al Parental Dashboard familiar.'
+    }
+  },
+
+  // Beneficios y Regalos Incluidos con la Implementación
+  benefits: [
+    {
+      id: 'ai_classes',
+      title: '3 Clases de Inteligencia Artificial para Padres',
+      tag: 'Formación Parental',
+      valuePEN: 385,
+      valueUSD: 113.24,
+      description: 'Sesiones personalizadas 1 a 1 para dominar IA, automatización y supervisión parental ética.',
+      icon: '🧠'
+    },
+    {
+      id: 'studio_credits',
+      title: '100 Créditos de Generación Studio',
+      tag: 'Lanzamiento 15 Nov',
+      valuePEN: 200,
+      valueUSD: 58.82,
+      description: 'Creación asistida de microapps educativas, imágenes y contenido multimedia para los hijos.',
+      icon: '✨'
+    },
+    {
+      id: 'zentry_experience',
+      title: 'Pase Familiar "Zentry Experience"',
+      tag: 'Evento Presencial / Virtual',
+      valuePEN: 200,
+      valueUSD: 58.82,
+      description: 'Jornada inmersiva para padres e hijos con mentores en vivo y dinámicas lúdicas de enfoque.',
+      conversionNote: 'Convertible automáticamente en 100 créditos adicionales si no asistes al evento.',
+      icon: '🎟️'
+    }
+  ],
+
+  // Dinámica de Economía de Créditos y Programa de Referencias (Citas Concretadas)
+  referralsProgram: [
+    {
+      citas: 7,
+      credits: 500,
+      rewardCode: 'sb',
+      rewardName: 'Smart Band',
+      rewardIcon: '⌚',
+      commercialValuePEN: 1190,
+      commercialValueUSD: 350
+    },
+    {
+      citas: 10,
+      credits: 650,
+      rewardCode: 'sr',
+      rewardName: 'Smart Ring',
+      rewardIcon: '💍',
+      commercialValuePEN: 1530,
+      commercialValueUSD: 450
+    },
+    {
+      citas: 20,
+      credits: 1000,
+      rewardCode: 'ss_or_sw',
+      rewardName: 'Smart Sound Ó Smart Watch',
+      rewardIcon: '🔊 / 🧭',
+      commercialValuePEN: 2210,
+      commercialValueUSD: 650
+    },
+    {
+      citas: 30,
+      credits: 2000,
+      rewardCode: 'sp',
+      rewardName: 'Smart Phone',
+      rewardIcon: '📲',
+      commercialValuePEN: 4080,
+      commercialValueUSD: 1200
+    }
+  ],
+
+  // Arquetipos de Familias
+  families: {
+    nuclear_1h: {
+      id: 'nuclear_1h',
+      name: 'Familia Nuclear',
+      fullName: 'Familia Nuclear Unigénita',
+      scriptTitle: 'Unigénita',
+      cardDescription: 'Las familias nuclear unigénita suelen estar conformadas por un solo hijo y dos padres.',
+      devicesMinText: 'Desde 2 dispositivos',
+      dashboardText: 'Parental Dashboard (2 vistas)',
+      membersLabel: '2 Padres + 1 Hijo',
+      membersSubtitle: '2 Padres • 1 Hijo',
+      badge: 'Estructura Nuclear',
+      description: 'Enfocada en proteger y potenciar al único hijo en el hogar, con sincronización total entre ambos padres.',
+      defaultImpl: 'individual',
+      childrenCount: 1,
+      parentsCount: 2,
+      grandparentsCount: 0,
+      totalMembers: 3,
+      familyPhotoImg: '/assets/repertorio/family_nuclear_1h.png',
+      coverImg: '/assets/repertorio/portada_nuclear_1h.png',
+      lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
+      story: 'El hijo centraliza la atención formativa del hogar. Sus dos dispositivos de uso cotidiano se integran de forma simbiótica, mientras que papá y mamá monitorean hábitos desde sus teléfonos y computadoras.'
+    },
+    nuclear_2h: {
+      id: 'nuclear_2h',
+      name: 'Familia Nuclear',
+      fullName: 'Familia Nuclear Dual',
+      scriptTitle: 'Dual',
+      cardDescription: 'Las familias nuclear dual suelen estar conformadas por dos hijos y dos padres.',
+      devicesMinText: 'Desde 4 dispositivos',
+      dashboardText: 'Parental Dashboard (2 vistas)',
+      membersLabel: '2 Padres + 2 Hijos',
+      membersSubtitle: '2 Padres • 2 Hijos',
+      badge: 'Hermanos & Rutinas',
+      description: 'Equilibrio de pantallas entre hermanos con límites y cronogramas pedagógicos personalizados para cada uno.',
+      defaultImpl: 'dual',
+      childrenCount: 2,
+      parentsCount: 2,
+      grandparentsCount: 0,
+      totalMembers: 4,
+      familyPhotoImg: '/assets/repertorio/family_nuclear_2h.png',
+      coverImg: '/assets/repertorio/portada_nuclear_2h.png',
+      lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
+      story: 'Dos hijos representan mundos cognitivos diferentes. Cada uno dispone de su tablet y wearable calibrados individualmente, evitando disputas y garantizando que el tiempo de ocio no canibalice el estudio.'
+    },
+    extensa_1h: {
+      id: 'extensa_1h',
+      name: 'Familia Extensa',
+      fullName: 'Familia Extensa Estándar',
+      scriptTitle: 'Estándar',
+      cardDescription: 'Las familias extensa estándar suelen estar conformadas por un hijo, dos padres y abuelos.',
+      devicesMinText: 'Desde 2 dispositivos',
+      dashboardText: 'Parental Dashboard (2 vistas)',
+      membersLabel: '2 Padres + 1 Hijo + 3 Abuelos',
+      membersSubtitle: '2 Padres • 1 Hijo • 3 Abuelos',
+      badge: 'Multigeneracional',
+      description: 'Cuidado integral que une el desarrollo pedagógico del niño con el monitoreo de bienestar y salud de los abuelos.',
+      defaultImpl: 'individual',
+      childrenCount: 1,
+      parentsCount: 2,
+      grandparentsCount: 3,
+      totalMembers: 6,
+      familyPhotoImg: '/assets/repertorio/family_extensa_1h.png',
+      coverImg: '/assets/repertorio/portada_extensa_1h.png',
+      lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
+      story: 'La coexistencia de tres generaciones en el hogar exige armonía acústica y cuidado médico silencioso. Los anillos y pulseras inteligentes velan por el descanso de los abuelos y la concentración del menor.'
+    },
+    extensa_2h: {
+      id: 'extensa_2h',
+      name: 'Familia Extensa',
+      fullName: 'Familia Extensa Ampliada',
+      scriptTitle: 'Ampliada',
+      cardDescription: 'Las familias extensa ampliada suelen estar conformadas por dos hijos, dos padres y tres abuelos.',
+      devicesMinText: 'Desde 4 dispositivos',
+      dashboardText: 'Parental Dashboard (2 vistas)',
+      membersLabel: '2 Padres + 2 Hijos + 3 Abuelos',
+      membersSubtitle: '2 Padres • 2 Hijos • 3 Abuelos',
+      badge: 'Dinastía Integral',
+      description: 'Máxima cobertura tecnológica y biométrica para una casa viva y activa con múltiples generaciones.',
+      defaultImpl: 'dual',
+      childrenCount: 2,
+      parentsCount: 2,
+      grandparentsCount: 3,
+      totalMembers: 7,
+      familyPhotoImg: '/assets/repertorio/family_extensa_2h.png',
+      coverImg: '/assets/repertorio/portada_extensa_2h.png',
+      lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
+      story: 'El hogar en su máxima expresión. Múltiples zonas acústicas, monitoreo biométrico preventivo para los adultos mayores y un ecosistema pedagógico robusto para ambos hermanos.'
+    }
+  },
+
+  // Matriz de Sets por Familia (Exacta de la imagen de sets)
+  setsMatrix: {
+    nuclear_1h: {
+      essential: {
+        id: 'essential',
+        name: 'Essential Set',
+        tierName: 'Esencial',
+        tagline: 'El umbral de autonomía y protección digital para el hijo.',
+        items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 1 }],
+        image: '/assets/repertorio/set_nuclear_1h_essential.png',
+        highlight: '1 Tab + 1 Band + 1 Ring',
+        experience: 'El hijo cuenta con su Smart Tab para estudio activo y su Smart Band para el biorritmo del sueño. Se añade un Smart Ring para uno de los padres o monitoreo biométrico fino.'
+      },
+      omni: {
+        id: 'omni',
+        name: 'OMNI Set',
+        tierName: 'Omnipresente',
+        tagline: 'Sincronización biométrica para padre, madre e hijo.',
+        items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }],
+        image: '/assets/repertorio/set_nuclear_1h_omni.png',
+        highlight: '1 Tab + 1 Band + 2 Rings',
+        experience: 'Ambos padres portan el Smart Ring para supervisar salud y estrés en tiempo real, mientras el hijo mantiene su entorno de estudio y monitoreo activo.'
+      },
+      integral: {
+        id: 'integral',
+        name: 'Integral Set',
+        tierName: 'Integral',
+        tagline: 'Ambiente acústico sin pantallas y foco auditivo compartido.',
+        inheritedFrom: 'omni',
+        addedItems: [{ code: 'ss', qty: 1 }],
+        items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }],
+        image: '/assets/repertorio/set_nuclear_1h_integral.png',
+        highlight: 'OMNI + 1 Smart Sound',
+        experience: 'La integración de Smart Sound en la sala o estudio transforma los hábitos: alarmas circadianas, música de alta fidelidad para el foco y rutinas habladas sin pantallas que distraigan.'
+      },
+      fullhouse: {
+        id: 'fullhouse',
+        name: 'Full House Set',
+        tierName: 'Ecosistema Total',
+        tagline: 'El estándar definitivo de interconexión familiar Zentry.',
+        inheritedFrom: 'integral',
+        addedItems: [{ code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
+        items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }, { code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
+        image: '/assets/repertorio/set_nuclear_1h_fullhouse.png',
+        highlight: 'Integral + 1 Smart Watch + 1 Smart Phone',
+        experience: 'Control absoluto dentro y fuera de casa. El teléfono seguro con ZentryOS y el Smart Watch permiten comunicación directa protegida ante cualquier estímulo adictivo exterior.'
+      }
+    },
+
+    extensa_1h: {
+      essential: {
+        id: 'essential',
+        name: 'Essential Set',
+        tierName: 'Esencial',
+        tagline: 'Protección infantil y cuidado biométrico para abuelos.',
+        items: [{ code: 'sb', qty: 1 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }],
+        image: '/assets/repertorio/set_extensa_1h_essential.png',
+        highlight: '1 Tab + 1 Band + 2 Rings',
+        experience: 'El Smart Tab y Smart Band atienden al niño, mientras dos Smart Rings salvaguardan los signos vitales clave de los abuelos.'
+      },
+      omni: {
+        id: 'omni',
+        name: 'OMNI Set',
+        tierName: 'Omnipresente',
+        tagline: 'Doble pantalla y doble anillo para el hogar extendido.',
+        items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
+        image: '/assets/repertorio/set_extensa_1h_omni.png',
+        highlight: '2 Tabs + 2 Bands + 2 Rings',
+        experience: 'Dos estaciones de tablet para lectura de adultos mayores y deberes escolares, con anillos y bandas repartidas entre la familia.'
+      },
+      integral: {
+        id: 'integral',
+        name: 'Integral Set',
+        tierName: 'Integral',
+        tagline: 'Acústica relajante para toda la casa.',
+        inheritedFrom: 'omni',
+        addedItems: [{ code: 'ss', qty: 1 }],
+        items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }],
+        image: null,
+        highlight: 'OMNI + 1 Smart Sound',
+        experience: 'Smart Sound centralizado para ambientar el living familiar con sonido sin estridencias, ideal para la convivencia intergeneracional.'
+      },
+      fullhouse: {
+        id: 'fullhouse',
+        name: 'Full House Set',
+        tierName: 'Ecosistema Total',
+        tagline: 'Blindaje digital absoluto para la casa grande.',
+        inheritedFrom: 'integral',
+        addedItems: [{ code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
+        items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 1 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 1 }, { code: 'sw', qty: 1 }, { code: 'sp', qty: 1 }],
+        image: '/assets/repertorio/set_extensa_1h_fullhouse.png',
+        highlight: 'Integral + 1 Smart Watch + 1 Smart Phone',
+        experience: 'Máxima capacidad: un Smart Phone seguro para el joven o tutor y Smart Watch con monitoreo inmediato en cualquier rincón del hogar.'
+      }
+    },
+
+    nuclear_2h: {
+      essential: {
+        id: 'essential',
+        name: 'Essential Set',
+        tierName: 'Esencial',
+        tagline: 'Paridad pedagógica para 2 hermanos.',
+        items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
+        image: '/assets/repertorio/set_nuclear_2h_essential.png',
+        highlight: '2 Tabs + 2 Bands + 2 Rings',
+        experience: 'Cada hijo recibe su Smart Tab y su Smart Band para erradicar comparaciones y disputas, respaldados por los Smart Rings para ambos padres.'
+      },
+      omni: {
+        id: 'omni',
+        name: 'OMNI Set',
+        tierName: 'Omnipresente',
+        tagline: 'Doble pantalla y doble pulsera de hábitos consolidados.',
+        items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
+        image: '/assets/repertorio/set_nuclear_2h_omni.png',
+        highlight: '2 Tabs + 2 Bands + 2 Rings',
+        experience: 'Configuración equilibrada para dos hijos con supervisión parental activa y dashboards segmentados por edad escolar.'
+      },
+      integral: {
+        id: 'integral',
+        name: 'Integral Set',
+        tierName: 'Integral',
+        tagline: 'Doble zona acústica: estudio y sala.',
+        inheritedFrom: 'omni',
+        addedItems: [{ code: 'ss', qty: 2 }],
+        items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 2 }],
+        image: '/assets/repertorio/set_nuclear_2h_integral.png',
+        highlight: 'OMNI + 2 Smart Sounds',
+        experience: 'Dos altavoces Smart Sound para dos dormitorios o zonas de estudio independientes: cada hermano tiene su propio ecosistema de audio para concentrarse.'
+      },
+      fullhouse: {
+        id: 'fullhouse',
+        name: 'Full House Set',
+        tierName: 'Ecosistema Total',
+        tagline: 'Doble reloj, doble teléfono, sin dependencias.',
+        inheritedFrom: 'integral',
+        addedItems: [{ code: 'sw', qty: 2 }, { code: 'sp', qty: 2 }],
+        items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 2 }, { code: 'sw', qty: 2 }, { code: 'sp', qty: 2 }],
+        image: '/assets/repertorio/set_nuclear_2h_fullhouse.png',
+        highlight: 'Integral + 2 Smart Watches + 2 Smart Phones',
+        experience: 'El pináculo del catálogo Zentry: ambos hijos disponen de su smartwatch de seguridad y su smartphone ZentryOS para salidas, escuela y deportes.'
+      }
+    },
+
+    extensa_2h: {
+      essential: {
+        id: 'essential',
+        name: 'Essential Set',
+        tierName: 'Esencial',
+        tagline: 'Equipamiento dual escolar y biométrico.',
+        items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
+        image: '/assets/repertorio/set_extensa_2h_essential.png',
+        highlight: '2 Tabs + 2 Bands + 2 Rings',
+        experience: 'Herramientas equitativas para ambos hermanos en edad escolar, con anillos para el monitoreo de los adultos mayores.'
+      },
+      omni: {
+        id: 'omni',
+        name: 'OMNI Set',
+        tierName: 'Omnipresente',
+        tagline: 'Armonía y paridad para todo el clan.',
+        items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }],
+        image: '/assets/repertorio/set_extensa_2h_omni.png',
+        highlight: '2 Tabs + 2 Bands + 2 Rings',
+        experience: 'Doble terminal de trabajo con sincronización cloud instantánea hacia el Parental Dashboard.'
+      },
+      integral: {
+        id: 'integral',
+        name: 'Integral Set',
+        tierName: 'Integral',
+        tagline: 'Doble altavoz ambiental para la casa compartida.',
+        inheritedFrom: 'omni',
+        addedItems: [{ code: 'ss', qty: 2 }],
+        items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 2 }],
+        image: '/assets/repertorio/set_extensa_2h_integral.png',
+        highlight: 'OMNI + 2 Smart Sounds',
+        experience: 'Dos Smart Sound estratégicamente colocados (área social y área de dormitorios) para guiar los ritmos circadianos de toda la familia.'
+      },
+      fullhouse: {
+        id: 'fullhouse',
+        name: 'Full House Set',
+        tierName: 'Ecosistema Total',
+        tagline: 'La cumbre de hardware Zentry para la dinastía.',
+        inheritedFrom: 'integral',
+        addedItems: [{ code: 'sw', qty: 2 }, { code: 'sp', qty: 2 }],
+        items: [{ code: 'sb', qty: 2 }, { code: 'st', qty: 2 }, { code: 'sr', qty: 2 }, { code: 'ss', qty: 2 }, { code: 'sw', qty: 2 }, { code: 'sp', qty: 2 }],
+        image: '/assets/repertorio/set_extensa_2h_fullhouse.png',
+        highlight: 'Integral + 2 Smart Watches + 2 Smart Phones',
+        experience: 'Ningún miembro queda desatendido. Sincronización absoluta de software y hardware con cobertura total.'
+      }
+    }
+  }
+};
+
+/**
+ * Estado reactivo del Repertorio
+ */
+
+export const repertorioState = {
+  selectedFamily: 'nuclear_1h', // 'nuclear_1h', 'extensa_1h', 'nuclear_2h', 'extensa_2h'
+  currency: localStorage.getItem('qz_repertorio_currency') || 'USD',
+  revealedPriceBlocks: new Set(), // Comienza vacío: todos los bloques inician ocultos individualmente
+  hideAmounts: false,
+  currentSpread: 1, // Spread 1: Portada
+  selectedSetTier: 'essential', // 'essential', 'omni', 'integral', 'fullhouse'
+  additionalChildren: 0,
+  includeImplementation: true,
+  viewMode: 'family-picker', // Inicia en la primera pestaña: Estructura de tu Hogar
+
+  // Estado del Personalizador de Sets a Medida (Matriz de Productos y SKUs)
+  customBuilderCategory: 'all',
+  customSetItems: [
+    { sku: 'ZT-TAB11-BLK', qty: 1 },
+    { sku: 'ZT-RING-WHT', qty: 1 },
+    { sku: 'ZT-PHN-BLK', qty: 1 }
+  ],
+  productAngles: {} // Mapa de sku -> 'front' | 'back'
+};
+
+/**
  * Formateo numérico puro sin máscara
  */
 export function formatRawMoney(usdAmount, penAmount = null, currency = repertorioState.currency) {
@@ -54,9 +560,6 @@ export function formatMoney(usdAmount, penAmount = null, currency = repertorioSt
   return formatRawMoney(usdAmount, penAmount, currency);
 }
 
-/**
- * Calcula los totales para un set y familia dados
- */
 export function calculateSetTotals(familyId, setKey, additionalChildren = repertorioState.additionalChildren, includeImpl = repertorioState.includeImplementation) {
   const family = REPERTORIO_DATA.families[familyId];
   const set = REPERTORIO_DATA.setsMatrix[familyId][setKey];
