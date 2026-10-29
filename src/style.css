@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 /* Design System: QZ-Hub - QUARZ GROUP Holding Cockpit */
 
 :root {
@@ -10348,6 +10349,53 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
+/* Botón SVG Ojo: Toggle Mostrar / Ocultar Montos */
+.btn-toggle-amounts {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  user-select: none;
+}
+
+.btn-toggle-amounts:hover {
+  background: #f8fafc;
+  color: #1e293b;
+  border-color: rgba(124, 77, 255, 0.35);
+  box-shadow: 0 2px 8px rgba(124, 77, 255, 0.12);
+}
+
+.btn-toggle-amounts.is-active-hidden {
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.45);
+  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.btn-toggle-amounts svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.btn-toggle-amounts:hover svg {
+  transform: scale(1.1);
+}
+
+.btn-toggle-amounts-label {
+  letter-spacing: 0.2px;
+}
+
+
 /* --------------------------------------------------------------------------
    Pantalla 1: Selector de Familia
    -------------------------------------------------------------------------- */
@@ -10577,6 +10625,116 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   font-size: 11px;
   font-weight: 600;
   color: #64748b;
+}
+
+
+/* --------------------------------------------------------------------------
+   Tipografía Cursiva Negrita 3D Gel Iridiscente en el Centro de Portadas
+   -------------------------------------------------------------------------- */
+.family-3d-title-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 5;
+  user-select: none;
+  width: 92%;
+  text-align: center;
+}
+
+.family-3d-title-halo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 220px;
+  height: 95px;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.5) 0%, rgba(232, 121, 249, 0.28) 45%, transparent 75%);
+  filter: blur(12px);
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.family-3d-title-text {
+  position: relative;
+  font-family: 'Pacifico', cursive, -apple-system, sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+  background: linear-gradient(135deg, 
+    #fce7f3 0%, 
+    #f472b6 22%, 
+    #e879f9 45%, 
+    #c084fc 62%, 
+    #93c5fd 82%, 
+    #ffffff 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1.8px rgba(255, 255, 255, 0.95);
+  filter: 
+    drop-shadow(0 2px 1px rgba(255, 255, 255, 1))
+    drop-shadow(0 -1px 2px rgba(255, 255, 255, 0.9))
+    drop-shadow(0 8px 18px rgba(168, 85, 247, 0.55))
+    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.family-select-card:hover .family-3d-title-text {
+  transform: scale(1.08) translateY(-3px);
+  filter: 
+    drop-shadow(0 3px 2px rgba(255, 255, 255, 1))
+    drop-shadow(0 -1px 2px rgba(255, 255, 255, 0.95))
+    drop-shadow(0 12px 24px rgba(168, 85, 247, 0.65))
+    drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+}
+
+/* Versión más grande para la portada del Magazine (Spread 01) */
+.family-3d-title-wrapper.cover-version {
+  width: 85%;
+}
+
+.family-3d-title-wrapper.cover-version .cover-halo {
+  width: 320px;
+  height: 140px;
+  filter: blur(18px);
+}
+
+.family-3d-title-wrapper.cover-version .cover-text {
+  font-size: 64px;
+  -webkit-text-stroke: 2.2px rgba(255, 255, 255, 0.95);
+  filter: 
+    drop-shadow(0 3px 2px rgba(255, 255, 255, 1))
+    drop-shadow(0 -2px 3px rgba(255, 255, 255, 0.95))
+    drop-shadow(0 14px 28px rgba(168, 85, 247, 0.6))
+    drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+}
+
+@media (max-width: 900px) {
+  .family-3d-title-text {
+    font-size: 34px;
+    -webkit-text-stroke: 1.4px rgba(255, 255, 255, 0.95);
+  }
+  .family-3d-title-wrapper.cover-version .cover-text {
+    font-size: 46px;
+  }
+}
+
+@media (max-width: 480px) {
+  .family-3d-title-text {
+    font-size: 30px;
+  }
+  .family-3d-title-wrapper.cover-version .cover-text {
+    font-size: 38px;
+  }
 }
 
 .family-photo-members-pill {

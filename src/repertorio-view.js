@@ -464,7 +464,8 @@ export const REPERTORIO_DATA = {
  */
 export const repertorioState = {
   selectedFamily: 'nuclear_1h', // 'nuclear_1h', 'extensa_1h', 'nuclear_2h', 'extensa_2h'
-  currency: 'USD', // 'USD' | 'PEN'
+  currency: localStorage.getItem('qz_repertorio_currency') || 'USD',
+  hideAmounts: localStorage.getItem('qz_repertorio_hide_amounts') === 'true',
   currentSpread: 2, // 1 to 6 (Por defecto Spread 2: Essential Set)
   selectedSetTier: 'essential', // 'essential', 'omni', 'integral', 'fullhouse'
   additionalChildren: 0,
@@ -485,6 +486,9 @@ export const repertorioState = {
  * Helper para formatear montos según la moneda activa
  */
 export function formatMoney(usdAmount, penAmount = null, currency = repertorioState.currency) {
+  if (repertorioState.hideAmounts) {
+    return '••••••';
+  }
   if (currency === 'PEN') {
     const val = penAmount !== null ? penAmount : Math.round(usdAmount * REPERTORIO_DATA.exchangeRate);
     return `S/ ${val.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
@@ -751,6 +755,30 @@ function renderTopNavBar() {
           </button>
         </div>
 
+        <!-- Botón SVG Ojo: Ocultar / Mostrar Montos y Costos -->
+        <button 
+          type="button" 
+          class="btn-toggle-amounts ${repertorioState.hideAmounts ? 'is-active-hidden' : ''}" 
+          id="btn-toggle-amounts" 
+          title="${repertorioState.hideAmounts ? 'Mostrar costos y montos' : 'Ocultar costos y montos'}"
+          aria-label="Alternar visibilidad de montos"
+        >
+          ${repertorioState.hideAmounts ? `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+              <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+              <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+              <line x1="2" y1="2" x2="22" y2="22"></line>
+            </svg>
+          ` : `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          `}
+          <span class="btn-toggle-amounts-label">${repertorioState.hideAmounts ? 'Montos Ocultos' : 'Montos'}</span>
+        </button>
+
         <!-- Botón Resumen de Oferta / Cotizador -->
         <button type="button" class="btn btn-primary btn-quote-action" id="btn-open-quote-modal">
           + Cotización de Oferta
@@ -862,6 +890,11 @@ function renderFamilySelectorScreen() {
                     </svg>
                   </div>
                   <span class="placeholder-label">Retrato Familiar</span>
+                </div>
+                <!-- Tipografía Cursiva Negrita 3D Gel Iridiscente en el Centro -->
+                <div class="family-3d-title-wrapper" aria-hidden="true">
+                  <div class="family-3d-title-halo"></div>
+                  <span class="family-3d-title-text">${fam.scriptTitle}</span>
                 </div>
                 <div class="family-photo-members-pill">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -1278,6 +1311,11 @@ function renderSpread01Cover(family) {
     <div class="spread-page spread-page-left cover-page-left">
       <div class="editorial-image-container">
         <img src="${(family.coverImg || '/assets/repertorio/portada_nuclear_1h.png') + '?v=20261029'}" alt="Zentry Product Architecture" class="editorial-img" onerror="this.src='/assets/repertorio/portada_nuclear_1h.png'"/>
+        <!-- Tipografía Cursiva Negrita 3D Gel Iridiscente en el Centro de Portada -->
+        <div class="family-3d-title-wrapper cover-version" aria-hidden="true">
+          <div class="family-3d-title-halo cover-halo"></div>
+          <span class="family-3d-title-text cover-text">${family.scriptTitle}</span>
+        </div>
         <div class="editorial-image-overlay">
           <div class="overlay-caption">
             <span class="caption-tag">EDICIÓN EJECUTIVA</span>
@@ -1737,6 +1775,13 @@ function attachRepertorioEvents() {
       renderRepertorioView();
     });
   });
+  // Toggle Ocultar / Mostrar Montos (Privacidad / Modo Presentación)
+  root.querySelector('#btn-toggle-amounts')?.addEventListener('click', () => {
+    repertorioState.hideAmounts = !repertorioState.hideAmounts;
+    localStorage.setItem('qz_repertorio_hide_amounts', repertorioState.hideAmounts ? 'true' : 'false');
+    renderRepertorioView();
+  });
+
 
   // Switch de Modos Principales: Sets Prearmados vs Set a Medida
   document.getElementById('tab-mode-magazine')?.addEventListener('click', () => {
