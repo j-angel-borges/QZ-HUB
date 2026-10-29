@@ -4,9 +4,9 @@
 export function formatRawMoney(usdAmount, penAmount = null, currency = repertorioState.currency) {
   if (currency === 'PEN') {
     const val = penAmount !== null ? penAmount : Math.round(usdAmount * REPERTORIO_DATA.exchangeRate);
-    return `S/ ${val.toLocaleString('es-PE')}`;
+    return `S/ ${val.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   }
-  return `$ ${Math.round(usdAmount).toLocaleString('en-US')} USD`;
+  return `$${Math.round(usdAmount).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} USD`;
 }
 
 /**
@@ -395,15 +395,14 @@ function renderFamilySelectorScreen() {
                 <h3 class="family-card-name">${fam.name}</h3>
               </div>
 
-              <div class="family-card-specs-grid">
-                <div class="spec-cell">
-                  <span class="spec-cell-bold">${fam.childrenCount === 1 ? 'Desde 1 usuario' : 'Desde 2 usuarios'}</span>
-                  <span class="spec-cell-sub">${fam.childrenCount === 1 ? 'Desde 2 dispositivos' : 'Desde 4 dispositivos'}</span>
-                </div>
-                <div class="spec-cell">
-                  <span class="spec-cell-bold">Parental Dashboard</span>
-                  <span class="spec-cell-sub">2 Vistas (Padre & Madre)</span>
-                </div>
+              <!-- Descripción breve que inicia con el nombre completo de la familia -->
+              <p class="family-card-brief-desc">${fam.cardDescription || fam.description}</p>
+
+              <!-- Una sola línea separada con especificaciones mínimas -->
+              <div class="family-card-specs-single-row">
+                <span class="spec-single-cell spec-devices">${fam.devicesMinText || (fam.childrenCount === 1 ? 'Desde 2 dispositivos' : 'Desde 4 dispositivos')}</span>
+                <span class="spec-single-divider"></span>
+                <span class="spec-single-cell spec-dashboard">${fam.dashboardText || 'Parental Dashboard (2 vistas)'}</span>
               </div>
 
               <!-- Placeholder / Fotografía Familiar de la cantidad de integrantes -->
