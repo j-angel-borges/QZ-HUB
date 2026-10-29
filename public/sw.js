@@ -1,7 +1,7 @@
 // ==============================================================================
 // QZ-HUB SERVICE WORKER — v4.4.7 (SMARTBAND FABRIC WHITE 9.5 TEXTURE)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.5.7-floating-glass-capsule-navbar';
+const CACHE_NAME = 'qz-hub-v4.5.8-blurred-family-portadas';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

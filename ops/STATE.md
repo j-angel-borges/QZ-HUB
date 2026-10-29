@@ -37,7 +37,18 @@
 
 ---
 
-## 3. Comandos Rápidos para Despachar la Próxima Sesión `EXCE`
+## 3. Retratos Familiares & Portadas (`public/assets/repertorio/family_*.png` & `portada_*.png`)
+
+| ID Familia | Clave | Miembros | Integrantes | Foto Fuente | Activo Retrato | Activo Portada | Estado |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **01** | `nuclear_1h` | 2 Padres + 1 Hijo | 3 pzas | `uploaded_media_3` | `family_nuclear_1h.png` | `portada_nuclear_1h.png` | `CERTIFIED (PASS)` |
+| **02** | `nuclear_2h` | 2 Padres + 2 Hijos | 4 pzas | `uploaded_media_2` | `family_nuclear_2h.png` | `portada_nuclear_2h.png` | `CERTIFIED (PASS)` |
+| **03** | `extensa_1h` | 2 Padres + 1 Hijo + 3 Abuelos | 6 pzas | `uploaded_media_1` | `family_extensa_1h.png` | `portada_extensa_1h.png` | `CERTIFIED (PASS)` |
+| **04** | `extensa_2h` | 2 Padres + 2 Hijos + 3 Abuelos | 7 pzas | `uploaded_media_0` | `family_extensa_2h.png` | `portada_extensa_2h.png` | `CERTIFIED (PASS)` |
+
+---
+
+## 4. Comandos Rápidos para Despachar la Próxima Sesión `EXCE`
 
 - **Opción A (Ejecutar `SPEC-05` en nueva sesión `EXCE`):**
   ```text

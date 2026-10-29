@@ -214,23 +214,6 @@ export const REPERTORIO_DATA = {
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'El hijo centraliza la atención formativa del hogar. Sus dos dispositivos de uso cotidiano se integran de forma simbiótica, mientras que papá y mamá monitorean hábitos desde sus teléfonos y computadoras.'
     },
-    extensa_1h: {
-      id: 'extensa_1h',
-      name: 'Familia Extensa',
-      membersLabel: '2 Padres + 1 Hijo + 3 Abuelos',
-      membersSubtitle: '2 Padres • 1 Hijo • 3 Abuelos',
-      badge: 'Multigeneracional',
-      description: 'Cuidado integral que une el desarrollo pedagógico del niño con el monitoreo de bienestar y salud de los abuelos.',
-      defaultImpl: 'individual',
-      childrenCount: 1,
-      parentsCount: 2,
-      grandparentsCount: 3,
-      totalMembers: 6,
-      familyPhotoImg: '/assets/repertorio/family_extensa_1h.png',
-      coverImg: '/assets/repertorio/portada_extensa_1h.png',
-      lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
-      story: 'La coexistencia de tres generaciones en el hogar exige armonía acústica y cuidado médico silencioso. Los anillos y pulseras inteligentes velan por el descanso de los abuelos y la concentración del menor.'
-    },
     nuclear_2h: {
       id: 'nuclear_2h',
       name: 'Familia Nuclear x2',
@@ -247,6 +230,23 @@ export const REPERTORIO_DATA = {
       coverImg: '/assets/repertorio/portada_nuclear_2h.png',
       lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
       story: 'Dos hijos representan mundos cognitivos diferentes. Cada uno dispone de su tablet y wearable calibrados individualmente, evitando disputas y garantizando que el tiempo de ocio no canibalice el estudio.'
+    },
+    extensa_1h: {
+      id: 'extensa_1h',
+      name: 'Familia Extensa',
+      membersLabel: '2 Padres + 1 Hijo + 3 Abuelos',
+      membersSubtitle: '2 Padres • 1 Hijo • 3 Abuelos',
+      badge: 'Multigeneracional',
+      description: 'Cuidado integral que une el desarrollo pedagógico del niño con el monitoreo de bienestar y salud de los abuelos.',
+      defaultImpl: 'individual',
+      childrenCount: 1,
+      parentsCount: 2,
+      grandparentsCount: 3,
+      totalMembers: 6,
+      familyPhotoImg: '/assets/repertorio/family_extensa_1h.png',
+      coverImg: '/assets/repertorio/portada_extensa_1h.png',
+      lifestyleImg: '/assets/repertorio/lifestyle_lounge.png',
+      story: 'La coexistencia de tres generaciones en el hogar exige armonía acústica y cuidado médico silencioso. Los anillos y pulseras inteligentes velan por el descanso de los abuelos y la concentración del menor.'
     },
     extensa_2h: {
       id: 'extensa_2h',
@@ -847,7 +847,7 @@ function renderFamilySelectorScreen() {
               <!-- Placeholder / Fotografía Familiar de la cantidad de integrantes -->
               <div class="family-card-photo-box" title="Retrato Familiar: ${fam.name} (${fam.totalMembers} Integrantes)">
                 <img 
-                  src="${fam.familyPhotoImg}" 
+                  src="${fam.familyPhotoImg}?v=20261029" 
                   alt="Retrato Familiar ${fam.name} (${fam.totalMembers} Integrantes)" 
                   class="family-card-photo-img" 
                   loading="lazy"
@@ -1277,7 +1277,7 @@ function renderSpread01Cover(family) {
   return `
     <div class="spread-page spread-page-left cover-page-left">
       <div class="editorial-image-container">
-        <img src="${family.coverImg || '/assets/repertorio/portada_nuclear_1h.png'}" alt="Zentry Product Architecture" class="editorial-img" onerror="this.src='/assets/repertorio/portada_nuclear_1h.png'"/>
+        <img src="${(family.coverImg || '/assets/repertorio/portada_nuclear_1h.png') + '?v=20261029'}" alt="Zentry Product Architecture" class="editorial-img" onerror="this.src='/assets/repertorio/portada_nuclear_1h.png'"/>
         <div class="editorial-image-overlay">
           <div class="overlay-caption">
             <span class="caption-tag">EDICIÓN EJECUTIVA</span>
