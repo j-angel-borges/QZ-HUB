@@ -15696,3 +15696,81 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   background: #f8fafc;
   border-radius: 14px;
 }
+
+
+/* --------------------------------------------------------------------------
+   Botón Ojo Individual por Bloque de Monto (Gris, Pequeño, Sin Texto)
+   -------------------------------------------------------------------------- */
+.price-toggle-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  vertical-align: middle;
+}
+
+.price-val-display {
+  display: inline-block;
+  transition: opacity 0.15s ease;
+}
+
+.price-val-display.is-masked {
+  letter-spacing: 2px;
+  opacity: 0.8;
+  font-family: inherit;
+  font-size: 0.95em;
+  user-select: none;
+}
+
+.btn-price-eye-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  border-radius: 4px;
+  color: #94a3b8 !important; /* Gris sutil */
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.btn-price-eye-inline:hover {
+  color: #475569 !important; /* Gris oscuro en hover */
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.btn-price-eye-inline:active {
+  transform: scale(0.92);
+}
+
+.btn-price-eye-inline svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  display: block;
+}
+
+/* Alineación en los distintos contextos */
+.family-card-price-row .price-toggle-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-total-price-card .price-toggle-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cost-summary-item .price-toggle-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
