@@ -510,7 +510,12 @@ export const repertorioState = {
     { sku: 'ZT-RING-WHT', qty: 1 },
     { sku: 'ZT-PHN-BLK', qty: 1 }
   ],
-  productAngles: {} // Mapa de sku -> 'front' | 'back'
+  productAngles: {}, // Mapa de sku -> 'front' | 'back'
+
+  // Estado Sorteo y Regalos & Conexión CRM Zentry Prospecc
+  sorteoActiveFicha: typeof getActiveFicha === 'function' ? getActiveFicha() : 'Familia Presentación',
+  sorteoRecommendations: typeof loadFichaRecommendations === 'function' ? loadFichaRecommendations('Familia Presentación') : null,
+  sorteoExpandedRow: null // Índice 1..30 de la fila desplegada
 };
 
 /**
@@ -1781,226 +1786,224 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+/**
+ * Función que asegura que siempre existan exactamente 30 filas
+ */
+function getEnsureSorteoRecommendations() {
+  const currentFicha = repertorioState.sorteoActiveFicha || 'Familia Presentación';
+  if (!repertorioState.sorteoRecommendations || !Array.isArray(repertorioState.sorteoRecommendations) || repertorioState.sorteoRecommendations.length !== 30) {
+    if (typeof loadFichaRecommendations === 'function') {
+      repertorioState.sorteoRecommendations = loadFichaRecommendations(currentFicha);
+    }
+  }
+  if (!repertorioState.sorteoRecommendations || repertorioState.sorteoRecommendations.length !== 30) {
+    const arr = [];
+    for (let i = 1; i <= 30; i++) {
+      arr.push({
+        index: i,
+        id: `rec_${currentFicha}_${i}`,
+        nombreCompleto: '',
+        celular: '',
+        distrito: '',
+        observaciones: '',
+        completed: false
+      });
+    }
+    repertorioState.sorteoRecommendations = arr;
+  }
+  return repertorioState.sorteoRecommendations;
+}
+
+/**
+ * PANTALLA VISUAL: SORTEO, RECOMENDACIONES & ADDONS (Keynote / Pitch Deck Support)
+ * Sin retailas de texto • Diagramas, SVGs, Palabras Clave y Tabla de 30 Filas
+ */
 function renderSorteoRegalosScreen() {
   const ficha = repertorioState.sorteoActiveFicha || 'Familia Presentación';
-  const recs = repertorioState.sorteoRecommendations || [];
+  const recs = getEnsureSorteoRecommendations();
   const completedCount = recs.filter(r => r.completed).length;
   const expandedIdx = repertorioState.sorteoExpandedRow;
   const currency = repertorioState.currency;
 
   return `
     <div class="sorteo-screen-wrapper">
-      <!-- 1. Header de Ficha y Conexión con Zentry Prospecc CRM -->
-      <div class="sorteo-hero-card">
-        <div class="sorteo-hero-top">
-          <div class="sorteo-hero-title-group">
-            <span class="sorteo-badge-pill">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
-                <path d="M2 12h20"></path>
-              </svg>
-              Conexión Directa Zentry Prospecc CRM
-            </span>
-            <h1 class="sorteo-main-title">Programa de Recomendaciones & Sorteo Anual</h1>
-            <p class="sorteo-subtitle">
-              Cada contacto registrado se sincroniza automáticamente en una nueva hoja del CRM de Zentry Prospecc y genera <strong>1 Ticket oficial</strong> para el gran sorteo del <strong>15 de Diciembre de 2026</strong>.
-            </p>
+      
+      <!-- 1. BARRA SUPERIOR: FICHA CRM & METRICA DE TICKETS -->
+      <div class="sorteo-cockpit-bar">
+        <div class="cockpit-left">
+          <div class="crm-chip">
+            <span class="status-dot-pulse"></span>
+            <strong>Zentry Prospecc CRM</strong>
+            <span class="chip-divider">|</span>
+            <span class="chip-sub">Hoja Sincronizada</span>
           </div>
 
-          <!-- Contador Destacado de Tickets -->
-          <div class="sorteo-ticket-counter-box" title="${completedCount} recomendaciones validadas">
-            <div class="ticket-counter-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"></path>
-                <path d="M13 5v2"></path>
-                <path d="M13 17v2"></path>
-                <path d="M13 11v2"></path>
-              </svg>
-            </div>
-            <div class="ticket-counter-text">
-              <span class="ticket-counter-num">${completedCount}</span>
-              <span class="ticket-counter-label">Tickets Acumulados</span>
-            </div>
+          <div class="ficha-input-container">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <input 
+              type="text" 
+              id="input-sorteo-ficha" 
+              class="ficha-quick-input" 
+              value="${escapeHtml(ficha)}" 
+              placeholder="Nombre de la Ficha / Familia"
+            />
+            <button type="button" class="btn-save-ficha-pill" id="btn-sync-ficha-crm" title="Guardar hoja en CRM">
+              <span>Guardar</span>
+            </button>
           </div>
         </div>
 
-        <!-- Ficha / Hoja del CRM Selector -->
-        <div class="sorteo-ficha-bar">
-          <div class="sorteo-ficha-input-wrap">
-            <label for="input-sorteo-ficha">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-              Nombre de la Ficha (Hoja en Zentry Prospecc):
-            </label>
-            <div class="sorteo-ficha-controls">
-              <input 
-                type="text" 
-                id="input-sorteo-ficha" 
-                class="sorteo-ficha-input" 
-                value="${escapeHtml(ficha)}" 
-                placeholder="Ej. Familia Rodríguez / Presentación Surco"
-              />
-              <button type="button" class="btn-sync-ficha" id="btn-sync-ficha-crm" title="Sincronizar nombre de ficha con Zentry Prospecc">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
-                <span>Guardar Hoja CRM</span>
-              </button>
+        <div class="cockpit-right">
+          <!-- Contador Visual de Tickets -->
+          <div class="ticket-meter-card">
+            <div class="meter-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"></path>
+                <path d="M13 5v2"></path><path d="M13 17v2"></path><path d="M13 11v2"></path>
+              </svg>
             </div>
-          </div>
-          <div class="sorteo-crm-status-pill">
-            <span class="status-dot-pulse"></span>
-            <span>Sincronizando con <strong>zentryos.firebaseapp.com</strong> (CRM Leads & Pestañas)</span>
+            <div class="meter-data">
+              <div class="meter-val"><strong>${completedCount}</strong> <span class="meter-total">/ 30</span></div>
+              <div class="meter-label">Tickets para el Sorteo</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- 2. Tabla Interactiva de 30 Filas (Acordeón Exclusivo con Animación Rebote) -->
-      <section class="sorteo-table-section">
-        <div class="sorteo-section-header">
-          <div>
-            <h2 class="sorteo-section-title">Registro de Familias Recomendadas (30 Filas)</h2>
-            <p class="sorteo-section-desc">
-              Haz clic en cualquier fila para desplegar sus campos. Al completar una recomendación, se guardará en la nube y se activará su cupón <strong>x1</strong> con animación.
-            </p>
-          </div>
-          <div class="sorteo-table-stats">
-            <span>Progreso: <strong>${completedCount} / 30</strong> completados</span>
+      <!-- 2. TABLA EJECUTIVA DE 30 FILAS (Acordeón Exclusivo de Rebote) -->
+      <section class="sorteo-table-module">
+        <div class="table-module-header">
+          <div class="table-module-titles">
+            <h2 class="module-title">Ficha de Recomendaciones (30 Registros)</h2>
+            <div class="module-chips-row">
+              <span class="micro-badge">1 Registro = 1 Ticket Sorteo</span>
+              <span class="micro-badge">Clic en fila para desplegar</span>
+              <span class="micro-badge-success">${completedCount} Completados</span>
+            </div>
           </div>
         </div>
 
-        <div class="sorteo-table-container">
-          <div class="sorteo-rows-grid">
+        <!-- Tabla Estructurada de 30 Filas -->
+        <div class="sorteo-table-wrapper">
+          <div class="table-grid-header">
+            <div class="th-col col-idx">#</div>
+            <div class="th-col col-name">Nombre Completo</div>
+            <div class="th-col col-phone">Celular</div>
+            <div class="th-col col-dist">Distrito</div>
+            <div class="th-col col-ticket">Ticket</div>
+            <div class="th-col col-action">Acción</div>
+          </div>
+
+          <div class="table-grid-body">
             ${recs.map(row => {
               const isExpanded = expandedIdx === row.index;
-              const isCompleted = row.completed;
+              const isDone = row.completed;
               const rowNum = row.index < 10 ? `0${row.index}` : `${row.index}`;
 
               return `
                 <div 
-                  class="sorteo-row-card ${isExpanded ? 'is-expanded' : ''} ${isCompleted ? 'is-completed' : ''}" 
-                  id="sorteo-row-${row.index}"
+                  class="table-row-item ${isExpanded ? 'is-expanded' : ''} ${isDone ? 'is-done' : ''}" 
+                  id="sorteo-row-${row.index}" 
                   data-row-index="${row.index}"
                 >
-                  <!-- Header Clickable de la Fila -->
-                  <div class="sorteo-row-header" data-action="toggle-row" data-row-index="${row.index}">
-                    <div class="sorteo-row-num-badge">#${rowNum}</div>
-                    
-                    <div class="sorteo-row-info-summary">
-                      ${isCompleted ? `
-                        <div class="sorteo-contact-name">${escapeHtml(row.nombreCompleto)}</div>
-                        <div class="sorteo-contact-sub">
-                          <span class="sub-phone">📞 ${escapeHtml(row.celular)}</span>
-                          ${row.distrito ? `<span class="sub-dist">📍 ${escapeHtml(row.distrito)}</span>` : ''}
-                          ${row.observaciones ? `<span class="sub-obs">💬 ${escapeHtml(row.observaciones)}</span>` : ''}
-                        </div>
-                      ` : `
-                        <div class="sorteo-contact-empty">
-                          <span>Recomendación #${rowNum}</span>
-                          <span class="empty-hint">• Clic para registrar contacto</span>
-                        </div>
-                      `}
+                  <!-- Barra Resumen de la Fila -->
+                  <div class="row-summary-bar" data-action="toggle-row" data-row-index="${row.index}">
+                    <div class="td-col col-idx">
+                      <span class="row-num-pill">#${rowNum}</span>
                     </div>
 
-                    <div class="sorteo-row-actions-inline">
-                      <!-- Badge Gris de Cupón con x1 al completar -->
-                      ${isCompleted ? `
-                        <span class="sorteo-ticket-badge-pill" title="1 Ticket generado">
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"></path>
-                            <path d="M13 5v2"></path>
-                            <path d="M13 17v2"></path>
-                            <path d="M13 11v2"></path>
-                          </svg>
-                          <span class="sorteo-ticket-x1">x1</span>
-                        </span>
-                      ` : ''}
+                    <div class="td-col col-name">
+                      ${isDone ? `<strong class="td-name-text">${escapeHtml(row.nombreCompleto)}</strong>` : `<span class="td-empty-text">Sin registrar</span>`}
+                    </div>
 
-                      <!-- SVG de Lápiz para Editar -->
-                      <button 
-                        type="button" 
-                        class="btn-row-pencil" 
-                        data-action="toggle-row" 
-                        data-row-index="${row.index}" 
-                        title="${isCompleted ? 'Editar datos' : 'Registrar datos'}"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <div class="td-col col-phone">
+                      ${isDone ? `<span class="td-phone-text">${escapeHtml(row.celular)}</span>` : `<span class="td-dash">—</span>`}
+                    </div>
+
+                    <div class="td-col col-dist">
+                      ${isDone ? `<span class="td-dist-text">${escapeHtml(row.distrito || 'No especificado')}</span>` : `<span class="td-dash">—</span>`}
+                    </div>
+
+                    <div class="td-col col-ticket">
+                      ${isDone ? `
+                        <span class="coupon-badge" title="1 Ticket Confirmado">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+                            <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"></path>
+                            <path d="M13 5v2"></path><path d="M13 17v2"></path>
+                          </svg>
+                          <span class="coupon-x1">x1</span>
+                        </span>
+                      ` : `<span class="coupon-placeholder">x0</span>`}
+                    </div>
+
+                    <div class="td-col col-action">
+                      <button type="button" class="btn-table-pencil" data-action="toggle-row" data-row-index="${row.index}" title="Editar registro">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                           <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                         </svg>
                       </button>
                     </div>
                   </div>
 
-                  <!-- Cuerpo Desplegable (Animación de Rebote) -->
+                  <!-- Formulario Desplegable con Rebote -->
                   ${isExpanded ? `
-                    <div class="sorteo-row-accordion-body" id="accordion-body-${row.index}">
-                      <div class="sorteo-form-grid">
-                        <div class="sorteo-field-group">
-                          <label for="input-name-${row.index}">Nombre Completo *</label>
+                    <div class="row-form-collapse" id="accordion-body-${row.index}">
+                      <div class="form-inputs-layout">
+                        <div class="input-cell">
+                          <label>Nombre Completo *</label>
                           <input 
                             type="text" 
                             id="input-name-${row.index}" 
-                            class="sorteo-field-input" 
+                            class="table-field-input" 
                             placeholder="Ej. Rodrigo Santillán" 
                             value="${escapeHtml(row.nombreCompleto)}"
                             autocomplete="off"
                           />
                         </div>
 
-                        <div class="sorteo-field-group">
-                          <label for="input-phone-${row.index}">Número de Celular *</label>
+                        <div class="input-cell">
+                          <label>Número de Celular *</label>
                           <input 
                             type="tel" 
                             id="input-phone-${row.index}" 
-                            class="sorteo-field-input" 
+                            class="table-field-input" 
                             placeholder="Ej. 994 881 223" 
                             value="${escapeHtml(row.celular)}"
                             autocomplete="off"
                           />
                         </div>
 
-                        <div class="sorteo-field-group">
-                          <label for="input-dist-${row.index}">Distrito</label>
+                        <div class="input-cell">
+                          <label>Distrito</label>
                           <input 
                             type="text" 
                             id="input-dist-${row.index}" 
-                            class="sorteo-field-input" 
-                            placeholder="Ej. Surco, San Borja, La Molina..." 
+                            class="table-field-input" 
+                            placeholder="Ej. Surco, Miraflores..." 
                             value="${escapeHtml(row.distrito)}"
                             autocomplete="off"
                           />
                         </div>
 
-                        <div class="sorteo-field-group sorteo-field-full">
-                          <label for="input-obs-${row.index}">Observaciones</label>
+                        <div class="input-cell input-cell-full">
+                          <label>Observaciones (Hijos, colegio, perfil)</label>
                           <input 
                             type="text" 
                             id="input-obs-${row.index}" 
-                            class="sorteo-field-input" 
-                            placeholder="Ej. Amigos del colegio de Lucas, 2 hijos en primaria" 
+                            class="table-field-input" 
+                            placeholder="Ej. 2 hijos en primaria, amigos del colegio de Lucas" 
                             value="${escapeHtml(row.observaciones)}"
                             autocomplete="off"
                           />
                         </div>
                       </div>
 
-                      <div class="sorteo-form-actions">
-                        <button 
-                          type="button" 
-                          class="btn-sorteo-save" 
-                          data-action="save-row" 
-                          data-row-index="${row.index}"
-                        >
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                          </svg>
-                          <span>Guardar Recomendación (+1 Ticket)</span>
+                      <div class="form-actions-layout">
+                        <button type="button" class="btn-save-ticket" data-action="save-row" data-row-index="${row.index}">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                          <span>Guardar (+1 Ticket)</span>
                         </button>
-
-                        <button 
-                          type="button" 
-                          class="btn-sorteo-cancel" 
-                          data-action="cancel-row" 
-                          data-row-index="${row.index}"
-                        >
+                        <button type="button" class="btn-close-row" data-action="cancel-row" data-row-index="${row.index}">
                           Cerrar
                         </button>
                       </div>
@@ -2013,297 +2016,367 @@ function renderSorteoRegalosScreen() {
         </div>
       </section>
 
-      <!-- 3. Explicación Visual del Programa de Recomendaciones (Debajo de la Tabla) -->
-      <section class="sorteo-explanation-section">
-        <div class="sorteo-guide-banner">
-          <div class="guide-banner-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-          </div>
-          <div class="guide-banner-content">
-            <h3 class="guide-banner-title">¿Cómo Funciona el Programa de Recomendaciones?</h3>
-            <p class="guide-banner-text">
-              Este programa nace para conectar con familias afines que compartan los mismos valores: 
-              <strong>padres con hijos que se preocupan genuinamente por la salud integral, el enfoque cognitivo y el bienestar digital en el hogar</strong>. 
-              Al compartir su contacto, les permites descubrir una alternativa libre de algoritmos nocivos.
-            </p>
+      <!-- 3. DIAGRAMA VISUAL: CÓMO FUNCIONA EL PROGRAMA (Soporte de Explicación) -->
+      <section class="sorteo-diagram-module">
+        <div class="section-title-bar">
+          <span class="section-num-tag">01</span>
+          <div>
+            <h3 class="section-heading">Mecánica del Programa de Recomendaciones</h3>
+            <span class="section-sub-tag">Dinámica de 3 Pasos</span>
           </div>
         </div>
 
-        <div class="sorteo-whoto-title">
-          <h4>¿A quiénes puedes recomendar?</h4>
-          <span class="whoto-line"></span>
+        <!-- Diagrama de Flujo Visual -->
+        <div class="flow-diagram-container">
+          <div class="flow-step-node">
+            <div class="node-circle">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            </div>
+            <div class="node-body">
+              <div class="node-badge">PASO 1</div>
+              <h4 class="node-title">Familia Anfitriona</h4>
+              <div class="node-keys">
+                <span class="key-pill">Presentación en Casa</span>
+                <span class="key-pill">Enfoque Integral</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-arrow-node">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+
+          <div class="flow-step-node">
+            <div class="node-circle">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div class="node-body">
+              <div class="node-badge">PASO 2</div>
+              <h4 class="node-title">Familias Afines</h4>
+              <div class="node-keys">
+                <span class="key-pill">Padres con Hijos</span>
+                <span class="key-pill">Salud Mental & Pantallas</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-arrow-node">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+
+          <div class="flow-step-node node-highlight">
+            <div class="node-circle circle-gold">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div class="node-body">
+              <div class="node-badge badge-gold">PASO 3</div>
+              <h4 class="node-title">1 Contacto = 1 Ticket</h4>
+              <div class="node-keys">
+                <span class="key-pill">Sorteo 15 Dic</span>
+                <span class="key-pill">Hardware Oficial</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- 4 Viñetas Ilustrativas -->
-        <div class="sorteo-whoto-grid">
-          <div class="whoto-card">
-            <div class="whoto-icon-badge icon-school">
+        <!-- 4 Viñetas Geométricas "¿A quién recomendar?" -->
+        <div class="whoto-matrix-grid">
+          <div class="matrix-card">
+            <div class="matrix-icon-wrap icon-blue">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
             </div>
-            <h5>Amigos del Colegio</h5>
-            <p>Padres de compañeros de salón, comités escolares, grupos de tareas y comisiones de padres de familia.</p>
+            <div class="matrix-content">
+              <h5 class="matrix-title">Amigos del Colegio</h5>
+              <div class="matrix-keywords">
+                <span>Padres de aula</span> • <span>Comité escolar</span> • <span>Grupo de tareas</span>
+              </div>
+            </div>
           </div>
 
-          <div class="whoto-card">
-            <div class="whoto-icon-badge icon-family">
+          <div class="matrix-card">
+            <div class="matrix-icon-wrap icon-pink">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             </div>
-            <h5>Familiares Cercanos</h5>
-            <p>Hermanos, primos, cuñados y tíos que tienen hijos en edad preescolar, primaria o secundaria.</p>
+            <div class="matrix-content">
+              <h5 class="matrix-title">Familiares Cercanos</h5>
+              <div class="matrix-keywords">
+                <span>Hermanos</span> • <span>Primos</span> • <span>Tíos con hijos</span>
+              </div>
+            </div>
           </div>
 
-          <div class="whoto-card">
-            <div class="whoto-icon-badge icon-work">
+          <div class="matrix-card">
+            <div class="matrix-icon-wrap icon-green">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
             </div>
-            <h5>Compañeros de Trabajo</h5>
-            <p>Colegas profesionales que buscan optimizar el tiempo de estudio de sus hijos sin batallar con pantallas.</p>
+            <div class="matrix-content">
+              <h5 class="matrix-title">Amigos del Trabajo</h5>
+              <div class="matrix-keywords">
+                <span>Colegas de oficina</span> • <span>Socios</span> • <span>Padres profesionales</span>
+              </div>
+            </div>
           </div>
 
-          <div class="whoto-card">
-            <div class="whoto-icon-badge icon-club">
+          <div class="matrix-card">
+            <div class="matrix-icon-wrap icon-amber">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
             </div>
-            <h5>Vecinos y Amigos de Actividades</h5>
-            <p>Familias del condominio, academias deportivas, talleres artísticos o círculos sociales cercanos.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- 4. Sección del Sorteo Oficial Zentry -->
-      <section class="sorteo-event-section">
-        <div class="event-hero-banner">
-          <div class="event-hero-meta">
-            <span class="event-tag-pill">
-              <span class="pulse-indicator"></span> Sorteo Virtual Oficial
-            </span>
-            <div class="event-date-display">15 de Diciembre de 2026</div>
-            <p class="event-meta-desc">
-              Evento virtual en vivo al que todos los participantes podrán asistir de forma directa. La transmisión quedará 100% grabada para total transparencia.
-            </p>
-          </div>
-
-          <div class="event-status-ticket-box">
-            <span class="ticket-status-label">Tus Opciones para Ganar</span>
-            <div class="ticket-status-val">
-              <span>${completedCount}</span>
-              <small>Tickets Activos</small>
-            </div>
-            <span class="ticket-status-hint">Cada recomendación completada suma +1 ticket intransferible</span>
-          </div>
-        </div>
-
-        <h4 class="prizes-section-heading">Premios Oficiales a Sortear entre Todos los Participantes:</h4>
-        
-        <div class="prizes-grid">
-          <!-- Premio 1: Smart Band -->
-          <div class="prize-card">
-            <div class="prize-badge">Premio 01</div>
-            <div class="prize-img-wrap">
-              <img src="/assets/repertorio/prod_smartband.png" alt="Zentry Smart Band" class="prize-img" onerror="this.style.display='none'">
-            </div>
-            <h5 class="prize-name">Smart Band</h5>
-            <p class="prize-desc">Monitoreo discreto de actividad física, sueño y biorritmo infantil y juvenil.</p>
-            <div class="prize-val">Valor Comercial: ${formatMoney(350, 1190, currency)}</div>
-          </div>
-
-          <!-- Premio 2: Smart Ring -->
-          <div class="prize-card prize-card-featured">
-            <div class="prize-badge prize-badge-gold">Premio 02</div>
-            <div class="prize-img-wrap">
-              <img src="/assets/repertorio/prod_smartring.png" alt="Zentry Smart Ring" class="prize-img" onerror="this.style.display='none'">
-            </div>
-            <h5 class="prize-name">Smart Ring</h5>
-            <p class="prize-desc">Anillo biométrico de titanio médico para seguimiento continuo de temperatura y bienestar.</p>
-            <div class="prize-val">Valor Comercial: ${formatMoney(450, 1530, currency)}</div>
-          </div>
-
-          <!-- Premio 3: Smart Tab -->
-          <div class="prize-card">
-            <div class="prize-badge">Premio 03</div>
-            <div class="prize-img-wrap">
-              <img src="/assets/repertorio/prod_smarttab.png" alt="Zentry Smart Tab" class="prize-img" onerror="this.style.display='none'">
-            </div>
-            <h5 class="prize-name">Smart Tab</h5>
-            <p class="prize-desc">Pantalla central calibrada de fábrica con ZentryOS para foco escolar, creatividad y lectura.</p>
-            <div class="prize-val">Valor Comercial: ${formatMoney(1300, 4420, currency)}</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 5. Sección de Regalo / Beneficio Exclusivo por Compra el Día de Hoy -->
-      <section class="sorteo-gift-section">
-        <div class="gift-banner-card">
-          <div class="gift-top-header">
-            <div class="gift-tag-badge">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
-              Beneficio Exclusivo por Decisión de Compra Hoy
-            </div>
-            <h3 class="gift-main-title">5 Clases Magistrales de Inteligencia Artificial para Padres e Hijos</h3>
-            <p class="gift-lead-text">
-              Por confirmar tu set Zentry el día de la presentación, acceden de forma 100% gratuita al programa formativo integral de IA aplicada al hogar, la educación y el pensamiento crítico.
-            </p>
-          </div>
-
-          <!-- Cronograma 20 Dic a Marzo -->
-          <div class="gift-timeline-container">
-            <h5 class="timeline-heading">Cronograma Oficial (Diciembre 2026 - Marzo 2027):</h5>
-            <div class="gift-timeline-grid">
-              <div class="timeline-step-card">
-                <div class="step-period-badge">Diciembre (desde el 20 Dic)</div>
-                <div class="step-count">1 Clase Inaugural</div>
-                <h6 class="step-title">Fundamentos e IA en la Rutina Familiar</h6>
-                <p class="step-desc">Introducción práctica para padres e hijos: configuración segura de entornos de IA, prompts éticos y reglas del hogar digital.</p>
+            <div class="matrix-content">
+              <h5 class="matrix-title">Comunidad & Club</h5>
+              <div class="matrix-keywords">
+                <span>Vecinos condominio</span> • <span>Academias</span> • <span>Talleres deportivos</span>
               </div>
-
-              <div class="timeline-step-card">
-                <div class="step-period-badge">Enero 2027</div>
-                <div class="step-count">2 Clases Intensivas</div>
-                <h6 class="step-title">Técnicas de Estudio y Creación Asistida</h6>
-                <p class="step-desc">Cómo usar la IA como tutor socrático para matemáticas, comprensión lectora, idiomas y síntesis de apuntes escolares.</p>
-              </div>
-
-              <div class="timeline-step-card">
-                <div class="step-period-badge">Febrero 2027</div>
-                <div class="step-count">2 Clases Prácticas</div>
-                <h6 class="step-title">Automatización, Proyectos y Pensamiento Crítico</h6>
-                <p class="step-desc">Creación de pequeños asistentes familiares, validación de fuentes reales frente a alucinaciones de IA y seguridad de datos.</p>
-              </div>
-            </div>
-
-            <div class="timeline-footer-note">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-              <span>Modalidad: Sesiones virtuales interactivas en vivo. Si no pueden asistir, <strong>quedan grabadas permanentemente</strong> para consultar en familia cuantas veces deseen.</span>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- 6. Bloque Addons (Productos Complementarios) -->
-      <section class="sorteo-addons-section">
-        <div class="sorteo-section-header">
+      <!-- 4. DIAGRAMA VISUAL: EL GRAN SORTEO (15 Dic 2026) -->
+      <section class="sorteo-prizes-module">
+        <div class="section-title-bar">
+          <span class="section-num-tag">02</span>
           <div>
-            <h2 class="sorteo-section-title">Addons</h2>
-            <p class="sorteo-section-desc">
-              Módulos complementarios y programas de expansión para potenciar el ecosistema tecnológico de tu hogar.
-            </p>
+            <h3 class="section-heading">Gran Sorteo Anual: 15 de Diciembre de 2026</h3>
+            <span class="section-sub-tag">Evento Virtual en Vivo • Grabación Permanente • 3 Premios de Hardware</span>
           </div>
         </div>
 
-        <div class="addons-grid">
+        <div class="prizes-trio-grid">
+          <!-- Premio 1 -->
+          <div class="prize-spotlight-card">
+            <div class="spotlight-badge">Premio 01</div>
+            <div class="spotlight-img-box">
+              <img src="/assets/repertorio/prod_smartband.png" alt="Smart Band" class="spotlight-img" onerror="this.style.display='none'">
+            </div>
+            <h4 class="spotlight-title">Smart Band</h4>
+            <div class="spotlight-chips">
+              <span class="tag-chip">Biorritmo Infantil</span>
+              <span class="tag-chip">Monitoreo Sueño</span>
+            </div>
+            <div class="spotlight-price">${formatMoney(350, 1190, currency)}</div>
+          </div>
+
+          <!-- Premio 2 -->
+          <div class="prize-spotlight-card featured-gold">
+            <div class="spotlight-badge badge-gold">Premio 02</div>
+            <div class="spotlight-img-box">
+              <img src="/assets/repertorio/prod_smartring.png" alt="Smart Ring" class="spotlight-img" onerror="this.style.display='none'">
+            </div>
+            <h4 class="spotlight-title">Smart Ring</h4>
+            <div class="spotlight-chips">
+              <span class="tag-chip">Titanio Invisible</span>
+              <span class="tag-chip">Salud 24/7</span>
+            </div>
+            <div class="spotlight-price">${formatMoney(450, 1530, currency)}</div>
+          </div>
+
+          <!-- Premio 3 -->
+          <div class="prize-spotlight-card">
+            <div class="spotlight-badge">Premio 03</div>
+            <div class="spotlight-img-box">
+              <img src="/assets/repertorio/prod_smarttab.png" alt="Smart Tab" class="spotlight-img" onerror="this.style.display='none'">
+            </div>
+            <h4 class="spotlight-title">Smart Tab</h4>
+            <div class="spotlight-chips">
+              <span class="tag-chip">Pantalla ZentryOS</span>
+              <span class="tag-chip">Estudio & Foco</span>
+            </div>
+            <div class="spotlight-price">${formatMoney(1300, 4420, currency)}</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. TIMELINE VISUAL: REGALO POR COMPRA HOY (5 Clases de IA) -->
+      <section class="sorteo-gift-timeline-module">
+        <div class="section-title-bar">
+          <span class="section-num-tag">03</span>
+          <div>
+            <h3 class="section-heading">Regalo Exclusivo por Decisión de Compra Hoy</h3>
+            <span class="section-sub-tag">5 Clases Magistrales de IA (Padres e Hijos) • Diciembre a Marzo</span>
+          </div>
+        </div>
+
+        <div class="horizontal-timeline-roadmap">
+          <!-- Hito 1: Diciembre -->
+          <div class="roadmap-milestone">
+            <div class="milestone-dot">
+              <span>1</span>
+            </div>
+            <div class="milestone-card">
+              <span class="milestone-time">20 Dic</span>
+              <div class="milestone-badge">1 Clase</div>
+              <h5 class="milestone-title">Fundamentos e IA en Familia</h5>
+              <div class="milestone-tags">
+                <span class="tag-chip">Reglas del Hogar</span>
+                <span class="tag-chip">Prompts Seguros</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="roadmap-connector"></div>
+
+          <!-- Hito 2: Enero -->
+          <div class="roadmap-milestone">
+            <div class="milestone-dot">
+              <span>2</span>
+            </div>
+            <div class="milestone-card">
+              <span class="milestone-time">Enero 2027</span>
+              <div class="milestone-badge">2 Clases</div>
+              <h5 class="milestone-title">Tutor Socrático & Estudio</h5>
+              <div class="milestone-tags">
+                <span class="tag-chip">Técnicas de Estudio</span>
+                <span class="tag-chip">Creación Asistida</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="roadmap-connector"></div>
+
+          <!-- Hito 3: Febrero -->
+          <div class="roadmap-milestone">
+            <div class="milestone-dot">
+              <span>3</span>
+            </div>
+            <div class="milestone-card">
+              <span class="milestone-time">Febrero 2027</span>
+              <div class="milestone-badge">2 Clases</div>
+              <h5 class="milestone-title">Proyectos & Seguridad</h5>
+              <div class="milestone-tags">
+                <span class="tag-chip">Automatización</span>
+                <span class="tag-chip">Pensamiento Crítico</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="roadmap-summary-strip">
+          <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> 100% Virtuales en Vivo</div>
+          <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Grabación Vitalicia</div>
+          <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Padres + Hijos</div>
+        </div>
+      </section>
+
+      <!-- 6. ADDONS: PRODUCTOS EXPERIMENTALES (Visual Key Cards) -->
+      <section class="sorteo-addons-module">
+        <div class="section-title-bar">
+          <span class="section-num-tag">04</span>
+          <div>
+            <h3 class="section-heading">Addons</h3>
+            <span class="section-sub-tag">Módulos de Expansión para el Ecosistema Zentry</span>
+          </div>
+        </div>
+
+        <div class="addons-visual-grid">
           <!-- Addon 1: Z-TV -->
-          <div class="addon-card" id="addon-card-ztv">
-            <div class="addon-card-header">
-              <div class="addon-icon-badge">
+          <div class="addon-visual-card">
+            <div class="addon-card-top">
+              <div class="addon-icon-box">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
               </div>
-              <div class="addon-header-text">
-                <span class="addon-category-pill">Hardware & TV OS</span>
-                <h4 class="addon-name">Z-TV</h4>
+              <div>
+                <span class="addon-meta-tag">Televisión & Sala</span>
+                <h4 class="addon-title-bold">Z-TV</h4>
               </div>
-              <div class="addon-price-tag">
-                ${formatMoney(1145, 3893, currency)}
-              </div>
+              <div class="addon-price-badge">${formatMoney(1145, 3893, currency)}</div>
             </div>
 
-            <p class="addon-short-desc">
-              Implementación en televisión (Android TV o Smart TV) con herramientas de streaming sin anuncios, YouTube ad-free, música en alta fidelidad y control por comandos de voz parentales.
-            </p>
+            <div class="addon-keyword-cloud">
+              <span class="cloud-pill">YouTube Sin Anuncios</span>
+              <span class="cloud-pill">Streaming Protegido</span>
+              <span class="cloud-pill">Voz Parental</span>
+              <span class="cloud-pill">Audio Espacial</span>
+            </div>
 
-            <button type="button" class="btn-addon-expand" data-addon-id="ztv">
-              <span>Ver detalles de implementación</span>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <button type="button" class="btn-addon-toggle-sheet" data-addon-id="ztv">
+              <span>Detalles técnicos</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </button>
 
-            <div class="addon-detail-collapse" id="addon-detail-ztv" style="display: none;">
-              <ul class="addon-specs-list">
-                <li><strong>Cero Anuncios:</strong> Experiencia audiovisual limpia en YouTube y plataformas educativas para los hijos.</li>
-                <li><strong>Audio Espacial:</strong> Entorno acústico para rutinas de relajación matutina y descanso nocturno.</li>
-                <li><strong>Voz Parental:</strong> Comandos integrados para regular el tiempo en pantalla desde el Parental Dashboard.</li>
-                <li><strong>Valoración:</strong> Valorado en el mismo valor de software central de Zentry.</li>
+            <div class="addon-sheet-detail" id="addon-detail-ztv" style="display: none;">
+              <ul class="mini-bullets">
+                <li>Instalación en Android TV o Smart TV compatible</li>
+                <li>Zero distracciones ni anuncios invasivos</li>
+                <li>Mismo valor de implementación Zentry</li>
               </ul>
             </div>
           </div>
 
-          <!-- Addon 2: AI Club / Z-Campus -->
-          <div class="addon-card" id="addon-card-aiclub">
-            <div class="addon-card-header">
-              <div class="addon-icon-badge">
+          <!-- Addon 2: AI Club -->
+          <div class="addon-visual-card">
+            <div class="addon-card-top">
+              <div class="addon-icon-box">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
               </div>
-              <div class="addon-header-text">
-                <span class="addon-category-pill">Educación Avanzada 15+ & Universitarios</span>
-                <h4 class="addon-name">AI Club (Z-Campus)</h4>
+              <div>
+                <span class="addon-meta-tag">Jóvenes 15+ & Universitarios</span>
+                <h4 class="addon-title-bold">AI Club (Z-Campus)</h4>
               </div>
-              <div class="addon-price-tag">
-                Programa Exclusivo
-              </div>
+              <div class="addon-price-badge badge-exclusive">Verano 2027</div>
             </div>
 
-            <p class="addon-short-desc">
-              Programa de formación y créditos en Inteligencia Artificial para jóvenes mayores de 15 años y universitarios que buscan dominar herramientas generativas avanzadas.
-            </p>
+            <div class="addon-keyword-cloud">
+              <span class="cloud-pill">10 Clases Intensivas</span>
+              <span class="cloud-pill">Créditos de Cómputo IA</span>
+              <span class="cloud-pill">Proyectos Avanzados</span>
+              <span class="cloud-pill">Mentoría 1 a 1</span>
+            </div>
 
-            <button type="button" class="btn-addon-expand" data-addon-id="aiclub">
-              <span>Ver contenido del programa</span>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <button type="button" class="btn-addon-toggle-sheet" data-addon-id="aiclub">
+              <span>Detalles del programa</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </button>
 
-            <div class="addon-detail-collapse" id="addon-detail-aiclub" style="display: none;">
-              <ul class="addon-specs-list">
-                <li><strong>10 Clases de Verano:</strong> Formación intensiva práctica con proyectos aplicados de desarrollo y análisis.</li>
-                <li><strong>Bolsa de Créditos IA:</strong> Acceso a APIs y suites generativas de última generación para sus investigaciones.</li>
-                <li><strong>Mentoría Especializada:</strong> Orientación académica para destacar en la universidad y el futuro laboral.</li>
+            <div class="addon-sheet-detail" id="addon-detail-aiclub" style="display: none;">
+              <ul class="mini-bullets">
+                <li>Para hijos mayores de 15 años y universitarios</li>
+                <li>10 clases de verano con herramientas de vanguardia</li>
+                <li>Bolsa de créditos y APIs oficiales de IA</li>
               </ul>
             </div>
           </div>
 
           <!-- Addon 3: Z-Bot -->
-          <div class="addon-card" id="addon-card-zbot">
-            <div class="addon-card-header">
-              <div class="addon-icon-badge">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path><line x1="8" y1="16" x2="8" y2="16"></line><line x1="16" y1="16" x2="16" y2="16"></line></svg>
+          <div class="addon-visual-card">
+            <div class="addon-card-top">
+              <div class="addon-icon-box">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path></svg>
               </div>
-              <div class="addon-header-text">
-                <span class="addon-category-pill">Agente Ejecutivo Familiar</span>
-                <h4 class="addon-name">Z-Bot</h4>
+              <div>
+                <span class="addon-meta-tag">Asistencia Ejecutiva</span>
+                <h4 class="addon-title-bold">Z-Bot</h4>
               </div>
-              <div class="addon-price-tag">
-                Asistente Inteligente
-              </div>
+              <div class="addon-price-badge badge-bot">Tipo Grok</div>
             </div>
 
-            <p class="addon-short-desc">
-              Agente autónomo tipo Grok bot dedicado a padres de familia para integrarlo en la gestión, sincronización y organización de la rutina diaria familiar.
-            </p>
+            <div class="addon-keyword-cloud">
+              <span class="cloud-pill">Agente Autónomo</span>
+              <span class="cloud-pill">Gestión de Horarios</span>
+              <span class="cloud-pill">Supervisión Hábitos</span>
+              <span class="cloud-pill">Soporte Parental 24/7</span>
+            </div>
 
-            <button type="button" class="btn-addon-expand" data-addon-id="zbot">
-              <span>Ver capacidades de asistencia</span>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <button type="button" class="btn-addon-toggle-sheet" data-addon-id="zbot">
+              <span>Capacidades de asistencia</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </button>
 
-            <div class="addon-detail-collapse" id="addon-detail-zbot" style="display: none;">
-              <ul class="addon-specs-list">
-                <li><strong>Coordinación del Hogar:</strong> Planificación inteligente de horarios escolares, tareas y actividades extracurriculares.</li>
-                <li><strong>Supervisión Amigable:</strong> Reportes ejecutivos diarios sobre los avances y concentración de los hijos.</li>
-                <li><strong>Consejero Parental 24/7:</strong> Respuestas pedagógicas inmediatas ante dudas de límites y gestión digital.</li>
+            <div class="addon-sheet-detail" id="addon-detail-zbot" style="display: none;">
+              <ul class="mini-bullets">
+                <li>Bot inteligente integrado para padres de familia</li>
+                <li>Sincronización de agendas, exámenes y rutinas</li>
+                <li>Asistente en tiempo real para decisiones pedagógicas</li>
               </ul>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Toast Flotante de Notificación -->
+      <!-- Toast Flotante -->
       <div id="sorteo-toast-container" class="sorteo-toast-container"></div>
     </div>
   `;
 }
-
 
 function attachRepertorioEvents() {
   const root = document.getElementById('repertorio-app-root');
@@ -2503,7 +2576,7 @@ function attachRepertorioEvents() {
   });
 
   // ── SORTEO: Expandir / Colapsar Addons ────────────────────────────────────
-  root.querySelectorAll('.btn-addon-expand').forEach(btn => {
+  root.querySelectorAll('.btn-addon-expand, .btn-addon-toggle-sheet').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const addonId = btn.getAttribute('data-addon-id');
