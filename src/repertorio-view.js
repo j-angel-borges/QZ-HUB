@@ -578,20 +578,16 @@ export function calculateSetTotals(familyId, setKey, additionalChildren = repert
   });
 
   const implData = REPERTORIO_DATA.implementations[family.defaultImpl];
-  let implementationUSD = includeImpl ? implData.priceUSD : 0;
-  let implementationPEN = includeImpl ? implData.pricePEN : 0;
-
-  if (includeImpl && additionalChildren > 0) {
-    implementationUSD += additionalChildren * REPERTORIO_DATA.implementations.custom.priceUSDPerChild;
-    implementationPEN += additionalChildren * REPERTORIO_DATA.implementations.custom.pricePENPerChild;
-  }
+  // Los sets prearmados ya incluyen ZentryOS preinstalado sin costo adicional
+  let implementationUSD = 0;
+  let implementationPEN = 0;
 
   // Beneficios de regalo valorizados
   const benefitsValuePEN = REPERTORIO_DATA.benefits.reduce((acc, b) => acc + b.valuePEN, 0);
   const benefitsValueUSD = Math.round(benefitsValuePEN / REPERTORIO_DATA.exchangeRate);
 
-  const totalUSD = hardwareUSD + implementationUSD;
-  const totalPEN = hardwarePEN + implementationPEN;
+  const totalUSD = hardwareUSD;
+  const totalPEN = hardwarePEN;
 
   return {
     hardwareUSD,
@@ -1079,7 +1075,9 @@ function renderCustomBuilderScreen() {
 }
 
 /**
- * function renderProductCatalogGrid() {
+ * Grid de productos del catálogo a medida
+ */
+function renderProductCatalogGrid() {
   const filteredProducts = getProductsByCategory(repertorioState.customBuilderCategory);
 
   if (!filteredProducts || filteredProducts.length === 0) {
@@ -1480,13 +1478,6 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
         <div class="cost-summary-item">
           <span class="cost-label">Hardware Físico:</span>
           <span class="cost-value">${renderPriceBadge(`spread_${family.id}_${setKey}_hw`, totals.hardwareUSD, totals.hardwarePEN)}</span>
-        </div>
-        <div class="cost-summary-item highlight-item">
-          <div>
-            <span class="cost-label">${totals.implData.name}:</span>
-            <small class="cost-sublabel">${family.childrenCount} hijo(s) • ${totals.implData.devicesIncluded} disp.</small>
-          </div>
-          <span class="cost-value">+${renderPriceBadge(`spread_${family.id}_${setKey}_impl`, totals.implementationUSD, totals.implementationPEN)}</span>
         </div>
       </div>
 
