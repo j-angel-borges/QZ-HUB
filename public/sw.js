@@ -1,7 +1,7 @@
 // ==============================================================================
 // QZ-HUB SERVICE WORKER — v4.4.7 (SMARTBAND FABRIC WHITE 9.5 TEXTURE)
 // ==============================================================================
-const CACHE_NAME = 'qz-hub-v4.7.0-sorteo-regalos-prospecc';
+const CACHE_NAME = 'qz-hub-v4.7.1-sorteo-fixed';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

@@ -33,7 +33,7 @@ import {
   renderProtocolo30DiasFullPage,
   setupProtocoloEvents
 } from './protocolo-30dias.js';
-import { renderRepertorioView } from './repertorio-view.js';
+import { renderRepertorioView, repertorioState } from './repertorio-view.js';
 import {
   renderKeepNotesHTML,
   setupKeepNotesEvents,
@@ -3388,6 +3388,16 @@ const renderers = {
 
   // 6.3. Repertorio View (Catálogo Magazine & Presentación de Oferta)
   repertorio: () => {
+    renderRepertorioView();
+  },
+
+  // 6.4. Sorteo y Regalos View
+  'sorteo-regalos': () => {
+    repertorioState.viewMode = 'sorteo-regalos';
+    renderRepertorioView();
+  },
+  sorteo: () => {
+    repertorioState.viewMode = 'sorteo-regalos';
     renderRepertorioView();
   },
 

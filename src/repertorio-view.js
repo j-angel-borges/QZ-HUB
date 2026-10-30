@@ -1767,6 +1767,20 @@ function copyQuoteToWhatsApp(totals) {
  * PANTALLA: SORTEO Y REGALOS / PROGRAMA DE RECOMENDACIONES & ADDONS
  * Vinculación directa con Zentry Prospecc CRM (zentryos)
  */
+
+/**
+ * Sanitiza texto contra XSS en templates HTML
+ */
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function renderSorteoRegalosScreen() {
   const ficha = repertorioState.sorteoActiveFicha || 'Familia Presentación';
   const recs = repertorioState.sorteoRecommendations || [];
@@ -2378,6 +2392,134 @@ function attachRepertorioEvents() {
     repertorioState.viewMode = 'family-picker';
     renderRepertorioView();
   });
+
+  
+  // ── BREADCRUMB: Sorteo y Regalos ──────────────────────────────────────────
+  document.getElementById('crumb-link-sorteo')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    repertorioState.viewMode = 'sorteo-regalos';
+    renderRepertorioView();
+  });
+
+  // ── SORTEO: Sincronizar Ficha CRM ─────────────────────────────────────────
+  document.getElementById('btn-sync-ficha-crm')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('input-sorteo-ficha');
+    if (!input) return;
+    const val = input.value.trim();
+    if (!val) return;
+    repertorioState.sorteoActiveFicha = val;
+    setActiveFicha(val);
+    repertorioState.sorteoRecommendations = loadFichaRecommendations(val);
+    showSorteoToast(`Sincronizando hoja "${val}" con Zentry Prospecc CRM...`);
+    await syncFichaToCrmTabs(val);
+    showSorteoToast(`Hoja "${val}" vinculada correctamente al CRM.`);
+    renderRepertorioView();
+  });
+
+  // ── SORTEO: Input de Ficha enter key ──────────────────────────────────────
+  document.getElementById('input-sorteo-ficha')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('btn-sync-ficha-crm')?.click();
+    }
+  });
+
+  // ── SORTEO: Toggle / Acordeón Exclusivo de Filas (Rebote) ─────────────────
+  root.querySelectorAll('[data-action="toggle-row"]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const rowIdx = parseInt(el.getAttribute('data-row-index'), 10);
+      if (isNaN(rowIdx)) return;
+      repertorioState.sorteoExpandedRow = (repertorioState.sorteoExpandedRow === rowIdx) ? null : rowIdx;
+      renderRepertorioView();
+    });
+  });
+
+  // ── SORTEO: Cancelar / Cerrar Fila Expandida ──────────────────────────────
+  root.querySelectorAll('[data-action="cancel-row"]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      repertorioState.sorteoExpandedRow = null;
+      renderRepertorioView();
+    });
+  });
+
+  // ── SORTEO: Guardar Recomendación (+1 Ticket) ─────────────────────────────
+  root.querySelectorAll('[data-action="save-row"]').forEach(el => {
+    el.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const rowIdx = parseInt(el.getAttribute('data-row-index'), 10);
+      if (isNaN(rowIdx)) return;
+
+      const nameIn = document.getElementById(`input-name-${rowIdx}`);
+      const phoneIn = document.getElementById(`input-phone-${rowIdx}`);
+      const distIn = document.getElementById(`input-dist-${rowIdx}`);
+      const obsIn = document.getElementById(`input-obs-${rowIdx}`);
+
+      const name = (nameIn?.value || '').trim();
+      const phone = (phoneIn?.value || '').trim();
+      const dist = (distIn?.value || '').trim();
+      const obs = (obsIn?.value || '').trim();
+
+      if (!name || !phone) {
+        alert('Por favor ingresa al menos el Nombre Completo y el Número de Celular.');
+        return;
+      }
+
+      const recs = repertorioState.sorteoRecommendations || [];
+      const recIdx = recs.findIndex(r => r.index === rowIdx);
+      if (recIdx !== -1) {
+        const updated = {
+          ...recs[recIdx],
+          nombreCompleto: name,
+          celular: phone,
+          distrito: dist,
+          observaciones: obs,
+          completed: true,
+          savedAt: new Date().toISOString()
+        };
+        recs[recIdx] = updated;
+        repertorioState.sorteoRecommendations = recs;
+
+        // Guardado local inmediato
+        saveFichaRecommendationsLocal(repertorioState.sorteoActiveFicha, recs);
+
+        // Guardado asíncrono en CRM Zentry Prospecc
+        saveLeadToCrmProspecc(repertorioState.sorteoActiveFicha, updated).then(leadId => {
+          updated.leadDocId = leadId;
+          saveFichaRecommendationsLocal(repertorioState.sorteoActiveFicha, recs);
+        }).catch(err => console.warn('Error guardando en Prospecc CRM:', err));
+
+        // Cerrar acordeón y re-renderizar
+        repertorioState.sorteoExpandedRow = null;
+        renderRepertorioView();
+
+        // Disparar animación de confeti en la fila recién completada
+        triggerRowConfetti(rowIdx);
+        showSorteoToast(`¡Recomendación guardada! Cupón x1 sumado al sorteo.`);
+      }
+    });
+  });
+
+  // ── SORTEO: Expandir / Colapsar Addons ────────────────────────────────────
+  root.querySelectorAll('.btn-addon-expand').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const addonId = btn.getAttribute('data-addon-id');
+      const detail = document.getElementById(`addon-detail-${addonId}`);
+      if (detail) {
+        const isHidden = detail.style.display === 'none';
+        detail.style.display = isHidden ? 'block' : 'none';
+        btn.classList.toggle('is-open', isHidden);
+        const span = btn.querySelector('span');
+        if (span) {
+          span.textContent = isHidden ? 'Ocultar detalles' : 'Ver detalles';
+        }
+      }
+    });
+  });
+
 
   // Breadcrumb: Navegación a Slides [SUFIJO]
   document.getElementById('crumb-link-slides')?.addEventListener('click', () => {
