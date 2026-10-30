@@ -10146,27 +10146,27 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   padding-bottom: 60px !important;
 }
 
-/* Header superior: Cápsula Flotante Glassmorphic (Floating Glass Island) */
+/* Header superior: Cápsula Flotante Glassmorphic Centrada */
 .repertorio-header-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 16px;
   min-height: 52px;
-  padding: 8px 20px !important;
-  /* Margen izquierdo amplio (64px) para esquivar completamente el botón desplegable */
-  margin: 10px 16px 14px 64px !important;
-  width: calc(100% - 80px) !important;
-  max-width: 1560px;
-  /* Cápsula flotante redondeada en sus 4 esquinas */
-  border-radius: 14px !important;
-  background: rgba(255, 255, 255, 0.78) !important;
+  padding: 8px 24px !important;
+  /* Alineación centrada simétrica ocupando el área de contenido */
+  margin: 12px auto 16px auto !important;
+  width: 90% !important;
+  max-width: 1420px !important;
+  /* Cápsula flotante redondeada */
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.85) !important;
   backdrop-filter: blur(20px) saturate(190%) !important;
   -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
-  border: 1px solid rgba(226, 232, 240, 0.8) !important;
-  box-shadow: 
-    0 8px 32px -4px rgba(15, 23, 42, 0.08),
+  border: 1px solid rgba(226, 232, 240, 0.85) !important;
+  box-shadow:
+    0 8px 32px -4px rgba(15, 23, 42, 0.06),
     0 2px 6px rgba(15, 23, 42, 0.03),
     inset 0 1px 0 rgba(255, 255, 255, 0.95),
     inset 0 -1px 0 rgba(255, 255, 255, 0.5) !important;
@@ -10177,17 +10177,18 @@ body[data-module="zentry"] .cal-day-cell.is-selected {
   transition: all 0.25s ease;
 }
 
-/* Cuando el sidebar está colapsado o expandido se mantiene como isla flotante contenida */
+/* Mantiene el centrado perfecto con sidebar colapsado o expandido */
 .notion-layout.sidebar-collapsed .repertorio-header-bar {
-  margin: 10px 16px 14px 64px !important;
-  width: calc(100% - 80px) !important;
+  margin: 12px auto 16px auto !important;
+  width: 90% !important;
+  max-width: 1420px !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
   .repertorio-header-bar {
-    margin: 8px 10px 12px 52px !important;
-    width: calc(100% - 62px) !important;
-    padding: 8px 14px !important;
+    width: calc(100% - 32px) !important;
+    margin: 10px auto 14px auto !important;
+    padding: 8px 16px !important;
   }
 }
 

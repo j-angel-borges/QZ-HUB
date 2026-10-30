@@ -815,11 +815,6 @@ function renderTopNavBar() {
             PEN (S/)
           </button>
         </div>
-
-        <!-- Botón Resumen de Oferta / Cotizador -->
-        <button type="button" class="btn btn-primary btn-quote-action" id="btn-open-quote-modal">
-          + Cotización de Oferta
-        </button>
       </div>
     </header>
   `;
@@ -1503,14 +1498,6 @@ function renderSpreadSet(family, setKey, pageLeftNum, pageRightNum) {
         <div class="total-price-large">
           <span class="price-big-number">${renderPriceBadge(`spread_${family.id}_${setKey}_total`, totals.totalUSD, totals.totalPEN)}</span>
         </div>
-      </div>
-
-      <!-- Acciones Inferiores Pinned (Botón Set Seleccionado eliminado, Copiar Propuesta con efecto 3D) -->
-      <div class="set-actions-toolbar">
-        <button type="button" class="btn btn-share-quote" data-set-key="${setKey}">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-          <span>Copiar Propuesta</span>
-        </button>
       </div>
     </div>
   `;
